@@ -137,3 +137,8 @@ Final verification on 2026-09-24:
 - Final Visual audit: 0 issues.
 
 The frozen UI is ready for backend architecture, API, event and permission mapping. Backend implementation and TOR acceptance remain separate work.
+
+
+## 10. Repository cleanup policy
+
+After the 1.11.0 freeze, superseded QA screenshot folders and the disconnected legacy prototype were removed from the repository. `qa-final-visual/` is the retained screenshot baseline. Regression scripts remain source-controlled and may regenerate temporary QA output folders locally when needed.

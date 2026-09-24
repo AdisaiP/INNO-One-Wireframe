@@ -292,11 +292,11 @@ File:
 - sidebar active = 1
 - UI contract = 1.11.0
 
-QA folders ที่มี screenshot:
+Historical QA screenshot folders were removed after the final freeze.
 
-- `qa-architecture-refactor/`
-- `qa-state-illustrations/`
-- `qa-surface-boundary/`
+Current canonical visual baseline:
+
+- `qa-final-visual/`
 
 ---
 
@@ -338,7 +338,7 @@ QA folders ที่มี screenshot:
 - Disabled navigation placeholder รวม 93 จุดใน 64 หน้า และแสดง Coming Soon ชัดเจน
 - Design System audit = 0 issues
 - Inline JS syntax errors = 0 จาก 53 inline scripts
-- Visual smoke QA = 5 representative routes × 1366/768 = 10 screenshots ใน `qa-navigation-cleanup/`
+- Visual smoke QA = 5 representative routes × 1366/768 = 10 screenshots ใน `qa-final-visual/` (historical run screenshots removed after freeze)
 - Representative nav metrics: Rail active = 1, Sidebar active = 1, raw placeholder = 0
 
 ---
@@ -438,7 +438,7 @@ Standardize:
 - Shared/inline JavaScript syntax QA = 0 errors
 - Browser smoke QA 8 representative routes × 1366/768 = 16 screenshots; page overflow = false และ Rail/Sidebar active ถูกต้อง
 - Final visual correction ของ routed Subnav ตรวจเพิ่มที่ 1366/768 และผ่าน
-- QA screenshots อยู่ที่ `qa-component-consistency/`
+- QA screenshots อยู่ที่ `qa-final-visual/` (historical run screenshots removed after freeze)
 
 ยังไม่ทำ Backend และยังไม่เปลี่ยน frozen component API / route architecture
 
@@ -495,7 +495,7 @@ Standardize:
 - Density / Spacing / Typography audit = 0 issues
 - Browser smoke QA 8 representative routes × 1366/768 = 16 screenshots; page overflow = false และ Rail/Sidebar active ถูกต้อง
 - Wide-screen QA ที่ 1920px ยืนยัน contentWidth = 1520px / contentMax = 1520px และไม่มี page overflow ใน Workspace, Fleet Overview และ Remote Session
-- QA screenshots รวม 26 ภาพ อยู่ที่ `qa-density-spacing/`
+- QA screenshots รวม 26 ภาพ อยู่ที่ `qa-final-visual/` (historical run screenshots removed after freeze)
 
 ยังไม่ทำ Backend และยังไม่เปลี่ยน frozen component API / route architecture
 
@@ -549,7 +549,7 @@ Behavior ที่ใช้เป็น baseline:
 - Functional browser QA = 33 checks / 0 failures
 - Functional interaction screenshots = 13 ภาพ
 - Layout regression = 8 representative routes × 1366/768 = 16 screenshots; page overflow = false และ Rail/Sidebar active ถูกต้อง
-- QA screenshots รอบนี้รวม 29 ภาพ อยู่ที่ `qa-interactions/`
+- QA screenshots รอบนี้รวม 29 ภาพ อยู่ที่ `qa-final-visual/` (historical run screenshots removed after freeze)
 
 ยังไม่ทำ Backend และยังไม่เปลี่ยน frozen component API / route architecture
 
@@ -603,7 +603,7 @@ Endpoint Agent และ Mobile ทดสอบแยกตาม Surface
 - Interaction Consistency audit = 0 issues
 - Responsive Pass audit = 0 issues
 - Responsive browser behavior QA = 43 checks / 0 failures
-- Responsive visual screenshots = 33 ภาพ อยู่ที่ `qa-responsive/`
+- Responsive visual screenshots = 33 ภาพ อยู่ที่ `qa-final-visual/` (historical run screenshots removed after freeze)
 
 ยังไม่ทำ Backend และยังไม่เปลี่ยน frozen component API / route architecture
 
@@ -691,3 +691,11 @@ UI Prototype ถือว่าพร้อมต่อ Backend เมื่อ:
 - Final visual regression ผ่าน
 - Design System baseline ถูก Freeze ใหม่
 
+
+
+## Project cleanup — 2026-09-24
+
+- Removed the legacy pre-Design-System prototype (`index.html`, old Devices/Users/Admin-era pages, `app.js`, `styles.css`) because it was isolated from the canonical route graph.
+- Removed superseded historical QA screenshot folders; `qa-final-visual/` is the only frozen screenshot baseline kept in Git.
+- Removed duplicate downloaded illustration SVG files that had no references.
+- QA scripts are retained because they regenerate their output folders when regression testing is required.
