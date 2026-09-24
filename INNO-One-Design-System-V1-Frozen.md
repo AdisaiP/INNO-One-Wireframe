@@ -1,0 +1,319 @@
+# INNO.One Design System — Frozen UI Contract
+
+**UI Contract:** 1.11.0  
+**Documentation:** Design System V1.17  
+**Status:** Frozen  
+**Frozen:** 2026-09-24
+
+> This document is the implementation handoff for the current INNO.One prototype. New modules should reuse these contracts instead of introducing parallel UI patterns.
+
+## 1. Source of truth
+
+The frozen UI contract is represented by:
+
+- `design-system.html` — visual reference and usage rules
+- `inno-design-system.css` — prototype tokens and component styling
+- `inno-design-contract.js` — machine-readable component contract
+- `inno-interactions.js` — menus, filters, columns, confirmation, toast, tabs
+- `inno-states.js` — loading, empty, error, permission, offline and partial states
+- `inno-responsive.js` — shell breakpoints, sidebar and dense-content behavior
+- `inno-navigation.js` — Rail, contextual sidebar, breadcrumb and deep-link rules
+- `inno-icons.js` — semantic icon vocabulary and Lucide mapping
+- `INNO-One-Surface-Boundaries.md` — Web / Agent / Mobile ownership rules
+- `INNO-One-Special-UI-Components.md` — hierarchy, workflow, tree and sequence component decisions
+- `INNO-One-UI-Prototype-Summary.md` — implementation/handoff summary
+- `INNO-One-Screen-Architecture-Refactor-Plan.md` — canonical screen patterns and mixed-purpose page refactor plan
+- `INNO-One-Final-Visual-QA-Baseline.md` — frozen route/state screenshot baseline and final visual regression contract
+
+The HTML prototype is not a backend implementation. It defines expected UI structure and behavior.
+
+## 2. Foundations
+
+| Token | Frozen value |
+| --- | --- |
+| Primary | `#275FD7` |
+| Text | `#172033` |
+| Canvas | `#F7F8FA` |
+| Success | `#16794B` |
+| Warning | `#A56812` |
+| Danger | `#BB3847` |
+| Control height | `36px` |
+| Table row | `48px` |
+| Control radius | `8px` |
+| Card radius | `12px` |
+| Dialog radius | `14px` |
+| Spacing scale | `4 / 8 / 12 / 16 / 24 / 32` |
+
+UI should use border and surface separation first; strong shadows are reserved for overlays.
+
+## 3. Platform shell
+
+The platform shell owns:
+
+- INNO.One brand
+- Global Search / Command Palette
+- Notifications
+- User profile
+- Global app Rail
+- App registry visibility / RBAC integration
+
+Each app owns its own contextual sidebar.
+
+Desktop contextual navigation is inline and collapsible. At compact/tablet widths it becomes off-canvas. A contextual navigation control must not be placed in the global header.
+
+## 4. Component contracts
+
+| INNO.One component | React implementation | Frozen behavior |
+| --- | --- | --- |
+| `INNOButton` | shadcn/ui Button | primary, secondary, ghost, danger, icon |
+| `INNOIcon` | Lucide | semantic token mapping; no raw FA dependency in React |
+| `INNODataTable` | TanStack Table | search, filter, columns, bulk selection, pagination, overflow |
+| `INNOForm` | React Hook Form + Zod | visible labels, local validation, preserved input on recoverable error |
+| `INNOTabs` | shadcn/ui Tabs | mouse + Arrow keys + Home/End; horizontal overflow |
+| `INNODialog` | shadcn/ui Dialog | focus trap, Esc close, trigger focus restore |
+| `INNOSheet` | shadcn/ui Sheet | contextual edit/filter flow; full-width on narrow screens |
+| `INNODropdownMenu` | shadcn/ui DropdownMenu | 2–6 secondary actions tied to one resource |
+| `INNOCommand` | shadcn/ui Command | global search / command palette; Cmd/Ctrl+K |
+| `INNOToast` | Sonner via shadcn/ui | success, warning, error, information |
+| `INNOState` | INNO.One composition | loading, empty, no results, error, permission, offline, disabled, partial |
+| `INNOChart` | Apache ECharts | monitoring, inventory, SLA and reports |
+| `INNOStepper` | INNO.One native | fixed ordered process |
+| `INNOTimeline` | INNO.One native | chronological event history |
+| `INNOStatusStepper` | INNO.One native | lifecycle/status progression |
+| `INNOTree` | React Arborist wrapper | nested hierarchy without data columns |
+| `INNOTreeGrid` | TanStack Table | expandable hierarchy with columns |
+| `INNOOrgChart` | d3-org-chart wrapper | reporting-line / org hierarchy |
+| `INNOWorkflowCanvas` | React Flow + ELK.js | editable branching workflow |
+| `INNOBpmnDesigner` | bpmn-js | BPMN 2.0 only when explicitly required |
+| `INNOAgentEndpointForm` | INNO.One Agent surface | endpoint Request Help / ownership confirmation |
+| `INNOMobileScanner` | Expo/Android Camera | Android QR scan and asset lookup |
+| `WorkflowCanvas` | Alias of INNOWorkflowCanvas | deprecated prototype name |
+
+## 5. Action hierarchy
+
+Use one primary action per action area.
+
+- **Primary** — main next action
+- **Secondary** — normal alternate action
+- **Ghost** — low emphasis
+- **Danger** — destructive action; requires explicit confirmation where impact is meaningful
+- **Context Menu** — low-frequency secondary actions, never the only discoverable primary action
+
+## 6. Forms
+
+- Keep labels visible; do not use placeholders as the only label.
+- Show validation near the owning field.
+- Preserve entered values when a recoverable request fails.
+- Two-column forms collapse to one column on narrow screens.
+- Large multi-section creation flows use a page.
+- Contextual forms of roughly 3–8 fields use a Sheet/Drawer.
+
+## 7. Data tables
+
+Every dense operational table follows the same pattern:
+
+1. Search
+2. Simple filters or Filter Sheet
+3. Column selector
+4. Bulk actions after selection
+5. Table
+6. Pagination
+
+Tables with many columns preserve readable minimum widths and scroll inside the table container. The page itself must not horizontally overflow.
+
+## 8. Feedback and states
+
+Every async/data surface must define the relevant states before implementation is complete:
+
+- Loading
+- Empty
+- No Results
+- Error
+- No Permission
+- Offline
+- Disabled Module
+- Saving
+- Saved
+- Partial Failure
+
+Rules:
+
+- No Permission is not Error.
+- Disabled Module is not No Permission.
+- Offline should keep cached/read-only content visible where possible.
+- Partial failure must show succeeded and failed counts and retry only failed items when supported.
+- Skeletons are preferred when final layout is known.
+
+## 9. Navigation
+
+Navigation hierarchy:
+
+```text
+Global Header
+Global Rail
+  └─ App
+     └─ Context Sidebar
+        └─ Page / Resource
+           └─ Breadcrumb + logical Back (detail/nested pages)
+```
+
+Rules:
+
+- Exactly one global Rail app is active.
+- Exactly one contextual section is active where the page belongs to a sidebar section.
+- Detail pages inherit their logical parent section.
+- Deep links must update both Rail and contextual active state.
+- Silent `href="#"` navigation is not allowed; unavailable items use disabled / Coming Soon feedback.
+
+## 10. Icons
+
+React uses Lucide through semantic icon tokens.
+
+Examples:
+
+| Token | Lucide |
+| --- | --- |
+| `nav.workspace` | House |
+| `nav.apps` | Grid2X2 |
+| `nav.devices` | Monitor |
+| `nav.assets` | Package |
+| `nav.reports` | ChartColumn |
+| `nav.helpdesk` | Headphones |
+| `nav.meeting` | Mic |
+| `nav.admin` | Settings |
+| `action.filter` | ListFilter |
+| `action.columns` | Columns3 |
+| `action.save` | Save |
+| `action.export` | Download |
+| `action.more` | Ellipsis |
+| `action.delete` | Trash2 |
+
+Brand icons are only for actual brands. Decorative icons are aria-hidden. Icon-only controls require an accessible label.
+
+## 11. Responsive contract
+
+| Range | Shell behavior |
+| --- | --- |
+| ≥1600 | Wide, Rail 72px, Sidebar 248px |
+| 1367–1599 | Desktop, Rail 64px, Sidebar 232px |
+| 1181–1366 | Compact, Rail 60px, Sidebar 216px, collapsible |
+| 851–1180 | Context sidebar off-canvas |
+| ≤850 | Narrow shell, stacked forms/layouts, table overflow |
+| ≤680 | Compact search, full-width drawers, highly compact header |
+
+## 12. Change policy after freeze
+
+Use semantic versioning for the UI contract:
+
+- **Patch** — visual correction with no component API or behavior change.
+- **Minor** — additive component/state/token that remains backward compatible.
+- **Major** — breaking navigation, component API, interaction behavior or semantic-token change.
+
+After this freeze, feature teams should not create new parallel button, dialog, table, navigation, state, icon or responsive patterns without first updating the central Design System contract.
+
+## 13. Definition of UI-complete for a new module
+
+A new module is UI-complete only when it:
+
+- uses the Platform Shell and semantic icon tokens
+- has correct Rail and contextual navigation active states
+- defines loading/empty/error/permission states
+- supports keyboard behavior for interactive primitives
+- passes responsive behavior at 1920 / 1440 / 1366 / 1024 / 768
+- avoids page-level horizontal overflow
+- uses the standard action hierarchy and destructive confirmation
+- exposes meaningful labels for icon-only controls
+- does not introduce a duplicate component pattern
+
+## 14. Patch 1.0.1 — Final visual QA
+
+- Fixed narrow toolbar wrapping so action controls never push the page wider than the viewport.
+- Tightened collapsed-shell header spacing while preserving the INNO.One wordmark.
+- Revalidated all 36 modern pages at 1920, 1440, 1366, 1024 and 768 widths.
+- No component API, semantic token, navigation contract or backend behavior changed.
+
+## 15. Minor 1.1.0 — Agent Maintenance
+
+- Added the Agent Maintenance product screen using existing frozen components.
+- Added semantic icon token section.maintenance mapped to Lucide RefreshCw.
+- Added Devices navigation route for Agent Maintenance.
+- No existing component API or interaction behavior was broken.
+
+## 16. Minor 1.2.0 — Scoped Access
+
+- Added Access Scopes UI for organization, location and device-group boundaries.
+- Added semantic token section.accessScopes mapped to Lucide ScanSearch.
+- Added devices.scope.manage to the prototype permission contract.
+- Resource-scoped Remote access is now represented explicitly.
+
+## 17. Minor 1.3.0 — Remote Consent
+
+- Added Remote Consent policy UI for user approval before remote control.
+- Added centralized editable consent-message preview and bypass rules.
+- Added semantic token section.remoteConsent mapped to Lucide Hand.
+- Added devices.remote.consent.manage and consent lifecycle events to the prototype contract.
+
+## 18. Minor 1.4.0 — Remote Session Collaboration
+
+- Added active Remote Session workspace with screen, mouse and keyboard control states.
+- Added administrator session chat, participants and file-transfer UI.
+- Added devices.remote.collaborate permission and remote collaboration lifecycle events.
+- Added semantic action tokens for remote control, keyboard, clipboard, fullscreen, chat and file transfer.
+
+## 19. Minor 1.5.0 — Alerts & Notifications
+
+- Added central Alerts & Notifications UI for offline anomaly and inventory-change monitoring.
+- Added Console, Sound and Email notification-channel configuration.
+- Added devices.alert.view / devices.alert.manage permissions and alert lifecycle events.
+- Existing navigation and component APIs remain backward compatible.
+
+## 20. Minor 1.6.0 — Mobile Asset Scanner
+
+- Added INNOMobileScanner contract for Android/Expo camera flows.
+- Added QR scan, asset result, history and invalid-token mobile states.
+- Added assets.qr.scan permission and asset.qr.generated / asset.qr.scanned prototype events.
+- Printed QR remains an opaque token; inventory is loaded only after authenticated lookup.
+
+## 21. Minor 1.7.0 — Helpdesk Email Notifications
+
+- Added INNOEmailNotificationRule for automatic ticket-status email configuration.
+- Added requester/assignee/watchers/team-lead recipients, templates, preview and delivery health UI.
+- Added helpdesk.notifications.view / helpdesk.notifications.manage permissions and email lifecycle events.
+- Ticket Activity now represents automatic delivery results.
+
+## 22. Minor 1.8.0 — Surface Boundary + Special UI Contracts
+
+- Explicitly separated Web Portal, Endpoint Agent and Android Mobile surfaces.
+- Removed Agent/Mobile client screens from Web Portal navigation ownership.
+- Added INNOAgentEndpointForm and surface contracts.
+- Added canonical special components: INNOStepper, INNOTimeline, INNOStatusStepper, INNOTree, INNOTreeGrid, INNOOrgChart, INNOWorkflowCanvas and conditional INNOBpmnDesigner.
+- Added `INNO-One-Surface-Boundaries.md`, `INNO-One-Special-UI-Components.md` and `INNO-One-UI-Prototype-Summary.md` as handoff references.
+
+## 23. Minor 1.9.0 — Illustration System
+
+- Added `INNOIllustration`, `INNOWelcomeHero` and illustrated empty-state conventions.
+- Added a local SVG illustration library under `illustrations/` so product screens do not depend on remote image loading.
+- Applied the first visual-direction pass to Workspace Home, App Launcher, Meeting, Knowledge Base, Asset Overview and Agent Deployment.
+- Decorative illustration is explicitly excluded from dense operational screens such as Remote Session, Device Detail, Ticket Detail, permissions and workflow canvases.
+- Illustration provenance and usage rules are recorded in `illustrations/README.md`.
+- State illustration variants were added for no-results, empty attachments, healthy/success and caught-up notification states.
+
+## 24. Minor 1.10.0 — Screen Architecture Patterns
+
+- Added P01–P10 canonical screen patterns.
+- Added the rule: one screen has one primary job.
+- Split mixed-purpose pages into focused list, editor, settings, monitor, history and wizard routes.
+- Refactored Helpdesk Notifications, Helpdesk Configuration, Device Alerts, Deployment Jobs, Agent Maintenance, Remote Consent, Access Scopes and Asset Ownership.
+- Refactored Inventory Query into a Builder-centric layout.
+- Added `INNO-One-Screen-Architecture-Refactor-Plan.md` as the production UX refactor reference.
+
+
+## 25. Minor 1.11.0 — Production UI Consistency & Final Visual Baseline
+
+- Standardized Page Header, buttons, forms, tables, tabs/subnav, sticky editor actions and dialog/drawer semantics across the modern prototype.
+- Added shared dirty tracking, Saving/Saved/Error states, validation, unsaved-change confirmation, filter persistence/reset, bulk selection and recoverable partial-failure retry behavior.
+- Normalized content density, Thai/English typography fallback, spacing scale and metadata legibility while preserving dense operational layouts.
+- Completed responsive behavior for 1366 / 1024 / 768 Web Portal viewports and separate Endpoint Agent / Android Mobile surface widths.
+- Removed or deactivated remaining dead controls found during final QA; master-detail selectors now update their detail surface in representative configuration/builder screens.
+- Frozen 74 Web Portal routes + Design System + 2 Endpoint Agent + 1 Android Mobile route screenshots, plus 12 important UI states.
+- Added `INNO-One-Final-Visual-QA-Baseline.md`, `qa-final-visual.py` and `final-visual-audit.py` as the final pre-backend regression baseline.
