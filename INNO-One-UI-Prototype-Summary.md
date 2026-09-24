@@ -312,3 +312,8 @@ The second B-grade batch reduces multi-form screens and separates supporting tec
 ## 16. Canonical route ownership — 2026-09-25
 
 Legacy application-shell hash navigation has been removed. Distinct navigation jobs now have canonical pages, while true filters use query-state URLs. The current Web route graph contains 83 routes and preserves old Overview section IDs only as backward-compatible anchors, not as generated navigation targets.
+
+
+## 17. Backend planning handoff — 2026-09-25
+
+The frozen 83-route UI has now been mapped to backend contracts without adding backend code. Domain ownership, API ownership and route permissions cover 83/83 Web routes; the current App Registry's 43 permissions and 37 events are documented. The backend planning source starts at `INNO-One-Backend-Planning-Index.md`.

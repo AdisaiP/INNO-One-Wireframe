@@ -799,3 +799,8 @@ INNO.One Platform
 - BPMN 2.0 requirement → `INNOBpmnDesigner`
 
 ดู library mapping และ usage rules ที่ `INNO-One-Special-UI-Components.md`
+
+
+## 23. Backend contract mapping — 2026-09-25
+
+The conceptual platform/module architecture in this document is now translated into implementation planning documents under `INNO-One-Backend-Planning-Index.md`. The selected initial shape is an ASP.NET Core modular monolith with PostgreSQL schema ownership per module, Keycloak identity adapter, MeshCentral Devices adapter, transactional integration events and an explicit worker boundary. No backend code was added during this planning pass.

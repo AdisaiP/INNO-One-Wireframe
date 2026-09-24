@@ -749,3 +749,76 @@ The navigation architecture pass is now complete for application-shell routes:
 - Application hash-link regression guard reports `app_hash_links=0`; local-route validation reports `broken_local_routes=0`.
 - Current Web route count = 83. Browser navigation/input regression = 63 / 63.
 - Current frozen screenshot baseline = 87 canonical route screenshots + 13 state screenshots = 100 files.
+
+
+# NEXT 7 — Backend Planning: Domain / API / Event / Permission Mapping ✅ COMPLETED 2026-09-25
+
+Planning branch: `planning/backend-contracts`
+
+No backend implementation has been added on this branch.
+
+Backend planning source of truth:
+
+- `INNO-One-Backend-Planning-Index.md`
+- `INNO-One-Backend-Architecture.md`
+- `INNO-One-Domain-Model.md`
+- `INNO-One-API-Contract.md`
+- `INNO-One-Event-Catalog.md`
+- `INNO-One-Permission-Matrix.md`
+- `INNO-One-Database-Plan.md`
+- `backend-planning-audit.py`
+
+Planning decisions:
+
+- Initial backend architecture = **ASP.NET Core 9 Modular Monolith** with explicit module boundaries.
+- Primary database plan = **PostgreSQL, schema-per-module**.
+- Keycloak stays the authentication/identity provider; INNO.One owns application RBAC and resource scopes.
+- MeshCentral stays a Devices engine/provider behind an adapter; canonical INNO.One Device IDs must not equal provider node IDs.
+- Web, Endpoint Agent and Android Mobile continue as separate surfaces sharing auth/RBAC/API/event contracts.
+- Cross-module writes are forbidden; use module contracts, canonical IDs, events and reporting projections.
+- Long-running deployment/maintenance/meeting/report work is modeled as durable jobs.
+- Integration events use transactional Outbox + idempotent Inbox/consumer semantics.
+
+Coverage QA:
+
+- Planning documents = **7 / 7**.
+- Frozen Web routes = **83**.
+- Domain ownership coverage = **83 / 83**.
+- API ownership coverage = **83 / 83**.
+- Route permission coverage = **83 / 83**.
+- Existing module-manifest permissions documented = **43 / 43**.
+- Existing module-manifest events documented = **37 / 37**.
+- Backend implementation files on planning branch = **0**.
+- `backend-planning-audit.py` = **0 issues**.
+
+## NEXT 8 — First Backend Vertical Slice
+
+Do not implement all modules at once.
+
+Recommended sequence:
+
+1. Platform Core foundation
+   - Keycloak OIDC sign-in / session
+   - `GET /api/v1/me`
+   - Organization / User mapping
+   - Roles / Permissions
+   - Access Scope evaluator
+   - Module Registry visibility
+   - Audit skeleton
+2. Devices first business slice
+   - Devices List
+   - Device Detail
+   - Device Groups
+   - MeshCentral provider mapping / adapter
+3. Only after that, expand Remote / Alerts / Deployment and then Helpdesk.
+
+Definition of Done before NEXT 8 code:
+
+- Review/accept the six planning documents.
+- Confirm PostgreSQL as primary DB.
+- Confirm the Web auth pattern (recommended BFF/session cookie around Keycloak OIDC).
+- Confirm MeshCentral adapter access method/API available to the implementation.
+
+Suggested next-chat prompt:
+
+> เปิดโปรเจกต์ `/Users/adisaip/Desktop/INNO-One-Wireframe/` ผ่าน MCP แล้วอ่าน `INNO-One-Backend-Planning-Index.md`, `INNO-One-Backend-Architecture.md`, `INNO-One-Domain-Model.md`, `INNO-One-API-Contract.md`, `INNO-One-Permission-Matrix.md`, `INNO-One-Event-Catalog.md`, `INNO-One-Database-Plan.md` และ `INNO-One-Next-Chat-Handoff.md` ก่อน จากนั้นเริ่ม NEXT 8 เฉพาะ Platform Core foundation ตาม contract ที่วางไว้ ห้ามขยายไป module อื่นก่อน slice แรกผ่าน QA
