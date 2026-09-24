@@ -708,3 +708,17 @@ UI Prototype ถือว่าพร้อมต่อ Backend เมื่อ:
 - Restructured the four C-grade screens from `INNO-One-UX-UI-Page-Review.md`: Asset QR, Create Ticket, Notification Rule and Report Builder.
 - System-wide browser QA: 74 routes × 1366 / 1024 / 768 passed with no page overflow or visible native Web select.
 - Representative Input System interaction QA passed 20 / 20 before final freeze.
+
+
+## B-grade operational UX pass — 2026-09-24
+
+Completed on branch `ux/input-system-pass` after the 1.12.0 Input System freeze:
+
+- Software Maintenance New: staged operational job editor + summary.
+- Restart Schedule: target/time/notification hierarchy + progressive offline handling.
+- Device Alert Rule: signal/scope/detection rule builder + channel summary.
+- Remote Consent Policy: policy decisions expressed as mode/segmented controls instead of a generic form matrix.
+- Access Scope Edit: Who / Where / What assignment model with resource pickers.
+- Inventory Query: explicit condition builder; Saved Query updates enhanced controls; builder is first on narrow screens.
+- Deployment New: existing six-step wizard upgraded with resource pickers and segmented decisions.
+- Extended `qa-ux-input-browser.py`; current targeted + system-wide input regression checks = 37 / 37 before final visual freeze.

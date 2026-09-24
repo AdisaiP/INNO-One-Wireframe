@@ -297,3 +297,8 @@ See `INNO-One-Screen-Architecture-Refactor-Plan.md` for the canonical P01–P10 
 - Web Portal forms now consume the shared Input System instead of exposing browser-default selectors.
 - `ticket-new.html`, `helpdesk-notification-rule.html`, `report-builder.html` and `asset-qr.html` were restructured around one primary user job per screen.
 - `inno-inputs.js` is part of the frozen UI contract and preserves native backing values for prototype validation/dirty-state compatibility.
+
+
+## 14. B-grade operational form polish — 2026-09-24
+
+The first B-grade batch has been moved from generic form layouts toward purpose-built task editors: Software Maintenance, Restart Schedule, Device Alert Rule, Remote Consent Policy, Access Assignment, Inventory Query and New Deployment. This pass reuses UI Contract 1.12.0 and does not introduce backend behavior.

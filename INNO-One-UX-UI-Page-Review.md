@@ -389,3 +389,18 @@ Implemented from this review:
 - Shared Select / Combobox / Resource Picker / Segmented input layer across all Web routes.
 - C-grade restructure completed for Asset QR, Create Ticket, Notification Rule and Report Builder.
 - Remaining B-grade pages now inherit the shared visible input treatment, but page-level architecture polish remains future work.
+
+
+## 8. B-grade operational editor pass — 2026-09-24
+
+Completed page-level polish without changing the 1.12.0 component API:
+
+- `software-maintenance-new.html` — Software action → Targets & timing → advanced failure/restart handling with a job summary.
+- `restart-schedule.html` — Target devices → Restart time → User notification; timezone becomes inherited context and offline handling is progressive disclosure.
+- `device-alert-rule.html` — Alert signal → Evaluation scope → Detection logic; notification channels moved to supporting context.
+- `remote-consent-policy.html` — policy-specific consent mode, prompt experience and safeguards instead of a generic select grid.
+- `access-scope-edit.html` — Who gets access? → Where does it apply? → What can they do? with principal/role/resource pickers.
+- `device-query.html` — fleet scope + match logic + explicit condition builder; Saved Query loading now refreshes visible enhanced controls; narrow layouts place Query Builder before Saved Queries.
+- `deployment-new.html` — six-step wizard retained, with purpose-built target/payload pickers and segmented schedule/safeguard decisions.
+
+Regression coverage in `qa-ux-input-browser.py` now includes these B-grade flows.

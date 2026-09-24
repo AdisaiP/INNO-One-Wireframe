@@ -101,11 +101,50 @@ c.eval("""(()=>{const seg=document.getElementById('labelSize').nextElementSiblin
 check("QR label size control updates backing select",c.eval("document.getElementById('labelSize').selectedIndex===1"))
 # Keyboard interaction on a normal custom select.
 c.nav("software-maintenance-new.html")
-target=c.eval("""(()=>{const s=document.querySelector('select');return {id:s.id,trigger:s.nextElementSibling.querySelector('.inno-select-trigger').id,value:s.value}})()""")
+target=c.eval("""(()=>{const s=[...document.querySelectorAll('select')].find(x=>x.dataset.innoEnhanced==='select');return {id:s.id,trigger:s.nextElementSibling.querySelector('.inno-select-trigger').id,value:s.value}})()""")
 c.eval(f"document.getElementById({json.dumps(target['trigger'])}).focus();document.getElementById({json.dumps(target['trigger'])}).dispatchEvent(new KeyboardEvent('keydown',{{key:'ArrowDown',bubbles:true}}))");time.sleep(.04)
 check("Keyboard ArrowDown opens select",c.eval("!!document.querySelector('.inno-picker-popover')"))
 c.eval("document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}))");time.sleep(.03)
 check("Escape closes select and restores focus",c.eval("!document.querySelector('.inno-picker-popover') && document.activeElement?.classList.contains('inno-select-trigger')"))
+
+# B-grade operational-form polish.
+c.nav("software-maintenance-new.html")
+check("Software Maintenance uses staged operational layout",c.eval("document.querySelectorAll('.ux-section').length===2 && !!document.querySelector('.ux-operational-aside') && !!document.querySelector('details.ux-advanced')"))
+check("Software action is segmented and package is a resource picker",c.eval("""(()=>{const s=[...document.querySelectorAll('select')];return s.some(x=>x.dataset.innoEnhanced==='segmented'&&x.closest('.field')?.querySelector('label')?.textContent==='Action')&&s.some(x=>x.hasAttribute('data-inno-resource-picker')&&x.closest('.field')?.querySelector('label')?.textContent==='Package')})()"""))
+
+c.nav("restart-schedule.html")
+check("Restart Schedule separates target, time and notification",c.eval("document.querySelectorAll('.ux-section').length===3 && !!document.querySelector('.ux-operational-aside')"))
+check("Restart target uses resource picker and grace uses segmented control",c.eval("""(()=>{const s=[...document.querySelectorAll('select')];return s.some(x=>x.hasAttribute('data-inno-resource-picker'))&&s.some(x=>x.dataset.innoEnhanced==='segmented'&&x.closest('.field')?.querySelector('label')?.textContent==='Grace period')})()"""))
+
+c.nav("device-alert-rule.html")
+check("Alert Rule uses three-step detection editor",c.eval("document.querySelectorAll('.ux-section').length===3 && !!document.querySelector('.ux-operational-aside')"))
+c.eval("""(()=>{const s=document.getElementById('ruleType'),seg=s.nextElementSibling;[...seg.querySelectorAll('.inno-segment')].find(x=>x.textContent.includes('Hardware')).click()})()""");time.sleep(.04)
+check("Alert rule type still switches conditional fields",c.eval("document.getElementById('offlineFields').hidden && !document.getElementById('inventoryFields').hidden"))
+
+c.nav("remote-consent-policy.html")
+check("Consent Policy uses policy-specific prompt controls",c.eval("document.querySelectorAll('.inno-segmented').length>=4 && document.querySelectorAll('.ux-decision').length===2"))
+c.eval("document.querySelector('#modeGrid button[data-mode=trusted]').click()");time.sleep(.02)
+check("Consent mode cards remain interactive",c.eval("document.querySelector('#modeGrid button[data-mode=trusted]').classList.contains('active')"))
+
+c.nav("access-scope-edit.html")
+check("Access Assignment is structured as Who-Where-What",c.eval("document.querySelectorAll('.ux-section').length===3 && document.querySelectorAll('select[data-inno-resource-picker]').length===3"))
+check("Access scope type uses segmented control",c.eval("""[...document.querySelectorAll('select')].some(x=>x.closest('.field')?.querySelector('label')?.textContent==='Scope type'&&x.dataset.innoEnhanced==='segmented')"""))
+
+c.nav("device-query.html")
+c.eval("document.querySelectorAll('.arch-side-list button[data-query-type]')[1].click()");time.sleep(.05)
+check("Saved Query refreshes custom Fact selector",c.eval("document.getElementById('queryFact').value==='Service' && document.getElementById('queryFact').nextElementSibling.querySelector('.inno-select-value').textContent.trim()==='Service'"))
+check("Saved Query refreshes custom Operator selector",c.eval("document.getElementById('queryOperator').value==='equals' && document.getElementById('queryOperator').nextElementSibling.querySelector('.inno-select-value').textContent.trim()==='equals'"))
+
+c.nav("deployment-new.html")
+check("Deployment remains six-step wizard",c.eval("document.querySelectorAll('.arch-step').length===6"))
+c.eval("document.getElementById('nextStep').click()");time.sleep(.03)
+check("Deployment target step uses segmented source and resource picker",c.eval("document.querySelector('[data-pane=\"2\"] select[data-inno-resource-picker]').dataset.innoEnhanced==='select' && document.querySelector('[data-pane=\"2\"] select[data-inno-display=\"segmented\"]').dataset.innoEnhanced==='segmented'"))
+c.eval("document.getElementById('nextStep').click()");time.sleep(.03)
+check("Deployment payload uses resource picker",c.eval("document.querySelector('[data-pane=\"3\"] select[data-inno-resource-picker]').dataset.innoEnhanced==='select'"))
+c.eval("document.getElementById('nextStep').click()");time.sleep(.03)
+check("Deployment schedule uses segmented choices",c.eval("document.querySelectorAll('[data-pane=\"4\"] .inno-segmented').length===2"))
+c.eval("document.getElementById('nextStep').click()");time.sleep(.03)
+check("Deployment safeguards use segmented choices",c.eval("document.querySelectorAll('[data-pane=\"5\"] .inno-segmented').length===2"))
 
 print(f"checks={checks}")
 print(f"failures={len(fails)}")

@@ -147,3 +147,8 @@ After the 1.11.0 freeze, superseded QA screenshot folders and the disconnected l
 ## 11. UX Input System freeze — 1.12.0
 
 The final visual baseline now includes the shared Input System and an additional `select-open` state screenshot. Total frozen screenshots: 78 canonical routes + 13 states = 91. The C-grade screens reviewed in `INNO-One-UX-UI-Page-Review.md` were restructured before this freeze.
+
+
+## 12. B-grade operational page refresh
+
+The 1.12.0 visual baseline was regenerated after the first B-grade operational editor pass. Screenshot counts remain 78 canonical routes + 13 states = 91 images; affected route screenshots include Software Maintenance New, Restart Schedule, Device Alert Rule, Remote Consent Policy, Access Scope Edit, Inventory Query and Deployment New.
