@@ -404,3 +404,21 @@ Completed page-level polish without changing the 1.12.0 component API:
 - `deployment-new.html` — six-step wizard retained, with purpose-built target/payload pickers and segmented schedule/safeguard decisions.
 
 Regression coverage in `qa-ux-input-browser.py` now includes these B-grade flows.
+
+
+## 9. B-grade configuration / account pass — 2026-09-25
+
+Completed the second B-grade batch on UI Contract 1.12.0:
+
+- `endpoint-policies.html` — one-policy-at-a-time editor, cleaner assignment context, USB allow-list moved to progressive disclosure, unavailable primary actions removed.
+- `device-alert-channels.html` — on-screen, audible and email delivery are explicit channel sections with segmented channel decisions and health context.
+- `helpdesk-sla.html` — explicit response/resolution target cards plus resource pickers for business calendar and applicability.
+- `helpdesk-categories.html` — purpose-built category tree and resource pickers for default team/SLA; selected-node changes refresh enhanced controls.
+- `helpdesk-requester-groups.html` — explicit membership condition builder and segmented match logic; selected group changes refresh enhanced controls.
+- `helpdesk-calendar.html` — readable seven-day working-hour cards and a separate holiday exception area.
+- `helpdesk-notification-settings.html` — email connection and delivery defaults separated, with explicit safeguard decisions.
+- `meeting-new.html` — Record and Upload are now mutually exclusive modes instead of two full forms displayed together.
+- `modules.html` — Registry remains primary; Inspect shows module overview and technical manifest is collapsed on demand.
+- `profile.html` — Profile & Security is separated from Preferences with in-page tabs.
+
+Regression coverage in `qa-ux-input-browser.py` now includes this batch.

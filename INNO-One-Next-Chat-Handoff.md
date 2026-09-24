@@ -722,3 +722,16 @@ Completed on branch `ux/input-system-pass` after the 1.12.0 Input System freeze:
 - Inventory Query: explicit condition builder; Saved Query updates enhanced controls; builder is first on narrow screens.
 - Deployment New: existing six-step wizard upgraded with resource pickers and segmented decisions.
 - Extended `qa-ux-input-browser.py`; current targeted + system-wide input regression checks = 37 / 37 before final visual freeze.
+
+
+## B-grade configuration / account UX pass — 2026-09-25
+
+Second B-grade batch completed on branch `ux/input-system-pass`:
+
+- Endpoint Policies, Alert Channels, Helpdesk SLA, Categories, Requester Groups, Business Calendar, Notification Settings, Meeting New, Apps & Modules and Profile were polished around one primary user intent per screen.
+- Meeting now uses a mode switch so Record and Upload forms are never shown together.
+- Modules keeps registry operations primary and moves the technical manifest behind an Inspect flow.
+- Profile separates identity/security from personal preferences.
+- Calendar working hours are presented as readable day cards.
+- Categories and Requester Groups now refresh enhanced controls when a master-list selection changes.
+- Extended `qa-ux-input-browser.py`; current targeted + system-wide UX/input regression checks = 55 / 55 before final visual freeze.

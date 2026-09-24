@@ -302,3 +302,8 @@ See `INNO-One-Screen-Architecture-Refactor-Plan.md` for the canonical P01–P10 
 ## 14. B-grade operational form polish — 2026-09-24
 
 The first B-grade batch has been moved from generic form layouts toward purpose-built task editors: Software Maintenance, Restart Schedule, Device Alert Rule, Remote Consent Policy, Access Assignment, Inventory Query and New Deployment. This pass reuses UI Contract 1.12.0 and does not introduce backend behavior.
+
+
+## 15. Configuration and account UX polish — 2026-09-25
+
+The second B-grade batch reduces multi-form screens and separates supporting technical/configuration context from the primary job. The pass covers Endpoint Policies, Alert Channels, Helpdesk SLA/configuration/notification settings, Meeting capture, Apps & Modules and Profile. No backend behavior was added.

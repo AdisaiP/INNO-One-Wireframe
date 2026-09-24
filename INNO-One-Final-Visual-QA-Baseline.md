@@ -152,3 +152,8 @@ The final visual baseline now includes the shared Input System and an additional
 ## 12. B-grade operational page refresh
 
 The 1.12.0 visual baseline was regenerated after the first B-grade operational editor pass. Screenshot counts remain 78 canonical routes + 13 states = 91 images; affected route screenshots include Software Maintenance New, Restart Schedule, Device Alert Rule, Remote Consent Policy, Access Scope Edit, Inventory Query and Deployment New.
+
+
+## 13. B-grade configuration/account refresh
+
+The 1.12.0 visual baseline was regenerated after the second B-grade pass. Screenshot counts remain 78 canonical routes + 13 states = 91 images. Affected route screenshots include Endpoint Policies, Alert Channels, Helpdesk SLA, Categories, Requester Groups, Business Calendar, Notification Settings, Meeting New, Apps & Modules and Profile.

@@ -146,6 +146,50 @@ check("Deployment schedule uses segmented choices",c.eval("document.querySelecto
 c.eval("document.getElementById('nextStep').click()");time.sleep(.03)
 check("Deployment safeguards use segmented choices",c.eval("document.querySelectorAll('[data-pane=\"5\"] .inno-segmented').length===2"))
 
+# B-grade configuration / account polish.
+c.nav("meeting-new.html")
+check("Meeting starts with exactly one capture form visible",c.eval("document.querySelector('[data-capture-pane=record]').hidden===false && document.querySelector('[data-capture-pane=upload]').hidden===true"))
+c.eval("document.querySelector('#captureMode [data-mode=upload]').click()");time.sleep(.03)
+check("Meeting mode switch shows upload and hides record",c.eval("document.querySelector('[data-capture-pane=record]').hidden===true && document.querySelector('[data-capture-pane=upload]').hidden===false && document.querySelector('#captureMode [data-mode=upload]').classList.contains('active')"))
+
+c.nav("helpdesk-calendar.html")
+check("Business Calendar renders seven readable day cards",c.eval("document.querySelectorAll('.ux-day-card').length===7 && document.querySelectorAll('.ux-day-card.off').length===2"))
+check("Calendar separates working hours from holiday exceptions",c.eval("document.querySelectorAll('.ux-section').length===2"))
+
+c.nav("device-alert-channels.html")
+check("Alert Channels uses purpose-built sections",c.eval("document.querySelectorAll('.ux-section').length===3 && document.querySelectorAll('.inno-segmented').length>=4"))
+check("Alert Channels keeps health as supporting context",c.eval("!!document.querySelector('.ux-operational-aside') && !!document.getElementById('testAlert')"))
+
+c.nav("helpdesk-notification-settings.html")
+check("Notification Settings separates connection and delivery defaults",c.eval("document.querySelectorAll('.ux-section').length===2 && document.querySelectorAll('.inno-segmented').length===3"))
+check("Notification delivery safeguards are explicit decisions",c.eval("document.querySelectorAll('.ux-decision').length===2"))
+
+c.nav("helpdesk-categories.html")
+c.eval("""document.querySelector('.ux-category-node[data-category="Hardware"]').click()""");time.sleep(.04)
+check("Category selection updates detail and enhanced team picker",c.eval("document.getElementById('categoryName').value==='Hardware' && document.getElementById('categoryTeam').value==='IT Support' && document.getElementById('categoryTeam').nextElementSibling.textContent.includes('IT Support')"))
+
+c.nav("helpdesk-requester-groups.html")
+c.eval("document.querySelectorAll('.arch-side-list button[data-group-name]')[2].click()");time.sleep(.04)
+check("Requester Group selection refreshes visible condition selector",c.eval("document.getElementById('requesterGroupField').value==='Department' && document.getElementById('requesterGroupField').nextElementSibling.textContent.includes('Department') && document.getElementById('requesterGroupValue').value==='Finance'"))
+
+c.nav("helpdesk-sla.html")
+check("SLA policy uses resource pickers for calendar and applicability",c.eval("document.querySelectorAll('select[data-inno-resource-picker]').length===2"))
+check("SLA policy exposes two explicit target cards",c.eval("document.querySelectorAll('.ux-sla-target').length===2"))
+
+c.nav("endpoint-policies.html")
+check("Endpoint Policy hides USB exceptions behind progressive detail",c.eval("!!document.querySelector('details.ux-advanced') && document.querySelector('details.ux-advanced').open===false"))
+check("Endpoint Policy no longer exposes unavailable primary create actions",c.eval("!document.querySelector('.page-head button[disabled]')"))
+
+c.nav("modules.html")
+check("Module inspector exposes active Inspect actions",c.eval("document.querySelectorAll('[data-detail]:not([disabled])').length>=5"))
+c.eval("""(()=>{const b=[...document.querySelectorAll('[data-detail]')].find(x=>x.dataset.detail==='helpdesk');b.click()})()""");time.sleep(.04)
+check("Module Inspect updates selected module overview",c.eval("document.querySelector('#moduleDetail h3').textContent==='Helpdesk' && !!document.querySelector('#moduleDetail details.ux-tech-details:not([open])')"))
+
+c.nav("profile.html")
+check("Profile defaults to Profile & Security pane only",c.eval("document.querySelector('[data-profile-pane=profile]').hidden===false && document.querySelector('[data-profile-pane=preferences]').hidden===true"))
+c.eval("document.querySelector('[data-profile-tab=preferences]').click()");time.sleep(.03)
+check("Profile preferences tab isolates preference controls",c.eval("document.querySelector('[data-profile-pane=profile]').hidden===true && document.querySelector('[data-profile-pane=preferences]').hidden===false && document.querySelector('[data-profile-pane=preferences] select').dataset.innoEnhanced==='segmented'"))
+
 print(f"checks={checks}")
 print(f"failures={len(fails)}")
 for x in fails:print("FAILED",x)
