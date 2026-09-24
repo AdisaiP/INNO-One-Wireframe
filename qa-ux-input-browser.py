@@ -1,0 +1,113 @@
+from pathlib import Path
+import json,time,sys,requests,websocket
+
+ROOT=Path(__file__).resolve().parent
+PORT=9231
+manifest=json.loads((ROOT/"qa-final-visual/manifest.json").read_text())
+WEB=list(manifest["web"])
+fails=[];checks=0
+
+def check(name,cond,detail=""):
+    global checks;checks+=1
+    print(("PASS " if cond else "FAIL ")+name+((" :: "+str(detail)) if detail else ""))
+    if not cond:fails.append((name,detail))
+
+class CDP:
+    def __init__(self):
+        deadline=time.time()+8;targets=None
+        while time.time()<deadline:
+            try:
+                targets=requests.get(f"http://127.0.0.1:{PORT}/json",timeout=1).json()
+                if targets:break
+            except Exception:time.sleep(.1)
+        if not targets:raise RuntimeError("DevTools target unavailable")
+        p=next(x for x in targets if x.get("type")=="page")
+        self.ws=websocket.create_connection(p["webSocketDebuggerUrl"],timeout=8,origin="http://127.0.0.1");self.n=0
+        self.call("Page.enable");self.call("Runtime.enable")
+    def call(self,m,p=None):
+        self.n+=1;i=self.n;self.ws.send(json.dumps({"id":i,"method":m,"params":p or {}}))
+        while True:
+            x=json.loads(self.ws.recv())
+            if x.get("id")==i:
+                if "error" in x:raise RuntimeError(x["error"])
+                return x.get("result",{})
+    def eval(self,e):
+        r=self.call("Runtime.evaluate",{"expression":e,"returnByValue":True,"awaitPromise":True})
+        if "exceptionDetails" in r:raise RuntimeError(str(r["exceptionDetails"]))
+        return r.get("result",{}).get("value")
+    def viewport(self,w,h=900):
+        self.call("Emulation.setDeviceMetricsOverride",{"width":w,"height":h,"deviceScaleFactor":1,"mobile":False})
+    def nav(self,page,query=""):
+        self.call("Page.navigate",{"url":(ROOT/page).as_uri()+query})
+        deadline=time.time()+7
+        while time.time()<deadline:
+            try:
+                if self.eval("document.readyState")=="complete" and self.eval("!!window.INNOInputs"):break
+            except:pass
+            time.sleep(.04)
+        time.sleep(.1)
+c=CDP()
+# System-wide route pass at all required Web breakpoints.
+for w in (1366,1024,768):
+    c.viewport(w)
+    route_fails=[]
+    for page in WEB:
+        c.nav(page,"?qaMetrics=1")
+        m=c.eval("""(()=>{const sels=[...document.querySelectorAll('select')];const expected=sels.filter(s=>!s.hasAttribute('data-inno-native')&&!s.closest('.mock-desktop,.android-phone')).length;const enhanced=sels.filter(s=>s.dataset.innoEnhanced).length;const visibleNative=sels.filter(s=>{const r=s.getBoundingClientRect(),cs=getComputedStyle(s);return cs.position!=='absolute'&&cs.display!=='none'&&r.width>3&&r.height>3}).length;return {overflow:document.documentElement.scrollWidth>innerWidth+2,inputSystem:document.documentElement.dataset.innoInputSystem==='1',selects:sels.length,expected,enhanced,visibleNative,popovers:document.querySelectorAll('.inno-picker-popover').length}})()""")
+        bad=[]
+        if m["overflow"]:bad.append("overflow")
+        if not m["inputSystem"]:bad.append("input-system-missing")
+        if m["enhanced"]!=m["expected"]:bad.append(f"enhanced={m['enhanced']}/{m['expected']}")
+        if m["visibleNative"]:bad.append(f"visible-native={m['visibleNative']}")
+        if m["popovers"]:bad.append("orphan-popover")
+        if bad:route_fails.append((page,bad))
+    check(f"All 74 Web routes pass Input System at {w}",not route_fails,route_fails[:6])
+# Ticket: combobox, resource picker and segmented controls retain backing select events.
+c.viewport(1366);c.nav("ticket-new.html")
+check("Ticket primary form is simplified",c.eval("document.querySelectorAll('.ux-section').length===2 && !!document.querySelector('.ux-advanced')"))
+c.eval("""(()=>{const s=[...document.querySelectorAll('select')].find(x=>x.closest('.field')?.querySelector('label')?.textContent==='Category');s.nextElementSibling.querySelector('.inno-select-trigger').click()})()""");time.sleep(.03)
+check("Category opens custom searchable popover",c.eval("!!document.querySelector('.inno-picker-popover .inno-picker-search input')"))
+c.eval("""(()=>{const i=document.querySelector('.inno-picker-search input');i.value='Software';i.dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('.inno-picker-option:not([hidden])').click()})()""");time.sleep(.04)
+check("Category selection updates native backing value",c.eval("[...document.querySelectorAll('select')].find(x=>x.closest('.field')?.querySelector('label')?.textContent==='Category').value==='Software'"))
+
+c.eval("""(()=>{const s=[...document.querySelectorAll('select')].find(x=>x.closest('.field')?.querySelector('label')?.textContent==='Related device');s.nextElementSibling.querySelector('.inno-select-trigger').click()})()""");time.sleep(.03)
+check("Device field uses resource picker",c.eval("!!document.querySelector('.inno-picker-popover.resource .inno-picker-option-icon')"))
+c.eval("""(()=>{const i=document.querySelector('.inno-picker-search input');i.value='NOTEBOOK';i.dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('.inno-picker-option:not([hidden])').click()})()""");time.sleep(.03)
+check("Resource picker updates device value",c.eval("[...document.querySelectorAll('select')].find(x=>x.closest('.field')?.querySelector('label')?.textContent==='Related device').value.includes('NOTEBOOK')"))
+
+c.eval("""(()=>{const s=document.getElementById('urgency');const seg=s.nextElementSibling;[...seg.querySelectorAll('.inno-segment')].find(x=>x.textContent==='Critical').click()})()""");time.sleep(.03)
+check("Segmented urgency preserves change handler",c.eval("document.getElementById('priority').value==='P1 · Critical' && document.getElementById('slaPreview').textContent.includes('15m')"))
+# Notification rule: purpose-built flow and template summary sync.
+c.nav("helpdesk-notification-rule.html")
+check("Notification Rule uses When-Send to-Message flow",c.eval("document.querySelectorAll('.ux-rule-node-body').length===3"))
+c.eval("document.getElementById('templateSelect').nextElementSibling.querySelector('.inno-select-trigger').click()");time.sleep(.03)
+c.eval("""(()=>{const b=[...document.querySelectorAll('.inno-picker-option')].find(x=>x.textContent.includes('Action Required'));b.click()})()""");time.sleep(.03)
+check("Template combobox updates summary",c.eval("document.getElementById('summaryTemplate').textContent==='Action Required'"))
+
+# Report Builder: searchable dataset + filter builder + preview event compatibility.
+c.nav("report-builder.html")
+check("Report Builder uses filter-builder rows",c.eval("document.querySelectorAll('.ux-filter-row').length===2"))
+c.eval("document.getElementById('dataset').nextElementSibling.querySelector('.inno-select-trigger').click()");time.sleep(.03)
+check("Dataset uses resource-style picker",c.eval("!!document.querySelector('.inno-picker-popover.resource')"))
+c.eval("""(()=>{const i=document.querySelector('.inno-picker-search input');i.value='Helpdesk';i.dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('.inno-picker-option:not([hidden])').click();document.querySelector('button[onclick="refreshPreview()"]').click()})()""");time.sleep(.8)
+check("Report preview still reacts to selected dataset",c.eval("document.getElementById('previewMeta').textContent.includes('Helpdesk')"))
+
+# Asset QR: workflow is reduced to core task and supporting info is collapsed.
+c.nav("asset-qr.html")
+check("QR page uses four-step task flow",c.eval("document.querySelectorAll('.qr-workflow .qr-step').length===4"))
+check("QR security/mobile are progressive disclosure",c.eval("document.querySelectorAll('.ux-qr-aside details.ux-advanced').length===2"))
+check("QR label setup uses segmented controls",c.eval("document.getElementById('labelSize').dataset.innoEnhanced==='segmented'"))
+c.eval("""(()=>{const seg=document.getElementById('labelSize').nextElementSibling;[...seg.querySelectorAll('.inno-segment')][1].click()})()""");time.sleep(.03)
+check("QR label size control updates backing select",c.eval("document.getElementById('labelSize').selectedIndex===1"))
+# Keyboard interaction on a normal custom select.
+c.nav("software-maintenance-new.html")
+target=c.eval("""(()=>{const s=document.querySelector('select');return {id:s.id,trigger:s.nextElementSibling.querySelector('.inno-select-trigger').id,value:s.value}})()""")
+c.eval(f"document.getElementById({json.dumps(target['trigger'])}).focus();document.getElementById({json.dumps(target['trigger'])}).dispatchEvent(new KeyboardEvent('keydown',{{key:'ArrowDown',bubbles:true}}))");time.sleep(.04)
+check("Keyboard ArrowDown opens select",c.eval("!!document.querySelector('.inno-picker-popover')"))
+c.eval("document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}))");time.sleep(.03)
+check("Escape closes select and restores focus",c.eval("!document.querySelector('.inno-picker-popover') && document.activeElement?.classList.contains('inno-select-trigger')"))
+
+print(f"checks={checks}")
+print(f"failures={len(fails)}")
+for x in fails:print("FAILED",x)
+sys.exit(1 if fails else 0)

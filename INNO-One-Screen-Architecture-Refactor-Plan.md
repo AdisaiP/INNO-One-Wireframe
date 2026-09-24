@@ -1,7 +1,7 @@
 # INNO.One — Screen Architecture Refactor Plan
 
 Last updated: 2026-09-24  
-Status: Completed UI architecture baseline; frozen for backend planning under UI Contract 1.11.0.
+Status: Completed UI architecture baseline; frozen for backend planning under UI Contract 1.12.0.
 
 ## 1. Problem statement
 

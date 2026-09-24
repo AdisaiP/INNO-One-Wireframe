@@ -30,8 +30,8 @@ INNO.One กำลังถูกปรับจาก TOR coverage prototype �
 
 ## 2. Current UI Baseline
 
-- Design System: **V1.17**
-- UI Contract: **1.11.0**
+- Design System: **V1.18**
+- UI Contract: **1.12.0**
 - Registry Schema: **10**
 
 Source of truth หลัก:
@@ -279,7 +279,7 @@ File:
 หลัง Screen Architecture Refactor:
 
 - Modern prototype pages: **78**
-- Source-of-truth files: **14**
+- Source-of-truth files: **15**
 - Design audit issues: **0**
 - Missing HTML links: **0**
 - Inline JS errors: **0**
@@ -290,7 +290,7 @@ File:
 - page overflow = false
 - rail active = 1
 - sidebar active = 1
-- UI contract = 1.11.0
+- UI contract = 1.12.0
 
 Historical QA screenshot folders were removed after the final freeze.
 
@@ -611,7 +611,7 @@ Endpoint Agent และ Mobile ทดสอบแยกตาม Surface
 
 ## NEXT 6 — Final Visual QA ✅ COMPLETED 2026-09-24
 
-Final UI baseline ถูก Freeze แล้วที่ **Design System V1.17 / UI Contract 1.11.0**
+Final UI baseline ถูก Freeze แล้วที่ **Design System V1.18 / UI Contract 1.12.0**
 
 Checklist ที่ทำครบ:
 
@@ -627,10 +627,10 @@ Checklist ที่ทำครบ:
 ผล Final Visual QA:
 
 - Canonical route screenshots = **78**: Web Portal 74 + Design System 1 + Endpoint Agent 2 + Android Mobile 1
-- Important state screenshots = **12**
-- Frozen screenshot baseline รวม = **90 ภาพ**
+- Important state screenshots = **13**
+- Frozen screenshot baseline รวม = **91 ภาพ**
 - `qa-final-visual.py` = **106 browser checks / 0 failures**
-- Screenshot manifest hash verification = **90 / 90**
+- Screenshot manifest hash verification = **91 / 91**
 - ทุก Web route: page overflow = false, Rail active = 1, Sidebar active = 1, raw placeholder = 0
 - Web shell canonical 1366px: Rail 60px / Sidebar 216px / Platform Header 56px ทุก 74 route
 - Final dead-control review แก้ Saved Query, Category Tree, Requester Groups, Upcoming Meeting, Ticket composer และ Mobile history/action ที่ยังไม่สมบูรณ์
@@ -670,7 +670,7 @@ Prototype CSS เป็น append-heavy อยู่แล้ว ต้องแ
 
 ใช้ข้อความนี้ได้เลย:
 
-> เปิดโปรเจกต์ `/Users/adisaip/Desktop/INNO-One-Wireframe/` ผ่าน MCP แล้วอ่าน `INNO-One-Next-Chat-Handoff.md`, `INNO-One-Final-Visual-QA-Baseline.md`, `INNO-One-UI-Prototype-Summary.md`, `INNO-One-Screen-Architecture-Refactor-Plan.md` และ Design System ก่อน ตอนนี้ UI ถูก Freeze ที่ **Design System V1.17 / UI Contract 1.11.0** แล้ว ให้เริ่ม **Backend Planning — Domain / API / Event / Permission Mapping** จาก frozen UI contract ก่อน ยังไม่แก้ UI baseline หรือเริ่ม Backend code จนกว่า architecture mapping จะชัดเจน
+> เปิดโปรเจกต์ `/Users/adisaip/Desktop/INNO-One-Wireframe/` ผ่าน MCP แล้วอ่าน `INNO-One-Next-Chat-Handoff.md`, `INNO-One-Final-Visual-QA-Baseline.md`, `INNO-One-UI-Prototype-Summary.md`, `INNO-One-Screen-Architecture-Refactor-Plan.md` และ Design System ก่อน ตอนนี้ UI ถูก Freeze ที่ **Design System V1.18 / UI Contract 1.12.0** แล้ว ให้เริ่ม **Backend Planning — Domain / API / Event / Permission Mapping** จาก frozen UI contract ก่อน ยังไม่แก้ UI baseline หรือเริ่ม Backend code จนกว่า architecture mapping จะชัดเจน
 
 ---
 
@@ -699,3 +699,12 @@ UI Prototype ถือว่าพร้อมต่อ Backend เมื่อ:
 - Removed superseded historical QA screenshot folders; `qa-final-visual/` is the only frozen screenshot baseline kept in Git.
 - Removed duplicate downloaded illustration SVG files that had no references.
 - QA scripts are retained because they regenerate their output folders when regression testing is required.
+
+
+## UX/UI Input System pass — 2026-09-24
+
+- Added shared `inno-inputs.js` to all 74 Web Portal routes.
+- Visible browser-default selects were replaced by shared Select / Combobox / Resource Picker / Segmented patterns while preserving native backing state.
+- Restructured the four C-grade screens from `INNO-One-UX-UI-Page-Review.md`: Asset QR, Create Ticket, Notification Rule and Report Builder.
+- System-wide browser QA: 74 routes × 1366 / 1024 / 768 passed with no page overflow or visible native Web select.
+- Representative Input System interaction QA passed 20 / 20 before final freeze.

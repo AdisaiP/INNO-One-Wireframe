@@ -3,8 +3,8 @@
 
 const contract={
   name:"INNO.One Design System",
-  contractVersion:"1.11.0",
-  documentationVersion:"1.17",
+  contractVersion:"1.12.0",
+  documentationVersion:"1.18",
   status:"frozen",
   frozenAt:"2026-09-24",
   principles:[
@@ -75,6 +75,27 @@ const contract={
     INNOForm:{
       implementation:"React Hook Form + Zod + shadcn/ui fields",
       rules:["Labels stay visible","Validation appears next to owning field","Preserve input after recoverable error"]
+    },
+    INNOSelect:{
+      implementation:"Radix/shadcn Select + INNO.One trigger/list styling",
+      usage:"short static choice lists",
+      behavior:["keyboard navigation","backing value remains form state","never expose browser-default selector in Web Portal"]
+    },
+    INNOCombobox:{
+      implementation:"Popover + Command pattern",
+      usage:"searchable people/templates/categories or longer option sets"
+    },
+    INNOMultiSelect:{
+      implementation:"searchable listbox + selected chips",
+      usage:"multiple recipients, scopes, categories or tags"
+    },
+    INNOResourcePicker:{
+      implementation:"searchable resource combobox with icon + metadata",
+      usage:"Devices, Assets, Groups, Datasets and other identifiable resources"
+    },
+    INNOSegmented:{
+      implementation:"single-select segmented control backed by form state",
+      usage:"2–4 mutually exclusive high-frequency choices"
     },
     INNOTabs:{
       implementation:"shadcn/ui Tabs",
@@ -198,6 +219,7 @@ const contract={
     "inno-design-system.css",
     "inno-design-contract.js",
     "inno-interactions.js",
+    "inno-inputs.js",
     "inno-states.js",
     "inno-responsive.js",
     "inno-navigation.js",

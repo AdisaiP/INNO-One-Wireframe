@@ -1,7 +1,7 @@
 # INNO.One Design System — Frozen UI Contract
 
-**UI Contract:** 1.11.0  
-**Documentation:** Design System V1.17  
+**UI Contract:** 1.12.0
+**Documentation:** Design System V1.18
 **Status:** Frozen  
 **Frozen:** 2026-09-24
 
@@ -15,6 +15,7 @@ The frozen UI contract is represented by:
 - `inno-design-system.css` — prototype tokens and component styling
 - `inno-design-contract.js` — machine-readable component contract
 - `inno-interactions.js` — menus, filters, columns, confirmation, toast, tabs
+- `inno-inputs.js` — Select, Combobox, Multi-select, Segmented and Resource Picker prototype contract
 - `inno-states.js` — loading, empty, error, permission, offline and partial states
 - `inno-responsive.js` — shell breakpoints, sidebar and dense-content behavior
 - `inno-navigation.js` — Rail, contextual sidebar, breadcrumb and deep-link rules
@@ -317,3 +318,15 @@ A new module is UI-complete only when it:
 - Removed or deactivated remaining dead controls found during final QA; master-detail selectors now update their detail surface in representative configuration/builder screens.
 - Frozen 74 Web Portal routes + Design System + 2 Endpoint Agent + 1 Android Mobile route screenshots, plus 12 important UI states.
 - Added `INNO-One-Final-Visual-QA-Baseline.md`, `qa-final-visual.py` and `final-visual-audit.py` as the final pre-backend regression baseline.
+
+
+## 26. Minor 1.12.0 — Shared Input System & C-Grade UX Restructure
+
+- Added `inno-inputs.js` as the Web Portal backing-state input layer. Native `<select>` values remain the form state, while the visible UI uses INNOSelect / INNOCombobox / INNOResourcePicker / INNOSegmented patterns.
+- Auto-enhanced Web Portal selects while leaving Endpoint Agent / Android Mobile surfaces independent.
+- Added keyboard navigation, searchable popovers, fixed-layer menus, resource metadata presentation and selected-chip support.
+- Restructured `ticket-new.html` around Describe issue → Add context → Advanced routing instead of exposing all routing fields at equal priority.
+- Restructured `helpdesk-notification-rule.html` into When → Send to → Message.
+- Reworked `report-builder.html` into Dataset → Visible columns → Filter Builder → Grouping/Sorting with Preview retained in context.
+- Reworked `asset-qr.html` into Select assets → Label setup → Preview → Print; QR security and Android integration are progressive supporting information.
+- Added `qa-ux-input-browser.py` regression coverage across 74 Web routes × 1366 / 1024 / 768 plus representative interaction checks.

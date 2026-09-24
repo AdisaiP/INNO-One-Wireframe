@@ -177,8 +177,8 @@ Current interpretation:
 ## 8. Frozen UI contract
 
 Current baseline at the time of this summary:
-- Design System: V1.17.
-- UI Contract: 1.11.0.
+- Design System: V1.18.
+- UI Contract: 1.12.0.
 - Registry Schema: 10.
 - Surface contracts: Web / Endpoint Agent / Android Mobile.
 
@@ -290,3 +290,10 @@ See `INNO-One-Screen-Architecture-Refactor-Plan.md` for the canonical P01–P10 
 - Frozen screenshot/metric manifest is stored under `qa-final-visual/`.
 - Final baseline contract is documented in `INNO-One-Final-Visual-QA-Baseline.md`.
 - This freeze means the UI prototype is ready for backend mapping/planning; it does not claim that backend services or TOR acceptance are implemented.
+
+
+## 13. Shared Input System & C-grade UX pass — 2026-09-24
+
+- Web Portal forms now consume the shared Input System instead of exposing browser-default selectors.
+- `ticket-new.html`, `helpdesk-notification-rule.html`, `report-builder.html` and `asset-qr.html` were restructured around one primary user job per screen.
+- `inno-inputs.js` is part of the frozen UI contract and preserves native backing values for prototype validation/dirty-state compatibility.

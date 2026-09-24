@@ -151,6 +151,13 @@ c.nav("remote-session.html");c.eval("document.querySelector('[data-inno-confirm]
 open_=c.eval("document.getElementById('innoConfirmBackdrop').classList.contains('open')")
 manifest["states"]["destructive-confirm"]={"page":"remote-session.html","open":open_,**c.shot(OUT/"states"/"destructive-confirm.png")}
 check("State destructive-confirm",open_)
+# Shared Input System open state.
+c.viewport(1366,900);c.nav("ticket-new.html")
+c.eval("""(()=>{const s=[...document.querySelectorAll('select')].find(x=>x.closest('.field')?.querySelector('label')?.textContent==='Category');s.nextElementSibling.querySelector('.inno-select-trigger').click()})()""");time.sleep(.08)
+input_open=c.eval("!!document.querySelector('.inno-picker-popover .inno-picker-list')")
+manifest["states"]["select-open"]={"page":"ticket-new.html","open":input_open,**c.shot(OUT/"states"/"select-open.png")}
+check("State select-open",input_open)
+
 # Final dead-control behavior checks.
 c.viewport(1366,900)
 c.nav("device-query.html");c.eval("document.querySelectorAll('.arch-side-list button[data-query-type]')[1].click()");time.sleep(.04)
@@ -198,7 +205,7 @@ manifest["summary"]={
  "sideWidthDistribution":side,"headerHeightDistribution":header
 }
 check("All canonical route screenshots captured",manifest["summary"]["routeScreenshots"]==78,manifest["summary"]["routeScreenshots"])
-check("Important state screenshots captured",manifest["summary"]["stateScreenshots"]==12,manifest["summary"]["stateScreenshots"])
+check("Important state screenshots captured",manifest["summary"]["stateScreenshots"]==13,manifest["summary"]["stateScreenshots"])
 check("Web shell rail width consistent",rail=={"60":len(web_pages)},rail)
 check("Web shell sidebar width consistent",side=={"216":len(web_pages)},side)
 check("Web shell header height consistent",len(header)==1,header)

@@ -1,7 +1,7 @@
 # INNO.One Final Visual QA Baseline
 
-**UI Contract:** 1.11.0  
-**Design System Documentation:** V1.17  
+**UI Contract:** 1.12.0
+**Design System Documentation:** V1.18
 **Status:** Frozen visual baseline  
 **Frozen:** 2026-09-24  
 **Backend:** Not implemented by this baseline
@@ -22,7 +22,7 @@ Baseline directory:
 
 - `qa-final-visual/routes-web/` — 74 Web Portal route screenshots.
 - `qa-final-visual/surfaces/` — Design System + 2 Endpoint Agent + 1 Android Mobile screenshots.
-- `qa-final-visual/states/` — 12 important state/interaction screenshots.
+- `qa-final-visual/states/` — 13 important state/interaction screenshots.
 - `qa-final-visual/manifest.json` — route metrics, file hashes and QA summary.
 - `qa-final-visual/contact-sheets/` — review-only visual contact sheets.
 
@@ -128,7 +128,7 @@ Final verification on 2026-09-24:
 - `qa-final-visual.py`: 106 browser checks, 0 failures.
 - Canonical route screenshots: 78.
 - Important state screenshots: 12.
-- Screenshot files verified against manifest SHA-256: 90 / 90.
+- Screenshot files verified against manifest SHA-256: 91 / 91.
 - Design System audit: 0 issues.
 - Component Consistency audit: 0 issues.
 - Density / Spacing / Typography audit: 0 issues.
@@ -142,3 +142,8 @@ The frozen UI is ready for backend architecture, API, event and permission mappi
 ## 10. Repository cleanup policy
 
 After the 1.11.0 freeze, superseded QA screenshot folders and the disconnected legacy prototype were removed from the repository. `qa-final-visual/` is the retained screenshot baseline. Regression scripts remain source-controlled and may regenerate temporary QA output folders locally when needed.
+
+
+## 11. UX Input System freeze — 1.12.0
+
+The final visual baseline now includes the shared Input System and an additional `select-open` state screenshot. Total frozen screenshots: 78 canonical routes + 13 states = 91. The C-grade screens reviewed in `INNO-One-UX-UI-Page-Review.md` were restructured before this freeze.

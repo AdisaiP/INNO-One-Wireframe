@@ -12,6 +12,7 @@ required=[
     "qa-final-visual.py",
     "design-system.html",
     "inno-design-contract.js",
+    "inno-inputs.js",
     "INNO-One-Design-System-V1-Frozen.md",
 ]
 for name in required:
@@ -36,9 +37,9 @@ metrics.update({
 
 if len(web)!=74:issues.append(f"expected 74 Web routes, found {len(web)}")
 if len(surfaces)!=4:issues.append(f"expected 4 reference/external surfaces, found {len(surfaces)}")
-if len(states)!=12:issues.append(f"expected 12 important states, found {len(states)}")
+if len(states)!=13:issues.append(f"expected 13 important states, found {len(states)}")
 if summary.get("routeScreenshots")!=78:issues.append(f"expected 78 route screenshots, found {summary.get('routeScreenshots')}")
-if summary.get("stateScreenshots")!=12:issues.append(f"expected 12 state screenshots, found {summary.get('stateScreenshots')}")
+if summary.get("stateScreenshots")!=13:issues.append(f"expected 13 state screenshots, found {summary.get('stateScreenshots')}")
 if summary.get("failures")!=0:issues.append(f"manifest recorded failures={summary.get('failures')}")
 
 allowed_dead={"device-alerts.html","remote-consent-rules.html","remote-session.html"}
@@ -47,7 +48,7 @@ for page,m in web.items():
     if m.get("railActive")!=1:issues.append(f"{page}: rail active={m.get('railActive')}")
     if m.get("sideActive")!=1:issues.append(f"{page}: side active={m.get('sideActive')}")
     if m.get("rawPlaceholders")!=0:issues.append(f"{page}: raw placeholders={m.get('rawPlaceholders')}")
-    if m.get("contract")!="1.11.0":issues.append(f"{page}: contract={m.get('contract')}")
+    if m.get("contract")!="1.12.0":issues.append(f"{page}: contract={m.get('contract')}")
     if m.get("status")!="frozen":issues.append(f"{page}: contract status={m.get('status')}")
     if m.get("primaryHead",0)>1:issues.append(f"{page}: page-head primary={m.get('primaryHead')}")
     if m.get("railWidth")!=60:issues.append(f"{page}: rail width={m.get('railWidth')}")
@@ -57,7 +58,7 @@ for page,m in web.items():
 
 for page,m in surfaces.items():
     if m.get("overflow"):issues.append(f"{page}: surface overflow")
-    if m.get("contract")!="1.11.0":issues.append(f"{page}: contract={m.get('contract')}")
+    if m.get("contract")!="1.12.0":issues.append(f"{page}: contract={m.get('contract')}")
     if m.get("status")!="frozen":issues.append(f"{page}: contract status={m.get('status')}")
 
 for name,m in states.items():
@@ -76,16 +77,16 @@ for section in ("web","surfaces","states"):
         if actual!=expected:issues.append(f"{section}:{name}: screenshot hash mismatch")
 
 metrics["hash_checks"]=hash_checks
-if hash_checks!=90:issues.append(f"expected 90 screenshot hash checks, found {hash_checks}")
+if hash_checks!=91:issues.append(f"expected 91 screenshot hash checks, found {hash_checks}")
 
 contract=(ROOT/"inno-design-contract.js").read_text(encoding="utf-8")
-if 'contractVersion:"1.11.0"' not in contract:issues.append("machine contract is not 1.11.0")
-if 'documentationVersion:"1.17"' not in contract:issues.append("machine documentation version is not 1.17")
+if 'contractVersion:"1.12.0"' not in contract:issues.append("machine contract is not 1.12.0")
+if 'documentationVersion:"1.18"' not in contract:issues.append("machine documentation version is not 1.18")
 if '"INNO-One-Final-Visual-QA-Baseline.md"' not in contract:issues.append("final baseline missing from contract sourceOfTruth")
 
 design=(ROOT/"design-system.html").read_text(encoding="utf-8")
-if "Design System V1.17" not in design:issues.append("Design System visual reference is not V1.17")
-if "UI Contract 1.11.0 is frozen" not in design:issues.append("Design System freeze banner is not 1.11.0")
+if "Design System V1.18" not in design:issues.append("Design System visual reference is not V1.18")
+if "UI Contract 1.12.0 is frozen" not in design:issues.append("Design System freeze banner is not 1.12.0")
 
 print("\n".join(f"{k}={v}" for k,v in metrics.items()))
 print(f"issues={len(issues)}")
