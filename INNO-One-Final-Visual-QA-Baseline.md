@@ -2,8 +2,8 @@
 
 **UI Contract:** 1.12.0
 **Design System Documentation:** V1.18
-**Status:** Frozen visual baseline  
-**Frozen:** 2026-09-24  
+**Status:** Frozen visual baseline
+**Frozen:** 2026-09-25
 **Backend:** Not implemented by this baseline
 
 ## 1. Purpose
@@ -20,7 +20,7 @@ The baseline is used to:
 
 Baseline directory:
 
-- `qa-final-visual/routes-web/` — 74 Web Portal route screenshots.
+- `qa-final-visual/routes-web/` — 83 Web Portal route screenshots.
 - `qa-final-visual/surfaces/` — Design System + 2 Endpoint Agent + 1 Android Mobile screenshots.
 - `qa-final-visual/states/` — 13 important state/interaction screenshots.
 - `qa-final-visual/manifest.json` — route metrics, file hashes and QA summary.
@@ -53,6 +53,7 @@ The frozen state screenshots cover:
 10. Filter drawer
 11. Bulk selection
 12. Destructive confirmation
+13. Select / resource picker open state
 
 These are prototype UI contracts. They do not certify live network, persistence, permission or backend behavior.
 
@@ -60,17 +61,17 @@ These are prototype UI contracts. They do not certify live network, persistence,
 
 At the canonical Web viewport:
 
-- Global Rail width = 60px on all 74 Web routes.
-- Contextual Sidebar width = 216px on all 74 Web routes.
-- Platform Header height = 56px on all 74 Web routes.
-- Canvas background = `#F7F8FA` on all 74 Web routes.
+- Global Rail width = 60px on all 83 Web routes.
+- Contextual Sidebar width = 216px on all 83 Web routes.
+- Platform Header height = 56px on all 83 Web routes.
+- Canvas background = `#F7F8FA` on all 83 Web routes.
 - Every Web route has exactly one active Rail route and one active contextual route.
 - No Web route has page-level horizontal overflow.
 - No raw placeholder `href="#"` remains actionable after navigation normalization.
 - Page-header primary-action hierarchy follows the shared component contract.
 
 Intentional title variants:
-- Standard Page Header H1 = 23px on 68 Web routes.
+- Standard Page Header H1 = 23px on 77 Web routes.
 - Workspace hero H1 = 22px.
 - Remote Session specialized operations title = 20px.
 - Device Detail, Asset Detail, Ticket Detail and Meeting Detail use the Resource Detail title pattern rather than a Page Header H1.
@@ -89,7 +90,7 @@ Mock controls rendered inside the simulated remote desktop are visual content of
 
 ## 6. Surface boundary freeze
 
-- Web Portal canonical product routes: 74.
+- Web Portal canonical product routes: 83.
 - Endpoint Agent prototype routes: 2.
 - Android Mobile prototype routes: 1.
 - Design System reference: 1.
@@ -123,12 +124,12 @@ Do not silently overwrite the screenshots after a regression. Fix the regression
 
 ## 9. Freeze verification result
 
-Final verification on 2026-09-24:
+Final verification on 2026-09-25:
 
-- `qa-final-visual.py`: 106 browser checks, 0 failures.
-- Canonical route screenshots: 78.
-- Important state screenshots: 12.
-- Screenshot files verified against manifest SHA-256: 91 / 91.
+- `qa-final-visual.py`: 116 browser checks, 0 failures.
+- Canonical route screenshots: 87.
+- Important state screenshots: 13.
+- Screenshot files verified against manifest SHA-256: 100 / 100.
 - Design System audit: 0 issues.
 - Component Consistency audit: 0 issues.
 - Density / Spacing / Typography audit: 0 issues.
@@ -157,3 +158,17 @@ The 1.12.0 visual baseline was regenerated after the first B-grade operational e
 ## 13. B-grade configuration/account refresh
 
 The 1.12.0 visual baseline was regenerated after the second B-grade pass. Screenshot counts remain 78 canonical routes + 13 states = 91 images. Affected route screenshots include Endpoint Policies, Alert Channels, Helpdesk SLA, Categories, Requester Groups, Business Calendar, Notification Settings, Meeting New, Apps & Modules and Profile.
+
+
+## 14. Canonical route ownership refresh — 2026-09-25
+
+The current 1.12.0 prototype baseline now owns distinct application routes for Devices, Helpdesk ticket queues, Meeting lists and Workspace activity views. App Launcher and Reports use query-state routes for true filters instead of hash navigation.
+
+Current baseline counts supersede the earlier snapshot counts recorded in historical pass sections above:
+
+- Web Portal routes: 83.
+- Canonical route screenshots: 87 (83 Web + Design System + 2 Agent + 1 Mobile).
+- Important state screenshots: 13.
+- Total frozen screenshots / hash checks: 100 / 100.
+- Application-shell hash navigation: 0.
+- Missing local route targets: 0.

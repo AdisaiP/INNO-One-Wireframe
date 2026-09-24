@@ -5,13 +5,13 @@ const file=()=>location.pathname.split("/").pop()||"workspace-v2.html";
 const cleanHref=v=>(v||"").split("?")[0];
 
 const appRoutes={
-  workspace:["workspace-v2.html","notifications.html","profile.html"],
+  workspace:["workspace-v2.html","workspace-continue.html","workspace-attention.html","workspace-recent.html","notifications.html","profile.html"],
   apps:["app-launcher-v2.html"],
-  devices:["devices-overview-v2.html","device-detail-v2.html","device-add.html","device-discovery.html","device-groups.html","remote-operations.html","remote-session.html","remote-consent.html","remote-consent-policy.html","remote-consent-message.html","remote-consent-rules.html","remote-consent-history.html","device-query.html","deployment-jobs.html","deployment-new.html","deployment-job-detail.html","agent-maintenance.html","agent-updates.html","agent-rollout-new.html","software-maintenance.html","software-maintenance-new.html","restart-operations.html","restart-schedule.html","maintenance-history.html","endpoint-policies.html","device-alerts.html","device-alert-rules.html","device-alert-rule.html","device-alert-channels.html","device-alert-history.html"],
+  devices:["devices-overview-v2.html","devices.html","device-detail-v2.html","device-add.html","device-discovery.html","device-groups.html","remote-operations.html","remote-session.html","remote-consent.html","remote-consent-policy.html","remote-consent-message.html","remote-consent-rules.html","remote-consent-history.html","device-query.html","deployment-jobs.html","deployment-new.html","deployment-job-detail.html","agent-maintenance.html","agent-updates.html","agent-rollout-new.html","software-maintenance.html","software-maintenance-new.html","restart-operations.html","restart-schedule.html","maintenance-history.html","endpoint-policies.html","device-alerts.html","device-alert-rules.html","device-alert-rule.html","device-alert-channels.html","device-alert-history.html"],
   assets:["assets-overview.html","asset-inventory.html","asset-detail.html","asset-ownership.html","asset-users.html","asset-user-detail.html","asset-ownership-submissions.html","asset-custom-fields.html","asset-qr.html","software-licenses.html","contracts-warranty.html"],
   reports:["reports-overview.html","report-builder.html"],
-  helpdesk:["helpdesk.html","ticket-detail.html","ticket-new.html","helpdesk-sla.html","helpdesk-settings.html","helpdesk-categories.html","helpdesk-statuses.html","helpdesk-requester-groups.html","helpdesk-calendar.html","helpdesk-notifications.html","helpdesk-notification-rule.html","helpdesk-notification-templates.html","helpdesk-notification-template.html","helpdesk-notification-delivery.html","helpdesk-notification-settings.html","knowledge-base.html","helpdesk-reports.html"],
-  meeting:["meeting.html","meeting-detail.html","meeting-new.html"],
+  helpdesk:["helpdesk.html","helpdesk-tickets.html","helpdesk-assigned.html","helpdesk-team.html","ticket-detail.html","ticket-new.html","helpdesk-sla.html","helpdesk-settings.html","helpdesk-categories.html","helpdesk-statuses.html","helpdesk-requester-groups.html","helpdesk-calendar.html","helpdesk-notifications.html","helpdesk-notification-rule.html","helpdesk-notification-templates.html","helpdesk-notification-template.html","helpdesk-notification-delivery.html","helpdesk-notification-settings.html","knowledge-base.html","helpdesk-reports.html"],
+  meeting:["meeting.html","meeting-list.html","meeting-upcoming.html","meeting-detail.html","meeting-new.html"],
   admin:["admin.html","modules.html","roles-permissions-v2.html","access-scopes.html","access-scope-edit.html","access-scope-browser.html","access-scope-evaluate.html","design-system.html"]
 };
 
@@ -28,11 +28,15 @@ const railTargets={
 
 const sideTargetByFile={
   "workspace-v2.html":"workspace-v2.html",
+  "workspace-continue.html":"workspace-continue.html",
+  "workspace-attention.html":"workspace-attention.html",
+  "workspace-recent.html":"workspace-recent.html",
   "notifications.html":"notifications.html",
   "profile.html":"profile.html",
   "app-launcher-v2.html":"app-launcher-v2.html",
   "devices-overview-v2.html":"devices-overview-v2.html",
-  "device-detail-v2.html":"devices-overview-v2.html#devices",
+  "devices.html":"devices.html",
+  "device-detail-v2.html":"devices.html",
   "device-add.html":"deployment-jobs.html",
   "device-discovery.html":"device-discovery.html",
   "device-groups.html":"device-groups.html",
@@ -75,8 +79,11 @@ const sideTargetByFile={
   "reports-overview.html":"reports-overview.html",
   "report-builder.html":"report-builder.html",
   "helpdesk.html":"helpdesk.html",
-  "ticket-detail.html":"helpdesk.html#tickets",
-  "ticket-new.html":"helpdesk.html#tickets",
+  "helpdesk-tickets.html":"helpdesk-tickets.html",
+  "helpdesk-assigned.html":"helpdesk-assigned.html",
+  "helpdesk-team.html":"helpdesk-team.html",
+  "ticket-detail.html":"helpdesk-tickets.html",
+  "ticket-new.html":"helpdesk-tickets.html",
   "helpdesk-sla.html":"helpdesk-sla.html",
   "helpdesk-settings.html":"helpdesk-settings.html",
   "helpdesk-categories.html":"helpdesk-settings.html",
@@ -92,7 +99,9 @@ const sideTargetByFile={
   "knowledge-base.html":"knowledge-base.html",
   "helpdesk-reports.html":"helpdesk-reports.html",
   "meeting.html":"meeting.html",
-  "meeting-detail.html":"meeting.html#meetings",
+  "meeting-list.html":"meeting-list.html",
+  "meeting-upcoming.html":"meeting-upcoming.html",
+  "meeting-detail.html":"meeting-list.html",
   "meeting-new.html":"meeting-new.html",
   "admin.html":"admin.html",
   "modules.html":"modules.html",
@@ -105,21 +114,16 @@ const sideTargetByFile={
 };
 
 const hashTargets={
-  "workspace-v2.html":{"#continue":"#continue","#attention":"#attention","#recent":"#recent"},
-  "devices-overview-v2.html":{"#devices":"#devices"},
-  "helpdesk.html":{"#tickets":"#tickets","#assigned":"#assigned","#team":"#team"},
-  "meeting.html":{"#upcoming":"meeting.html#upcoming","#meetings":"meeting.html#meetings"},
-  "reports-overview.html":{"#hardware":"#hardware","#software":"#software","#assets":"#assets"},
   "design-system.html":{"#foundations":"#foundations","#buttons":"#buttons","#forms":"#forms","#data":"#data","#states":"#states","#interactions":"#interactions","#overlays":"#overlays","#responsive":"#responsive","#freeze":"#freeze","#navigation":"#navigation","#icons":"#icons","#guidelines":"#guidelines"}
 };
 
 const parentRoutes={
-  "device-detail-v2.html":{href:"devices-overview-v2.html#devices",label:"Back to Devices"},
+  "device-detail-v2.html":{href:"devices.html",label:"Back to Devices"},
   "remote-session.html":{href:"remote-operations.html?tab=sessions",label:"Back to Remote Operations"},
   "asset-detail.html":{href:"asset-inventory.html",label:"Back to Asset Inventory"},
-  "ticket-detail.html":{href:"helpdesk.html#tickets",label:"Back to Tickets"},
-  "ticket-new.html":{href:"helpdesk.html#tickets",label:"Back to Tickets"},
-  "meeting-detail.html":{href:"meeting.html#meetings",label:"Back to My Meetings"},
+  "ticket-detail.html":{href:"helpdesk-tickets.html",label:"Back to Tickets"},
+  "ticket-new.html":{href:"helpdesk-tickets.html",label:"Back to Tickets"},
+  "meeting-detail.html":{href:"meeting-list.html",label:"Back to My Meetings"},
   "meeting-new.html":{href:"meeting.html",label:"Back to Meeting"},
   "helpdesk-notification-rule.html":{href:"helpdesk-notifications.html",label:"Back to Notification Rules"},
   "helpdesk-notification-template.html":{href:"helpdesk-notification-templates.html",label:"Back to Email Templates"},
@@ -150,7 +154,9 @@ function normalizeTarget(href){
 function findSideLink(target){
   const links=[...document.querySelectorAll(".side a")];
   if(!target)return null;
-  let hit=links.find(a=>normalizeTarget(a.getAttribute("href"))===target);
+  let hit=links.find(a=>(a.getAttribute("href")||"")===target);
+  if(hit)return hit;
+  hit=links.find(a=>normalizeTarget(a.getAttribute("href"))===target);
   if(hit)return hit;
   if(target.startsWith("#")){
     hit=links.find(a=>{
@@ -162,7 +168,13 @@ function findSideLink(target){
 }
 
 function activeSideTarget(){
-  const f=file(),hash=location.hash||"";
+  const f=file(),hash=location.hash||"",q=new URLSearchParams(location.search);
+  if(f==="app-launcher-v2.html"){
+    if(q.get("filter")==="pinned")return "app-launcher-v2.html?filter=pinned";
+    if(q.get("filter")==="available")return "app-launcher-v2.html?filter=available";
+    if(q.get("view")==="recent")return "app-launcher-v2.html?view=recent";
+  }
+  if(f==="reports-overview.html"&&["hardware","software","assets"].includes(q.get("report")))return "reports-overview.html?report="+q.get("report");
   return hashTargets[f]?.[hash]||sideTargetByFile[f]||"";
 }
 

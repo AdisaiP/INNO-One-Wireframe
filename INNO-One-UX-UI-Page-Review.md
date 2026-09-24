@@ -1,8 +1,8 @@
 # INNO.One — UX/UI Page Review
 
-**Review date:** 2026-09-24  
-**Baseline reviewed:** Design System V1.17 / UI Contract 1.11.0  
-**Scope:** 74 Web Portal pages + current Agent/Mobile surface language  
+**Review date:** 2026-09-24
+**Baseline reviewed:** Design System V1.17 / UI Contract 1.11.0
+**Scope:** 83 Web Portal pages + current Agent/Mobile surface language
 **Purpose:** Visual/UX architecture review after technical UI freeze. This is a review document, not a new frozen UI contract.
 
 ---
@@ -422,3 +422,22 @@ Completed the second B-grade batch on UI Contract 1.12.0:
 - `profile.html` — Profile & Security is separated from Preferences with in-page tabs.
 
 Regression coverage in `qa-ux-input-browser.py` now includes this batch.
+
+
+## 10. Route ownership cleanup — 2026-09-25
+
+Application-shell hash navigation has been removed from the current prototype. Sidebar items that represent distinct user jobs now own canonical routes instead of scrolling Overview pages.
+
+New canonical routes:
+
+- `devices.html` — full device list.
+- `helpdesk-tickets.html` — full ticket list.
+- `helpdesk-assigned.html` — personal ticket queue.
+- `helpdesk-team.html` — team workload / queue.
+- `meeting-list.html` — processed meetings.
+- `meeting-upcoming.html` — upcoming schedule.
+- `workspace-continue.html` — recent work.
+- `workspace-attention.html` — cross-app attention queue.
+- `workspace-recent.html` — recent activity.
+
+Filter-like navigation remains on the owning screen but uses query-state routes instead of hashes: App Launcher uses `?filter=` / `?view=`, and Reports uses `?report=`. Design System anchors remain intentionally in-page because that screen is documentation navigation.

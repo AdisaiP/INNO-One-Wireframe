@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-24",
+  "generated": "2026-09-25",
   "web": {
     "access-scope-browser.html": {
       "overflow": false,
@@ -55,8 +55,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/access-scope-evaluate.png",
-      "sha256": "3c66e443194fd0b4198c2f33286b1fceea1e5808ba94ed3f614dadd8b966ff92",
-      "bytes": 73859
+      "sha256": "4208a77c2518d090867862c4a43d058cf150c723f50750663a8339533e62ac0c",
+      "bytes": 73826
     },
     "access-scopes.html": {
       "overflow": false,
@@ -131,8 +131,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/agent-rollout-new.png",
-      "sha256": "105adae08e630ae49ca80ac0c16787191ddeb531c5ac311ec70b9c7ab6781ed1",
-      "bytes": 92132
+      "sha256": "1cf8293e5027dabc15ded9c5eaaac1e30a393f831ae6ba2692fe5a86772fc359",
+      "bytes": 92135
     },
     "agent-updates.html": {
       "overflow": false,
@@ -169,8 +169,8 @@
       "primaryHead": 1,
       "dead": [],
       "file": "qa-final-visual/routes-web/app-launcher-v2.png",
-      "sha256": "be9fc5d58f8062a34bccd7d779b605a2e7bdeb6104de0768762bd30d2d59237a",
-      "bytes": 158269
+      "sha256": "b0dd2f1caba44fe4628d8583934c276ef7f92baa9b759f15b7163b48eb00208e",
+      "bytes": 158250
     },
     "asset-custom-fields.html": {
       "overflow": false,
@@ -359,8 +359,8 @@
       "primaryHead": 1,
       "dead": [],
       "file": "qa-final-visual/routes-web/contracts-warranty.png",
-      "sha256": "6309ad3da7a0da0911d70a06ff0a7a1e7102b86aea8f9895c523b1d8e74c9fb4",
-      "bytes": 143387
+      "sha256": "3947cabc2e888e1de3beb2362667a6ef4066ffd564dc5507470ee9f63013f68a",
+      "bytes": 143163
     },
     "deployment-job-detail.html": {
       "overflow": false,
@@ -397,8 +397,8 @@
       "primaryHead": 1,
       "dead": [],
       "file": "qa-final-visual/routes-web/deployment-jobs.png",
-      "sha256": "37f773bc7ae2160ad84cda82d18671eae3d83cf4e8e084b3eb3023efce799f88",
-      "bytes": 121797
+      "sha256": "411e21258a9314b009dfa635b9096a8895c4561985de5b5d0391dc44006d3fe2",
+      "bytes": 121777
     },
     "deployment-new.html": {
       "overflow": false,
@@ -454,8 +454,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/device-alert-channels.png",
-      "sha256": "0a2442bc3d28aae6bc0526f558a66a08a35c5b07b0603a4c9032233ceac0b8b8",
-      "bytes": 131047
+      "sha256": "9515a41e992b299830fd43863a98f5fca711028593738a9ab4a82d2c987b4eb4",
+      "bytes": 131028
     },
     "device-alert-history.html": {
       "overflow": false,
@@ -625,8 +625,27 @@
       "primaryHead": 1,
       "dead": [],
       "file": "qa-final-visual/routes-web/devices-overview-v2.png",
-      "sha256": "12bdd1be1f021ef4518c0a577e46b1e7f1f6348673c962f097b4305811b6cc54",
-      "bytes": 154935
+      "sha256": "23c2f9ae34de9207424166b7cfd6457d8428458be352edae6a0bc002cc3bf276",
+      "bytes": 138657
+    },
+    "devices.html": {
+      "overflow": false,
+      "railActive": 1,
+      "sideActive": 1,
+      "rawPlaceholders": 0,
+      "contract": "1.12.0",
+      "status": "frozen",
+      "h1Count": 1,
+      "h1Size": "23px",
+      "bodyBg": "rgb(247, 248, 250)",
+      "railWidth": 60,
+      "sideWidth": 216,
+      "headerHeight": 56,
+      "primaryHead": 1,
+      "dead": [],
+      "file": "qa-final-visual/routes-web/devices.png",
+      "sha256": "5fcef88f0092370e68042b10a2b52443698c820aeb938b6a6aaf98c85225cee1",
+      "bytes": 113912
     },
     "endpoint-policies.html": {
       "overflow": false,
@@ -647,6 +666,25 @@
       "sha256": "44c422dbf5fdc48f21481d649f032888833772d7ae94a5ea3940a1433f9870c5",
       "bytes": 134594
     },
+    "helpdesk-assigned.html": {
+      "overflow": false,
+      "railActive": 1,
+      "sideActive": 1,
+      "rawPlaceholders": 0,
+      "contract": "1.12.0",
+      "status": "frozen",
+      "h1Count": 1,
+      "h1Size": "23px",
+      "bodyBg": "rgb(247, 248, 250)",
+      "railWidth": 60,
+      "sideWidth": 216,
+      "headerHeight": 56,
+      "primaryHead": 1,
+      "dead": [],
+      "file": "qa-final-visual/routes-web/helpdesk-assigned.png",
+      "sha256": "b08be3b70f4b8e0a27d27329baa09b91e3ddb48f03f0963b0dfc9fc69fb88574",
+      "bytes": 97000
+    },
     "helpdesk-calendar.html": {
       "overflow": false,
       "railActive": 1,
@@ -663,8 +701,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/helpdesk-calendar.png",
-      "sha256": "5b7d252a4d3fa3cbc8ea0cf639c17756f6dc28e3a29b4d4de46a28fdc76fa413",
-      "bytes": 122007
+      "sha256": "4be53f3794b7259ead5485cc130d832ac07aac647157051435533d05f2e063b2",
+      "bytes": 121974
     },
     "helpdesk-categories.html": {
       "overflow": false,
@@ -720,8 +758,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/helpdesk-notification-rule.png",
-      "sha256": "ff4f1eb2ff3229fcebb03fc3dcbd24836cbcde6631056d7db41c5ae240bf2059",
-      "bytes": 120108
+      "sha256": "5260df00964dd6a282be5b838681e91ccc9726f19fdb63d821ec0927319c90bf",
+      "bytes": 120113
     },
     "helpdesk-notification-settings.html": {
       "overflow": false,
@@ -739,8 +777,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/helpdesk-notification-settings.png",
-      "sha256": "d3a60f5b4c1c58d8bf1dd12130eb822312dc73fb5f70eb69028646f1181e3bf5",
-      "bytes": 132372
+      "sha256": "06d216090309d12dc4b797df06b5bdce76dccc98b0210b4c115188135c8cd2c1",
+      "bytes": 132352
     },
     "helpdesk-notification-template.html": {
       "overflow": false,
@@ -834,8 +872,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/helpdesk-requester-groups.png",
-      "sha256": "b2859776ebabca5877369d7336823042927a9d0d3ea2edfe7549e8b09c9d5d7e",
-      "bytes": 102996
+      "sha256": "12f713e3d75780390b403bf85a0e2ef03107af9a360ee3e3cd05a2044a0c580c",
+      "bytes": 103006
     },
     "helpdesk-settings.html": {
       "overflow": false,
@@ -853,8 +891,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/helpdesk-settings.png",
-      "sha256": "b633ff4844f59e16bbb79af45c1cac175c17c4a6b4907095e1b82cb08cfa1407",
-      "bytes": 79961
+      "sha256": "34054c979f0987af810cb43baeb43313a98c3f5198a5fbcda462ef1e325f3d14",
+      "bytes": 79925
     },
     "helpdesk-sla.html": {
       "overflow": false,
@@ -894,6 +932,44 @@
       "sha256": "190591fbcf0d53a55bc7aacb15e9d1bd985f788bb57c7126a7d0715cf3268615",
       "bytes": 105895
     },
+    "helpdesk-team.html": {
+      "overflow": false,
+      "railActive": 1,
+      "sideActive": 1,
+      "rawPlaceholders": 0,
+      "contract": "1.12.0",
+      "status": "frozen",
+      "h1Count": 1,
+      "h1Size": "23px",
+      "bodyBg": "rgb(247, 248, 250)",
+      "railWidth": 60,
+      "sideWidth": 216,
+      "headerHeight": 56,
+      "primaryHead": 0,
+      "dead": [],
+      "file": "qa-final-visual/routes-web/helpdesk-team.png",
+      "sha256": "84b807812fe68f334ce39dbdeef160dd5d7367aed37d6630a8d1835760294480",
+      "bytes": 103441
+    },
+    "helpdesk-tickets.html": {
+      "overflow": false,
+      "railActive": 1,
+      "sideActive": 1,
+      "rawPlaceholders": 0,
+      "contract": "1.12.0",
+      "status": "frozen",
+      "h1Count": 1,
+      "h1Size": "23px",
+      "bodyBg": "rgb(247, 248, 250)",
+      "railWidth": 60,
+      "sideWidth": 216,
+      "headerHeight": 56,
+      "primaryHead": 1,
+      "dead": [],
+      "file": "qa-final-visual/routes-web/helpdesk-tickets.png",
+      "sha256": "45d08defc1b0e0f0d85e54d75114c99600d056be8bd25b23e02ec9ddf8b956b6",
+      "bytes": 106638
+    },
     "helpdesk.html": {
       "overflow": false,
       "railActive": 1,
@@ -910,8 +986,8 @@
       "primaryHead": 1,
       "dead": [],
       "file": "qa-final-visual/routes-web/helpdesk.png",
-      "sha256": "fba86e1e1ff6c005910a641ac489c9499653710472d74453e520621cb2cb671d",
-      "bytes": 142845
+      "sha256": "6c0671b9aba07e20b5622bde61430157da45c6f01c774261567eeb53d65c5c34",
+      "bytes": 132828
     },
     "knowledge-base.html": {
       "overflow": false,
@@ -967,8 +1043,27 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/meeting-detail.png",
-      "sha256": "30db083fd378ad6de37bfb3640fc7ff82680453409f06cd45e5eef6675c1e178",
-      "bytes": 117650
+      "sha256": "b16113c66bbadba0b8cb651df1df9c87f7098fa1b61d2ebdd8bbf13e2ebe987d",
+      "bytes": 117616
+    },
+    "meeting-list.html": {
+      "overflow": false,
+      "railActive": 1,
+      "sideActive": 1,
+      "rawPlaceholders": 0,
+      "contract": "1.12.0",
+      "status": "frozen",
+      "h1Count": 1,
+      "h1Size": "23px",
+      "bodyBg": "rgb(247, 248, 250)",
+      "railWidth": 60,
+      "sideWidth": 216,
+      "headerHeight": 56,
+      "primaryHead": 1,
+      "dead": [],
+      "file": "qa-final-visual/routes-web/meeting-list.png",
+      "sha256": "6cfba22906e7b2c05ff0d29d782b9d2470fb1d517e3072b1a94847addf505c63",
+      "bytes": 74727
     },
     "meeting-new.html": {
       "overflow": false,
@@ -989,6 +1084,25 @@
       "sha256": "aae8437bd7a9e9a4611298acb396505e02dd2fc4b87963cb933d98ecdb9bb3cb",
       "bytes": 103423
     },
+    "meeting-upcoming.html": {
+      "overflow": false,
+      "railActive": 1,
+      "sideActive": 1,
+      "rawPlaceholders": 0,
+      "contract": "1.12.0",
+      "status": "frozen",
+      "h1Count": 1,
+      "h1Size": "23px",
+      "bodyBg": "rgb(247, 248, 250)",
+      "railWidth": 60,
+      "sideWidth": 216,
+      "headerHeight": 56,
+      "primaryHead": 1,
+      "dead": [],
+      "file": "qa-final-visual/routes-web/meeting-upcoming.png",
+      "sha256": "905d37ea74954b84e234f91e2b40fb9368635eb5556d7e63cc2fed5b125fde91",
+      "bytes": 74597
+    },
     "meeting.html": {
       "overflow": false,
       "railActive": 1,
@@ -1005,8 +1119,8 @@
       "primaryHead": 1,
       "dead": [],
       "file": "qa-final-visual/routes-web/meeting.png",
-      "sha256": "c46daf8c5d7080040766cd7aba0d9e7af02a4222db2af59fc5e178e79c5a311a",
-      "bytes": 161765
+      "sha256": "dc4d62bc431cc4ad40d9c7a0c4573556096ceb9bfbd42b0bb2b2bc5acfb8e075",
+      "bytes": 162289
     },
     "modules.html": {
       "overflow": false,
@@ -1100,8 +1214,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/remote-consent-message.png",
-      "sha256": "c22c8cb4e0b2e2727a515641b19adc60cce34fd5e392900679e4328724747379",
-      "bytes": 128594
+      "sha256": "681ad9ce5436cf4f2314a84b42ee75f2b629ea25e221918a500fe870bd5c6d67",
+      "bytes": 128639
     },
     "remote-consent-policy.html": {
       "overflow": false,
@@ -1214,8 +1328,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/report-builder.png",
-      "sha256": "196fd9f5ab9a93d5dbb0b36cc15534a6386304dfefb53f9e31c6649a3b5e27be",
-      "bytes": 124746
+      "sha256": "58da5f465dfb46cd12a9190389b1047ebaf8664919d7b33dcaaac8311f633025",
+      "bytes": 124747
     },
     "reports-overview.html": {
       "overflow": false,
@@ -1271,8 +1385,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/restart-schedule.png",
-      "sha256": "796746d1565cfbed3f37291cd9639c5b7126e849d2c4a8fa4f4ad4f34537be43",
-      "bytes": 130470
+      "sha256": "5d32522e4fe608eca71e33896f7919f9c8dc62fa8f2236f41af0d0e00624edb0",
+      "bytes": 130475
     },
     "roles-permissions-v2.html": {
       "overflow": false,
@@ -1309,8 +1423,8 @@
       "primaryHead": 1,
       "dead": [],
       "file": "qa-final-visual/routes-web/software-licenses.png",
-      "sha256": "56dba73c4989fb4a36f8609d2f0977b9611de100b5489b16cfa9a7b73c379026",
-      "bytes": 151700
+      "sha256": "3c9432655cdb151823a5fbe49965ba67db433e070633c024791447a4546e9b2b",
+      "bytes": 151865
     },
     "software-maintenance-new.html": {
       "overflow": false,
@@ -1328,8 +1442,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/software-maintenance-new.png",
-      "sha256": "4216a59525d8e4c84df73eb42f733911fa4b519408dfd96c973ce449fa0230b4",
-      "bytes": 123838
+      "sha256": "dbb0a8534a969fed13e24b6991afb9d7040bbc9dd9eff99aa56cfd5cab1e2362",
+      "bytes": 123834
     },
     "software-maintenance.html": {
       "overflow": false,
@@ -1388,6 +1502,63 @@
       "sha256": "0e8e8ce4918c5c618875767b2d519374ed2697640d84eaf73d27e53a29241b51",
       "bytes": 139180
     },
+    "workspace-attention.html": {
+      "overflow": false,
+      "railActive": 1,
+      "sideActive": 1,
+      "rawPlaceholders": 0,
+      "contract": "1.12.0",
+      "status": "frozen",
+      "h1Count": 1,
+      "h1Size": "23px",
+      "bodyBg": "rgb(247, 248, 250)",
+      "railWidth": 60,
+      "sideWidth": 216,
+      "headerHeight": 56,
+      "primaryHead": 0,
+      "dead": [],
+      "file": "qa-final-visual/routes-web/workspace-attention.png",
+      "sha256": "3a7c109aef3d57831a9b9f006b45fa28ead5a3e4636d58fa58c86c0c5ca9b24e",
+      "bytes": 66777
+    },
+    "workspace-continue.html": {
+      "overflow": false,
+      "railActive": 1,
+      "sideActive": 1,
+      "rawPlaceholders": 0,
+      "contract": "1.12.0",
+      "status": "frozen",
+      "h1Count": 1,
+      "h1Size": "23px",
+      "bodyBg": "rgb(247, 248, 250)",
+      "railWidth": 60,
+      "sideWidth": 216,
+      "headerHeight": 56,
+      "primaryHead": 0,
+      "dead": [],
+      "file": "qa-final-visual/routes-web/workspace-continue.png",
+      "sha256": "f2c82a4c9a39d1090c9cc25d47bbaaf9a5b905bf204cf48d3c67fef55ccfa516",
+      "bytes": 65771
+    },
+    "workspace-recent.html": {
+      "overflow": false,
+      "railActive": 1,
+      "sideActive": 1,
+      "rawPlaceholders": 0,
+      "contract": "1.12.0",
+      "status": "frozen",
+      "h1Count": 1,
+      "h1Size": "23px",
+      "bodyBg": "rgb(247, 248, 250)",
+      "railWidth": 60,
+      "sideWidth": 216,
+      "headerHeight": 56,
+      "primaryHead": 0,
+      "dead": [],
+      "file": "qa-final-visual/routes-web/workspace-recent.png",
+      "sha256": "431fd9af90743fc2f34994de4f75dfe29f2cdc450cd931e197afbfdacb15bda7",
+      "bytes": 68676
+    },
     "workspace-v2.html": {
       "overflow": false,
       "railActive": 1,
@@ -1404,8 +1575,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/workspace-v2.png",
-      "sha256": "c5624872cbbc6f8dab8d502a01f3f6bc6c4cf350b1c9ee1cda95e329c7ef0841",
-      "bytes": 198591
+      "sha256": "3032e881de6371c6f29716c199d3b34c011723f900b2a57f7e5c5f5a603069e3",
+      "bytes": 198598
     }
   },
   "surfaces": {
@@ -1464,8 +1635,8 @@
       "selector": ".inno-partial-state",
       "present": true,
       "file": "qa-final-visual/states/partial.png",
-      "sha256": "2d91617d24e225da6d20f198575b558cae0e6a5aa3a232d0b4342a40d056ab94",
-      "bytes": 58385
+      "sha256": "12271636de4b5f1dadf7af50289889716aac9389abf58d53c79c5ec03c620156",
+      "bytes": 58392
     },
     "permission": {
       "page": "reports-overview.html",
@@ -1500,22 +1671,22 @@
       "selector": ".inno-state-banner.offline",
       "present": true,
       "file": "qa-final-visual/states/offline.png",
-      "sha256": "7b90db0ce72e0a4f285ebfa0cf500da99ed70a484b36ae0a52d016d1ccd90f5a",
-      "bytes": 158131
+      "sha256": "a157bbaa67a8e306ebd1c850403506fc5cf131162304729e4cc79df5da77bc8f",
+      "bytes": 158141
     },
     "no-results": {
-      "page": "devices-overview-v2.html",
+      "page": "devices.html",
       "present": true,
       "file": "qa-final-visual/states/no-results.png",
-      "sha256": "d5388f96f4ec7f3cd0cf6bafc31d020d4c8d534201f6691606a3b62de2bd44f6",
-      "bytes": 141105
+      "sha256": "cd0b6e00f22370cf6c961e46245810be9da476a55b3c5e3530af3bd8f5e4f018",
+      "bytes": 87777
     },
     "validation": {
       "page": "ticket-new.html",
       "invalid": 2,
       "file": "qa-final-visual/states/validation.png",
-      "sha256": "ceea6597432ec54a0baeb3c0b48aed95baddfca3cbc5c53afea79048e585e8de",
-      "bytes": 147597
+      "sha256": "5675d4541c4f445b7b0409d72196454ae3b609edaf2a569e723b3ffa5f96c1c1",
+      "bytes": 147594
     },
     "unsaved-confirm": {
       "page": "ticket-new.html",
@@ -1525,18 +1696,18 @@
       "bytes": 198598
     },
     "filter-drawer": {
-      "page": "devices-overview-v2.html",
+      "page": "devices.html",
       "open": true,
       "file": "qa-final-visual/states/filter-drawer.png",
-      "sha256": "e33aeae4c9608c2f5c16bb2f2a06a7772745e702ec4de75f3e178a25e6f4085e",
-      "bytes": 145811
+      "sha256": "b0a49a02656787d2dd33b1c9db915d62c3f844059940010512b1795f611ee90b",
+      "bytes": 115165
     },
     "bulk-selection": {
-      "page": "devices-overview-v2.html",
+      "page": "devices.html",
       "selected": "2",
       "file": "qa-final-visual/states/bulk-selection.png",
-      "sha256": "62040baeb96c88d65d71ec599bdf9cb19b7e110e7c3ea538cd61a4208892b807",
-      "bytes": 152302
+      "sha256": "cb618cbdbf689c5c18545253f2affc0f02da729aaf0f245173c1ba8d5cb0feff",
+      "bytes": 121723
     },
     "destructive-confirm": {
       "page": "remote-session.html",
@@ -1554,28 +1725,28 @@
     }
   },
   "summary": {
-    "webRoutes": 74,
-    "routeScreenshots": 78,
+    "webRoutes": 83,
+    "routeScreenshots": 87,
     "stateScreenshots": 13,
-    "checks": 102,
+    "checks": 111,
     "failures": 0,
     "h1SizeDistribution": {
-      "23px": 68,
+      "23px": 77,
       "": 4,
       "20px": 1,
       "22px": 1
     },
     "bodyBackgroundDistribution": {
-      "rgb(247, 248, 250)": 74
+      "rgb(247, 248, 250)": 83
     },
     "railWidthDistribution": {
-      "60": 74
+      "60": 83
     },
     "sideWidthDistribution": {
-      "216": 74
+      "216": 83
     },
     "headerHeightDistribution": {
-      "56": 74
+      "56": 83
     }
   }
 }

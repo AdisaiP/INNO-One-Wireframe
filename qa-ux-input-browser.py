@@ -53,15 +53,16 @@ for w in (1366,1024,768):
     route_fails=[]
     for page in WEB:
         c.nav(page,"?qaMetrics=1")
-        m=c.eval("""(()=>{const sels=[...document.querySelectorAll('select')];const expected=sels.filter(s=>!s.hasAttribute('data-inno-native')&&!s.closest('.mock-desktop,.android-phone')).length;const enhanced=sels.filter(s=>s.dataset.innoEnhanced).length;const visibleNative=sels.filter(s=>{const r=s.getBoundingClientRect(),cs=getComputedStyle(s);return cs.position!=='absolute'&&cs.display!=='none'&&r.width>3&&r.height>3}).length;return {overflow:document.documentElement.scrollWidth>innerWidth+2,inputSystem:document.documentElement.dataset.innoInputSystem==='1',selects:sels.length,expected,enhanced,visibleNative,popovers:document.querySelectorAll('.inno-picker-popover').length}})()""")
+        m=c.eval("""(()=>{const sels=[...document.querySelectorAll('select')];const expected=sels.filter(s=>!s.hasAttribute('data-inno-native')&&!s.closest('.mock-desktop,.android-phone')).length;const enhanced=sels.filter(s=>s.dataset.innoEnhanced).length;const visibleNative=sels.filter(s=>{const r=s.getBoundingClientRect(),cs=getComputedStyle(s);return cs.position!=='absolute'&&cs.display!=='none'&&r.width>3&&r.height>3}).length;return {overflow:document.documentElement.scrollWidth>innerWidth+2,inputSystem:document.documentElement.dataset.innoInputSystem==='1',selects:sels.length,expected,enhanced,visibleNative,popovers:document.querySelectorAll('.inno-picker-popover').length,sideHash:[...document.querySelectorAll('.side a')].filter(a=>(a.getAttribute('href')||'').includes('#')).length}})()""")
         bad=[]
         if m["overflow"]:bad.append("overflow")
         if not m["inputSystem"]:bad.append("input-system-missing")
         if m["enhanced"]!=m["expected"]:bad.append(f"enhanced={m['enhanced']}/{m['expected']}")
         if m["visibleNative"]:bad.append(f"visible-native={m['visibleNative']}")
         if m["popovers"]:bad.append("orphan-popover")
+        if m["sideHash"]:bad.append(f"side-hash-links={m['sideHash']}")
         if bad:route_fails.append((page,bad))
-    check(f"All 74 Web routes pass Input System at {w}",not route_fails,route_fails[:6])
+    check(f"All {len(WEB)} Web routes pass Input System at {w}",not route_fails,route_fails[:6])
 # Ticket: combobox, resource picker and segmented controls retain backing select events.
 c.viewport(1366);c.nav("ticket-new.html")
 check("Ticket primary form is simplified",c.eval("document.querySelectorAll('.ux-section').length===2 && !!document.querySelector('.ux-advanced')"))
@@ -189,6 +190,28 @@ c.nav("profile.html")
 check("Profile defaults to Profile & Security pane only",c.eval("document.querySelector('[data-profile-pane=profile]').hidden===false && document.querySelector('[data-profile-pane=preferences]').hidden===true"))
 c.eval("document.querySelector('[data-profile-tab=preferences]').click()");time.sleep(.03)
 check("Profile preferences tab isolates preference controls",c.eval("document.querySelector('[data-profile-pane=profile]').hidden===true && document.querySelector('[data-profile-pane=preferences]').hidden===false && document.querySelector('[data-profile-pane=preferences] select').dataset.innoEnhanced==='segmented'"))
+
+# Route ownership cleanup: application navigation must use canonical routes, not hash navigation.
+c.nav("devices-overview-v2.html")
+check("Devices sidebar points to canonical devices route",c.eval("document.querySelector('.side a[href=\"devices.html\"]')!==null && document.querySelectorAll('.side a[href*=\"#\"]').length===0"))
+c.nav("devices.html")
+check("All Devices owns active Devices sidebar item",c.eval("document.querySelector('.side a.active')?.getAttribute('href')==='devices.html'"))
+
+c.nav("ticket-detail.html")
+check("Ticket detail inherits canonical Tickets route",c.eval("document.querySelector('.side a.active')?.getAttribute('href')==='helpdesk-tickets.html' && document.querySelector('.breadcrumb-back')?.getAttribute('href')==='helpdesk-tickets.html'"))
+c.nav("meeting-detail.html")
+check("Meeting detail returns to My Meetings route",c.eval("document.querySelector('.side a.active')?.getAttribute('href')==='meeting-list.html' && document.querySelector('.breadcrumb-back')?.getAttribute('href')==='meeting-list.html'"))
+
+c.nav("workspace-attention.html")
+check("Workspace attention is a real route",c.eval("document.querySelector('.side a.active')?.getAttribute('href')==='workspace-attention.html'"))
+
+c.nav("app-launcher-v2.html","?filter=pinned")
+check("App Launcher pinned filter uses query route",c.eval("document.querySelector('.side a.active')?.getAttribute('href')==='app-launcher-v2.html?filter=pinned' && document.querySelector('.segment [data-filter=pinned]').classList.contains('active')"))
+c.nav("app-launcher-v2.html","?view=recent")
+check("App Launcher recent view uses query route without hash",c.eval("document.querySelector('.side a.active')?.getAttribute('href')==='app-launcher-v2.html?view=recent' && document.getElementById('apps').hidden===true"))
+
+c.nav("reports-overview.html","?report=software")
+check("Report catalog uses query route and restores selected report",c.eval("document.querySelector('.side a.active')?.getAttribute('href')==='reports-overview.html?report=software' && document.getElementById('reportTitle').textContent==='Software Inventory'"))
 
 print(f"checks={checks}")
 print(f"failures={len(fails)}")

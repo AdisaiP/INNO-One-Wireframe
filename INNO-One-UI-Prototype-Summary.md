@@ -282,11 +282,11 @@ Pages intentionally kept as one screen because their primary job is already clea
 See `INNO-One-Screen-Architecture-Refactor-Plan.md` for the canonical P01–P10 patterns and remaining polish work.
 
 
-## 12. Final Visual QA Freeze — 2026-09-24
+## 12. Final Visual QA Freeze — 2026-09-25
 
 - NEXT 1–6 UI cleanup/consistency/responsive/final visual passes are complete.
-- Canonical baseline contains 74 Web routes, 1 Design System reference, 2 Endpoint Agent routes and 1 Android Mobile route.
-- Important state baseline contains 12 state/interaction screenshots.
+- Canonical baseline contains 83 Web routes, 1 Design System reference, 2 Endpoint Agent routes and 1 Android Mobile route.
+- Important state baseline contains 13 state/interaction screenshots.
 - Frozen screenshot/metric manifest is stored under `qa-final-visual/`.
 - Final baseline contract is documented in `INNO-One-Final-Visual-QA-Baseline.md`.
 - This freeze means the UI prototype is ready for backend mapping/planning; it does not claim that backend services or TOR acceptance are implemented.
@@ -307,3 +307,8 @@ The first B-grade batch has been moved from generic form layouts toward purpose-
 ## 15. Configuration and account UX polish — 2026-09-25
 
 The second B-grade batch reduces multi-form screens and separates supporting technical/configuration context from the primary job. The pass covers Endpoint Policies, Alert Channels, Helpdesk SLA/configuration/notification settings, Meeting capture, Apps & Modules and Profile. No backend behavior was added.
+
+
+## 16. Canonical route ownership — 2026-09-25
+
+Legacy application-shell hash navigation has been removed. Distinct navigation jobs now have canonical pages, while true filters use query-state URLs. The current Web route graph contains 83 routes and preserves old Overview section IDs only as backward-compatible anchors, not as generated navigation targets.

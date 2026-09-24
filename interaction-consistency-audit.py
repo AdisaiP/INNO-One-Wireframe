@@ -6,7 +6,7 @@ ROOT=Path(__file__).resolve().parent
 EXTERNAL={"asset-mobile.html","helpdesk-agent-request.html","agent-ownership-confirmation.html"}
 REFERENCE={"design-system.html"}
 issues=[]
-metrics={"modern_pages":0,"web_pages":0,"shared_save_controls":0,"required_controls":0,"filters":0,"confirms":0,"search_targets":0,"bulk_tables":0,"legacy_toasts":0,"inline_commit_handlers":0}
+metrics={"modern_pages":0,"web_pages":0,"shared_save_controls":0,"required_controls":0,"filters":0,"confirms":0,"search_targets":0,"bulk_tables":0,"legacy_toasts":0,"inline_commit_handlers":0,"app_hash_links":0,"broken_local_routes":0}
 
 for page in sorted(ROOT.glob("*.html")):
     source=page.read_text(encoding="utf-8")
@@ -17,6 +17,15 @@ for page in sorted(ROOT.glob("*.html")):
 
     if "inno-interactions.js" not in source:issues.append(f"{page.name}: missing inno-interactions.js")
     if "inno-states.js" not in source:issues.append(f"{page.name}: missing inno-states.js")
+
+    # Navigation contract: application pages use real routes or query-state routes, not hash routing.
+    for href in re.findall(r'href=["\']([^"\']+)["\']',source,re.I):
+        if href.startswith(("http://","https://","mailto:","tel:","javascript:")):continue
+        if "#" in href and not href.startswith("design-system.html#"):
+            metrics["app_hash_links"]+=1;issues.append(f"{page.name}: application hash route remains: {href}")
+        target=href.split("?")[0].split("#")[0]
+        if target.endswith(".html") and not (ROOT/target).exists():
+            metrics["broken_local_routes"]+=1;issues.append(f"{page.name}: missing local route target: {href}")
 
     metrics["shared_save_controls"]+=len(re.findall(r"<(?:button|a)\b[^>]*data-inno-save",source,re.I))
     metrics["required_controls"]+=len(re.findall(r"<(?:input|select|textarea)\b[^>]*\brequired\b",source,re.I))

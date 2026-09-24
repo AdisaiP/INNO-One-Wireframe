@@ -367,3 +367,17 @@ Next pass:
 2. Remove/deactivate remaining fake `#` actions and Coming Soon placeholders.
 3. Standardize page header, table toolbar, editor footer and list/detail action hierarchy.
 4. Density/spacing/typography pass after the architecture is stable.
+
+
+## 10. Round 2 implementation — Route / navigation ownership — 2026-09-25
+
+Status: ✅ Completed for the current application shell.
+
+- `Devices` now owns `devices.html`; Fleet Overview no longer owns the full inventory table.
+- Helpdesk `Tickets`, `Assigned to Me` and `Team Queue` now own dedicated list/queue routes.
+- Meeting `Upcoming` and `My Meetings` now own dedicated routes.
+- Workspace `Continue Working`, `Needs Attention` and `Recent` now own dedicated routes.
+- App Launcher and Reports use query-state routing for true filter/view state.
+- Detail breadcrumb ownership was updated to the canonical parent list routes.
+- Application-shell hash routes are no longer generated. Design System anchors remain intentional documentation navigation.
+- Static regression validates zero application hash links and zero missing local route targets.

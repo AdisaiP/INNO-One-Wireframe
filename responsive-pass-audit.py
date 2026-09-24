@@ -50,7 +50,7 @@ responsive=(ROOT/"inno-responsive.js").read_text(encoding="utf-8")
 for token in ("OVERLAY_MAX=1180","updateTableWrap","enhanceHorizontalTabs","setOverlayOpen","setDesktopCollapsed"):
     if token not in responsive:issues.append(f"responsive runtime missing: {token}")
 
-if metrics["web_pages"]!=74:issues.append(f"expected 74 Web pages, found {metrics['web_pages']}")
+if metrics["web_pages"]!=83:issues.append(f"expected 83 Web pages, found {metrics['web_pages']}")
 if metrics["agent_pages"]!=2:issues.append(f"expected 2 Agent pages, found {metrics['agent_pages']}")
 if metrics["mobile_pages"]!=1:issues.append(f"expected 1 Mobile page, found {metrics['mobile_pages']}")
 

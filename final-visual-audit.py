@@ -35,10 +35,10 @@ metrics.update({
     "route_screenshots":summary.get("routeScreenshots",0),
 })
 
-if len(web)!=74:issues.append(f"expected 74 Web routes, found {len(web)}")
+if len(web)!=83:issues.append(f"expected 83 Web routes, found {len(web)}")
 if len(surfaces)!=4:issues.append(f"expected 4 reference/external surfaces, found {len(surfaces)}")
 if len(states)!=13:issues.append(f"expected 13 important states, found {len(states)}")
-if summary.get("routeScreenshots")!=78:issues.append(f"expected 78 route screenshots, found {summary.get('routeScreenshots')}")
+if summary.get("routeScreenshots")!=87:issues.append(f"expected 87 route screenshots, found {summary.get('routeScreenshots')}")
 if summary.get("stateScreenshots")!=13:issues.append(f"expected 13 state screenshots, found {summary.get('stateScreenshots')}")
 if summary.get("failures")!=0:issues.append(f"manifest recorded failures={summary.get('failures')}")
 
@@ -77,7 +77,7 @@ for section in ("web","surfaces","states"):
         if actual!=expected:issues.append(f"{section}:{name}: screenshot hash mismatch")
 
 metrics["hash_checks"]=hash_checks
-if hash_checks!=91:issues.append(f"expected 91 screenshot hash checks, found {hash_checks}")
+if hash_checks!=100:issues.append(f"expected 100 screenshot hash checks, found {hash_checks}")
 
 contract=(ROOT/"inno-design-contract.js").read_text(encoding="utf-8")
 if 'contractVersion:"1.12.0"' not in contract:issues.append("machine contract is not 1.12.0")

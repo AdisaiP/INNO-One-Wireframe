@@ -15,7 +15,7 @@ for p in sorted(ROOT.glob("*.html")):
     s=p.read_text(errors="ignore")
     if "inno-design-system.css" in s and p.name not in EXT|REF:web_pages.append(p.name)
 
-fails=[];checks=0;manifest={"generated":"2026-09-24","web":{},"surfaces":{},"states":{},"summary":{}}
+fails=[];checks=0;manifest={"generated":"2026-09-25","web":{},"surfaces":{},"states":{},"summary":{}}
 
 def check(name,cond,detail=""):
     global checks;checks+=1
@@ -116,10 +116,10 @@ for name,page,query,sel in states:
     check("State "+name,present,page+query)
 
 # No-results search.
-c.nav("devices-overview-v2.html")
+c.nav("devices.html")
 c.eval("""(()=>{const i=document.getElementById('deviceSearch');i.value='__FINAL_QA_NO_RESULT__';i.dispatchEvent(new Event('input',{bubbles:true}))})()""");time.sleep(.1)
 present=c.eval("!!document.querySelector('#deviceRows .inno-search-empty')")
-manifest["states"]["no-results"]={"page":"devices-overview-v2.html","present":present,**c.shot(OUT/"states"/"no-results.png")}
+manifest["states"]["no-results"]={"page":"devices.html","present":present,**c.shot(OUT/"states"/"no-results.png")}
 check("State no-results",present)
 
 # Validation.
@@ -135,15 +135,15 @@ manifest["states"]["unsaved-confirm"]={"page":"ticket-new.html","open":open_,**c
 check("State unsaved-confirm",open_)
 
 # Filter drawer.
-c.nav("devices-overview-v2.html");c.eval("document.querySelector('[data-inno-filter=\"devices\"]').click()");time.sleep(.08)
+c.nav("devices.html");c.eval("document.querySelector('[data-inno-filter=\"devices\"]').click()");time.sleep(.08)
 open_=c.eval("document.getElementById('innoFilterDrawer').classList.contains('open')")
-manifest["states"]["filter-drawer"]={"page":"devices-overview-v2.html","open":open_,**c.shot(OUT/"states"/"filter-drawer.png")}
+manifest["states"]["filter-drawer"]={"page":"devices.html","open":open_,**c.shot(OUT/"states"/"filter-drawer.png")}
 check("State filter-drawer",open_)
 
 # Bulk selection.
-c.nav("devices-overview-v2.html");c.eval("""(()=>{const r=[...document.querySelectorAll('[data-inno-select-row]')];r[0].click();r[1].click()})()""");time.sleep(.05)
+c.nav("devices.html");c.eval("""(()=>{const r=[...document.querySelectorAll('[data-inno-select-row]')];r[0].click();r[1].click()})()""");time.sleep(.05)
 count=c.eval("document.querySelector('[data-inno-selected-count]').textContent")
-manifest["states"]["bulk-selection"]={"page":"devices-overview-v2.html","selected":count,**c.shot(OUT/"states"/"bulk-selection.png")}
+manifest["states"]["bulk-selection"]={"page":"devices.html","selected":count,**c.shot(OUT/"states"/"bulk-selection.png")}
 check("State bulk-selection",count=="2",count)
 
 # Destructive confirmation.
@@ -204,7 +204,7 @@ manifest["summary"]={
  "h1SizeDistribution":sizes,"bodyBackgroundDistribution":bgs,"railWidthDistribution":rail,
  "sideWidthDistribution":side,"headerHeightDistribution":header
 }
-check("All canonical route screenshots captured",manifest["summary"]["routeScreenshots"]==78,manifest["summary"]["routeScreenshots"])
+check("All canonical route screenshots captured",manifest["summary"]["routeScreenshots"]==87,manifest["summary"]["routeScreenshots"])
 check("Important state screenshots captured",manifest["summary"]["stateScreenshots"]==13,manifest["summary"]["stateScreenshots"])
 check("Web shell rail width consistent",rail=={"60":len(web_pages)},rail)
 check("Web shell sidebar width consistent",side=={"216":len(web_pages)},side)

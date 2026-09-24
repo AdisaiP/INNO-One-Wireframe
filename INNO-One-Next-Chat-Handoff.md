@@ -626,15 +626,15 @@ Checklist ที่ทำครบ:
 
 ผล Final Visual QA:
 
-- Canonical route screenshots = **78**: Web Portal 74 + Design System 1 + Endpoint Agent 2 + Android Mobile 1
+- Canonical route screenshots = **87**: Web Portal 83 + Design System 1 + Endpoint Agent 2 + Android Mobile 1
 - Important state screenshots = **13**
-- Frozen screenshot baseline รวม = **91 ภาพ**
-- `qa-final-visual.py` = **106 browser checks / 0 failures**
-- Screenshot manifest hash verification = **91 / 91**
+- Frozen screenshot baseline รวม = **100 ภาพ**
+- `qa-final-visual.py` = **116 browser checks / 0 failures**
+- Screenshot manifest hash verification = **100 / 100**
 - ทุก Web route: page overflow = false, Rail active = 1, Sidebar active = 1, raw placeholder = 0
-- Web shell canonical 1366px: Rail 60px / Sidebar 216px / Platform Header 56px ทุก 74 route
+- Web shell canonical 1366px: Rail 60px / Sidebar 216px / Platform Header 56px ทุก 83 route
 - Final dead-control review แก้ Saved Query, Category Tree, Requester Groups, Upcoming Meeting, Ticket composer และ Mobile history/action ที่ยังไม่สมบูรณ์
-- Important states ที่ Freeze: Loading, Partial, Permission, Disabled, Error, Offline, No Results, Validation, Unsaved Confirm, Filter Drawer, Bulk Selection, Destructive Confirm
+- Important states ที่ Freeze: Loading, Partial, Permission, Disabled, Error, Offline, No Results, Validation, Unsaved Confirm, Filter Drawer, Bulk Selection, Destructive Confirm, Select Open
 - Visual contact sheets review ครบ Platform/Admin, Devices, Assets/Reports, Helpdesk/Meeting และ important states
 - Design System audit = 0 issues
 - Component Consistency audit = 0 issues
@@ -735,3 +735,17 @@ Second B-grade batch completed on branch `ux/input-system-pass`:
 - Calendar working hours are presented as readable day cards.
 - Categories and Requester Groups now refresh enhanced controls when a master-list selection changes.
 - Extended `qa-ux-input-browser.py`; current targeted + system-wide UX/input regression checks = 55 / 55 before final visual freeze.
+
+
+## Route ownership cleanup — 2026-09-25
+
+The navigation architecture pass is now complete for application-shell routes:
+
+- Replaced legacy `#devices`, `#tickets`, `#assigned`, `#team`, `#meetings`, `#upcoming` navigation with canonical pages.
+- Added 9 Web routes: Devices, Helpdesk Tickets, Assigned to Me, Team Queue, My Meetings, Upcoming Meetings, Continue Working, Needs Attention and Recent Activity.
+- App Launcher filters and Reports catalog use query-state routes instead of hash routing.
+- Device / Ticket / Meeting detail breadcrumb-back ownership now points to canonical parent lists.
+- Overview screens were reduced to previews where a dedicated list route now owns the full list job.
+- Application hash-link regression guard reports `app_hash_links=0`; local-route validation reports `broken_local_routes=0`.
+- Current Web route count = 83. Browser navigation/input regression = 63 / 63.
+- Current frozen screenshot baseline = 87 canonical route screenshots + 13 state screenshots = 100 files.

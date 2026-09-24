@@ -330,3 +330,14 @@ A new module is UI-complete only when it:
 - Reworked `report-builder.html` into Dataset → Visible columns → Filter Builder → Grouping/Sorting with Preview retained in context.
 - Reworked `asset-qr.html` into Select assets → Label setup → Preview → Print; QR security and Android integration are progressive supporting information.
 - Added `qa-ux-input-browser.py` regression coverage across 74 Web routes × 1366 / 1024 / 768 plus representative interaction checks.
+
+
+## 27. Route Ownership Baseline Refresh — 2026-09-25
+
+- Removed generated application navigation to hash routes such as `#devices`, `#tickets`, `#assigned`, `#team`, `#meetings` and `#upcoming`.
+- Added 9 canonical Web routes for list/queue/workspace jobs; current Web route count is 83.
+- App Launcher and Reports preserve filter semantics with query-state routes rather than separate duplicate screens.
+- Added permanent navigation regression checks for application hash links and missing local route targets.
+- Browser regression now covers 83 Web routes at 1366 / 1024 / 768 plus route-ownership interaction checks.
+- Current frozen visual set: 87 canonical route screenshots + 13 state screenshots = 100 files.
+- UI Contract remains 1.12.0 because existing component APIs are unchanged and old Overview anchor targets remain backward-compatible; only canonical generated navigation ownership changed.
