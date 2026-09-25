@@ -1100,3 +1100,39 @@ Final QA:
 Final handoff record: `INNO-One-Final-UX-UI-Freeze.md`.
 
 **UX/UI prototype status: FINAL FROZEN and ready for implementation handoff. Backend remains paused until Architecture + API/Event + Permission contracts are agreed.**
+
+# Step 9–10 — Implementation Architecture + Permission Scope ✅ COMPLETED 2026-09-26
+
+Branch: `architecture/step9-10-contracts`
+
+UX/UI remains final frozen at **Design System V1.26 / UI Contract 1.20.0**.
+
+Step 9 decisions:
+- One React Web Portal initially; no micro-frontends by default.
+- One .NET Platform API as a modular monolith for Platform / Devices / Assets / Helpdesk / Reports.
+- Meeting processing may remain a separately deployed service boundary.
+- Endpoint Agent and Android/Expo Assets Mobile remain separate clients.
+- Keycloak owns Authentication/SSO; INNO.One owns business profile/RBAC/scopes.
+- MeshCentral is only reachable through the Devices adapter.
+- Module persistence ownership is explicit; modules do not write each other's tables.
+- Cross-module integration uses API/event contracts.
+
+Step 10 decisions:
+- Permission and resource scope are separate concepts.
+- Existing registry permission IDs retained: **43**.
+- Reserved implementation permission IDs: **27**, including explicit `devices.deploy` plus Platform/Admin capabilities.
+- Logical scopes: `own`, `team`, `org`, `all`.
+- Concrete v1 assignment scope types: `organization`, `location`, `device_group`.
+- Organization scope supports descendant inheritance.
+- Server-side authorization is authoritative; client permission checks are UX only.
+- Module visibility remains installed + enabled + requiredPermission.
+
+New source-of-truth planning files:
+- `INNO-One-Implementation-Architecture-Contract.md`
+- `INNO-One-Permission-Scope-Contract.md`
+- `inno-implementation-contract.json`
+- `implementation-contract-audit.py`
+
+Current implementation contract audit: **0 issues**.
+
+**No backend feature code has started. Next: Step 11 API Contract.**

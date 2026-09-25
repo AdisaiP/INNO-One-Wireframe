@@ -1,0 +1,183 @@
+{
+  "contractVersion": "0.1.0",
+  "status": "implementation-planning",
+  "generatedFrom": {
+    "designSystem": "V1.26",
+    "uiContract": "1.20.0",
+    "frozenAt": "2026-09-26"
+  },
+  "architecture": {
+    "webPortal": {
+      "technology": "React",
+      "deployment": "single-web-app",
+      "moduleBoundaries": [
+        "platform",
+        "devices",
+        "assets",
+        "helpdesk",
+        "meeting",
+        "reports",
+        "admin"
+      ]
+    },
+    "platformApi": {
+      "technology": ".NET",
+      "style": "modular-monolith",
+      "modules": [
+        "platform",
+        "devices",
+        "assets",
+        "helpdesk",
+        "reports"
+      ]
+    },
+    "meetingService": {
+      "deployment": "separate-allowed",
+      "responsibilities": [
+        "recording",
+        "transcription",
+        "summary",
+        "action-items"
+      ]
+    },
+    "endpointAgent": {
+      "surface": "separate-client"
+    },
+    "assetsMobile": {
+      "surface": "separate-android-client"
+    },
+    "identityProvider": {
+      "product": "Keycloak",
+      "responsibility": "authentication-sso"
+    },
+    "deviceEngine": {
+      "product": "MeshCentral",
+      "access": "devices-adapter-only"
+    }
+  },
+  "moduleRequiredPermissions": {
+    "devices": "devices.view",
+    "helpdesk": "helpdesk.ticket.view",
+    "meeting": "meeting.view",
+    "reports": "reports.view",
+    "assets": "assets.view",
+    "workflow": "workflow.view",
+    "forms": "forms.view"
+  },
+  "existingPermissions": [
+    "devices.view",
+    "devices.remote",
+    "devices.remote.collaborate",
+    "devices.remote.consent.manage",
+    "devices.alert.view",
+    "devices.alert.manage",
+    "devices.manage",
+    "devices.scope.manage",
+    "devices.policy.manage",
+    "assets.view",
+    "assets.manage",
+    "assets.baseline.manage",
+    "assets.license.manage",
+    "assets.contract.manage",
+    "assets.qr.print",
+    "assets.qr.scan",
+    "helpdesk.ticket.view",
+    "helpdesk.ticket.create",
+    "helpdesk.ticket.assign",
+    "helpdesk.ticket.resolve",
+    "helpdesk.sla.manage",
+    "helpdesk.catalog.manage",
+    "helpdesk.status.manage",
+    "helpdesk.requester_group.manage",
+    "helpdesk.kb.manage",
+    "helpdesk.notifications.view",
+    "helpdesk.notifications.manage",
+    "helpdesk.reports.view",
+    "meeting.view",
+    "meeting.create",
+    "meeting.record",
+    "meeting.summary.generate",
+    "meeting.share",
+    "reports.view",
+    "reports.create",
+    "reports.manage",
+    "reports.export.pdf",
+    "reports.export.xlsx",
+    "workflow.view",
+    "workflow.design",
+    "workflow.publish",
+    "forms.view",
+    "forms.design"
+  ],
+  "reservedImplementationPermissions": [
+    "devices.deploy",
+    "platform.workspace.access",
+    "platform.apps.view",
+    "platform.notifications.view",
+    "platform.search.use",
+    "admin.organization.view",
+    "admin.organization.manage",
+    "admin.locations.view",
+    "admin.locations.manage",
+    "admin.positions.view",
+    "admin.positions.manage",
+    "admin.users.view",
+    "admin.users.manage",
+    "admin.roles.view",
+    "admin.roles.manage",
+    "admin.access_scopes.view",
+    "admin.access_scopes.manage",
+    "admin.access_scopes.evaluate",
+    "admin.apps.view",
+    "admin.apps.manage",
+    "admin.integrations.view",
+    "admin.integrations.manage",
+    "admin.security.view",
+    "admin.security.manage",
+    "admin.audit.view",
+    "admin.branding.manage",
+    "admin.settings.manage"
+  ],
+  "logicalScopes": [
+    "own",
+    "team",
+    "org",
+    "all"
+  ],
+  "assignmentScopeTypes": [
+    {
+      "id": "organization",
+      "includeChildren": true
+    },
+    {
+      "id": "location",
+      "includeChildren": "future-explicit"
+    },
+    {
+      "id": "device_group",
+      "includeChildren": false
+    }
+  ],
+  "authorization": {
+    "serverSideAuthoritative": true,
+    "roleAndScopeSeparate": true,
+    "actionOverrideMayExpandRole": false,
+    "moduleVisibilityRequires": [
+      "installed",
+      "enabled",
+      "requiredPermission"
+    ],
+    "keycloakOwns": [
+      "authentication",
+      "sso",
+      "token-issuance"
+    ],
+    "innoOwns": [
+      "user-profile",
+      "organization-membership",
+      "roles",
+      "permissions",
+      "access-scopes"
+    ]
+  }
+}
