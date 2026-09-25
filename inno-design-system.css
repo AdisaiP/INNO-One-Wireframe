@@ -867,6 +867,47 @@ body{line-height:1.45;text-rendering:optimizeLegibility}
 @media(max-width:1150px){.ux-channel-grid{grid-template-columns:1fr 1fr}.ux-day-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.ux-capture-layout{grid-template-columns:1fr}}
 @media(max-width:850px){.ux-channel-grid,.ux-mode-switch,.ux-sla-targets,.ux-module-meta{grid-template-columns:1fr}.ux-day-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ux-inline-tabs{overflow:auto;white-space:nowrap}}
 
+/* Hierarchy primitives — INNOTree / INNOTreeGrid / INNOOrgChart */
+.inno-tree-search{margin-bottom:12px}
+.inno-tree{display:grid;gap:2px;min-width:0}
+.inno-tree-row{display:grid;grid-template-columns:24px minmax(0,1fr);gap:4px;align-items:center;padding-left:calc((var(--inno-tree-level,1) - 1)*18px)}
+.inno-tree-row[hidden]{display:none!important}
+.inno-tree-toggle{width:24px;height:30px;border:0;border-radius:7px;background:transparent;color:#778398;display:grid;place-items:center;cursor:pointer}
+.inno-tree-toggle:hover{background:#eef2f7;color:#334155}
+.inno-tree-toggle:focus-visible,.inno-tree-item:focus-visible,.inno-treegrid-node:focus-visible{outline:0;box-shadow:var(--ds-focus)}
+.inno-tree-toggle[disabled]{visibility:hidden;cursor:default}
+.inno-tree-item{min-height:34px;width:100%;border:0;border-radius:8px;background:transparent;padding:7px 9px;display:flex;align-items:center;gap:8px;text-align:left;color:#465267;cursor:pointer;font:inherit}
+.inno-tree-item:hover{background:#f5f7fa}
+.inno-tree-item[aria-selected="true"],.inno-tree-item.active{background:#eef4ff;color:#2457bd}
+.inno-tree-label{min-width:0;font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inno-tree-description{min-width:0;font-size:9px;color:var(--ds-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inno-tree-meta{margin-left:auto;font-size:9px;color:#8791a1;white-space:nowrap}
+.inno-tree-item[aria-selected="true"] .inno-tree-meta{color:#5d79b8}
+
+.inno-treegrid{min-width:720px}
+.inno-treegrid tr[hidden]{display:none!important}
+.inno-treegrid th:first-child{min-width:250px}
+.inno-treegrid .num{text-align:right;font-variant-numeric:tabular-nums}
+.inno-treegrid tr:focus-visible{outline:2px solid #7fa3ef;outline-offset:-2px;background:#f8fbff}
+.inno-treegrid-primary{display:flex;align-items:center;gap:6px;margin-left:calc((var(--inno-treegrid-level,1) - 1)*18px);min-width:0}
+.inno-treegrid-node{width:24px;height:28px;flex:0 0 24px;border:0;border-radius:7px;background:transparent;padding:0;display:grid;place-items:center;color:#6f7d91;cursor:pointer}
+.inno-treegrid-node:hover{background:#eef3f8;color:#344256}
+.inno-treegrid-node i{font-size:9px;text-align:center}
+.inno-treegrid-leaf-spacer{width:24px;flex:0 0 24px}
+.inno-treegrid-label{font-size:10px;font-weight:700;white-space:nowrap}
+.inno-treegrid-sub{display:block;font-size:8px;color:var(--ds-muted);margin-top:2px}
+.inno-treegrid-effective{display:flex;gap:4px;flex-wrap:wrap}
+.inno-treegrid-effective .permission-chip{font-size:8px;padding:3px 6px}
+
+.inno-orgchart{display:grid;gap:18px;justify-items:center;padding:16px;border:1px solid var(--ds-border);border-radius:12px;background:#fbfcfe;overflow:auto}
+.inno-orgchart-node{min-width:170px;max-width:230px;padding:10px 12px;border:1px solid #dfe5ee;border-radius:10px;background:#fff;text-align:center;box-shadow:0 1px 2px rgba(17,24,39,.04)}
+.inno-orgchart-node b{display:block;font-size:10px}.inno-orgchart-node span{display:block;margin-top:3px;font-size:8px;color:var(--ds-muted)}
+.inno-orgchart-children{display:flex;gap:14px;align-items:flex-start;justify-content:center;position:relative}
+.inno-orgchart-children:before{content:"";position:absolute;top:-10px;left:12%;right:12%;border-top:1px solid #d8dee8}
+.inno-orgchart-branch{display:grid;gap:10px;justify-items:center;position:relative}
+.inno-orgchart-branch:before{content:"";height:10px;border-left:1px solid #d8dee8;position:absolute;top:-10px}
+@media(max-width:850px){.inno-tree-row{padding-left:calc((var(--inno-tree-level,1) - 1)*12px)}.inno-orgchart-children{min-width:540px;justify-content:flex-start}.inno-treegrid{min-width:680px}}
+
 /* UX/UI Final Consistency Pass — canonical action/layout contract */
 .inno-editor-footer{
   position:static;

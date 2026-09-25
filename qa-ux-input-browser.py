@@ -177,7 +177,7 @@ check("Notification Settings separates connection and delivery defaults",c.eval(
 check("Notification delivery safeguards are explicit decisions",c.eval("document.querySelectorAll('.ux-decision').length===2"))
 
 c.nav("helpdesk-categories.html")
-c.eval("""document.querySelector('.ux-category-node[data-category="Hardware"]').click()""");time.sleep(.04)
+c.eval("""document.querySelector('#categoryTree [data-inno-tree-item][data-category="Hardware"]').click()""");time.sleep(.04)
 check("Category selection updates detail and enhanced team picker",c.eval("document.getElementById('categoryName').value==='Hardware' && document.getElementById('categoryTeam').value==='IT Support' && document.getElementById('categoryTeam').nextElementSibling.textContent.includes('IT Support')"))
 
 c.nav("helpdesk-requester-groups.html")
@@ -367,6 +367,34 @@ c.eval("""(()=>{const s=document.querySelector('[data-inno-filter-target="#group
 check("Device Group status filter changes visible members",c.eval("getComputedStyle(document.querySelector('#groupMemberRows tr[data-status=\"Offline\"]')).display!=='none' && [...document.querySelectorAll('#groupMemberRows tr[data-status=\"Online\"]')].every(r=>getComputedStyle(r).display==='none')"))
 c.nav("device-detail-v2.html","?device=BKK-PC-019")
 check("Device row Open loads the requested resource identity",c.eval("document.querySelector('.resource-title').textContent==='BKK-PC-019' && [...document.querySelectorAll('.kv')].some(k=>k.querySelector('.kv-label')?.textContent.trim()==='Assigned user'&&k.querySelector('.kv-value')?.textContent==='Narin S.')"))
+
+# Pre-Step 7 — shared hierarchy component pass.
+c.nav("organization.html")
+check("INNOTree applies semantic tree and treeitem roles",c.eval("document.getElementById('orgTree').getAttribute('role')==='tree' && [...document.querySelectorAll('#orgTree [data-inno-tree-item]')].every(x=>x.getAttribute('role')==='treeitem')"))
+c.eval("""(()=>{const row=document.querySelector('#orgTree [data-node="dtd"]'),item=row.querySelector('[data-inno-tree-item]');item.focus();item.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowLeft',bubbles:true}))})()""");time.sleep(.03)
+check("INNOTree Left arrow collapses descendants",c.eval("""document.querySelector('#orgTree [data-node="dtd"] [data-inno-tree-item]').getAttribute('aria-expanded')==='false' && document.querySelector('#orgTree [data-node="infra"]').hidden===true"""))
+c.eval("""(()=>{const item=document.querySelector('#orgTree [data-node="dtd"] [data-inno-tree-item]');item.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}))})()""");time.sleep(.03)
+check("INNOTree Right arrow expands descendants",c.eval("""document.querySelector('#orgTree [data-node="dtd"] [data-inno-tree-item]').getAttribute('aria-expanded')==='true' && document.querySelector('#orgTree [data-node="infra"]').hidden===false"""))
+
+c.nav("organization-locations.html")
+c.eval("""(()=>{const s=document.querySelector('[data-inno-tree-search="#locationTree"]');s.value='Floor 1';s.dispatchEvent(new Event('input',{bubbles:true}))})()""");time.sleep(.03)
+check("INNOTree search reveals matching node and ancestors",c.eval("""document.querySelector('#locationTree [data-node="b1"]').hidden===false && document.querySelector('#locationTree [data-node="b"]').hidden===false && document.querySelector('#locationTree [data-node="tech"]').hidden===false"""))
+
+c.nav("helpdesk-categories.html")
+c.eval("""(()=>{document.querySelector('#categoryTree [data-node="hardware"] [data-inno-tree-toggle]').click();document.querySelector('#categoryTree [data-node="notebook"] [data-inno-tree-item]').click()})()""");time.sleep(.03)
+check("Helpdesk Categories uses shared tree selection",c.eval("""document.getElementById('categoryName').value==='Notebook' && document.querySelector('#categoryTree [data-node="notebook"] [data-inno-tree-item]').getAttribute('aria-selected')==='true'"""))
+
+c.nav("access-scope-browser.html")
+check("Scope Browser uses semantic INNOTreeGrid",c.eval("""document.getElementById('scopeTreeGrid').getAttribute('role')==='treegrid' && document.querySelector('#scopeTreeGrid [data-node="branch"]').getAttribute('aria-expanded')==='false' && document.querySelector('#scopeTreeGrid [data-node="branch-ops"]').hidden===true"""))
+c.eval("""(()=>{const row=document.querySelector('#scopeTreeGrid [data-node="branch"]');row.focus();row.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}))})()""");time.sleep(.03)
+check("INNOTreeGrid Right arrow expands hierarchy rows",c.eval("""document.querySelector('#scopeTreeGrid [data-node="branch"]').getAttribute('aria-expanded')==='true' && document.querySelector('#scopeTreeGrid [data-node="branch-ops"]').hidden===false"""))
+c.eval("""(()=>{const s=document.querySelector('[data-inno-treegrid-search="#scopeTreeGrid"]');document.querySelector('#scopeTreeGrid [data-node="branch"] [data-inno-treegrid-node]').click();s.value='Branch Devices';s.dispatchEvent(new Event('input',{bubbles:true}))})()""");time.sleep(.03)
+check("INNOTreeGrid search preserves matching hierarchy context",c.eval("""document.querySelector('#scopeTreeGrid [data-node="branch"]').hidden===false && document.querySelector('#scopeTreeGrid [data-node="branch-ops"]').hidden===false && document.querySelector('#scopeTreeGrid [data-node="branch-devices"]').hidden===false"""))
+c.eval("""(()=>{const s=document.getElementById('scopeAssignment');s.value='support';s.dispatchEvent(new Event('change',{bubbles:true}))})()""");time.sleep(.03)
+check("Scope assignment updates effective TreeGrid actions",c.eval("""document.querySelector('#scopeTreeGrid [data-node="it"] .inno-treegrid-effective').textContent.includes('Remote') && !document.querySelector('#scopeTreeGrid [data-node="it"] .inno-treegrid-effective').textContent.includes('Manage')"""))
+
+c.nav("design-system.html")
+check("Design System documents Tree TreeGrid and OrgChart primitives",c.eval("document.querySelector('#hierarchy [data-inno-tree]')!==null && document.querySelector('#hierarchy [data-inno-treegrid]')!==null && document.querySelector('#hierarchy .inno-orgchart')!==null"))
 
 print(f"checks={checks}")
 print(f"failures={len(fails)}")

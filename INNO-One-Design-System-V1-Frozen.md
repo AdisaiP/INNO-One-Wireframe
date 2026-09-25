@@ -1,7 +1,7 @@
 # INNO.One Design System — Frozen UI Contract
 
-**UI Contract:** 1.19.0
-**Documentation:** Design System V1.25
+**UI Contract:** 1.20.0
+**Documentation:** Design System V1.26
 **Status:** Frozen  
 **Frozen:** 2026-09-26
 
@@ -447,3 +447,17 @@ A new module is UI-complete only when it:
 - Current browser regression: **114 / 114 checks**.
 - These are frontend prototype contracts only; backend/API integration is still paused.
 - Step 7 page-by-page UX review has not started.
+
+## 35. Minor 1.20.0 — Shared hierarchy components — 2026-09-26
+
+- Design System Documentation advanced to **V1.26** and UI Contract to **1.20.0**.
+- `INNOTree` is now a real shared prototype primitive with semantic tree/treeitem roles, selection, expand/collapse, search and Arrow/Home/End keyboard behavior.
+- `INNOTreeGrid` is now a real shared prototype primitive for hierarchical rows with multiple columns, contextual search and keyboard expand/collapse.
+- `INNOOrgChart` is represented in the Design System as the reporting-line visualization contract and remains separate from generic Tree/TreeGrid usage.
+- Organization Structure, Organization Locations and Helpdesk Categories now reuse `INNOTree`.
+- Access Scope Browser now reuses `INNOTreeGrid` rather than a page-local indented table.
+- Shared hierarchy behavior lives in `inno-interactions.js`; shared visual tokens live in `inno-design-system.css`.
+- Production mapping remains React Arborist → `INNOTree`, TanStack Table → `INNOTreeGrid`, d3-org-chart → `INNOOrgChart`; AG Grid Tree Data remains conditional.
+- Browser regression: **124 / 124 checks**.
+- Visual baseline remains **97 route screenshots + 14 state screenshots = 111 verified hashes**.
+- Step 7 page-by-page UX review has not started; backend implementation remains paused.

@@ -1,6 +1,6 @@
 # INNO.One — Special UI Components & Diagram Strategy
 
-Last updated: 2026-09-24
+Last updated: 2026-09-26
 
 ## 1. Goal
 
@@ -262,3 +262,26 @@ ag-grid-react        → Enterprise TreeGrid only when justified
 - AG Grid Tree Data: https://www.ag-grid.com/react-data-grid/tree-data/ — enterprise Tree Data; use only when the paid/enterprise feature set is justified.
 
 Package selection must be revalidated during production implementation for exact version, licensing and security posture.
+
+## 16. Current HTML prototype status — 2026-09-26
+
+The prototype now has shared hierarchy behavior instead of page-local visual approximations:
+
+- `INNOTree`
+  - shared selector: `[data-inno-tree]`
+  - shared runtime: `inno-interactions.js`
+  - shared styling: `inno-design-system.css`
+  - current uses: Organization Structure, Organization Locations, Helpdesk Categories
+  - supports expand/collapse, selected node, search context, `role=tree/treeitem`, `aria-expanded`, Arrow Up/Down/Left/Right and Home/End
+
+- `INNOTreeGrid`
+  - shared selector: `table[data-inno-treegrid]`
+  - current use: Access Scope Browser
+  - supports hierarchy levels, expandable rows, multiple data columns, contextual search, `role=treegrid`, `aria-level`, `aria-expanded` and row keyboard navigation
+
+- `INNOOrgChart`
+  - Design System contains the prototype visual/usage contract
+  - product pages should use it only when reporting-line visualization is the actual job
+  - production implementation direction remains d3-org-chart
+
+The HTML prototype intentionally does **not** import React Arborist or TanStack Table. Those libraries remain the production React implementation behind the INNO.One component contracts.

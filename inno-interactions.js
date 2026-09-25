@@ -561,6 +561,243 @@ function enhanceComponentSemantics(){
   document.documentElement.dataset.uiTableRegions=String(document.querySelectorAll(".table-wrap[role=\"region\"]").length);
 }
 
+function innoHierarchyRows(root,selector){
+  return [...root.querySelectorAll(selector)];
+}
+function innoHierarchyChildren(rows,node){
+  return rows.filter(row=>row.dataset.parent===node);
+}
+function innoHierarchyParent(rows,row){
+  return rows.find(candidate=>candidate.dataset.node===row.dataset.parent)||null;
+}
+function innoHierarchyAncestors(rows,row){
+  const result=[];let current=row;
+  while(current?.dataset.parent){
+    const parent=innoHierarchyParent(rows,current);
+    if(!parent)break;
+    result.push(parent);current=parent;
+  }
+  return result;
+}
+function innoHierarchyDescendants(rows,row){
+  const result=[];const stack=[row.dataset.node];
+  while(stack.length){
+    const parent=stack.pop();
+    innoHierarchyChildren(rows,parent).forEach(child=>{result.push(child);stack.push(child.dataset.node)});
+  }
+  return result;
+}
+function innoTreeLabel(row){
+  return row.querySelector(".inno-tree-label")?.textContent.trim()||
+    row.querySelector("[data-inno-tree-item]")?.textContent.trim()||
+    row.textContent.trim();
+}
+function refreshTree(root){
+  const rows=innoHierarchyRows(root,"[data-inno-tree-row]");
+  const search=document.querySelector('[data-inno-tree-search="#'+root.id+'"]');
+  const q=String(search?.value||"").trim().toLowerCase();
+  let forced=null;
+  if(q){
+    forced=new Set();
+    rows.filter(row=>(row.dataset.search||row.textContent||"").toLowerCase().includes(q)).forEach(row=>{
+      forced.add(row);innoHierarchyAncestors(rows,row).forEach(x=>forced.add(x));innoHierarchyDescendants(rows,row).forEach(x=>forced.add(x));
+    });
+  }
+  rows.forEach(row=>{
+    const ancestors=innoHierarchyAncestors(rows,row);
+    const visible=forced?forced.has(row):ancestors.every(parent=>parent.querySelector("[data-inno-tree-item]")?.getAttribute("aria-expanded")!=="false");
+    row.hidden=!visible;
+  });
+}
+function setTreeExpanded(root,row,expanded){
+  const item=row.querySelector("[data-inno-tree-item]");
+  const toggle=row.querySelector("[data-inno-tree-toggle]");
+  if(!item||!innoHierarchyChildren(innoHierarchyRows(root,"[data-inno-tree-row]"),row.dataset.node).length)return;
+  item.setAttribute("aria-expanded",String(expanded));
+  if(toggle){
+    toggle.setAttribute("aria-expanded",String(expanded));
+    toggle.setAttribute("aria-label",(expanded?"Collapse ":"Expand ")+innoTreeLabel(row));
+    const icon=toggle.querySelector("i");
+    if(icon)icon.className="fa-solid "+(expanded?"fa-chevron-down":"fa-chevron-right");
+  }
+  refreshTree(root);
+}
+function selectTreeItem(root,row,{focus=false}={}){
+  const rows=innoHierarchyRows(root,"[data-inno-tree-row]");
+  rows.forEach(candidate=>{
+    const item=candidate.querySelector("[data-inno-tree-item]");
+    if(!item)return;
+    const selected=candidate===row;
+    item.setAttribute("aria-selected",String(selected));
+    item.classList.toggle("active",selected);
+    item.tabIndex=selected?0:-1;
+  });
+  const item=row.querySelector("[data-inno-tree-item]");
+  if(focus)item?.focus();
+  root.dispatchEvent(new CustomEvent("inno:tree-select",{bubbles:true,detail:{row,item,node:row.dataset.node}}));
+}
+function enhanceTrees(){
+  document.querySelectorAll("[data-inno-tree]").forEach(root=>{
+    if(root.dataset.innoTreeEnhanced)return;
+    root.dataset.innoTreeEnhanced="1";
+    if(!root.id)root.id="innoTree"+Math.random().toString(36).slice(2,8);
+    root.setAttribute("role","tree");
+    const rows=innoHierarchyRows(root,"[data-inno-tree-row]");
+    rows.forEach((row,index)=>{
+      row.setAttribute("role","presentation");
+      const item=row.querySelector("[data-inno-tree-item]");
+      if(!item)return;
+      const level=Math.max(1,Number(row.dataset.level)||1);
+      row.style.setProperty("--inno-tree-level",level);
+      item.setAttribute("role","treeitem");
+      item.setAttribute("aria-level",String(level));
+      const children=innoHierarchyChildren(rows,row.dataset.node);
+      if(children.length){
+        if(!item.hasAttribute("aria-expanded"))item.setAttribute("aria-expanded","true");
+        const toggle=row.querySelector("[data-inno-tree-toggle]");
+        if(toggle){
+          toggle.type="button";
+          toggle.setAttribute("aria-expanded",item.getAttribute("aria-expanded"));
+          toggle.setAttribute("aria-label",(item.getAttribute("aria-expanded")==="false"?"Expand ":"Collapse ")+innoTreeLabel(row));
+          toggle.addEventListener("click",event=>{
+            event.stopPropagation();
+            setTreeExpanded(root,row,item.getAttribute("aria-expanded")==="false");
+            item.focus();
+          });
+        }
+      }else{
+        item.removeAttribute("aria-expanded");
+        const toggle=row.querySelector("[data-inno-tree-toggle]");
+        if(toggle){toggle.disabled=true;toggle.setAttribute("aria-hidden","true");toggle.tabIndex=-1}
+      }
+      if(!item.hasAttribute("aria-selected"))item.setAttribute("aria-selected",index===0?"true":"false");
+      item.tabIndex=item.getAttribute("aria-selected")==="true"?0:-1;
+      item.addEventListener("click",()=>selectTreeItem(root,row));
+      item.addEventListener("keydown",event=>{
+        const visible=rows.filter(r=>!r.hidden).map(r=>r.querySelector("[data-inno-tree-item]")).filter(Boolean);
+        const current=visible.indexOf(item);
+        if(event.key==="ArrowDown"&&current<visible.length-1){event.preventDefault();visible[current+1].focus()}
+        else if(event.key==="ArrowUp"&&current>0){event.preventDefault();visible[current-1].focus()}
+        else if(event.key==="Home"){event.preventDefault();visible[0]?.focus()}
+        else if(event.key==="End"){event.preventDefault();visible.at(-1)?.focus()}
+        else if(event.key==="ArrowRight"){
+          const children=innoHierarchyChildren(rows,row.dataset.node);
+          if(children.length){
+            event.preventDefault();
+            if(item.getAttribute("aria-expanded")==="false")setTreeExpanded(root,row,true);
+            else children.find(x=>!x.hidden)?.querySelector("[data-inno-tree-item]")?.focus();
+          }
+        }else if(event.key==="ArrowLeft"){
+          const children=innoHierarchyChildren(rows,row.dataset.node);
+          if(children.length&&item.getAttribute("aria-expanded")!=="false"){event.preventDefault();setTreeExpanded(root,row,false)}
+          else{
+            const parent=innoHierarchyParent(rows,row);
+            if(parent){event.preventDefault();parent.querySelector("[data-inno-tree-item]")?.focus()}
+          }
+        }
+      });
+    });
+    const search=document.querySelector('[data-inno-tree-search="#'+root.id+'"]');
+    if(search&&!search.dataset.innoTreeSearchBound){
+      search.dataset.innoTreeSearchBound="1";
+      search.addEventListener("input",()=>refreshTree(root));
+      search.addEventListener("keydown",event=>{if(event.key==="Escape"&&search.value){search.value="";refreshTree(root)}});
+    }
+    refreshTree(root);
+  });
+}
+function treeGridLabel(row){
+  return row.querySelector(".inno-treegrid-label")?.textContent.trim()||row.textContent.trim();
+}
+function refreshTreeGrid(table){
+  const rows=innoHierarchyRows(table,"[data-inno-treegrid-row]");
+  const search=document.querySelector('[data-inno-treegrid-search="#'+table.id+'"]');
+  const q=String(search?.value||"").trim().toLowerCase();
+  let forced=null;
+  if(q){
+    forced=new Set();
+    rows.filter(row=>(row.dataset.search||row.textContent||"").toLowerCase().includes(q)).forEach(row=>{
+      forced.add(row);innoHierarchyAncestors(rows,row).forEach(x=>forced.add(x));innoHierarchyDescendants(rows,row).forEach(x=>forced.add(x));
+    });
+  }
+  rows.forEach(row=>{
+    const ancestors=innoHierarchyAncestors(rows,row);
+    const visible=forced?forced.has(row):ancestors.every(parent=>parent.getAttribute("aria-expanded")!=="false");
+    row.hidden=!visible;
+  });
+}
+function setTreeGridExpanded(table,row,expanded){
+  const rows=innoHierarchyRows(table,"[data-inno-treegrid-row]");
+  if(!innoHierarchyChildren(rows,row.dataset.node).length)return;
+  row.setAttribute("aria-expanded",String(expanded));
+  const node=row.querySelector("[data-inno-treegrid-node]");
+  if(node)node.setAttribute("aria-expanded",String(expanded));
+  const icon=node?.querySelector("i");
+  if(icon)icon.className="fa-solid "+(expanded?"fa-chevron-down":"fa-chevron-right");
+  if(node)node.setAttribute("aria-label",(expanded?"Collapse ":"Expand ")+treeGridLabel(row));
+  refreshTreeGrid(table);
+}
+function enhanceTreeGrids(){
+  document.querySelectorAll("[data-inno-treegrid]").forEach(table=>{
+    if(table.dataset.innoTreegridEnhanced)return;
+    table.dataset.innoTreegridEnhanced="1";
+    if(!table.id)table.id="innoTreeGrid"+Math.random().toString(36).slice(2,8);
+    table.setAttribute("role","treegrid");
+    const rows=innoHierarchyRows(table,"[data-inno-treegrid-row]");
+    rows.forEach((row,index)=>{
+      row.setAttribute("role","row");
+      const level=Math.max(1,Number(row.dataset.level)||1);
+      row.setAttribute("aria-level",String(level));
+      row.style.setProperty("--inno-treegrid-level",level);
+      row.tabIndex=index===0?0:-1;
+      const children=innoHierarchyChildren(rows,row.dataset.node);
+      const node=row.querySelector("[data-inno-treegrid-node]");
+      if(children.length){
+        if(!row.hasAttribute("aria-expanded"))row.setAttribute("aria-expanded","true");
+        if(node){
+          node.setAttribute("aria-expanded",row.getAttribute("aria-expanded"));
+          node.setAttribute("aria-label",(row.getAttribute("aria-expanded")==="false"?"Expand ":"Collapse ")+treeGridLabel(row));
+          node.addEventListener("click",event=>{
+            event.stopPropagation();
+            setTreeGridExpanded(table,row,row.getAttribute("aria-expanded")==="false");
+            row.focus();
+          });
+        }
+      }else{
+        row.removeAttribute("aria-expanded");
+        node?.removeAttribute("aria-expanded");
+      }
+      row.addEventListener("focus",()=>rows.forEach(x=>x.tabIndex=x===row?0:-1));
+      row.addEventListener("keydown",event=>{
+        const visible=rows.filter(r=>!r.hidden);
+        const current=visible.indexOf(row);
+        if(event.key==="ArrowDown"&&current<visible.length-1){event.preventDefault();visible[current+1].focus()}
+        else if(event.key==="ArrowUp"&&current>0){event.preventDefault();visible[current-1].focus()}
+        else if(event.key==="Home"){event.preventDefault();visible[0]?.focus()}
+        else if(event.key==="End"){event.preventDefault();visible.at(-1)?.focus()}
+        else if(event.key==="ArrowRight"&&children.length){
+          event.preventDefault();
+          if(row.getAttribute("aria-expanded")==="false")setTreeGridExpanded(table,row,true);
+          else children.find(x=>!x.hidden)?.focus();
+        }else if(event.key==="ArrowLeft"){
+          if(children.length&&row.getAttribute("aria-expanded")!=="false"){event.preventDefault();setTreeGridExpanded(table,row,false)}
+          else{
+            const parent=innoHierarchyParent(rows,row);
+            if(parent){event.preventDefault();parent.focus()}
+          }
+        }
+      });
+    });
+    const search=document.querySelector('[data-inno-treegrid-search="#'+table.id+'"]');
+    if(search&&!search.dataset.innoTreegridSearchBound){
+      search.dataset.innoTreegridSearchBound="1";
+      search.addEventListener("input",()=>refreshTreeGrid(table));
+      search.addEventListener("keydown",event=>{if(event.key==="Escape"&&search.value){search.value="";refreshTreeGrid(table)}});
+    }
+    refreshTreeGrid(table);
+  });
+}
+
 function enhanceActionDock(){
   const selector=".inno-editor-footer:not([data-inno-dock-disabled])";
   const footers=[...document.querySelectorAll(selector)];
@@ -625,12 +862,12 @@ function enhanceActionDock(){
 }
 
 function init(){
-  ensureUI();wireDataActions();enhanceDialogs();enhanceDrawers();enhanceTabs();enhancePagination();enhanceSearch();enhanceCollectionFilters();enhanceComponentSemantics();enhanceDirtyTracking();enhanceBulkSelection();bindInteractionConsistency();handleEscape();enhanceActionDock();
+  ensureUI();wireDataActions();enhanceDialogs();enhanceDrawers();enhanceTabs();enhancePagination();enhanceSearch();enhanceCollectionFilters();enhanceTrees();enhanceTreeGrids();enhanceComponentSemantics();enhanceDirtyTracking();enhanceBulkSelection();bindInteractionConsistency();handleEscape();enhanceActionDock();
   if(typeof window.showToast==="function")window.showToast=(message,type="success")=>toast(message,type);
   document.querySelectorAll("[data-inno-menu],[data-inno-columns]").forEach(x=>{x.setAttribute("aria-haspopup","menu");x.setAttribute("aria-expanded","false")});
   document.querySelectorAll("[data-inno-filter],[data-inno-confirm]").forEach(x=>x.setAttribute("aria-haspopup","dialog"));
-  const obs=new MutationObserver(()=>{enhanceDialogs();enhanceDrawers();enhanceTabs();enhanceSearch();enhanceCollectionFilters();enhanceComponentSemantics();enhanceDirtyTracking();enhanceBulkSelection();enhanceActionDock()});obs.observe(document.body,{childList:true,subtree:true});
+  const obs=new MutationObserver(()=>{enhanceDialogs();enhanceDrawers();enhanceTabs();enhanceSearch();enhanceCollectionFilters();enhanceTrees();enhanceTreeGrids();enhanceComponentSemantics();enhanceDirtyTracking();enhanceBulkSelection();enhanceActionDock()});obs.observe(document.body,{childList:true,subtree:true});
 }
-window.INNOInteractions={toast,confirm:confirmAction,dialog:openDialog,closeDialog,menu:openMenu,filters:openFilterDrawer,columns:openColumns,closeDrawer,scopeFor,validateScope,markDirty,markClean,setDirtyState,isDirty,confirmDiscard,applyCollectionView};
+window.INNOInteractions={toast,confirm:confirmAction,dialog:openDialog,closeDialog,menu:openMenu,filters:openFilterDrawer,columns:openColumns,closeDrawer,scopeFor,validateScope,markDirty,markClean,setDirtyState,isDirty,confirmDiscard,applyCollectionView,refreshTree,selectTreeItem,setTreeExpanded,refreshTreeGrid,setTreeGridExpanded};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();

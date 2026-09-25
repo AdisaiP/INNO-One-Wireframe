@@ -1,7 +1,7 @@
 # INNO.One Final Visual QA Baseline
 
-**UI Contract:** 1.19.0
-**Design System Documentation:** V1.25
+**UI Contract:** 1.20.0
+**Design System Documentation:** V1.26
 **Status:** Frozen visual baseline
 **Frozen:** 2026-09-26
 **Backend:** Not implemented by this baseline
@@ -199,7 +199,7 @@ Action/Layout verification at freeze:
 
 ## 16. Accessibility / Availability final-polish baseline — 2026-09-25
 
-The current frozen baseline is **Design System V1.25 / UI Contract 1.19.0**.
+The current frozen baseline is **Design System V1.26 / UI Contract 1.20.0**.
 
 Accessibility baseline:
 - 97 canonical pages covered by `accessibility-audit.py`.
@@ -216,7 +216,7 @@ Availability baseline:
 - legitimate non-future disabled controls = 4.
 
 Final verification:
-- `qa-ux-input-browser.py`: 114 / 114 checks, 0 failures.
+- `qa-ux-input-browser.py`: 124 / 124 checks, 0 failures.
 - `qa-final-visual.py` frozen manifest: 127 / 127 checks, 0 failures.
 - canonical route screenshots: 97.
 - state screenshots: 14.
@@ -310,4 +310,30 @@ Current frozen verification:
 - Primary collection tables: **15 / 15** compact with shared search; action-bearing collections: **10 / 10**.
 - All five contact sheets were regenerated and visually reviewed; affected Web pages were also reviewed at 1024 and 768 widths.
 - Full static audit chain: **0 issues**.
+- Step 7 has not started; backend implementation remains paused.
+
+## 21. Pre-Step 7 shared hierarchy components — 2026-09-26
+
+Design System **V1.26 / UI Contract 1.20.0** turns the previously documented hierarchy component direction into a shared prototype contract before the final page-by-page review.
+
+Shared hierarchy primitives:
+- `INNOTree` — nested data without columns, with selection, expand/collapse, search, `role=tree/treeitem`, `aria-expanded` and Arrow/Home/End keyboard behavior.
+- `INNOTreeGrid` — hierarchy + comparable columns, with semantic treegrid rows, expand/collapse, contextual search and Arrow/Home/End keyboard behavior.
+- `INNOOrgChart` — visual reporting-line contract documented in Design System; production direction remains d3-org-chart.
+- Production mapping remains React Arborist for Tree and TanStack Table expandable rows for TreeGrid; AG Grid Tree Data is reserved for justified enterprise-grid requirements.
+
+Migrated prototype surfaces:
+- `organization.html` → shared INNOTree.
+- `organization-locations.html` → shared INNOTree.
+- `helpdesk-categories.html` → shared INNOTree.
+- `access-scope-browser.html` → real shared INNOTreeGrid instead of padded static table rows.
+- `design-system.html#hierarchy` → live Tree / TreeGrid demos plus OrgChart usage reference.
+
+Current verification:
+- Web routes: **93**; canonical pages: **97**.
+- `qa-ux-input-browser.py`: **124 / 124 checks**, 0 failures.
+- `qa-final-visual.py`: **127 / 127 checks**, 0 failures.
+- Frozen screenshots: **97 routes + 14 states = 111 verified hashes**.
+- Hierarchy component consistency audit is part of `component-consistency-audit.py`.
+- All five contact sheets were regenerated; Organization, Locations, Helpdesk Categories, Scope Browser and the Design System hierarchy section were visually reviewed at 1366 / 1024 / 768 with no page-level overflow.
 - Step 7 has not started; backend implementation remains paused.

@@ -1,6 +1,6 @@
 # INNO.One — Next Chat Handoff
 
-Last updated: 2026-09-25
+Last updated: 2026-09-26
 Project: `/Users/adisaip/Desktop/INNO-One-Wireframe/`  
 Scope: UI/UX prototype only — **ยังไม่ทำ Backend**
 
@@ -30,8 +30,8 @@ INNO.One กำลังถูกปรับจาก TOR coverage prototype �
 
 ## 2. Current UI Baseline
 
-- Design System: **V1.25**
-- UI Contract: **1.19.0**
+- Design System: **V1.26**
+- UI Contract: **1.20.0**
 - Registry Schema: **10**
 
 Source of truth หลัก:
@@ -659,7 +659,7 @@ Checklist ที่ทำครบ:
 - Final Visual audit = 0 issues
 - Final baseline อยู่ที่ `qa-final-visual/` และ contract อธิบายใน `INNO-One-Final-Visual-QA-Baseline.md`
 
-**สถานะ UI Prototype ปัจจุบัน: ✅ FROZEN AT V1.25 / CONTRACT 1.19.0 — PRE-STEP 7 TOR SURFACES COMPLETE — BACKEND WORK PAUSED BY USER**
+**สถานะ UI Prototype ปัจจุบัน: ✅ FROZEN AT V1.26 / CONTRACT 1.20.0 — PRE-STEP 7 HIERARCHY COMPONENTS COMPLETE — BACKEND WORK PAUSED BY USER**
 
 หมายเหตุ: Backend planning documents may exist on a separate branch, but the user explicitly paused Backend work. Do not resume Backend unless the user asks again.
 
@@ -1024,5 +1024,31 @@ QA:
 - Full static audit chain: **0 issues**.
 - Five contact sheets regenerated and visually reviewed.
 - Affected Web screens additionally reviewed at **1024** and **768**.
+
+**Next step remains Step 7 Final Page-by-Page UX Review. Backend remains paused.**
+
+# Pre-Step 7 — Shared Hierarchy Components ✅ COMPLETED 2026-09-26
+
+Branch: `ux/tor-required-surfaces-pass`
+
+Design System: **V1.26**
+UI Contract: **1.20.0**
+
+Completed before Step 7:
+- Implemented shared `INNOTree` behavior in the central interaction/design layers.
+- Implemented shared `INNOTreeGrid` behavior with real hierarchy rows, expand/collapse, contextual search and keyboard navigation.
+- Added live Tree / TreeGrid / OrgChart references to Design System.
+- Migrated Organization Structure, Organization Locations and Helpdesk Categories from page-local category-tree markup to `INNOTree`.
+- Migrated Access Scope Browser from a visually indented table to a real `INNOTreeGrid`.
+- Scope assignment changes effective actions without changing the hierarchy model.
+- Production direction remains React Arborist / TanStack Table / d3-org-chart; AG Grid remains enterprise-only when justified.
+
+QA:
+- Web routes: **93**; canonical pages: **97**.
+- `qa-final-visual.py`: **127 / 127**, failures 0.
+- `qa-ux-input-browser.py`: **124 / 124**, failures 0.
+- Frozen screenshots: **97 routes + 14 states = 111 hashes**.
+- Static hierarchy component checks are enforced by `component-consistency-audit.py`.
+- All five contact sheets were regenerated; affected hierarchy screens were visually checked at 1366 / 1024 / 768 with no page-level overflow.
 
 **Next step remains Step 7 Final Page-by-Page UX Review. Backend remains paused.**

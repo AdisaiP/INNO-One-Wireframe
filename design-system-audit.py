@@ -30,14 +30,14 @@ for p in sorted(ROOT.glob("*.html")):
 for x in SOT:
     if not (ROOT/x).exists(): issues.append(f"missing source: {x}")
 ds=(ROOT/"design-system.html").read_text(encoding="utf-8")
-if "Design System V1.25" not in ds: issues.append("expected Design System V1.25")
-if "UI Contract 1.19.0 is frozen" not in ds: issues.append("freeze banner missing")
+if "Design System V1.26" not in ds: issues.append("expected Design System V1.26")
+if "UI Contract 1.20.0 is frozen" not in ds: issues.append("freeze banner missing")
 if 'id="freeze"' not in ds: issues.append("freeze section missing")
 nav=(ROOT/"inno-navigation.js").read_text(encoding="utf-8")
 for q in EXTERNAL_SURFACE_ROUTES:
     if q in nav: issues.append(f"inno-navigation.js: external surface route registered in Web navigation: {q}")
 ct=(ROOT/"inno-design-contract.js").read_text(encoding="utf-8")
-if 'contractVersion:"1.19.0"' not in ct: issues.append("contract version mismatch")
+if 'contractVersion:"1.20.0"' not in ct: issues.append("contract version mismatch")
 if 'status:"frozen"' not in ct: issues.append("contract status mismatch")
 print(f"modern_pages={len(pages)}")
 print(f"source_of_truth_files={len(SOT)}")

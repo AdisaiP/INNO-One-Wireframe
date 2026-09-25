@@ -7,7 +7,7 @@ EXTERNAL={"asset-mobile.html","helpdesk-agent-request.html","agent-ownership-con
 REFERENCE={"design-system.html"}
 SPECIAL_HEADERS={"workspace-v2.html","asset-detail.html","device-detail-v2.html","device-group-detail.html","user-detail.html","meeting-detail.html","remote-session.html","ticket-detail.html"}
 issues=[]
-metrics={"modern_pages":0,"web_pages":0,"page_headers":0,"buttons":0,"fields":0,"tables":0,"subnavs":0,"tabsets":0,"sticky_action_areas":0}
+metrics={"modern_pages":0,"web_pages":0,"page_headers":0,"buttons":0,"fields":0,"tables":0,"subnavs":0,"tabsets":0,"sticky_action_areas":0,"trees":0,"treegrids":0,"orgcharts":0}
 
 class Node:
     def __init__(self,tag,attrs,parent=None):
@@ -111,6 +111,29 @@ for page in sorted(ROOT.glob("*.html")):
     for tabs in tabsets:
         active=[b for b in descendants(tabs,tag="button") if "active" in b.classes()]
         if len(active)!=1:issues.append(f"{page.name}: tabset active count={len(active)}")
+    trees=[n for n in nodes if "data-inno-tree" in n.attrs]
+    treegrids=[n for n in nodes if "data-inno-treegrid" in n.attrs]
+    orgcharts=[n for n in nodes if "inno-orgchart" in n.classes()]
+    metrics["trees"]+=len(trees);metrics["treegrids"]+=len(treegrids);metrics["orgcharts"]+=len(orgcharts)
+    if "ux-category-tree" in source:issues.append(f"{page.name}: legacy category tree pattern remains")
+    for tree in trees:
+        if not tree.attrs.get("id"):issues.append(f"{page.name}: INNOTree missing id")
+        rows=[n for n in descendants(tree) if "data-inno-tree-row" in n.attrs]
+        if not rows:issues.append(f"{page.name}: INNOTree has no hierarchy rows")
+        for row in rows:
+            for attr in ("data-node","data-parent","data-level"):
+                if attr not in row.attrs:issues.append(f"{page.name}: INNOTree row missing {attr}")
+            if not any("data-inno-tree-item" in x.attrs and x.tag=="button" for x in descendants(row)):
+                issues.append(f"{page.name}: INNOTree row missing native tree item button")
+    for treegrid in treegrids:
+        if treegrid.tag!="table":issues.append(f"{page.name}: INNOTreeGrid must use table semantics")
+        if not treegrid.attrs.get("id"):issues.append(f"{page.name}: INNOTreeGrid missing id")
+        if "inno-treegrid" not in treegrid.classes():issues.append(f"{page.name}: INNOTreeGrid missing shared class")
+        rows=[n for n in descendants(treegrid,tag="tr") if "data-inno-treegrid-row" in n.attrs]
+        if not rows:issues.append(f"{page.name}: INNOTreeGrid has no hierarchy rows")
+        for row in rows:
+            for attr in ("data-node","data-parent","data-level"):
+                if attr not in row.attrs:issues.append(f"{page.name}: INNOTreeGrid row missing {attr}")
     sticky=any(any(c in n.classes() for c in ("inno-editor-footer","inno-builder-footer","inno-wizard-footer","arch-editor-actions","form-footer","editor-footer","sticky-actions")) for n in nodes)
     if sticky:metrics["sticky_action_areas"]+=1
     field_count=sum(1 for n in nodes if n.tag=="div" and "field" in n.classes())
@@ -125,8 +148,12 @@ for token in ("--ds-control-h:36px","--ds-table-row-h:48px",".section-subnav a[a
     if token not in css:issues.append(f"component CSS contract missing: {token}")
 
 interactions=(ROOT/"inno-interactions.js").read_text(encoding="utf-8")
-for token in ("enhanceComponentSemantics","uiSubnavActive","uiFieldLabels","uiTableRegions"):
+for token in ("enhanceComponentSemantics","uiSubnavActive","uiFieldLabels","uiTableRegions","enhanceTrees","enhanceTreeGrids","setTreeGridExpanded"):
     if token not in interactions:issues.append(f"interaction enhancement missing: {token}")
+if 'data-inno-treegrid' not in (ROOT/"access-scope-browser.html").read_text(encoding="utf-8"):issues.append("Access Scope Browser is not using INNOTreeGrid")
+design=(ROOT/"design-system.html").read_text(encoding="utf-8")
+for token in ("Hierarchy components","INNOTree","INNOTreeGrid","INNOOrgChart"):
+    if token not in design:issues.append(f"Design System hierarchy reference missing: {token}")
 
 responsive=(ROOT/"inno-responsive.js").read_text(encoding="utf-8")
 if ".section-subnav" not in responsive:issues.append("responsive subnav overflow support missing")

@@ -1,15 +1,101 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Organization Structure · INNO.One</title><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"><link rel="stylesheet" href="workspace-v2.css"><link rel="stylesheet" href="inno-design-system.css"></head><body><div class="shell"><aside class="rail"><div class="brand">I1</div><a href="workspace-v2.html"><i class="fa-solid fa-house"></i></a><a href="app-launcher-v2.html"><i class="fa-solid fa-table-cells-large"></i></a><a href="devices-overview-v2.html"><i class="fa-solid fa-desktop"></i></a><a href="helpdesk.html"><i class="fa-solid fa-headset"></i></a><a href="meeting.html"><i class="fa-solid fa-microphone-lines"></i></a><div class="spacer"></div><a class="active" href="admin.html"><i class="fa-solid fa-gear"></i></a></aside><aside class="side"><div class="side-title">Admin Center</div><div class="side-section">Workspace</div><a href="admin.html"><i class="fa-solid fa-house"></i>Overview</a><div class="side-section">Organization</div><a class="active" href="organization.html"><i class="fa-solid fa-sitemap"></i>Structure</a><a href="organization-locations.html"><i class="fa-solid fa-location-dot"></i>Locations</a><a href="organization-positions.html"><i class="fa-solid fa-id-badge"></i>Positions</a><a href="users.html"><i class="fa-solid fa-users"></i>Users</a><div class="side-section">Access</div><a href="roles-permissions-v2.html"><i class="fa-solid fa-user-shield"></i>Roles & Permissions</a><a href="access-scopes.html"><i class="fa-solid fa-crosshairs"></i>Access Scopes</a><div class="side-section">Platform</div><a href="modules.html"><i class="fa-solid fa-cubes"></i>Apps & Modules</a><a class="nav-disabled" aria-disabled="true" tabindex="-1" title="Integrations · Coming soon"><i class="fa-solid fa-plug"></i>Integrations</a><a class="nav-disabled" aria-disabled="true" tabindex="-1" title="Security · Coming soon"><i class="fa-solid fa-shield"></i>Security</a><a class="nav-disabled" aria-disabled="true" tabindex="-1" title="Audit · Coming soon"><i class="fa-solid fa-clipboard-list"></i>Audit</a><a class="nav-disabled" aria-disabled="true" tabindex="-1" title="Branding · Coming soon"><i class="fa-solid fa-palette"></i>Branding</a><a href="design-system.html"><i class="fa-solid fa-swatchbook"></i>Design System</a><a class="nav-disabled" aria-disabled="true" tabindex="-1" title="Settings · Coming soon"><i class="fa-solid fa-gear"></i>Settings</a></aside><main class="main"><header class="topbar"></header><section class="content">
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Organization Structure · INNO.One</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link rel="stylesheet" href="workspace-v2.css">
+<link rel="stylesheet" href="inno-design-system.css">
+</head>
+<body>
+<div class="shell">
+<aside class="rail"><div class="brand">I1</div><a href="workspace-v2.html"><i class="fa-solid fa-house"></i></a><a href="app-launcher-v2.html"><i class="fa-solid fa-table-cells-large"></i></a><a href="devices-overview-v2.html"><i class="fa-solid fa-desktop"></i></a><a href="helpdesk.html"><i class="fa-solid fa-headset"></i></a><a href="meeting.html"><i class="fa-solid fa-microphone-lines"></i></a><div class="spacer"></div><a class="active" href="admin.html"><i class="fa-solid fa-gear"></i></a></aside>
+<aside class="side"><div class="side-title">Admin Center</div><div class="side-section">Workspace</div><a href="admin.html"><i class="fa-solid fa-house"></i>Overview</a><div class="side-section">Organization</div><a class="active" href="organization.html"><i class="fa-solid fa-sitemap"></i>Structure</a><a href="organization-locations.html"><i class="fa-solid fa-location-dot"></i>Locations</a><a href="organization-positions.html"><i class="fa-solid fa-id-badge"></i>Positions</a><a href="users.html"><i class="fa-solid fa-users"></i>Users</a><div class="side-section">Access</div><a href="roles-permissions-v2.html"><i class="fa-solid fa-user-shield"></i>Roles & Permissions</a><a href="access-scopes.html"><i class="fa-solid fa-crosshairs"></i>Access Scopes</a><div class="side-section">Platform</div><a href="modules.html"><i class="fa-solid fa-cubes"></i>Apps & Modules</a><a class="nav-disabled" aria-disabled="true" tabindex="-1" title="Integrations · Coming soon"><i class="fa-solid fa-plug"></i>Integrations</a><a class="nav-disabled" aria-disabled="true" tabindex="-1" title="Security · Coming soon"><i class="fa-solid fa-shield"></i>Security</a><a class="nav-disabled" aria-disabled="true" tabindex="-1" title="Audit · Coming soon"><i class="fa-solid fa-clipboard-list"></i>Audit</a><a class="nav-disabled" aria-disabled="true" tabindex="-1" title="Branding · Coming soon"><i class="fa-solid fa-palette"></i>Branding</a><a href="design-system.html"><i class="fa-solid fa-swatchbook"></i>Design System</a><a class="nav-disabled" aria-disabled="true" tabindex="-1" title="Settings · Coming soon"><i class="fa-solid fa-gear"></i>Settings</a></aside>
+<main class="main">
+<header class="topbar"></header>
+<section class="content">
 <div class="page-head"><div><div class="eyebrow">Admin Center · Organization</div><h1>Organization Structure</h1><div class="sub">Maintain only the government organization hierarchy. Locations, positions and user profiles are managed on their own screens.</div></div><div class="actions"><button class="btn" type="button" onclick="newUnit()"><i class="fa-solid fa-plus"></i>New Unit</button></div></div>
 <div class="stat-strip"><div class="stat-cell"><div class="stat-label">Organization units</div><div class="stat-value">18</div><div class="stat-sub">Active hierarchy nodes</div></div><div class="stat-cell"><div class="stat-label">Hierarchy levels</div><div class="stat-value">4</div><div class="stat-sub">Configurable unit types</div></div><div class="stat-cell"><div class="stat-label">Assigned users</div><div class="stat-value">184</div><div class="stat-sub">Across all units</div></div><div class="stat-cell"><div class="stat-label">Unassigned users</div><div class="stat-value">5</div><div class="stat-sub">Need organization mapping</div></div></div>
-<div class="arch-split-list"><div class="card card-pad"><div class="section-title"><div><h3>Organization tree</h3><div class="small muted">Hierarchy labels are configurable and are not hard-coded to bureau/division/team.</div></div><span class="tag">18 units</span></div><div class="ux-category-tree" id="orgTree">
-<button class="ux-category-node active" lang="th" data-name="องค์การพิพิธภัณฑ์วิทยาศาสตร์แห่งชาติ" data-code="NSM" data-type="Organization" data-parent="—" data-manager="Executive Office" data-location="Technopolis" data-members="184"><i class="fa-solid fa-chevron-down"></i><b>องค์การพิพิธภัณฑ์วิทยาศาสตร์แห่งชาติ</b><span>184</span></button>
-<div class="ux-category-children"><button class="ux-category-node" lang="th" data-name="กองเทคโนโลยีดิจิทัล" data-code="DTD" data-type="Division" data-parent="องค์การพิพิธภัณฑ์วิทยาศาสตร์แห่งชาติ" data-manager="Director, Digital Technology" data-location="Technopolis · Building A" data-members="38"><i class="fa-solid fa-chevron-down"></i><b>กองเทคโนโลยีดิจิทัล</b><span>38</span></button><div class="ux-category-children"><button class="ux-category-node" lang="th" data-name="งานโครงสร้างพื้นฐาน" data-code="DTD-INFRA" data-type="Team" data-parent="กองเทคโนโลยีดิจิทัล" data-manager="Infrastructure Lead" data-location="Building A · Floor 3" data-members="12"><b>งานโครงสร้างพื้นฐาน</b><span>12</span></button><button class="ux-category-node" lang="th" data-name="งานพัฒนาระบบ" data-code="DTD-DEV" data-type="Team" data-parent="กองเทคโนโลยีดิจิทัล" data-manager="Application Lead" data-location="Building A · Floor 3" data-members="14"><b>งานพัฒนาระบบ</b><span>14</span></button><button class="ux-category-node" lang="th" data-name="งานสนับสนุนผู้ใช้งาน" data-code="DTD-SUP" data-type="Team" data-parent="กองเทคโนโลยีดิจิทัล" data-manager="Support Lead" data-location="Building A · Floor 2" data-members="12"><b>งานสนับสนุนผู้ใช้งาน</b><span>12</span></button></div></div>
-<button class="ux-category-node" lang="th" data-name="สำนักบริหาร" data-code="ADM" data-type="Office" data-parent="องค์การพิพิธภัณฑ์วิทยาศาสตร์แห่งชาติ" data-manager="Administration Director" data-location="Technopolis · Building B" data-members="46"><i class="fa-solid fa-chevron-right"></i><b>สำนักบริหาร</b><span>46</span></button></div></div>
-<div class="arch-detail-panel" id="orgEditor"><div class="section-title"><div><h3 id="orgTitle" lang="th">องค์การพิพิธภัณฑ์วิทยาศาสตร์แห่งชาติ</h3><div class="small muted">Selected organization unit</div></div><span class="tag success">Active</span></div><div class="form"><div class="split"><div class="field"><label for="orgName">Unit name</label><input id="orgName" value="องค์การพิพิธภัณฑ์วิทยาศาสตร์แห่งชาติ" lang="th"></div><div class="field"><label for="orgCode">Unit code</label><input id="orgCode" value="NSM"></div></div><div class="split"><div class="field"><label for="orgType">Unit type</label><select id="orgType"><option>Organization</option><option>Office</option><option>Division</option><option>Department</option><option>Team</option></select></div><div class="field"><label for="orgParent">Parent unit</label><input id="orgParent" value="—"></div></div><div class="split"><div class="field"><label for="orgManager">Responsible manager</label><input id="orgManager" value="Executive Office"></div><div class="field"><label for="orgLocation">Primary location</label><select id="orgLocation" data-inno-resource-picker data-inno-resource-icon="fa-location-dot"><option>Technopolis</option><option>Technopolis · Building A</option><option>Technopolis · Building B</option><option>Bangkok Office</option></select></div></div><div class="field"><label for="orgMemberCount">Assigned users</label><input id="orgMemberCount" value="184" readonly></div><div class="ux-stat-note"><i class="fa-solid fa-circle-info"></i><span>Locations, Positions and Users are separate organization masters in the Admin Center.</span></div></div><div class="inno-editor-footer"><button class="btn" data-inno-save data-inno-saving-label="Saving unit..." data-inno-saved-label="Unit saved" data-inno-success="Organization unit saved"><i class="fa-solid fa-floppy-disk"></i>Save Unit</button></div></div></div>
+
+<div class="arch-split-list">
+  <div class="card card-pad">
+    <div class="section-title"><div><h3>Organization tree</h3><div class="small muted">INNOTree · expand, collapse, select and keyboard navigation.</div></div><span class="tag">18 units</span></div>
+    <div class="ds-search inno-tree-search"><i class="fa-solid fa-magnifying-glass"></i><input data-inno-tree-search="#orgTree" placeholder="Search organization units..."></div>
+    <div class="inno-tree" id="orgTree" data-inno-tree>
+      <div class="inno-tree-row" data-inno-tree-row data-node="nsm" data-parent="" data-level="1" data-search="NSM organization national science museum">
+        <button class="inno-tree-toggle" type="button" data-inno-tree-toggle aria-label="Collapse organization"><i class="fa-solid fa-chevron-down"></i></button>
+        <button class="inno-tree-item active" type="button" data-inno-tree-item aria-selected="true" aria-expanded="true" lang="th" data-name="องค์การพิพิธภัณฑ์วิทยาศาสตร์แห่งชาติ" data-code="NSM" data-type="Organization" data-parent-name="—" data-manager="Executive Office" data-location="Technopolis" data-members="184"><span class="inno-tree-label">องค์การพิพิธภัณฑ์วิทยาศาสตร์แห่งชาติ</span><span class="inno-tree-meta">184</span></button>
+      </div>
+      <div class="inno-tree-row" data-inno-tree-row data-node="dtd" data-parent="nsm" data-level="2" data-search="DTD digital technology division">
+        <button class="inno-tree-toggle" type="button" data-inno-tree-toggle aria-label="Collapse Digital Technology"><i class="fa-solid fa-chevron-down"></i></button>
+        <button class="inno-tree-item" type="button" data-inno-tree-item aria-expanded="true" lang="th" data-name="กองเทคโนโลยีดิจิทัล" data-code="DTD" data-type="Division" data-parent-name="องค์การพิพิธภัณฑ์วิทยาศาสตร์แห่งชาติ" data-manager="Director, Digital Technology" data-location="Technopolis · Building A" data-members="38"><span class="inno-tree-label">กองเทคโนโลยีดิจิทัล</span><span class="inno-tree-meta">38</span></button>
+      </div>
+      <div class="inno-tree-row" data-inno-tree-row data-node="infra" data-parent="dtd" data-level="3" data-search="infrastructure DTD-INFRA">
+        <button class="inno-tree-toggle" type="button" data-inno-tree-toggle aria-label="Toggle child nodes"></button>
+        <button class="inno-tree-item" type="button" data-inno-tree-item lang="th" data-name="งานโครงสร้างพื้นฐาน" data-code="DTD-INFRA" data-type="Team" data-parent-name="กองเทคโนโลยีดิจิทัล" data-manager="Infrastructure Lead" data-location="Technopolis · Building A" data-members="12"><span class="inno-tree-label">งานโครงสร้างพื้นฐาน</span><span class="inno-tree-meta">12</span></button>
+      </div>
+      <div class="inno-tree-row" data-inno-tree-row data-node="dev" data-parent="dtd" data-level="3" data-search="development DTD-DEV">
+        <button class="inno-tree-toggle" type="button" data-inno-tree-toggle aria-label="Toggle child nodes"></button>
+        <button class="inno-tree-item" type="button" data-inno-tree-item lang="th" data-name="งานพัฒนาระบบ" data-code="DTD-DEV" data-type="Team" data-parent-name="กองเทคโนโลยีดิจิทัล" data-manager="Application Lead" data-location="Technopolis · Building A" data-members="14"><span class="inno-tree-label">งานพัฒนาระบบ</span><span class="inno-tree-meta">14</span></button>
+      </div>
+      <div class="inno-tree-row" data-inno-tree-row data-node="support" data-parent="dtd" data-level="3" data-search="support DTD-SUP">
+        <button class="inno-tree-toggle" type="button" data-inno-tree-toggle aria-label="Toggle child nodes"></button>
+        <button class="inno-tree-item" type="button" data-inno-tree-item lang="th" data-name="งานสนับสนุนผู้ใช้งาน" data-code="DTD-SUP" data-type="Team" data-parent-name="กองเทคโนโลยีดิจิทัล" data-manager="Support Lead" data-location="Technopolis · Building A" data-members="12"><span class="inno-tree-label">งานสนับสนุนผู้ใช้งาน</span><span class="inno-tree-meta">12</span></button>
+      </div>
+      <div class="inno-tree-row" data-inno-tree-row data-node="admin-office" data-parent="nsm" data-level="2" data-search="administration office ADM">
+        <button class="inno-tree-toggle" type="button" data-inno-tree-toggle aria-label="Expand Administration"><i class="fa-solid fa-chevron-right"></i></button>
+        <button class="inno-tree-item" type="button" data-inno-tree-item aria-expanded="false" lang="th" data-name="สำนักบริหาร" data-code="ADM" data-type="Office" data-parent-name="องค์การพิพิธภัณฑ์วิทยาศาสตร์แห่งชาติ" data-manager="Administration Director" data-location="Technopolis · Building B" data-members="46"><span class="inno-tree-label">สำนักบริหาร</span><span class="inno-tree-meta">46</span></button>
+      </div>
+      <div class="inno-tree-row" data-inno-tree-row data-node="finance" data-parent="admin-office" data-level="3" data-search="finance department FIN">
+        <button class="inno-tree-toggle" type="button" data-inno-tree-toggle aria-label="Toggle child nodes"></button>
+        <button class="inno-tree-item" type="button" data-inno-tree-item lang="th" data-name="งานการเงิน" data-code="ADM-FIN" data-type="Department" data-parent-name="สำนักบริหาร" data-manager="Finance Lead" data-location="Technopolis · Building B" data-members="18"><span class="inno-tree-label">งานการเงิน</span><span class="inno-tree-meta">18</span></button>
+      </div>
+      <div class="inno-tree-row" data-inno-tree-row data-node="hr" data-parent="admin-office" data-level="3" data-search="human resources HR department">
+        <button class="inno-tree-toggle" type="button" data-inno-tree-toggle aria-label="Toggle child nodes"></button>
+        <button class="inno-tree-item" type="button" data-inno-tree-item lang="th" data-name="งานทรัพยากรบุคคล" data-code="ADM-HR" data-type="Department" data-parent-name="สำนักบริหาร" data-manager="HR Lead" data-location="Technopolis · Building B" data-members="14"><span class="inno-tree-label">งานทรัพยากรบุคคล</span><span class="inno-tree-meta">14</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="arch-detail-panel" id="orgEditor">
+    <div class="section-title"><div><h3 id="orgTitle" lang="th">องค์การพิพิธภัณฑ์วิทยาศาสตร์แห่งชาติ</h3><div class="small muted">Selected organization unit</div></div><span class="tag success">Active</span></div>
+    <div class="form">
+      <div class="split"><div class="field"><label for="orgName">Unit name</label><input id="orgName" value="องค์การพิพิธภัณฑ์วิทยาศาสตร์แห่งชาติ" lang="th"></div><div class="field"><label for="orgCode">Unit code</label><input id="orgCode" value="NSM"></div></div>
+      <div class="split"><div class="field"><label for="orgType">Unit type</label><select id="orgType"><option>Organization</option><option>Office</option><option>Division</option><option>Department</option><option>Team</option></select></div><div class="field"><label for="orgParent">Parent unit</label><select id="orgParent" data-inno-resource-picker data-inno-resource-icon="fa-sitemap"><option>—</option><option lang="th">องค์การพิพิธภัณฑ์วิทยาศาสตร์แห่งชาติ</option><option lang="th">กองเทคโนโลยีดิจิทัล</option><option lang="th">สำนักบริหาร</option></select></div></div>
+      <div class="split"><div class="field"><label for="orgManager">Responsible manager</label><input id="orgManager" value="Executive Office"></div><div class="field"><label for="orgLocation">Primary location</label><select id="orgLocation" data-inno-resource-picker data-inno-resource-icon="fa-location-dot"><option>Technopolis</option><option>Technopolis · Building A</option><option>Technopolis · Building B</option><option>Bangkok Office</option></select></div></div>
+      <div class="field"><label for="orgMemberCount">Assigned users</label><input id="orgMemberCount" value="184" readonly></div>
+      <div class="ux-stat-note"><i class="fa-solid fa-circle-info"></i><span>INNOTree owns hierarchy interaction; the detail editor owns the selected unit only.</span></div>
+    </div>
+    <div class="inno-editor-footer"><button class="btn" data-inno-save data-inno-saving-label="Saving unit..." data-inno-saved-label="Unit saved" data-inno-success="Organization unit saved"><i class="fa-solid fa-floppy-disk"></i>Save Unit</button></div>
+  </div>
+</div>
+
 <script>
-const orgButtons=[...document.querySelectorAll('#orgTree button[data-name]')];
+const orgTree=document.getElementById('orgTree');
 function revealEditor(){if(window.innerWidth<=1180)document.getElementById('orgEditor').scrollIntoView({behavior:'smooth',block:'start'})}
-function selectUnit(b){orgButtons.forEach(x=>x.classList.remove('active'));b.classList.add('active');orgTitle.textContent=b.dataset.name;orgName.value=b.dataset.name;orgCode.value=b.dataset.code;orgType.value=b.dataset.type;orgParent.value=b.dataset.parent;orgManager.value=b.dataset.manager;orgLocation.value=b.dataset.location;orgMemberCount.value=b.dataset.members;window.INNOInputs?.refresh();revealEditor()}
-orgButtons.forEach(b=>b.onclick=()=>selectUnit(b));
-function newUnit(){orgButtons.forEach(x=>x.classList.remove('active'));orgTitle.textContent='New organization unit';orgName.value='';orgCode.value='';orgType.value='Department';orgParent.value='';orgManager.value='';orgLocation.value='Technopolis';orgMemberCount.value='0';window.INNOInputs?.refresh();revealEditor();setTimeout(()=>orgName.focus(),280)}
-</script></section></main></div><script src="inno-inputs.js"></script><script src="inno-interactions.js"></script><script src="inno-states.js"></script><script src="platform-shell.js"></script><script src="inno-responsive.js"></script><script src="inno-navigation.js"></script><script src="inno-icons.js"></script><script src="inno-design-contract.js"></script></body></html>
+function selectUnit(item){
+  orgTitle.textContent=item.dataset.name;
+  orgName.value=item.dataset.name;
+  orgCode.value=item.dataset.code;
+  orgType.value=item.dataset.type;
+  orgParent.value=item.dataset.parentName;
+  orgManager.value=item.dataset.manager;
+  orgLocation.value=item.dataset.location;
+  orgMemberCount.value=item.dataset.members;
+  window.INNOInputs?.refresh();
+  revealEditor();
+}
+orgTree.addEventListener('inno:tree-select',event=>selectUnit(event.detail.item));
+function newUnit(){
+  orgTree.querySelectorAll('[data-inno-tree-item]').forEach(item=>{item.setAttribute('aria-selected','false');item.classList.remove('active')});
+  orgTitle.textContent='New organization unit';orgName.value='';orgCode.value='';orgType.value='Department';orgParent.value='องค์การพิพิธภัณฑ์วิทยาศาสตร์แห่งชาติ';orgManager.value='';orgLocation.value='Technopolis';orgMemberCount.value='0';
+  window.INNOInputs?.refresh();revealEditor();setTimeout(()=>orgName.focus(),280);
+}
+</script>
+</section>
+</main>
+</div>
+<script src="inno-inputs.js"></script><script src="inno-interactions.js"></script><script src="inno-states.js"></script><script src="platform-shell.js"></script><script src="inno-responsive.js"></script><script src="inno-navigation.js"></script><script src="inno-icons.js"></script><script src="inno-design-contract.js"></script>
+</body>
+</html>

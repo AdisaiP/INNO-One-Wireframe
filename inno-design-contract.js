@@ -3,8 +3,8 @@
 
 const contract={
   name:"INNO.One Design System",
-  contractVersion:"1.19.0",
-  documentationVersion:"1.25",
+  contractVersion:"1.20.0",
+  documentationVersion:"1.26",
   status:"frozen",
   frozenAt:"2026-09-26",
   principles:[
@@ -191,11 +191,16 @@ const contract={
     },
     INNOTree:{
       implementation:"React Arborist behind INNO.One renderer",
-      usage:"nested categories, locations, organization-unit pickers and folder-like structures"
+      prototype:"[data-inno-tree] + shared hierarchy behavior in inno-interactions.js",
+      usage:"nested categories, locations, organization-unit pickers and folder-like structures",
+      keyboard:["Arrow Up/Down move visible nodes","Arrow Left collapses or moves to parent","Arrow Right expands or moves to first child","Home/End move to first/last visible node"]
     },
     INNOTreeGrid:{
       implementation:"TanStack Table expandable hierarchical rows + INNO.One styles",
-      usage:"hierarchy with multiple data columns"
+      prototype:"table[data-inno-treegrid] + shared hierarchy behavior in inno-interactions.js",
+      usage:"hierarchy with multiple data columns",
+      keyboard:["Arrow Up/Down move visible rows","Arrow Left collapses or moves to parent","Arrow Right expands or moves to first child","Home/End move to first/last visible row"],
+      search:"preserve matching rows and ancestor context while filtering"
     },
     INNOOrgChart:{
       implementation:"d3-org-chart behind INNO.One wrapper",
