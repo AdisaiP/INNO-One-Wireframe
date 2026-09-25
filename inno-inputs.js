@@ -127,6 +127,7 @@ function openPopover(control,select,trigger){
 function buildSegmented(select){
   const control=document.createElement("div");
   control.className="inno-segmented";
+  control.setAttribute("role","group");
   control.dataset.innoFor=select.id;
   [...select.options].forEach((opt,index)=>{
     const b=document.createElement("button");
@@ -139,7 +140,7 @@ function buildSegmented(select){
   select.insertAdjacentElement("afterend",control);
   select.classList.add("inno-native-select");
   select.dataset.innoEnhanced="segmented";
-  wireLabel(select,control.querySelector("button"));
+  wireLabel(select,control.querySelector("button"),control);
   return control;
 }
 function buildStandard(select){
@@ -162,13 +163,57 @@ function buildStandard(select){
   wireLabel(select,trigger);
   return control;
 }
-function wireLabel(select,trigger){
+function wireLabel(select,trigger,group=null){
   const label=select.closest(".field")?.querySelector(":scope > label");
   if(label&&trigger){
     if(!label.id)label.id="inno-label-"+select.id;
-    trigger.setAttribute("aria-labelledby",label.id);
+    if(group)group.setAttribute("aria-labelledby",label.id);
+    else{
+      const value=trigger.querySelector(".inno-select-value");
+      if(value&&!value.id)value.id=select.id+"-value";
+      trigger.setAttribute("aria-labelledby",value?label.id+" "+value.id:label.id);
+    }
     label.addEventListener("click",e=>{if(e.target===label){e.preventDefault();trigger.focus();trigger.click()}});
   }
+}
+function wireFieldLabels(root=document){
+  root.querySelectorAll?.(".field").forEach(field=>{
+    const label=field.querySelector(":scope > label:not([for])");
+    if(!label)return;
+    const controls=[...field.querySelectorAll("input,select,textarea")].filter(x=>x.type!=="hidden"&&!x.closest("label"));
+    if(controls.length!==1)return;
+    const control=controls[0];
+    if(!control.id)control.id="inno-field-"+(++seq);
+    label.htmlFor=control.id;
+  });
+}
+function ensureAccessibleNames(root=document){
+  root.querySelectorAll?.("input,textarea").forEach(control=>{
+    if(control.type==="hidden"||control.labels?.length||control.hasAttribute("aria-label")||control.hasAttribute("aria-labelledby"))return;
+    let name="";
+    if(["checkbox","radio"].includes(control.type)&&control.closest("table")){
+      const cell=control.closest("th,td");
+      if(cell?.tagName==="TH")name="Select all rows";
+      else{
+        const row=control.closest("tr");
+        const resource=[...row?.querySelectorAll("td")||[]].map(x=>x.textContent.trim()).find(Boolean);
+        name=resource?"Select "+resource:"Select row";
+      }
+    }
+    if(!name&&["checkbox","radio"].includes(control.type)&&control.closest(".action-task")){
+      const task=control.closest(".action-task").querySelector("b")?.textContent?.trim();
+      name=task?"Toggle action item: "+task:"Toggle action item";
+    }
+    if(!name)name=control.parentElement?.querySelector(":scope > .ux-condition-label")?.textContent?.trim()||"";
+    if(!name)name=control.closest(".ux-sla-target")?.querySelector(":scope > span")?.textContent?.trim()||"";
+    if(!name)name=control.getAttribute("placeholder")?.trim()||"";
+    if(name)control.setAttribute("aria-label",name);
+  });
+  root.querySelectorAll?.("button,a[href]").forEach(control=>{
+    if(control.hasAttribute("aria-label")||control.hasAttribute("aria-labelledby")||control.textContent.trim())return;
+    const title=control.getAttribute("title")?.trim();
+    if(title)control.setAttribute("aria-label",title);
+  });
 }
 function syncControl(select){
   const control=select.nextElementSibling;
@@ -201,6 +246,8 @@ function enhanceSelect(select){
   return control;
 }
 function enhanceAll(root=document){
+  wireFieldLabels(root);
+  ensureAccessibleNames(root);
   root.querySelectorAll?.("select").forEach(enhanceSelect);
 }
 function refresh(root=document){

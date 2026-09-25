@@ -29,6 +29,21 @@ function enhanceRail(file){
     if(file.startsWith("report"))a.classList.add("active");
     if(assets)assets.insertAdjacentElement("afterend",a);else rail.insertBefore(a,rail.querySelector(".spacer"));
   }
+  const railLabels={
+    "workspace-v2.html":"Home",
+    "app-launcher-v2.html":"Apps",
+    "devices-overview-v2.html":"Devices",
+    "assets-overview.html":"Assets",
+    "reports-overview.html":"Reports",
+    "helpdesk.html":"Helpdesk",
+    "meeting.html":"Meeting",
+    "admin.html":"Admin Center"
+  };
+  rail.querySelectorAll("a[href]").forEach(a=>{
+    const href=(a.getAttribute("href")||"").split("?")[0].split("#")[0];
+    const label=a.getAttribute("title")||railLabels[href];
+    if(label){a.setAttribute("aria-label",label);if(!a.title)a.title=label}
+  });
 }
 
 function buildCommandPalette(){
@@ -36,7 +51,7 @@ function buildCommandPalette(){
   wrap.className="command-backdrop";
   wrap.id="globalCommandPalette";
   wrap.innerHTML='<div class="command-panel" role="dialog" aria-modal="true" aria-label="Global search">'+
-    '<div class="command-search"><i class="fa-solid fa-magnifying-glass"></i><input id="commandInput" autocomplete="off" placeholder="Search apps, devices, tickets and actions..."><span class="platform-search-shortcut">ESC</span></div>'+
+    '<div class="command-search"><i class="fa-solid fa-magnifying-glass"></i><input id="commandInput" autocomplete="off" aria-label="Search apps, devices, tickets and actions" placeholder="Search apps, devices, tickets and actions..."><span class="platform-search-shortcut">ESC</span></div>'+
     '<div class="command-results" id="commandResults"></div>'+
   '</div>';
   document.body.appendChild(wrap);
@@ -77,7 +92,7 @@ function buildHeader(){
       '<span class="platform-search-shortcut">⌘ K</span>'+
     '</div></div>'+
     '<div class="platform-header-actions">'+
-      '<button class="platform-header-icon" id="headerNotifications" type="button" title="Notifications"><i class="fa-regular fa-bell"></i><span class="notification-dot"></span></button>'+
+      '<button class="platform-header-icon" id="headerNotifications" type="button" title="Notifications" aria-label="Notifications"><i class="fa-regular fa-bell"></i><span class="notification-dot"></span></button>'+
       '<button class="platform-user" id="headerProfile" type="button" title="Account menu"><span class="platform-user-avatar">AP</span><span class="platform-user-label">Adisai</span><i class="fa-solid fa-chevron-down"></i></button>'+
     '</div>';
   document.body.prepend(header);

@@ -458,3 +458,8 @@ Resolved:
 - Inventory Query narrow hierarchy now prioritizes the Query Builder and contains wide table min-content.
 
 The automated action/layout audit is a regression guard; the pass was also reviewed visually using 23-page editor contact sheets at 1366 / 768 and an 83-route desktop contact-sheet sweep.
+
+
+## 11. Accessibility / semantic pass — 2026-09-25
+
+Completed Step 1 of the final UX/UI polish. Shared semantics now cover accessible names, switch roles/states, single-field labels, custom select group labelling, contextual table/action-item checkbox names and Global Rail icon links. Static accessibility audit covers 87 canonical pages; rendered Web regression covers 83 routes at 1366 / 1024 / 768.

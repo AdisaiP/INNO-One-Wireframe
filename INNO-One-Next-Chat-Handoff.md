@@ -775,3 +775,38 @@ Key changes:
 
 Do not begin Backend implementation until the user explicitly asks. Further work after this freeze should be visual/content-specific QA or production frontend implementation.
 - Follow-up visual QA confirmed clean action bars no longer float over long forms; dirty-state editor docking is covered by browser regression.
+
+
+# UX/UI Final Polish — Step 1 Accessibility ✅ COMPLETED 2026-09-25
+
+Branch: `ux/accessibility-semantic-pass`
+
+Source of truth: `INNO-One-Accessibility-Contract.md`
+
+Completed:
+
+- Replaced interactive non-semantic toggles with keyboard-native button switches.
+- Added `role=switch`, `aria-checked`, accessible names and focus-visible behavior.
+- Added shared field-label association for single-control fields.
+- Improved custom select labelling so field label + selected value are exposed.
+- Added labelled segmented-control groups.
+- Added contextual names for table row/select-all checkboxes and Meeting action-item checkboxes.
+- Added Global Rail accessible names through Platform Shell.
+- Added accessible names to icon-only buttons/links across Web, Design System and Mobile surface.
+- Added `accessibility-audit.py` and expanded browser regression with rendered-DOM accessibility gates.
+
+QA:
+
+- Canonical pages: **87**.
+- `accessibility-audit.py`: **0 issues**.
+- unnamed icon controls: **0**.
+- non-semantic clicks: **0**.
+- invalid switches: **0**.
+- images missing alt: **0**.
+- `qa-ux-input-browser.py`: **74 / 74 checks**, including 83 Web routes at 1366 / 1024 / 768.
+
+Next UX/UI step:
+
+**Step 2 — Coming Soon / Disabled Action Cleanup**
+
+Do not begin backend implementation.

@@ -322,3 +322,8 @@ Design System V1.19 / UI Contract 1.13.0 adds a canonical action-placement contr
 ## 18. Action footer visual follow-up — 2026-09-25
 
 The Action/Layout freeze was visually refined after route-wide review. Clean pages keep editor/builder/wizard footers in normal document flow so actions do not obscure untouched content. Once an editor becomes dirty, its canonical editor footer may dock to the owning pane until the change is saved/discarded. QR Labels now uses `Regenerate Preview` + `Print Selected` as the final builder actions, and Report Builder treats `Run Preview` as a secondary workflow action while `Save Report` remains the final primary action.
+
+
+## 19. Accessibility / semantic polish — 2026-09-25
+
+Final UX/UI Step 1 established a shared semantic baseline across all 87 canonical pages. Icon-only actions now expose names, interactive toggles use native button switch semantics, single-control field labels are associated automatically, table/action-item checkboxes receive contextual names, and Web route regression now checks rendered accessibility state at all required breakpoints. See `INNO-One-Accessibility-Contract.md`.
