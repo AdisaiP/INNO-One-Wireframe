@@ -9,8 +9,8 @@ registry_text = (ROOT / "platform-registry.js").read_text()
 
 issues = []
 
-if contract.get("contractVersion") != "0.2.0":
-    issues.append(f"expected implementation contract 0.2.0, found {contract.get('contractVersion')}")
+if contract.get("contractVersion") != "0.3.0":
+    issues.append(f"expected implementation contract 0.3.0, found {contract.get('contractVersion')}")
 api_contract = contract.get("apiContract", {})
 if api_contract.get("version") != "0.2.0":
     issues.append("implementation contract must reference API Contract 0.2.0")
@@ -19,6 +19,17 @@ if api_contract.get("basePath") != "/api/v1":
 for ref in (api_contract.get("source"), api_contract.get("openApi")):
     if not ref or not (ROOT / ref).exists():
         issues.append(f"missing API contract reference: {ref}")
+
+event_contract = contract.get("eventAuditContract", {})
+if event_contract.get("version") != "0.3.0":
+    issues.append("implementation contract must reference Event/Audit Contract 0.3.0")
+for ref in (event_contract.get("source"), event_contract.get("documentation"), event_contract.get("audit")):
+    if not ref or not (ROOT / ref).exists():
+        issues.append(f"missing Event/Audit contract reference: {ref}")
+if event_contract.get("delivery") != "at-least-once":
+    issues.append("integration event delivery must be at-least-once")
+if event_contract.get("crossModuleDurability") != "transactional-outbox":
+    issues.append("cross-module event durability must use transactional outbox")
 
 existing = contract.get("existingPermissions", [])
 reserved = contract.get("reservedImplementationPermissions", [])

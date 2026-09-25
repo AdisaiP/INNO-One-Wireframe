@@ -1135,7 +1135,7 @@ New source-of-truth planning files:
 
 Current implementation contract audit: **0 issues**.
 
-**No backend feature code has started. Step 11 API Contract is complete; next is Step 12 Event & Audit Contract.**
+**Historical checkpoint: Step 11 API Contract completed here; Step 12 Event & Audit Contract is now complete. No backend feature code has started.**
 
 # Step 11 — API Contract ✅ COMPLETED 2026-09-26
 
@@ -1181,4 +1181,48 @@ Current checks:
 - `implementation-contract-audit.py`: **0 issues**.
 - `final-visual-audit.py`: **0 issues**; frozen UX/UI baseline unchanged.
 
-**No backend feature code has started. Next: Step 12 Event & Audit Contract.**
+**No backend feature code has started. Step 12 Event & Audit Contract is complete; next is Step 13 Data Ownership / Database Model.**
+
+# Step 12 — Event & Audit Contract ✅ COMPLETED 2026-09-26
+
+Branch: `architecture/step12-event-audit-contract`
+
+UX/UI remains FINAL FROZEN at **Design System V1.26 / UI Contract 1.20.0**.
+
+Implementation planning contract: **0.3.0**
+API Contract remains: **0.2.0**
+Event & Audit Contract: **0.3.0**
+
+Event contract:
+- Preserves all **37** event IDs declared in `platform-registry.js`.
+- **34 active** event types.
+- **3 future Workflow** event types.
+- Cross-module/service delivery = **at-least-once**.
+- Database-backed integration events = **transactional outbox**.
+- Consumers must deduplicate by `eventId`.
+- No global ordering guarantee; best-effort per-subject partition ordering only.
+- Retry = exponential backoff + jitter; failed messages are never silently discarded.
+- Correlation/causation/trace identity propagates API → event → audit.
+
+Audit contract:
+- **62 canonical audit actions**.
+- Append-only audit history.
+- Privileged successful mutations write audit in the same transaction where practical.
+- Privileged authorization denial is auditable.
+- Future Audit read permission = `admin.audit.view`.
+- Retention classes: `security_long`, `admin_long`, `operational_standard`, `data_access_standard`.
+- Exact retention durations remain governance/deployment policy.
+- Secrets, raw tokens, ticket/reply bodies, meeting transcript/audio content, remote chat bodies and file contents are excluded from generic event/audit payloads.
+
+New source-of-truth files:
+- `INNO-One-Event-Audit-Contract.md`
+- `inno-event-audit-contract.json`
+- `event-audit-contract-audit.py`
+
+Current checks:
+- `event-audit-contract-audit.py`: **0 issues**.
+- `api-contract-audit.py`: **0 issues**.
+- `implementation-contract-audit.py`: **0 issues**.
+- `final-visual-audit.py`: **0 issues**; frozen UX/UI baseline unchanged.
+
+**No backend feature code has started. Next: Step 13 Data Ownership / Database Model.**

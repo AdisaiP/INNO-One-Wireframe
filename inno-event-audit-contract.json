@@ -1,0 +1,1242 @@
+{
+  "contractVersion": "0.3.0",
+  "status": "implementation-planning",
+  "generatedFrom": {
+    "designSystem": "V1.26",
+    "uiContract": "1.20.0",
+    "implementationContract": "0.3.0",
+    "apiContract": "0.2.0",
+    "frozenAt": "2026-09-26"
+  },
+  "eventModel": {
+    "domainEvent": {
+      "scope": "inside-owning-module",
+      "transport": "in-process",
+      "durability": "module-defined"
+    },
+    "integrationEvent": {
+      "scope": "cross-module-or-service",
+      "transport": "outbox-dispatcher",
+      "delivery": "at-least-once",
+      "durability": "transactional-outbox"
+    },
+    "auditRecord": {
+      "scope": "security-compliance-operator-history",
+      "transport": "append-only-audit-store",
+      "delivery": "must-not-be-used-as-business-event-bus"
+    }
+  },
+  "eventEnvelope": {
+    "requiredFields": [
+      "eventId",
+      "eventType",
+      "eventVersion",
+      "occurredAt",
+      "producer",
+      "subject",
+      "actor",
+      "correlationId",
+      "data"
+    ],
+    "optionalFields": [
+      "causationId",
+      "traceId",
+      "metadata"
+    ],
+    "eventId": "globally-unique-opaque-id",
+    "eventVersion": "positive-integer",
+    "occurredAt": "ISO-8601 UTC",
+    "producer": {
+      "required": [
+        "module",
+        "service"
+      ]
+    },
+    "subject": {
+      "required": [
+        "type",
+        "id"
+      ]
+    },
+    "actor": {
+      "types": [
+        "user",
+        "agent",
+        "service",
+        "system"
+      ],
+      "idOptionalFor": [
+        "system"
+      ]
+    },
+    "correlationId": "propagate-from-API-X-Correlation-Id-or-generate-at-boundary",
+    "causationId": "triggering-event-id-or-command-operation-id",
+    "traceId": "observability-trace-id",
+    "data": "event-specific-object",
+    "metadata": "small-non-secret-routing-or-context-object"
+  },
+  "delivery": {
+    "producerOwnsSchema": true,
+    "crossModuleRequiresOutbox": true,
+    "outboxSameTransactionAsDomainWrite": true,
+    "deliveryGuarantee": "at-least-once",
+    "consumerMustBeIdempotent": true,
+    "consumerInboxDedupeKey": "eventId",
+    "globalOrderingGuaranteed": false,
+    "orderingGuarantee": "best-effort per subject partition only",
+    "partitionKey": "<subject.type>:<subject.id>",
+    "retry": "exponential-backoff-with-jitter",
+    "deadLetter": "after-configured-max-attempts; never silently discard",
+    "externalBroker": "deferred-until-operational-need",
+    "distributedTransaction": "forbidden"
+  },
+  "outboxRecord": {
+    "requiredFields": [
+      "outboxId",
+      "eventId",
+      "eventType",
+      "eventVersion",
+      "payload",
+      "occurredAt",
+      "status",
+      "attempts"
+    ],
+    "status": [
+      "pending",
+      "publishing",
+      "published",
+      "failed"
+    ],
+    "optionalFields": [
+      "nextAttemptAt",
+      "publishedAt",
+      "lastErrorCode"
+    ],
+    "forbiddenFields": [
+      "accessToken",
+      "refreshToken",
+      "password",
+      "secret",
+      "cookie",
+      "authorizationHeader"
+    ]
+  },
+  "eventCompatibility": {
+    "typeNamesStable": true,
+    "breakingChange": "increment eventVersion",
+    "compatibleChange": "add optional field",
+    "consumerRule": "ignore unknown optional fields; reject unsupported breaking version explicitly",
+    "typeRename": "publish new type and migration window; do not silently rename"
+  },
+  "events": [
+    {
+      "type": "device.online",
+      "version": 1,
+      "producer": "devices",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "device",
+      "payloadFields": [
+        "deviceId",
+        "onlineAt",
+        "source"
+      ],
+      "delivery": "at-least-once",
+      "classification": "internal"
+    },
+    {
+      "type": "device.offline",
+      "version": 1,
+      "producer": "devices",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "device",
+      "payloadFields": [
+        "deviceId",
+        "offlineAt",
+        "lastSeenAt",
+        "source"
+      ],
+      "delivery": "at-least-once",
+      "classification": "internal"
+    },
+    {
+      "type": "remote.started",
+      "version": 1,
+      "producer": "devices",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "remote_session",
+      "payloadFields": [
+        "sessionId",
+        "deviceId",
+        "operatorUserId",
+        "mode",
+        "consentDecisionId"
+      ],
+      "delivery": "at-least-once",
+      "classification": "restricted"
+    },
+    {
+      "type": "remote.ended",
+      "version": 1,
+      "producer": "devices",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "remote_session",
+      "payloadFields": [
+        "sessionId",
+        "deviceId",
+        "operatorUserId",
+        "endedAt",
+        "reason"
+      ],
+      "delivery": "at-least-once",
+      "classification": "restricted"
+    },
+    {
+      "type": "remote.consent.updated",
+      "version": 1,
+      "producer": "devices",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "remote_consent_config",
+      "payloadFields": [
+        "configId",
+        "changeType"
+      ],
+      "delivery": "at-least-once",
+      "classification": "restricted"
+    },
+    {
+      "type": "remote.consent.decided",
+      "version": 1,
+      "producer": "devices",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "remote_session",
+      "payloadFields": [
+        "requestId",
+        "sessionId",
+        "deviceId",
+        "decision",
+        "decidedByActorType"
+      ],
+      "delivery": "at-least-once",
+      "classification": "restricted"
+    },
+    {
+      "type": "remote.chat.message",
+      "version": 1,
+      "producer": "devices",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "remote_session",
+      "payloadFields": [
+        "sessionId",
+        "messageId",
+        "senderActorType",
+        "senderId"
+      ],
+      "delivery": "at-least-once",
+      "classification": "restricted"
+    },
+    {
+      "type": "remote.file.sent",
+      "version": 1,
+      "producer": "devices",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "remote_session",
+      "payloadFields": [
+        "sessionId",
+        "fileTransferId",
+        "deviceId",
+        "fileId",
+        "sizeBytes"
+      ],
+      "delivery": "at-least-once",
+      "classification": "restricted"
+    },
+    {
+      "type": "remote.file.received",
+      "version": 1,
+      "producer": "devices",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "remote_session",
+      "payloadFields": [
+        "sessionId",
+        "fileTransferId",
+        "deviceId",
+        "fileId",
+        "sizeBytes"
+      ],
+      "delivery": "at-least-once",
+      "classification": "restricted"
+    },
+    {
+      "type": "device.alert.created",
+      "version": 1,
+      "producer": "devices",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "device_alert",
+      "payloadFields": [
+        "alertId",
+        "deviceId",
+        "ruleId",
+        "severity",
+        "detectedAt"
+      ],
+      "delivery": "at-least-once",
+      "classification": "internal"
+    },
+    {
+      "type": "device.alert.acknowledged",
+      "version": 1,
+      "producer": "devices",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "device_alert",
+      "payloadFields": [
+        "alertId",
+        "acknowledgedByUserId",
+        "acknowledgedAt"
+      ],
+      "delivery": "at-least-once",
+      "classification": "internal"
+    },
+    {
+      "type": "device.alert.rule.updated",
+      "version": 1,
+      "producer": "devices",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "device_alert_rule",
+      "payloadFields": [
+        "ruleId",
+        "changeType"
+      ],
+      "delivery": "at-least-once",
+      "classification": "internal"
+    },
+    {
+      "type": "device.alert.email.sent",
+      "version": 1,
+      "producer": "devices",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "device_alert",
+      "payloadFields": [
+        "alertId",
+        "deliveryId",
+        "templateId",
+        "recipientCount"
+      ],
+      "delivery": "at-least-once",
+      "classification": "internal"
+    },
+    {
+      "type": "ticket.created",
+      "version": 1,
+      "producer": "helpdesk",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "ticket",
+      "payloadFields": [
+        "ticketId",
+        "ticketNumber",
+        "requesterUserId",
+        "priority",
+        "categoryId"
+      ],
+      "delivery": "at-least-once",
+      "classification": "internal"
+    },
+    {
+      "type": "ticket.assigned",
+      "version": 1,
+      "producer": "helpdesk",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "ticket",
+      "payloadFields": [
+        "ticketId",
+        "teamId",
+        "assigneeUserId",
+        "assignedByUserId"
+      ],
+      "delivery": "at-least-once",
+      "classification": "internal"
+    },
+    {
+      "type": "ticket.status.changed",
+      "version": 1,
+      "producer": "helpdesk",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "ticket",
+      "payloadFields": [
+        "ticketId",
+        "fromStatus",
+        "toStatus",
+        "changedByUserId"
+      ],
+      "delivery": "at-least-once",
+      "classification": "internal"
+    },
+    {
+      "type": "ticket.resolved",
+      "version": 1,
+      "producer": "helpdesk",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "ticket",
+      "payloadFields": [
+        "ticketId",
+        "resolvedByUserId",
+        "resolvedAt",
+        "resolutionCode"
+      ],
+      "delivery": "at-least-once",
+      "classification": "internal"
+    },
+    {
+      "type": "sla.at_risk",
+      "version": 1,
+      "producer": "helpdesk",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "ticket",
+      "payloadFields": [
+        "ticketId",
+        "slaPolicyId",
+        "targetType",
+        "elapsedPercent",
+        "dueAt"
+      ],
+      "delivery": "at-least-once",
+      "classification": "internal"
+    },
+    {
+      "type": "sla.escalated",
+      "version": 1,
+      "producer": "helpdesk",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "ticket",
+      "payloadFields": [
+        "ticketId",
+        "slaPolicyId",
+        "level",
+        "escalatedToType",
+        "escalatedToId"
+      ],
+      "delivery": "at-least-once",
+      "classification": "internal"
+    },
+    {
+      "type": "ticket.email.sent",
+      "version": 1,
+      "producer": "helpdesk",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "ticket",
+      "payloadFields": [
+        "ticketId",
+        "deliveryId",
+        "templateId",
+        "recipientCount"
+      ],
+      "delivery": "at-least-once",
+      "classification": "internal"
+    },
+    {
+      "type": "ticket.email.failed",
+      "version": 1,
+      "producer": "helpdesk",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "ticket",
+      "payloadFields": [
+        "ticketId",
+        "deliveryId",
+        "templateId",
+        "failureCode",
+        "retryable"
+      ],
+      "delivery": "at-least-once",
+      "classification": "internal"
+    },
+    {
+      "type": "ticket.notification.rule.updated",
+      "version": 1,
+      "producer": "helpdesk",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "notification_rule",
+      "payloadFields": [
+        "ruleId",
+        "changeType"
+      ],
+      "delivery": "at-least-once",
+      "classification": "internal"
+    },
+    {
+      "type": "meeting.created",
+      "version": 1,
+      "producer": "meeting",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "meeting",
+      "payloadFields": [
+        "meetingId",
+        "createdByUserId",
+        "language"
+      ],
+      "delivery": "at-least-once",
+      "classification": "internal"
+    },
+    {
+      "type": "transcript.completed",
+      "version": 1,
+      "producer": "meeting",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "meeting",
+      "payloadFields": [
+        "meetingId",
+        "transcriptId",
+        "language",
+        "durationSeconds"
+      ],
+      "delivery": "at-least-once",
+      "classification": "internal"
+    },
+    {
+      "type": "summary.completed",
+      "version": 1,
+      "producer": "meeting",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "meeting",
+      "payloadFields": [
+        "meetingId",
+        "summaryId",
+        "templateId"
+      ],
+      "delivery": "at-least-once",
+      "classification": "internal"
+    },
+    {
+      "type": "workflow.published",
+      "version": 1,
+      "producer": "workflow",
+      "phase": "future",
+      "kind": "integration",
+      "subjectType": "workflow",
+      "payloadFields": [
+        "workflowId",
+        "version",
+        "publishedByUserId"
+      ],
+      "delivery": "at-least-once",
+      "classification": "internal"
+    },
+    {
+      "type": "workflow.started",
+      "version": 1,
+      "producer": "workflow",
+      "phase": "future",
+      "kind": "integration",
+      "subjectType": "workflow_run",
+      "payloadFields": [
+        "workflowId",
+        "runId",
+        "subjectType",
+        "subjectId"
+      ],
+      "delivery": "at-least-once",
+      "classification": "internal"
+    },
+    {
+      "type": "workflow.completed",
+      "version": 1,
+      "producer": "workflow",
+      "phase": "future",
+      "kind": "integration",
+      "subjectType": "workflow_run",
+      "payloadFields": [
+        "workflowId",
+        "runId",
+        "result"
+      ],
+      "delivery": "at-least-once",
+      "classification": "internal"
+    },
+    {
+      "type": "report.created",
+      "version": 1,
+      "producer": "reports",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "saved_report",
+      "payloadFields": [
+        "reportId",
+        "ownerUserId",
+        "dataset"
+      ],
+      "delivery": "at-least-once",
+      "classification": "internal"
+    },
+    {
+      "type": "report.exported",
+      "version": 1,
+      "producer": "reports",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "report_export",
+      "payloadFields": [
+        "exportId",
+        "reportId",
+        "format",
+        "requestedByUserId",
+        "rowCount"
+      ],
+      "delivery": "at-least-once",
+      "classification": "restricted"
+    },
+    {
+      "type": "asset.changed",
+      "version": 1,
+      "producer": "assets",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "asset",
+      "payloadFields": [
+        "assetId",
+        "changeType"
+      ],
+      "delivery": "at-least-once",
+      "classification": "internal"
+    },
+    {
+      "type": "baseline.drift",
+      "version": 1,
+      "producer": "assets",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "asset",
+      "payloadFields": [
+        "assetId",
+        "baselineId",
+        "driftType",
+        "detectedAt"
+      ],
+      "delivery": "at-least-once",
+      "classification": "internal"
+    },
+    {
+      "type": "license.overused",
+      "version": 1,
+      "producer": "assets",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "software_license",
+      "payloadFields": [
+        "licenseId",
+        "entitledSeats",
+        "usedSeats",
+        "detectedAt"
+      ],
+      "delivery": "at-least-once",
+      "classification": "internal"
+    },
+    {
+      "type": "contract.expiring",
+      "version": 1,
+      "producer": "assets",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "contract",
+      "payloadFields": [
+        "contractId",
+        "assetId",
+        "expiresAt",
+        "daysRemaining"
+      ],
+      "delivery": "at-least-once",
+      "classification": "internal"
+    },
+    {
+      "type": "ownership.changed",
+      "version": 1,
+      "producer": "assets",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "asset",
+      "payloadFields": [
+        "assetId",
+        "previousOwnerUserId",
+        "ownerUserId",
+        "effectiveAt",
+        "reasonCode"
+      ],
+      "delivery": "at-least-once",
+      "classification": "restricted"
+    },
+    {
+      "type": "asset.qr.generated",
+      "version": 1,
+      "producer": "assets",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "asset",
+      "payloadFields": [
+        "assetId",
+        "qrLabelId",
+        "generatedByUserId"
+      ],
+      "delivery": "at-least-once",
+      "classification": "internal"
+    },
+    {
+      "type": "asset.qr.scanned",
+      "version": 1,
+      "producer": "assets",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "asset",
+      "payloadFields": [
+        "assetId",
+        "scanId",
+        "scannerUserId",
+        "scannerDeviceId",
+        "scannedAt"
+      ],
+      "delivery": "at-least-once",
+      "classification": "restricted"
+    }
+  ],
+  "audit": {
+    "permissionToRead": "admin.audit.view",
+    "appendOnly": true,
+    "sameTransactionForPrivilegedMutations": true,
+    "recordDeniedPrivilegedAuthorization": true,
+    "requiredFields": [
+      "auditId",
+      "occurredAt",
+      "actor",
+      "action",
+      "module",
+      "target",
+      "result",
+      "correlationId"
+    ],
+    "optionalFields": [
+      "traceId",
+      "causationId",
+      "source",
+      "reasonCode",
+      "changes",
+      "metadata"
+    ],
+    "actor": {
+      "types": [
+        "user",
+        "agent",
+        "service",
+        "system"
+      ]
+    },
+    "result": [
+      "success",
+      "denied",
+      "failure"
+    ],
+    "sourceSurfaces": [
+      "web",
+      "agent",
+      "mobile",
+      "api",
+      "system"
+    ],
+    "retentionClasses": [
+      "security_long",
+      "admin_long",
+      "operational_standard",
+      "data_access_standard"
+    ],
+    "retentionDurations": "governance-configured-not-frozen-in-step12",
+    "changeCapture": "field-level safe values only; never full entity snapshots by default",
+    "redaction": "mandatory-before-persisting-sensitive-fields"
+  },
+  "auditActions": [
+    {
+      "action": "platform.user.created",
+      "module": "platform",
+      "targetType": "user",
+      "retentionClass": "admin_long",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "platform.user.updated",
+      "module": "platform",
+      "targetType": "user",
+      "retentionClass": "admin_long",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "platform.user.status_changed",
+      "module": "platform",
+      "targetType": "user",
+      "retentionClass": "admin_long",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "platform.organization.created",
+      "module": "platform",
+      "targetType": "organization_unit",
+      "retentionClass": "admin_long",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "platform.organization.updated",
+      "module": "platform",
+      "targetType": "organization_unit",
+      "retentionClass": "admin_long",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "platform.location.created",
+      "module": "platform",
+      "targetType": "location",
+      "retentionClass": "admin_long",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "platform.location.updated",
+      "module": "platform",
+      "targetType": "location",
+      "retentionClass": "admin_long",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "platform.position.created",
+      "module": "platform",
+      "targetType": "position",
+      "retentionClass": "admin_long",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "platform.position.updated",
+      "module": "platform",
+      "targetType": "position",
+      "retentionClass": "admin_long",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "platform.role.updated",
+      "module": "platform",
+      "targetType": "role",
+      "retentionClass": "admin_long",
+      "sensitivity": "restricted"
+    },
+    {
+      "action": "platform.role.permissions_changed",
+      "module": "platform",
+      "targetType": "role",
+      "retentionClass": "admin_long",
+      "sensitivity": "restricted"
+    },
+    {
+      "action": "platform.access_assignment.created",
+      "module": "platform",
+      "targetType": "access_assignment",
+      "retentionClass": "admin_long",
+      "sensitivity": "restricted"
+    },
+    {
+      "action": "platform.access_assignment.updated",
+      "module": "platform",
+      "targetType": "access_assignment",
+      "retentionClass": "admin_long",
+      "sensitivity": "restricted"
+    },
+    {
+      "action": "platform.access_assignment.deleted",
+      "module": "platform",
+      "targetType": "access_assignment",
+      "retentionClass": "admin_long",
+      "sensitivity": "restricted"
+    },
+    {
+      "action": "platform.access_evaluated",
+      "module": "platform",
+      "targetType": "authorization_decision",
+      "retentionClass": "admin_long",
+      "sensitivity": "restricted"
+    },
+    {
+      "action": "platform.app.availability_changed",
+      "module": "platform",
+      "targetType": "app_module",
+      "retentionClass": "admin_long",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "devices.device.updated",
+      "module": "devices",
+      "targetType": "device",
+      "retentionClass": "operational_standard",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "devices.group.created",
+      "module": "devices",
+      "targetType": "device_group",
+      "retentionClass": "operational_standard",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "devices.group.updated",
+      "module": "devices",
+      "targetType": "device_group",
+      "retentionClass": "operational_standard",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "devices.group.membership_changed",
+      "module": "devices",
+      "targetType": "device_group",
+      "retentionClass": "operational_standard",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "devices.remote.started",
+      "module": "devices",
+      "targetType": "remote_session",
+      "retentionClass": "security_long",
+      "sensitivity": "restricted"
+    },
+    {
+      "action": "devices.remote.ended",
+      "module": "devices",
+      "targetType": "remote_session",
+      "retentionClass": "security_long",
+      "sensitivity": "restricted"
+    },
+    {
+      "action": "devices.remote.consent_decided",
+      "module": "devices",
+      "targetType": "remote_session",
+      "retentionClass": "security_long",
+      "sensitivity": "restricted"
+    },
+    {
+      "action": "devices.remote.file_transferred",
+      "module": "devices",
+      "targetType": "remote_session",
+      "retentionClass": "security_long",
+      "sensitivity": "restricted"
+    },
+    {
+      "action": "devices.deployment.created",
+      "module": "devices",
+      "targetType": "deployment",
+      "retentionClass": "operational_standard",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "devices.policy.updated",
+      "module": "devices",
+      "targetType": "endpoint_policy",
+      "retentionClass": "security_long",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "devices.alert.acknowledged",
+      "module": "devices",
+      "targetType": "device_alert",
+      "retentionClass": "operational_standard",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "devices.alert_rule.created",
+      "module": "devices",
+      "targetType": "device_alert_rule",
+      "retentionClass": "operational_standard",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "devices.alert_rule.updated",
+      "module": "devices",
+      "targetType": "device_alert_rule",
+      "retentionClass": "operational_standard",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "devices.remote_consent.policy_updated",
+      "module": "devices",
+      "targetType": "remote_consent_policy",
+      "retentionClass": "security_long",
+      "sensitivity": "restricted"
+    },
+    {
+      "action": "devices.remote_consent.bypass_rule_updated",
+      "module": "devices",
+      "targetType": "remote_consent_bypass_rule",
+      "retentionClass": "security_long",
+      "sensitivity": "restricted"
+    },
+    {
+      "action": "assets.asset.updated",
+      "module": "assets",
+      "targetType": "asset",
+      "retentionClass": "operational_standard",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "assets.ownership.changed",
+      "module": "assets",
+      "targetType": "asset",
+      "retentionClass": "data_access_standard",
+      "sensitivity": "restricted"
+    },
+    {
+      "action": "assets.qr.generated",
+      "module": "assets",
+      "targetType": "asset",
+      "retentionClass": "operational_standard",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "assets.qr.scanned",
+      "module": "assets",
+      "targetType": "asset",
+      "retentionClass": "data_access_standard",
+      "sensitivity": "restricted"
+    },
+    {
+      "action": "assets.license.updated",
+      "module": "assets",
+      "targetType": "software_license",
+      "retentionClass": "operational_standard",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "assets.contract.updated",
+      "module": "assets",
+      "targetType": "contract",
+      "retentionClass": "operational_standard",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "assets.custom_fields.updated",
+      "module": "assets",
+      "targetType": "asset_custom_field",
+      "retentionClass": "operational_standard",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "helpdesk.ticket.created",
+      "module": "helpdesk",
+      "targetType": "ticket",
+      "retentionClass": "operational_standard",
+      "sensitivity": "restricted"
+    },
+    {
+      "action": "helpdesk.ticket.replied",
+      "module": "helpdesk",
+      "targetType": "ticket",
+      "retentionClass": "operational_standard",
+      "sensitivity": "restricted"
+    },
+    {
+      "action": "helpdesk.ticket.assigned",
+      "module": "helpdesk",
+      "targetType": "ticket",
+      "retentionClass": "operational_standard",
+      "sensitivity": "restricted"
+    },
+    {
+      "action": "helpdesk.ticket.status_changed",
+      "module": "helpdesk",
+      "targetType": "ticket",
+      "retentionClass": "operational_standard",
+      "sensitivity": "restricted"
+    },
+    {
+      "action": "helpdesk.ticket.resolved",
+      "module": "helpdesk",
+      "targetType": "ticket",
+      "retentionClass": "operational_standard",
+      "sensitivity": "restricted"
+    },
+    {
+      "action": "helpdesk.sla_policy.updated",
+      "module": "helpdesk",
+      "targetType": "sla_policy",
+      "retentionClass": "admin_long",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "helpdesk.catalog.updated",
+      "module": "helpdesk",
+      "targetType": "category",
+      "retentionClass": "admin_long",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "helpdesk.status_config.updated",
+      "module": "helpdesk",
+      "targetType": "ticket_status",
+      "retentionClass": "admin_long",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "helpdesk.requester_group.updated",
+      "module": "helpdesk",
+      "targetType": "requester_group",
+      "retentionClass": "admin_long",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "helpdesk.notification_rule.updated",
+      "module": "helpdesk",
+      "targetType": "notification_rule",
+      "retentionClass": "admin_long",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "helpdesk.notification_template.updated",
+      "module": "helpdesk",
+      "targetType": "notification_template",
+      "retentionClass": "admin_long",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "helpdesk.notification_settings.updated",
+      "module": "helpdesk",
+      "targetType": "notification_settings",
+      "retentionClass": "admin_long",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "helpdesk.automation_rule.updated",
+      "module": "helpdesk",
+      "targetType": "automation_rule",
+      "retentionClass": "admin_long",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "meeting.meeting.created",
+      "module": "meeting",
+      "targetType": "meeting",
+      "retentionClass": "data_access_standard",
+      "sensitivity": "restricted"
+    },
+    {
+      "action": "meeting.recording.started",
+      "module": "meeting",
+      "targetType": "meeting",
+      "retentionClass": "data_access_standard",
+      "sensitivity": "restricted"
+    },
+    {
+      "action": "meeting.audio.uploaded",
+      "module": "meeting",
+      "targetType": "meeting",
+      "retentionClass": "data_access_standard",
+      "sensitivity": "restricted"
+    },
+    {
+      "action": "meeting.summary.generated",
+      "module": "meeting",
+      "targetType": "meeting",
+      "retentionClass": "data_access_standard",
+      "sensitivity": "restricted"
+    },
+    {
+      "action": "meeting.shared",
+      "module": "meeting",
+      "targetType": "meeting",
+      "retentionClass": "data_access_standard",
+      "sensitivity": "restricted"
+    },
+    {
+      "action": "meeting.file.uploaded",
+      "module": "meeting",
+      "targetType": "meeting",
+      "retentionClass": "data_access_standard",
+      "sensitivity": "restricted"
+    },
+    {
+      "action": "reports.report.created",
+      "module": "reports",
+      "targetType": "saved_report",
+      "retentionClass": "data_access_standard",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "reports.report.updated",
+      "module": "reports",
+      "targetType": "saved_report",
+      "retentionClass": "data_access_standard",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "reports.report.run",
+      "module": "reports",
+      "targetType": "report_run",
+      "retentionClass": "data_access_standard",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "reports.report.exported",
+      "module": "reports",
+      "targetType": "report_export",
+      "retentionClass": "data_access_standard",
+      "sensitivity": "restricted"
+    },
+    {
+      "action": "security.authorization.denied",
+      "module": "platform",
+      "targetType": "authorization_decision",
+      "retentionClass": "security_long",
+      "sensitivity": "restricted"
+    }
+  ],
+  "privacy": {
+    "neverPersistInEventsOrAudit": [
+      "password",
+      "accessToken",
+      "refreshToken",
+      "idToken",
+      "clientSecret",
+      "apiKey",
+      "privateKey",
+      "sessionCookie",
+      "authorizationHeader",
+      "smtpPassword",
+      "meshCentralCredential",
+      "rawQrToken"
+    ],
+    "contentRules": [
+      "ticket descriptions and reply bodies are referenced by ticket/reply ID, not copied into integration events",
+      "meeting audio, transcript text and summary body are referenced by IDs, not copied into integration events or generic audit metadata",
+      "remote chat message body is not copied into integration event; use messageId",
+      "file contents are never embedded; use fileId and safe metadata",
+      "QR scan events never persist the raw QR token; use assetId/scanId/token fingerprint if needed"
+    ],
+    "piiRule": "store only identifiers and minimum context needed for business/security purpose"
+  },
+  "correlation": {
+    "httpHeader": "X-Correlation-Id",
+    "eventField": "correlationId",
+    "auditField": "correlationId",
+    "causation": "eventId or command/operation ID that directly triggered work",
+    "trace": "propagate OpenTelemetry-compatible traceId where available"
+  }
+}

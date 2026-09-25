@@ -1,5 +1,5 @@
 {
-  "contractVersion": "0.2.0",
+  "contractVersion": "0.3.0",
   "status": "implementation-planning",
   "generatedFrom": {
     "designSystem": "V1.26",
@@ -191,5 +191,15 @@
     "basePath": "/api/v1",
     "source": "inno-api-contract.json",
     "openApi": "openapi-inno-one-v1.json"
+  },
+  "eventAuditContract": {
+    "version": "0.3.0",
+    "source": "inno-event-audit-contract.json",
+    "documentation": "INNO-One-Event-Audit-Contract.md",
+    "audit": "event-audit-contract-audit.py",
+    "integrationEventTypes": 37,
+    "auditActions": 62,
+    "delivery": "at-least-once",
+    "crossModuleDurability": "transactional-outbox"
   }
 }

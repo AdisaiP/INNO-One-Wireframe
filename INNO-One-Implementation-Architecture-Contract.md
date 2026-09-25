@@ -361,9 +361,20 @@ Initial implementation may use:
 - transactional outbox for durable integration events,
 - an external broker only when operational need justifies it.
 
-Event naming and envelopes belong to Step 12 — Event & Audit Contract.
+Step 12 now defines the Event & Audit boundary in `INNO-One-Event-Audit-Contract.md` and `inno-event-audit-contract.json`.
 
-Existing prototype event names remain useful source input, including:
+Frozen implementation rules:
+
+- same-module Domain Events may remain in-process,
+- cross-module/service Integration Events use the canonical envelope,
+- database-backed Integration Events use a transactional outbox,
+- delivery is at-least-once and consumers deduplicate by `eventId`,
+- there is no global ordering guarantee,
+- correlation/causation/trace IDs propagate across API → event → audit,
+- Audit is append-only and is not the business event bus,
+- generic event/audit payloads exclude secrets and raw content.
+
+Existing prototype event names are preserved in the Step 12 v1 event catalog, including:
 
 - device.online,
 - device.offline,
@@ -553,3 +564,26 @@ Source of truth:
 - `api-contract-audit.py`
 
 No backend feature implementation was started by Step 11.
+
+## 18. Step 12 Event & Audit Contract checkpoint — 2026-09-26
+
+Implementation planning now advances to **Contract 0.3.0**.
+
+Step 12 freezes:
+- 37 integration-event types already declared by the prototype registry: **34 active + 3 future Workflow**.
+- Canonical event envelope with event/correlation/causation/trace identity.
+- Transactional outbox for database-backed cross-module/service facts.
+- At-least-once delivery with consumer inbox/dedupe by `eventId`.
+- No global ordering guarantee; best-effort per-subject partition ordering only.
+- Exponential-backoff retry with dead-letter handling; never silently discard.
+- Append-only audit record contract with **62 canonical audit actions**.
+- Audit access permission remains `admin.audit.view` while the Audit UI stays unavailable/future.
+- Secret/raw-content minimization for tickets, remote chat/files, meeting content and QR tokens.
+- Four semantic retention classes; concrete durations remain governance decisions.
+
+Source of truth:
+- `INNO-One-Event-Audit-Contract.md`
+- `inno-event-audit-contract.json`
+- `event-audit-contract-audit.py`
+
+No backend feature code was started by Step 12. Step 13 should define Data Ownership / Database Model, including outbox/inbox and audit storage tables.

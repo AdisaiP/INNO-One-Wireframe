@@ -993,18 +993,20 @@ Not frozen in Step 11:
 
 These should be chosen only when implementation requirements justify them.
 
-## 32. Next contract
+## 32. Event & Audit Contract checkpoint
 
-Step 12 should define **Event & Audit Contract**:
+Step 12 is now defined by `INNO-One-Event-Audit-Contract.md` and `inno-event-audit-contract.json`.
 
-- domain vs integration event boundary,
-- event envelope,
-- naming/versioning,
-- outbox expectations,
-- audit action taxonomy,
-- correlation/causation IDs,
-- delivery/retry semantics,
-- privacy/redaction rules.
+The API contract therefore hands off these fields/behaviors directly into the event/audit layer:
+
+- `X-Correlation-Id` → event/audit `correlationId`,
+- async `operationId` or triggering `eventId` → `causationId`,
+- observability `traceId` → event/audit `traceId`,
+- successful privileged mutation → append-only audit record,
+- cross-module committed fact → transactional outbox integration event,
+- secrets/raw content → excluded from generic event/audit payloads.
+
+Next implementation-planning contract: **Step 13 Data Ownership / Database Model**.
 
 ## 33. Canonical endpoint catalog
 
