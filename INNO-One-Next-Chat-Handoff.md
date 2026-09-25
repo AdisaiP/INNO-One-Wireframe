@@ -642,10 +642,10 @@ Checklist ที่ทำครบ:
 ผล Final Visual QA:
 
 - Canonical route screenshots = **87**: Web Portal 83 + Design System 1 + Endpoint Agent 2 + Android Mobile 1
-- Important state screenshots = **13**
-- Frozen screenshot baseline รวม = **100 ภาพ**
-- `qa-final-visual.py` = **116 browser checks / 0 failures**
-- Screenshot manifest hash verification = **100 / 100**
+- Important state screenshots = **14**
+- Frozen screenshot baseline รวม = **101 ภาพ**
+- `qa-final-visual.py` frozen manifest = **112 browser checks / 0 failures**
+- Screenshot manifest hash verification = **101 / 101**
 - ทุก Web route: page overflow = false, Rail active = 1, Sidebar active = 1, raw placeholder = 0
 - Web shell canonical 1366px: Rail 60px / Sidebar 216px / Platform Header 56px ทุก 83 route
 - Final dead-control review แก้ Saved Query, Category Tree, Requester Groups, Upcoming Meeting, Ticket composer และ Mobile history/action ที่ยังไม่สมบูรณ์
@@ -763,7 +763,7 @@ The navigation architecture pass is now complete for application-shell routes:
 - Overview screens were reduced to previews where a dedicated list route now owns the full list job.
 - Application hash-link regression guard reports `app_hash_links=0`; local-route validation reports `broken_local_routes=0`.
 - Current Web route count = 83. Browser navigation/input regression = 63 / 63.
-- Current frozen screenshot baseline = 87 canonical route screenshots + 13 state screenshots = 100 files.
+- Current frozen screenshot baseline = 87 canonical route screenshots + 14 state screenshots = 101 files.
 
 
 # Final Action/Layout Consistency Pass ✅ COMPLETED 2026-09-25
@@ -988,8 +988,12 @@ Completed:
 QA:
 - Web routes: **83**.
 - canonical shared states: **8 / 8**.
+- frozen state screenshots: **14**.
+- frozen screenshot/hash baseline: **101 / 101**.
 - `state-coverage-audit.py`: **0 issues** after frozen-state regeneration.
+- `final-visual-audit.py`: **0 issues**.
 - `qa-ux-input-browser.py`: **96 / 96 checks**.
+- All 5 visual contact sheets were regenerated from the current frozen screenshots and reviewed; the important-state sheet includes Empty.
 - Frozen visual state set includes Empty, Loading, Error, Permission, Disabled, Offline, Partial and No Results.
 
 Backend remains paused.

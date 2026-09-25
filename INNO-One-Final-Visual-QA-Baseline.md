@@ -3,7 +3,7 @@
 **UI Contract:** 1.18.0
 **Design System Documentation:** V1.24
 **Status:** Frozen visual baseline
-**Frozen:** 2026-09-25
+**Frozen:** 2026-09-26
 **Backend:** Not implemented by this baseline
 
 ## 1. Purpose
@@ -22,7 +22,7 @@ Baseline directory:
 
 - `qa-final-visual/routes-web/` — 83 Web Portal route screenshots.
 - `qa-final-visual/surfaces/` — Design System + 2 Endpoint Agent + 1 Android Mobile screenshots.
-- `qa-final-visual/states/` — 13 important state/interaction screenshots.
+- `qa-final-visual/states/` — 14 important state/interaction screenshots.
 - `qa-final-visual/manifest.json` — route metrics, file hashes and QA summary.
 - `qa-final-visual/contact-sheets/` — review-only visual contact sheets.
 
@@ -41,19 +41,20 @@ Responsive behavior is additionally covered by the NEXT 5 baseline at Web 1366 /
 
 The frozen state screenshots cover:
 
-1. Loading / skeleton
-2. Partial failure
-3. No permission
-4. Disabled module
-5. Error
-6. Offline device / cached mode
-7. No results
-8. Validation error
-9. Unsaved-change confirmation
-10. Filter drawer
-11. Bulk selection
-12. Destructive confirmation
-13. Select / resource picker open state
+1. Empty
+2. Loading / skeleton
+3. Partial failure
+4. No permission
+5. Disabled module
+6. Error
+7. Offline device / cached mode
+8. No results
+9. Validation error
+10. Unsaved-change confirmation
+11. Filter drawer
+12. Bulk selection
+13. Destructive confirmation
+14. Select / resource picker open state
 
 These are prototype UI contracts. They do not certify live network, persistence, permission or backend behavior.
 
@@ -168,8 +169,8 @@ Current baseline counts supersede the earlier snapshot counts recorded in histor
 
 - Web Portal routes: 83.
 - Canonical route screenshots: 87 (83 Web + Design System + 2 Agent + 1 Mobile).
-- Important state screenshots: 13.
-- Total frozen screenshots / hash checks: 100 / 100.
+- Important state screenshots: 14.
+- Total frozen screenshots / hash checks: 101 / 101.
 - Application-shell hash navigation: 0.
 - Missing local route targets: 0.
 
@@ -215,11 +216,11 @@ Availability baseline:
 - legitimate non-future disabled controls = 4.
 
 Final verification:
-- `qa-ux-input-browser.py`: 80 / 80 checks, 0 failures.
-- `qa-final-visual.py`: 116 / 116 checks, 0 failures.
+- `qa-ux-input-browser.py`: 96 / 96 checks, 0 failures.
+- `qa-final-visual.py` frozen manifest: 112 / 112 checks, 0 failures.
 - canonical route screenshots: 87.
-- state screenshots: 13.
-- screenshot/hash baseline: 100 / 100.
+- state screenshots: 14.
+- screenshot/hash baseline: 101 / 101.
 
 
 ## 17. Language & terminology baseline — 2026-09-25
@@ -275,4 +276,8 @@ Current baseline:
 - No Results reports `0 matching results` and suppresses pagination.
 - Partial retry resolves its warning copy when failed count reaches zero.
 - browser regression: 96 / 96 checks.
+- state screenshots: 14.
+- total frozen screenshot/hash baseline: 101 / 101.
+- all 5 contact sheets regenerated from the frozen screenshots and visually reviewed.
 - `state-coverage-audit.py`: 0 issues after baseline regeneration.
+- `final-visual-audit.py`: 0 issues.
