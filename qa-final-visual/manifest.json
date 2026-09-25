@@ -359,8 +359,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/contracts-warranty.png",
-      "sha256": "d07d390b0397c2899085b785dcdf28da88025c6bde1aabf89d215bbcbce191c0",
-      "bytes": 136372
+      "sha256": "f73e9faa003d0f8ae5f09225850f572eb5fac8c0eb6225c8d7b6c42a1f547bfc",
+      "bytes": 136606
     },
     "deployment-job-detail.html": {
       "overflow": false,
@@ -454,8 +454,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/device-alert-channels.png",
-      "sha256": "03fa7062c58a4d2d784de8bd00aad817842acdc612934cf0c46b0710676db15b",
-      "bytes": 129038
+      "sha256": "39db269c8d720cfb6ae45a6e54fba1e86175975d2b92162903e6c65a3c9f5ee2",
+      "bytes": 129016
     },
     "device-alert-history.html": {
       "overflow": false,
@@ -1100,8 +1100,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/meeting-detail.png",
-      "sha256": "fa11ee4084f1d9a6ea48eed5c3a114db5ce1687ad6063c5462e30f46fb053d5c",
-      "bytes": 112112
+      "sha256": "ad44e705c19b4e839c5460e0044c9260285fd0e6af1e1860563bcbb8dbda70ba",
+      "bytes": 112078
     },
     "meeting-list.html": {
       "overflow": false,
@@ -1775,8 +1775,8 @@
       "contract": "1.20.0",
       "status": "frozen",
       "file": "qa-final-visual/surfaces/design-system.png",
-      "sha256": "589582c82881dfd9a54d0fcc363f6c792d2f650693bf2f63b587aae03e74b9b6",
-      "bytes": 203489
+      "sha256": "0e33280a2e48b3574636ab37c3ead7d52122f7e662e962e9b99ed008bbbc3dd9",
+      "bytes": 203500
     },
     "helpdesk-agent-request.html": {
       "surface": "agent",
@@ -1870,8 +1870,8 @@
       "selector": ".inno-state-banner.offline",
       "present": true,
       "file": "qa-final-visual/states/offline.png",
-      "sha256": "2a24ad2224470cd711dc4bf1c1ac4755884e81c6b85760903188339c03aafd61",
-      "bytes": 150768
+      "sha256": "bfa4192c41e1a9c685506485c0a4b66725a7e41053f8f7fd1f0e06aeda64b3bd",
+      "bytes": 150783
     },
     "no-results": {
       "page": "devices.html",

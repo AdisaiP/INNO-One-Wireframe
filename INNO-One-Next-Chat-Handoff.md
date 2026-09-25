@@ -641,13 +641,13 @@ Checklist ที่ทำครบ:
 
 ผล Final Visual QA:
 
-- Canonical route screenshots = **87**: Web Portal 83 + Design System 1 + Endpoint Agent 2 + Android Mobile 1
+- Canonical route screenshots = **97**: Web Portal 93 + Design System 1 + Endpoint Agent 2 + Android Mobile 1
 - Important state screenshots = **14**
-- Frozen screenshot baseline รวม = **101 ภาพ**
-- `qa-final-visual.py` frozen manifest = **112 browser checks / 0 failures**
-- Screenshot manifest hash verification = **101 / 101**
+- Frozen screenshot baseline รวม = **111 ภาพ**
+- `qa-final-visual.py` frozen manifest = **127 browser checks / 0 failures**
+- Screenshot manifest hash verification = **111 / 111**
 - ทุก Web route: page overflow = false, Rail active = 1, Sidebar active = 1, raw placeholder = 0
-- Web shell canonical 1366px: Rail 60px / Sidebar 216px / Platform Header 56px ทุก 83 route
+- Web shell canonical 1366px: Rail 60px / Sidebar 216px / Platform Header 56px ทุก 93 route
 - Final dead-control review แก้ Saved Query, Category Tree, Requester Groups, Upcoming Meeting, Ticket composer และ Mobile history/action ที่ยังไม่สมบูรณ์
 - Important states ที่ Freeze: Loading, Partial, Permission, Disabled, Error, Offline, No Results, Validation, Unsaved Confirm, Filter Drawer, Bulk Selection, Destructive Confirm, Select Open
 - Visual contact sheets review ครบ Platform/Admin, Devices, Assets/Reports, Helpdesk/Meeting และ important states
@@ -659,7 +659,7 @@ Checklist ที่ทำครบ:
 - Final Visual audit = 0 issues
 - Final baseline อยู่ที่ `qa-final-visual/` และ contract อธิบายใน `INNO-One-Final-Visual-QA-Baseline.md`
 
-**สถานะ UI Prototype ปัจจุบัน: ✅ FROZEN AT V1.26 / CONTRACT 1.20.0 — PRE-STEP 7 HIERARCHY COMPONENTS COMPLETE — BACKEND WORK PAUSED BY USER**
+**สถานะ UI Prototype ปัจจุบัน: ✅ FINAL UX/UI FROZEN AT V1.26 / CONTRACT 1.20.0 — STEP 8 COMPLETE — READY FOR IMPLEMENTATION HANDOFF — BACKEND STILL PAUSED**
 
 หมายเหตุ: Backend planning documents may exist on a separate branch, but the user explicitly paused Backend work. Do not resume Backend unless the user asks again.
 
@@ -685,7 +685,7 @@ Prototype CSS เป็น append-heavy อยู่แล้ว ต้องแ
 
 ใช้ข้อความนี้ได้เลย:
 
-> เปิดโปรเจกต์ `/Users/adisaip/Desktop/INNO-One-Wireframe/` ผ่าน MCP แล้วอ่าน `INNO-One-Next-Chat-Handoff.md`, `INNO-One-Final-Visual-QA-Baseline.md`, `INNO-One-Action-Layout-Contract.md`, `INNO-One-Language-Terminology-Contract.md`, `INNO-One-UI-Prototype-Summary.md` และ Design System ก่อน ปัจจุบัน UI Freeze อยู่ที่ **Design System V1.24 / UI Contract 1.18.0**. Backend ถูกพักไว้ตามคำสั่งผู้ใช้ ให้ทำเฉพาะ UX/UI review หรือ frontend prototype work ที่ผู้ใช้สั่ง และต้องรักษา Action/Layout Contract + visual regression baseline.
+> เปิดโปรเจกต์ `/Users/adisaip/Desktop/INNO-One-Wireframe/` ผ่าน MCP แล้วอ่าน `INNO-One-Next-Chat-Handoff.md`, `INNO-One-Final-UX-UI-Freeze.md`, `INNO-One-Final-Visual-QA-Baseline.md`, `INNO-One-Action-Layout-Contract.md`, `INNO-One-Language-Terminology-Contract.md`, `INNO-One-UI-Prototype-Summary.md` และ Design System ก่อน ปัจจุบัน UI Final Freeze อยู่ที่ **Design System V1.26 / UI Contract 1.20.0**. ห้ามเปลี่ยน baseline แบบ silent; ถ้าจะเปลี่ยน UX/UI ต้อง version + regenerate QA ใหม่. Backend ยังถูกพักไว้จนกว่าจะตกลง Architecture + API/Event + Permission contract.
 
 ---
 
@@ -1025,7 +1025,7 @@ QA:
 - Five contact sheets regenerated and visually reviewed.
 - Affected Web screens additionally reviewed at **1024** and **768**.
 
-**Step 7 is now complete. Next step is Step 8 Final UX/UI Freeze. Backend remains paused.**
+**Historical checkpoint: Step 7 completed here; Step 8 Final UX/UI Freeze is now complete. Backend remains paused.**
 
 # Pre-Step 7 — Shared Hierarchy Components ✅ COMPLETED 2026-09-26
 
@@ -1051,7 +1051,7 @@ QA:
 - Static hierarchy component checks are enforced by `component-consistency-audit.py`.
 - All five contact sheets were regenerated; affected hierarchy screens were visually checked at 1366 / 1024 / 768 with no page-level overflow.
 
-**Step 7 is now complete. Next step is Step 8 Final UX/UI Freeze. Backend remains paused.**
+**Historical checkpoint: Step 7 completed here; Step 8 Final UX/UI Freeze is now complete. Backend remains paused.**
 
 # Step 7 — Final Page-by-Page UX Review ✅ COMPLETED 2026-09-26
 
@@ -1074,4 +1074,29 @@ Baseline remains unchanged:
 - UI Contract: **1.20.0**.
 - Frozen screenshots: **97 routes + 14 states = 111 verified hashes**.
 
-**Next step: Step 8 Final UX/UI Freeze. Backend remains paused.**
+**Historical checkpoint: Step 8 Final UX/UI Freeze is now complete. Backend remains paused.**
+
+# Step 8 — Final UX/UI Freeze ✅ COMPLETED 2026-09-26
+
+Branch: `ux/final-ux-freeze`
+
+Final baseline:
+- Design System: **V1.26**.
+- UI Contract: **1.20.0**.
+- Registry Schema: **10**.
+- Web routes: **93**.
+- Canonical route screenshots: **97**.
+- State screenshots: **14**.
+- Frozen screenshot/hash set: **111 / 111**.
+
+Final QA:
+- `qa-final-visual.py`: **127 / 127**, failures 0.
+- `qa-ux-input-browser.py`: **124 / 124**, failures 0.
+- Full static audit chain: **0 issues**.
+- All five contact sheets regenerated and visually reviewed.
+- Representative complex Web screens rechecked at 1024 / 768 with no overflow/navigation/footer defects.
+- Endpoint Agent and Android Mobile surface boundaries rechecked and preserved.
+
+Final handoff record: `INNO-One-Final-UX-UI-Freeze.md`.
+
+**UX/UI prototype status: FINAL FROZEN and ready for implementation handoff. Backend remains paused until Architecture + API/Event + Permission contracts are agreed.**

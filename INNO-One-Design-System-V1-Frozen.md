@@ -460,4 +460,17 @@ A new module is UI-complete only when it:
 - Production mapping remains React Arborist → `INNOTree`, TanStack Table → `INNOTreeGrid`, d3-org-chart → `INNOOrgChart`; AG Grid Tree Data remains conditional.
 - Browser regression: **124 / 124 checks**.
 - Visual baseline remains **97 route screenshots + 14 state screenshots = 111 verified hashes**.
-- Step 7 Final Page-by-Page UX Review completed without requiring a contract change. Backend implementation remains paused; Step 8 Final UX/UI Freeze is next.
+- Step 7 Final Page-by-Page UX Review completed without requiring a contract change. Step 8 Final UX/UI Freeze is now complete; backend implementation remains paused pending implementation contracts.
+
+## 36. Final UX/UI Freeze — 2026-09-26
+
+- Step 8 completed the final implementation freeze without changing component semantics, so Design System remains **V1.26** and UI Contract remains **1.20.0**.
+- All 93 Web routes, Design System, 2 Endpoint Agent surfaces and Android Assets Mobile are included in the final frozen baseline.
+- Final visual set: **97 canonical route screenshots + 14 state screenshots = 111 verified hashes**.
+- `qa-final-visual.py`: **127 / 127 checks**, 0 failures.
+- `qa-ux-input-browser.py`: **124 / 124 checks**, 0 failures.
+- All five contact sheets were regenerated and reviewed.
+- Representative complex Web surfaces were rechecked at 1024 / 768 with no page-level overflow, active-navigation errors or editor-footer overflow.
+- Final handoff record: `INNO-One-Final-UX-UI-Freeze.md`.
+- Any future baseline-changing UI work must be explicitly versioned and must regenerate the full visual/audit baseline.
+- Backend remains outside this freeze and should start only after Architecture + API/Event + Permission contracts are agreed.
