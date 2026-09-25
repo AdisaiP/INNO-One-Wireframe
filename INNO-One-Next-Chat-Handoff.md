@@ -30,8 +30,8 @@ INNO.One กำลังถูกปรับจาก TOR coverage prototype �
 
 ## 2. Current UI Baseline
 
-- Design System: **V1.24**
-- UI Contract: **1.18.0**
+- Design System: **V1.25**
+- UI Contract: **1.19.0**
 - Registry Schema: **10**
 
 Source of truth หลัก:
@@ -659,7 +659,7 @@ Checklist ที่ทำครบ:
 - Final Visual audit = 0 issues
 - Final baseline อยู่ที่ `qa-final-visual/` และ contract อธิบายใน `INNO-One-Final-Visual-QA-Baseline.md`
 
-**สถานะ UI Prototype ปัจจุบัน: ✅ FROZEN AT V1.24 / CONTRACT 1.18.0 — BACKEND WORK PAUSED BY USER**
+**สถานะ UI Prototype ปัจจุบัน: ✅ FROZEN AT V1.25 / CONTRACT 1.19.0 — PRE-STEP 7 TOR SURFACES COMPLETE — BACKEND WORK PAUSED BY USER**
 
 หมายเหตุ: Backend planning documents may exist on a separate branch, but the user explicitly paused Backend work. Do not resume Backend unless the user asks again.
 
@@ -997,3 +997,32 @@ QA:
 - Frozen visual state set includes Empty, Loading, Error, Permission, Disabled, Offline, Partial and No Results.
 
 Backend remains paused.
+
+# Pre-Step 7 — TOR-required management surfaces ✅ COMPLETED 2026-09-26
+
+Branch: `ux/tor-required-surfaces-pass`
+
+Design System: **V1.25**
+UI Contract: **1.19.0**
+
+Completed before Step 7:
+- Enforced **one screen = one primary job** for the new TOR-required surfaces.
+- Admin organization work is split into **Structure**, **Locations**, **Positions**, and **Users**.
+- Users is now **List → User Detail → User Create/Edit** instead of list + long editor on one screen.
+- Helpdesk Automation is now **Rule List → Rule Editor**; escalation details appear only for the escalation action.
+- Saved Reports has working Search/Owner/Dataset filtering, a focused Run result dialog, and Edit restores the chosen definition in Report Builder.
+- Device Group Detail has working member filtering, and member Open links restore the requested device identity in Device Detail.
+- Shared collection filtering lives in `inno-interactions.js`, not duplicated page-local filter code.
+- Remaining future placeholders stay hidden under the Availability contract.
+
+QA:
+- Web routes: **93**; canonical pages: **97**.
+- `qa-final-visual.py`: **127 / 127**, failures 0.
+- `qa-ux-input-browser.py`: **114 / 114**, failures 0.
+- Frozen screenshots: **97 routes + 14 states = 111 hashes**.
+- Primary collections: **15 / 15** compact + shared search; action columns: **10 / 10**.
+- Full static audit chain: **0 issues**.
+- Five contact sheets regenerated and visually reviewed.
+- Affected Web screens additionally reviewed at **1024** and **768**.
+
+**Next step remains Step 7 Final Page-by-Page UX Review. Backend remains paused.**

@@ -294,11 +294,40 @@ function enhancePagination(){
     });
   });
 }
+function applyCollectionView(targetSel){
+  const target=document.querySelector(targetSel);if(!target)return;
+  const search=[...document.querySelectorAll("[data-inno-search-target]")].find(x=>x.dataset.innoSearchTarget===targetSel);
+  const filters=[...document.querySelectorAll("[data-inno-filter-target]")].filter(x=>x.dataset.innoFilterTarget===targetSel);
+  const q=String(search?.value||"").trim().toLowerCase();
+  [...target.children].forEach(row=>{
+    if(row.classList.contains("inno-state-row")||row.classList.contains("inno-search-empty"))return;
+    const hay=(row.dataset.search||row.textContent||"").toLowerCase();
+    const searchOk=!q||hay.includes(q);
+    const filterOk=filters.every(control=>{
+      const value=String(control.value||"").trim();
+      if(!value||value==="all")return true;
+      const field=control.dataset.innoFilterField;
+      const actual=field?String(row.dataset[field]||""):row.textContent||"";
+      return actual.toLowerCase()===value.toLowerCase();
+    });
+    row.style.display=searchOk&&filterOk?"":"none";
+  });
+  document.documentElement.dataset.uiSearchQuery=q;
+  if(search)requestAnimationFrame(()=>window.INNOStates?.refreshSearchState?.(search));
+}
+function enhanceCollectionFilters(){
+  document.querySelectorAll("[data-inno-filter-target]").forEach(control=>{
+    if(control.dataset.innoCollectionFilterBound)return;control.dataset.innoCollectionFilterBound="1";
+    control.addEventListener("change",()=>applyCollectionView(control.dataset.innoFilterTarget));
+    applyCollectionView(control.dataset.innoFilterTarget);
+  });
+}
 function enhanceSearch(){
   document.querySelectorAll(".ds-search input,.filterbar input,.launch-search,[data-inno-search-target]").forEach(input=>{
     if(input.dataset.innoEnhanced)return;input.dataset.innoEnhanced="1";
     const apply=()=>{
       const sel=input.dataset.innoSearchTarget;if(!sel)return;
+      if(document.querySelector('[data-inno-filter-target="'+sel+'"]'))return applyCollectionView(sel);
       const target=document.querySelector(sel);if(!target)return;
       const q=String(input.value||"").trim().toLowerCase();
       [...target.children].forEach(row=>{
@@ -596,12 +625,12 @@ function enhanceActionDock(){
 }
 
 function init(){
-  ensureUI();wireDataActions();enhanceDialogs();enhanceDrawers();enhanceTabs();enhancePagination();enhanceSearch();enhanceComponentSemantics();enhanceDirtyTracking();enhanceBulkSelection();bindInteractionConsistency();handleEscape();enhanceActionDock();
+  ensureUI();wireDataActions();enhanceDialogs();enhanceDrawers();enhanceTabs();enhancePagination();enhanceSearch();enhanceCollectionFilters();enhanceComponentSemantics();enhanceDirtyTracking();enhanceBulkSelection();bindInteractionConsistency();handleEscape();enhanceActionDock();
   if(typeof window.showToast==="function")window.showToast=(message,type="success")=>toast(message,type);
   document.querySelectorAll("[data-inno-menu],[data-inno-columns]").forEach(x=>{x.setAttribute("aria-haspopup","menu");x.setAttribute("aria-expanded","false")});
   document.querySelectorAll("[data-inno-filter],[data-inno-confirm]").forEach(x=>x.setAttribute("aria-haspopup","dialog"));
-  const obs=new MutationObserver(()=>{enhanceDialogs();enhanceDrawers();enhanceTabs();enhanceSearch();enhanceComponentSemantics();enhanceDirtyTracking();enhanceBulkSelection();enhanceActionDock()});obs.observe(document.body,{childList:true,subtree:true});
+  const obs=new MutationObserver(()=>{enhanceDialogs();enhanceDrawers();enhanceTabs();enhanceSearch();enhanceCollectionFilters();enhanceComponentSemantics();enhanceDirtyTracking();enhanceBulkSelection();enhanceActionDock()});obs.observe(document.body,{childList:true,subtree:true});
 }
-window.INNOInteractions={toast,confirm:confirmAction,dialog:openDialog,closeDialog,menu:openMenu,filters:openFilterDrawer,columns:openColumns,closeDrawer,scopeFor,validateScope,markDirty,markClean,setDirtyState,isDirty,confirmDiscard};
+window.INNOInteractions={toast,confirm:confirmAction,dialog:openDialog,closeDialog,menu:openMenu,filters:openFilterDrawer,columns:openColumns,closeDrawer,scopeFor,validateScope,markDirty,markClean,setDirtyState,isDirty,confirmDiscard,applyCollectionView};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();

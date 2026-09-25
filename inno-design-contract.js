@@ -3,10 +3,10 @@
 
 const contract={
   name:"INNO.One Design System",
-  contractVersion:"1.18.0",
-  documentationVersion:"1.24",
+  contractVersion:"1.19.0",
+  documentationVersion:"1.25",
   status:"frozen",
-  frozenAt:"2026-09-25",
+  frozenAt:"2026-09-26",
   principles:[
     "One global shell; each app owns its contextual navigation.",
     "One semantic meaning maps to one component, state and icon pattern.",

@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Automation Rule · INNO.One</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link rel="stylesheet" href="workspace-v2.css">
+<link rel="stylesheet" href="inno-design-system.css">
+</head>
+<body>
+<div class="shell">
+<aside class="rail">
+  <div class="brand">I1</div>
+  <a href="workspace-v2.html"><i class="fa-solid fa-house"></i></a>
+  <a href="app-launcher-v2.html"><i class="fa-solid fa-table-cells-large"></i></a>
+  <a href="devices-overview-v2.html"><i class="fa-solid fa-desktop"></i></a>
+  <a class="active" href="helpdesk.html"><i class="fa-solid fa-headset"></i></a>
+  <a href="meeting.html"><i class="fa-solid fa-microphone-lines"></i></a>
+  <div class="spacer"></div>
+  <a href="admin.html"><i class="fa-solid fa-gear"></i></a>
+</aside>
+
+<aside class="side">
+  <div class="side-title">Helpdesk</div>
+  <div class="side-section">Workspace</div>
+  <a href="helpdesk.html"><i class="fa-solid fa-house"></i>Overview</a>
+  <a href="helpdesk-tickets.html"><i class="fa-solid fa-ticket"></i>Tickets</a>
+  <a href="helpdesk-assigned.html"><i class="fa-solid fa-user-check"></i>Assigned to Me</a>
+  <a href="helpdesk-team.html"><i class="fa-solid fa-users"></i>Team Queue</a>
+  <div class="side-section">Manage</div>
+  <a href="helpdesk-sla.html"><i class="fa-solid fa-stopwatch"></i>SLA & Escalation</a>
+  <a href="knowledge-base.html"><i class="fa-solid fa-book-open"></i>Knowledge Base</a>
+  <a href="helpdesk-settings.html"><i class="fa-solid fa-sliders"></i>Configuration</a>
+  <a href="helpdesk-notifications.html"><i class="fa-solid fa-bell"></i>Notifications</a>
+  <a href="helpdesk-reports.html"><i class="fa-solid fa-chart-column"></i>Reports</a>
+  <a class="active" href="helpdesk-automation.html"><i class="fa-solid fa-wand-magic-sparkles"></i>Automation</a>
+</aside>
+
+<main class="main">
+<header class="topbar"></header>
+<section class="content">
+  <div class="resource-breadcrumb">
+    <a href="helpdesk-automation.html">Automation</a>
+    <i class="fa-solid fa-chevron-right"></i>
+    <span id="ruleCrumb">Route Network / VPN by skill</span>
+  </div>
+
+  <div class="page-head">
+    <div>
+      <div class="eyebrow">Helpdesk · Automation</div>
+      <h1 id="rulePageTitle">Edit Automation Rule</h1>
+      <div class="sub">Edit one rule only: trigger, conditions and the resulting action.</div>
+    </div>
+  </div>
+
+  <div class="ux-operational-layout">
+    <div class="ux-operational-main">
+      <div class="ux-section">
+        <div class="section-title">
+          <div>
+            <h3 id="ruleTitle">Route Network / VPN by skill</h3>
+            <div class="small muted">Automation rule definition</div>
+          </div>
+          <span class="tag success" id="ruleStatusTag">Active</span>
+        </div>
+
+        <div class="form">
+          <div class="field">
+            <label for="ruleName">Rule name</label>
+            <input id="ruleName" required value="Route Network / VPN by skill">
+          </div>
+
+          <div class="split">
+            <div class="field">
+              <label for="ruleTrigger">Trigger</label>
+              <select id="ruleTrigger">
+                <option>Ticket created</option>
+                <option>Ticket updated</option>
+                <option>SLA at risk</option>
+                <option>Status changed</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="ruleScope">Scope</label>
+              <select id="ruleScope" data-inno-resource-picker data-inno-resource-icon="fa-folder-tree">
+                <option>Category · Network / VPN</option>
+                <option>Priority · P1 Critical</option>
+                <option>Requester Group · VIP Users</option>
+                <option>All tickets</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Condition</label>
+            <div class="ux-rule-condition">
+              <div>
+                <div class="ux-condition-label">Field</div>
+                <select id="ruleField">
+                  <option>Category</option>
+                  <option>Priority</option>
+                  <option>Requester Group</option>
+                  <option>Business Calendar</option>
+                </select>
+              </div>
+              <div>
+                <div class="ux-condition-label">Operator</div>
+                <select aria-label="Condition operator">
+                  <option>equals</option>
+                  <option>contains</option>
+                </select>
+              </div>
+              <div>
+                <div class="ux-condition-label">Value</div>
+                <input id="ruleValue" value="VPN">
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="ruleAction">Primary action</label>
+            <select id="ruleAction">
+              <option>Assign by skill · Network</option>
+              <option>Escalate to manager chain</option>
+              <option>Set priority · P1</option>
+              <option>Route to after-hours queue</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="ruleStatus">Rule status</label>
+            <select id="ruleStatus">
+              <option>Active</option>
+              <option>Paused</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="ux-section" id="escalationSection" hidden>
+        <div class="section-title">
+          <div>
+            <h3>Escalation sequence</h3>
+            <div class="small muted">Three levels are applied only when this rule escalates through the manager chain.</div>
+          </div>
+          <span class="tag warn">3 levels</span>
+        </div>
+        <div class="summary-list">
+          <div class="summary-tile">
+            <div class="label">Level 1 · Team Lead</div>
+            <div class="value">70% of resolution target</div>
+          </div>
+          <div class="summary-tile">
+            <div class="label">Level 2 · Service Manager</div>
+            <div class="value">85% of resolution target</div>
+          </div>
+          <div class="summary-tile">
+            <div class="label">Level 3 · Platform Admin</div>
+            <div class="value">At SLA breach</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="inno-editor-footer">
+        <a class="btn secondary" href="helpdesk-automation.html">Cancel</a>
+        <button class="btn" data-inno-save data-inno-saving-label="Saving rule..." data-inno-saved-label="Rule saved" data-inno-success="Automation rule saved">
+          <i class="fa-solid fa-floppy-disk"></i>Save Rule
+        </button>
+      </div>
+    </div>
+
+    <aside class="ux-operational-aside">
+      <div class="card card-pad">
+        <div class="section-title">
+          <div>
+            <h3>Rule behavior</h3>
+            <div class="small muted">Summary of the current definition</div>
+          </div>
+        </div>
+        <div class="summary-list">
+          <div class="summary-tile">
+            <div class="label">Trigger</div>
+            <div class="value" id="summaryTrigger">Ticket created</div>
+          </div>
+          <div class="summary-tile">
+            <div class="label">Action</div>
+            <div class="value" id="summaryAction">Assign by skill · Network</div>
+          </div>
+          <div class="summary-tile">
+            <div class="label">Audit trail</div>
+            <div class="value">Ticket Activity</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>
+</main>
+</div>
+
+<script>
+const rules={
+  network:['Route Network / VPN by skill','Ticket created','Category · Network / VPN','Category','VPN','Assign by skill · Network','Active'],
+  p1:['P1 three-level escalation','SLA at risk','Priority · P1 Critical','Priority','P1','Escalate to manager chain','Active'],
+  vip:['VIP requester priority','Ticket created','Requester Group · VIP Users','Requester Group','VIP Users','Set priority · P1','Active'],
+  afterhours:['After-hours queue routing','Ticket created','All tickets','Business Calendar','Outside working hours','Route to after-hours queue','Paused']
+};
+const q=new URLSearchParams(location.search),mode=q.get('mode'),key=q.get('rule')||'network';
+
+function refreshRuleSummary(){
+  summaryTrigger.textContent=ruleTrigger.value;
+  summaryAction.textContent=ruleAction.value;
+  escalationSection.hidden=ruleAction.value!=='Escalate to manager chain';
+}
+ruleAction.addEventListener('change',refreshRuleSummary);
+ruleTrigger.addEventListener('change',refreshRuleSummary);
+ruleStatus.addEventListener('change',()=>{
+  ruleStatusTag.textContent=ruleStatus.value;
+  ruleStatusTag.className='tag '+(ruleStatus.value==='Active'?'success':'');
+});
+
+if(mode==='new'){
+  ruleCrumb.textContent='New Rule';
+  rulePageTitle.textContent='New Automation Rule';
+  ruleTitle.textContent='New automation rule';
+  ruleName.value='';
+  ruleTrigger.value='Ticket created';
+  ruleScope.value='All tickets';
+  ruleField.value='Category';
+  ruleValue.value='';
+  ruleAction.value='Assign by skill · Network';
+  ruleStatus.value='Active';
+}else{
+  const x=rules[key]||rules.network;
+  ruleCrumb.textContent=x[0];
+  ruleTitle.textContent=x[0];
+  ruleName.value=x[0];
+  ruleTrigger.value=x[1];
+  ruleScope.value=x[2];
+  ruleField.value=x[3];
+  ruleValue.value=x[4];
+  ruleAction.value=x[5];
+  ruleStatus.value=x[6];
+}
+refreshRuleSummary();
+</script>
+
+<script src="inno-inputs.js"></script>
+<script src="inno-interactions.js"></script>
+<script src="inno-states.js"></script>
+<script src="platform-shell.js"></script>
+<script src="inno-responsive.js"></script>
+<script src="inno-navigation.js"></script>
+<script src="inno-icons.js"></script>
+<script src="inno-design-contract.js"></script>
+</body>
+</html>

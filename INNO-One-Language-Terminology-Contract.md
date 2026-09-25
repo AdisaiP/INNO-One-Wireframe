@@ -1,10 +1,10 @@
 # INNO.One — Language & Terminology Contract
 
-**Status:** UX/UI final polish — Step 3  
-**Date:** 2026-09-25  
-**UI Contract:** 1.15.0  
-**Documentation:** Design System V1.21  
-**Scope:** 87 canonical pages  
+**Status:** UX/UI final polish — Step 3
+**Date:** 2026-09-25
+**UI Contract:** 1.15.0
+**Documentation:** Design System V1.21
+**Scope:** 97 canonical pages
 **Backend:** Not in scope
 
 ## 1. Language ownership
@@ -254,15 +254,15 @@ Rendered-DOM route QA additionally checks:
 
 ## 11. Step 3 baseline
 
-As of 2026-09-25:
+As of 2026-09-26:
 
-- Web routes: **83**
-- English Web + Design System surfaces: **84 / 84**
+- Web routes: **93**
+- English Web + Design System surfaces: **94 / 94**
 - Thai Agent/Mobile surfaces: **3 / 3**
 - unscoped Thai fragments on English surfaces: **0**
 - terminology mismatches: **0**
-- browser UX regression: **80 / 80 checks**
-- all 83 Web routes pass at 1366 / 1024 / 768
+- browser UX regression: **114 / 114 checks**
+- all 93 Web routes pass at 1366 / 1024 / 768
 
 ## 12. Out of scope
 

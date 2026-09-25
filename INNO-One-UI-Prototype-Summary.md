@@ -177,8 +177,8 @@ Current interpretation:
 ## 8. Frozen UI contract
 
 Current accepted baseline:
-- Design System: V1.24.
-- UI Contract: 1.18.0.
+- Design System: V1.25.
+- UI Contract: 1.19.0.
 - Registry Schema: 10.
 - Surface contracts: Web / Endpoint Agent / Android Mobile.
 
@@ -311,7 +311,7 @@ The second B-grade batch reduces multi-form screens and separates supporting tec
 
 ## 16. Canonical route ownership — 2026-09-25
 
-Legacy application-shell hash navigation has been removed. Distinct navigation jobs now have canonical pages, while true filters use query-state URLs. The current Web route graph contains 83 routes and preserves old Overview section IDs only as backward-compatible anchors, not as generated navigation targets.
+Legacy application-shell hash navigation has been removed. Distinct navigation jobs now have canonical pages, while true filters use query-state URLs. The current Web route graph contains 93 routes and preserves old Overview section IDs only as backward-compatible anchors, not as generated navigation targets.
 
 
 ## 18. Final Action/Layout consistency — 2026-09-25
@@ -326,12 +326,12 @@ The Action/Layout freeze was visually refined after route-wide review. Clean pag
 
 ## 19. Accessibility / semantic polish — 2026-09-25
 
-Final UX/UI Step 1 established a shared semantic baseline across all 87 canonical pages. Icon-only actions now expose names, interactive toggles use native button switch semantics, single-control field labels are associated automatically, table/action-item checkboxes receive contextual names, and Web route regression now checks rendered accessibility state at all required breakpoints. See `INNO-One-Accessibility-Contract.md`.
+Final UX/UI Step 1 established a shared semantic baseline across the current 97 canonical pages. Icon-only actions now expose names, interactive toggles use native button switch semantics, single-control field labels are associated automatically, table/action-item checkboxes receive contextual names, and Web route regression now checks rendered accessibility state at all required breakpoints. See `INNO-One-Accessibility-Contract.md`.
 
 
 ## 20. Availability / unavailable-feature polish — 2026-09-25
 
-Design System V1.20 / UI Contract 1.14.0 makes availability an explicit UX rule. Unavailable features no longer appear as grey Coming Soon task controls or normal sidebar navigation. Future navigation remains in roadmap markup but is hidden from the normal product shell. Real routes are used where they exist; read-only data uses passive status; and prototype-only commands remain active only when they provide visible local feedback. `availability-audit.py` reports zero Coming Soon task actions across all 87 canonical pages, while browser regression confirms no future navigation is visible across all 83 Web routes.
+Design System V1.20 / UI Contract 1.14.0 makes availability an explicit UX rule. Unavailable features no longer appear as grey Coming Soon task controls or normal sidebar navigation. Future navigation remains in roadmap markup but is hidden from the normal product shell. Real routes are used where they exist; read-only data uses passive status; and prototype-only commands remain active only when they provide visible local feedback. `availability-audit.py` reports zero Coming Soon task actions across all 97 canonical pages, while browser regression confirms no future navigation is visible across all 93 Web routes.
 
 
 ## 21. Language & terminology consistency — 2026-09-25
@@ -346,9 +346,15 @@ Step 4 standardizes feedback across the prototype. Save/Create controls now expo
 
 ## 23. Table / list / data density consistency — 2026-09-25
 
-Step 5 standardizes primary collection browsing without turning every dataset into the same component. Twelve canonical collection tables now share compact row density, shared search/no-result behavior, responsive toolbar layout and explicit action-column treatment. Helpdesk queues and Meeting lists keep their richer domain-specific row layouts. See `INNO-One-Table-List-Density-Contract.md`.
+Step 5 standardizes primary collection browsing without turning every dataset into the same component. The current baseline has fifteen canonical collection tables sharing compact row density, shared search/no-result behavior, responsive toolbar layout and explicit action-column treatment. Helpdesk queues and Meeting lists keep their richer domain-specific row layouts. See `INNO-One-Table-List-Density-Contract.md`.
 
 
 ## 24. State coverage consistency — 2026-09-26
 
 Step 6 freezes a shared state model for Empty, No Results, Loading, Error, Permission, Disabled, Offline and Partial Failure. Search no-results now updates collection metadata truthfully, loading is announced semantically, error previews recover to the normal view, and partial retry resolves its own warning copy. See `INNO-One-State-Coverage-Contract.md`.
+
+## 25. Pre-Step 7 TOR-required management surfaces — 2026-09-26
+
+Before the final page-by-page UX review, TOR-dependent roadmap capabilities were promoted to canonical product routes and then split by primary job. Admin Center now separates Organization **Structure**, **Locations**, **Positions**, **Users list**, **User Detail**, and **User Create/Edit**. Helpdesk separates **Automation Rule List** from **Rule Editor**. Saved Reports uses working filters, focused Run feedback and a real saved-definition Edit flow. Device Group Detail owns one group and opens the requested device identity rather than a static placeholder.
+
+The current prototype baseline is **Design System V1.25 / UI Contract 1.19.0** with **93 Web routes**, **97 canonical route screenshots**, **14 state screenshots**, and **111 verified screenshot hashes**. Browser regression is **114 / 114** and the full audit chain reports zero issues. Step 7 has not started and backend implementation remains paused.

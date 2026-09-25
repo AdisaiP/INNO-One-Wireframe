@@ -1,7 +1,7 @@
 # INNO.One Final Visual QA Baseline
 
-**UI Contract:** 1.18.0
-**Design System Documentation:** V1.24
+**UI Contract:** 1.19.0
+**Design System Documentation:** V1.25
 **Status:** Frozen visual baseline
 **Frozen:** 2026-09-26
 **Backend:** Not implemented by this baseline
@@ -20,7 +20,7 @@ The baseline is used to:
 
 Baseline directory:
 
-- `qa-final-visual/routes-web/` — 83 Web Portal route screenshots.
+- `qa-final-visual/routes-web/` — 93 Web Portal route screenshots.
 - `qa-final-visual/surfaces/` — Design System + 2 Endpoint Agent + 1 Android Mobile screenshots.
 - `qa-final-visual/states/` — 14 important state/interaction screenshots.
 - `qa-final-visual/manifest.json` — route metrics, file hashes and QA summary.
@@ -62,17 +62,17 @@ These are prototype UI contracts. They do not certify live network, persistence,
 
 At the canonical Web viewport:
 
-- Global Rail width = 60px on all 83 Web routes.
-- Contextual Sidebar width = 216px on all 83 Web routes.
-- Platform Header height = 56px on all 83 Web routes.
-- Canvas background = `#F7F8FA` on all 83 Web routes.
+- Global Rail width = 60px on all 93 Web routes.
+- Contextual Sidebar width = 216px on all 93 Web routes.
+- Platform Header height = 56px on all 93 Web routes.
+- Canvas background = `#F7F8FA` on all 93 Web routes.
 - Every Web route has exactly one active Rail route and one active contextual route.
 - No Web route has page-level horizontal overflow.
 - No raw placeholder `href="#"` remains actionable after navigation normalization.
 - Page-header primary-action hierarchy follows the shared component contract.
 
 Intentional title variants:
-- Standard Page Header H1 = 23px on 77 Web routes.
+- Standard Page Header H1 = 23px on 85 Web routes.
 - Workspace hero H1 = 22px.
 - Remote Session specialized operations title = 20px.
 - Device Detail, Asset Detail, Ticket Detail and Meeting Detail use the Resource Detail title pattern rather than a Page Header H1.
@@ -91,7 +91,7 @@ Mock controls rendered inside the simulated remote desktop are visual content of
 
 ## 6. Surface boundary freeze
 
-- Web Portal canonical product routes: 83.
+- Web Portal canonical product routes: 93.
 - Endpoint Agent prototype routes: 2.
 - Android Mobile prototype routes: 1.
 - Design System reference: 1.
@@ -167,10 +167,10 @@ At the 1.12.0 route-ownership pass, the prototype gained distinct application ro
 
 Current baseline counts supersede the earlier snapshot counts recorded in historical pass sections above:
 
-- Web Portal routes: 83.
-- Canonical route screenshots: 87 (83 Web + Design System + 2 Agent + 1 Mobile).
+- Web Portal routes: 93.
+- Canonical route screenshots: 97 (93 Web + Design System + 2 Agent + 1 Mobile).
 - Important state screenshots: 14.
-- Total frozen screenshots / hash checks: 101 / 101.
+- Total frozen screenshots / hash checks: 111 / 111.
 - Application-shell hash navigation: 0.
 - Missing local route targets: 0.
 
@@ -199,10 +199,10 @@ Action/Layout verification at freeze:
 
 ## 16. Accessibility / Availability final-polish baseline — 2026-09-25
 
-The current frozen baseline is **Design System V1.24 / UI Contract 1.18.0**.
+The current frozen baseline is **Design System V1.25 / UI Contract 1.19.0**.
 
 Accessibility baseline:
-- 87 canonical pages covered by `accessibility-audit.py`.
+- 97 canonical pages covered by `accessibility-audit.py`.
 - unnamed icon-only controls = 0.
 - non-semantic clickable controls = 0.
 - invalid interactive switches = 0.
@@ -211,16 +211,16 @@ Accessibility baseline:
 Availability baseline:
 - Coming Soon task actions = 0.
 - visible future sidebar placeholders = 0.
-- hidden future navigation placeholders retained in source = 102.
+- hidden future navigation placeholders retained in source = 126.
 - non-interactive Admin navigation tiles = 0.
 - legitimate non-future disabled controls = 4.
 
 Final verification:
-- `qa-ux-input-browser.py`: 96 / 96 checks, 0 failures.
-- `qa-final-visual.py` frozen manifest: 112 / 112 checks, 0 failures.
-- canonical route screenshots: 87.
+- `qa-ux-input-browser.py`: 114 / 114 checks, 0 failures.
+- `qa-final-visual.py` frozen manifest: 127 / 127 checks, 0 failures.
+- canonical route screenshots: 97.
 - state screenshots: 14.
-- screenshot/hash baseline: 101 / 101.
+- screenshot/hash baseline: 111 / 111.
 
 
 ## 17. Language & terminology baseline — 2026-09-25
@@ -228,7 +228,7 @@ Final verification:
 Design System V1.21 / UI Contract 1.15.0 adds explicit language ownership and terminology rules without changing route architecture.
 
 Current language baseline:
-- Web Portal routes: 83 / 83 use `lang=en`.
+- Web Portal routes: 93 / 93 use `lang=en`.
 - Design System uses `lang=en`.
 - 2 Endpoint Agent surfaces + Android Assets Mobile use `lang=th`.
 - Thai business/sample content embedded in English Web pages declares nested `lang=th`.
@@ -243,7 +243,7 @@ Current language baseline:
 Design System V1.22 / UI Contract 1.16.0 standardizes save progress, validation, toast intent and confirmation severity.
 
 Current baseline:
-- 25 canonical save actions expose Saving/Saved feedback and block duplicate submit while busy.
+- 30 canonical save actions expose Saving/Saved feedback and block duplicate submit while busy.
 - 12 canonical confirmation actions declare Warning or Danger explicitly.
 - Native browser alert/confirm/prompt usage: 0.
 - Validation associates inline errors with invalid fields and focuses the first error.
@@ -256,9 +256,9 @@ Current baseline:
 Design System V1.23 / UI Contract 1.17.0 standardizes canonical collection density without flattening domain-specific queue/list patterns.
 
 Current baseline:
-- 12 / 12 primary collection tables use compact density.
-- 12 / 12 use shared search target wiring.
-- 7 / 7 action-bearing primary collections use named/aligned action columns.
+- 15 / 15 primary collection tables use compact density.
+- 15 / 15 use shared search target wiring.
+- 10 / 10 action-bearing primary collections use named/aligned action columns.
 - Desktop collection toolbars remain horizontal; <=850 px search becomes full width and filters wrap below.
 - Primary collection search inherits shared no-results behavior.
 - `table-list-density-audit.py`: 0 issues.
@@ -275,9 +275,39 @@ Current baseline:
 - Error preview has recoverable `Try again`.
 - No Results reports `0 matching results` and suppresses pagination.
 - Partial retry resolves its warning copy when failed count reaches zero.
-- browser regression: 96 / 96 checks.
+- browser regression: 114 / 114 checks.
 - state screenshots: 14.
-- total frozen screenshot/hash baseline: 101 / 101.
+- total frozen screenshot/hash baseline: 111 / 111.
 - all 5 contact sheets regenerated from the frozen screenshots and visually reviewed.
 - `state-coverage-audit.py`: 0 issues after baseline regeneration.
 - `final-visual-audit.py`: 0 issues.
+
+## 20. Pre-Step 7 TOR-required surface expansion — 2026-09-26
+
+Design System V1.25 / UI Contract 1.19.0 promotes TOR-dependent roadmap capabilities into canonical Web routes while preserving the rule **one screen = one primary job**.
+
+Current route ownership:
+- `organization.html` — organization hierarchy only.
+- `organization-locations.html` — reusable location master.
+- `organization-positions.html` — reusable position master.
+- `users.html` — user directory/list only.
+- `user-detail.html` — one organization user profile.
+- `user-edit.html` — create/edit one user profile.
+- `helpdesk-automation.html` — automation rule list only.
+- `helpdesk-automation-rule.html` — edit one automation rule, including the three-level SLA escalation case.
+- `reports-saved.html` — reusable saved-report catalog with real filters and run-preview behavior.
+- `device-group-detail.html` — one device-group resource with members, membership context, access and policies.
+
+The shared collection filter runtime now combines Search with visible collection filters instead of exposing non-functional select controls. Saved Report Edit restores the selected report definition in Report Builder, and Device Group member links restore the requested device identity in Device Detail.
+
+Current frozen verification:
+- Web routes: **93**.
+- Canonical route screenshots: **97**.
+- State screenshots: **14**.
+- Screenshot/hash verification: **111 / 111**.
+- `qa-final-visual.py`: **127 / 127 checks**, 0 failures.
+- `qa-ux-input-browser.py`: **114 / 114 checks**, 0 failures.
+- Primary collection tables: **15 / 15** compact with shared search; action-bearing collections: **10 / 10**.
+- All five contact sheets were regenerated and visually reviewed; affected Web pages were also reviewed at 1024 and 768 widths.
+- Full static audit chain: **0 issues**.
+- Step 7 has not started; backend implementation remains paused.

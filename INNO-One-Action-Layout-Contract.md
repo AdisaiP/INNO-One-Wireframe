@@ -1,8 +1,8 @@
 # INNO.One — Action & Layout Contract
 
-**Status:** UX/UI consistency contract  
-**Date:** 2026-09-25  
-**Scope:** 83 Web Portal routes  
+**Status:** UX/UI consistency contract
+**Date:** 2026-09-25
+**Scope:** 93 Web Portal routes
 **Backend:** Out of scope
 
 ## 1. Goal

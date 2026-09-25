@@ -7,12 +7,12 @@ const cleanHref=v=>(v||"").split("?")[0];
 const appRoutes={
   workspace:["workspace-v2.html","workspace-continue.html","workspace-attention.html","workspace-recent.html","notifications.html","profile.html"],
   apps:["app-launcher-v2.html"],
-  devices:["devices-overview-v2.html","devices.html","device-detail-v2.html","device-add.html","device-discovery.html","device-groups.html","remote-operations.html","remote-session.html","remote-consent.html","remote-consent-policy.html","remote-consent-message.html","remote-consent-rules.html","remote-consent-history.html","device-query.html","deployment-jobs.html","deployment-new.html","deployment-job-detail.html","agent-maintenance.html","agent-updates.html","agent-rollout-new.html","software-maintenance.html","software-maintenance-new.html","restart-operations.html","restart-schedule.html","maintenance-history.html","endpoint-policies.html","device-alerts.html","device-alert-rules.html","device-alert-rule.html","device-alert-channels.html","device-alert-history.html"],
+  devices:["devices-overview-v2.html","devices.html","device-detail-v2.html","device-add.html","device-discovery.html","device-groups.html","device-group-detail.html","remote-operations.html","remote-session.html","remote-consent.html","remote-consent-policy.html","remote-consent-message.html","remote-consent-rules.html","remote-consent-history.html","device-query.html","deployment-jobs.html","deployment-new.html","deployment-job-detail.html","agent-maintenance.html","agent-updates.html","agent-rollout-new.html","software-maintenance.html","software-maintenance-new.html","restart-operations.html","restart-schedule.html","maintenance-history.html","endpoint-policies.html","device-alerts.html","device-alert-rules.html","device-alert-rule.html","device-alert-channels.html","device-alert-history.html"],
   assets:["assets-overview.html","asset-inventory.html","asset-detail.html","asset-ownership.html","asset-users.html","asset-user-detail.html","asset-ownership-submissions.html","asset-custom-fields.html","asset-qr.html","software-licenses.html","contracts-warranty.html"],
-  reports:["reports-overview.html","report-builder.html"],
-  helpdesk:["helpdesk.html","helpdesk-tickets.html","helpdesk-assigned.html","helpdesk-team.html","ticket-detail.html","ticket-new.html","helpdesk-sla.html","helpdesk-settings.html","helpdesk-categories.html","helpdesk-statuses.html","helpdesk-requester-groups.html","helpdesk-calendar.html","helpdesk-notifications.html","helpdesk-notification-rule.html","helpdesk-notification-templates.html","helpdesk-notification-template.html","helpdesk-notification-delivery.html","helpdesk-notification-settings.html","knowledge-base.html","helpdesk-reports.html"],
+  reports:["reports-overview.html","report-builder.html","reports-saved.html"],
+  helpdesk:["helpdesk.html","helpdesk-tickets.html","helpdesk-assigned.html","helpdesk-team.html","ticket-detail.html","ticket-new.html","helpdesk-sla.html","helpdesk-settings.html","helpdesk-categories.html","helpdesk-statuses.html","helpdesk-requester-groups.html","helpdesk-calendar.html","helpdesk-notifications.html","helpdesk-notification-rule.html","helpdesk-notification-templates.html","helpdesk-notification-template.html","helpdesk-notification-delivery.html","helpdesk-notification-settings.html","knowledge-base.html","helpdesk-reports.html","helpdesk-automation.html","helpdesk-automation-rule.html"],
   meeting:["meeting.html","meeting-list.html","meeting-upcoming.html","meeting-detail.html","meeting-new.html"],
-  admin:["admin.html","modules.html","roles-permissions-v2.html","access-scopes.html","access-scope-edit.html","access-scope-browser.html","access-scope-evaluate.html","design-system.html"]
+  admin:["admin.html","organization.html","organization-locations.html","organization-positions.html","users.html","user-detail.html","user-edit.html","modules.html","roles-permissions-v2.html","access-scopes.html","access-scope-edit.html","access-scope-browser.html","access-scope-evaluate.html","design-system.html"]
 };
 
 const railTargets={
@@ -40,6 +40,7 @@ const sideTargetByFile={
   "device-add.html":"deployment-jobs.html",
   "device-discovery.html":"device-discovery.html",
   "device-groups.html":"device-groups.html",
+  "device-group-detail.html":"device-groups.html",
   "remote-operations.html":"remote-operations.html",
   "remote-session.html":"remote-operations.html",
   "remote-consent.html":"remote-consent.html",
@@ -78,6 +79,7 @@ const sideTargetByFile={
   "contracts-warranty.html":"contracts-warranty.html",
   "reports-overview.html":"reports-overview.html",
   "report-builder.html":"report-builder.html",
+  "reports-saved.html":"reports-saved.html",
   "helpdesk.html":"helpdesk.html",
   "helpdesk-tickets.html":"helpdesk-tickets.html",
   "helpdesk-assigned.html":"helpdesk-assigned.html",
@@ -98,12 +100,20 @@ const sideTargetByFile={
   "helpdesk-notification-settings.html":"helpdesk-notifications.html",
   "knowledge-base.html":"knowledge-base.html",
   "helpdesk-reports.html":"helpdesk-reports.html",
+  "helpdesk-automation.html":"helpdesk-automation.html",
+  "helpdesk-automation-rule.html":"helpdesk-automation.html",
   "meeting.html":"meeting.html",
   "meeting-list.html":"meeting-list.html",
   "meeting-upcoming.html":"meeting-upcoming.html",
   "meeting-detail.html":"meeting-list.html",
   "meeting-new.html":"meeting-new.html",
   "admin.html":"admin.html",
+  "organization.html":"organization.html",
+  "organization-locations.html":"organization-locations.html",
+  "organization-positions.html":"organization-positions.html",
+  "users.html":"users.html",
+  "user-detail.html":"users.html",
+  "user-edit.html":"users.html",
   "modules.html":"modules.html",
   "roles-permissions-v2.html":"roles-permissions-v2.html",
   "access-scopes.html":"access-scopes.html",
@@ -119,6 +129,7 @@ const hashTargets={
 
 const parentRoutes={
   "device-detail-v2.html":{href:"devices.html",label:"Back to Devices"},
+  "device-group-detail.html":{href:"device-groups.html",label:"Back to Device Groups"},
   "remote-session.html":{href:"remote-operations.html?tab=sessions",label:"Back to Remote Operations"},
   "asset-detail.html":{href:"asset-inventory.html",label:"Back to Asset Inventory"},
   "ticket-detail.html":{href:"helpdesk-tickets.html",label:"Back to Tickets"},
@@ -136,6 +147,10 @@ const parentRoutes={
   "asset-user-detail.html":{href:"asset-users.html",label:"Back to User Profiles"},
   "access-scope-edit.html":{href:"access-scopes.html",label:"Back to Access Scopes"},
   "report-builder.html":{href:"reports-overview.html",label:"Back to Reports"},
+  "reports-saved.html":{href:"reports-overview.html",label:"Back to Reports"},
+  "user-detail.html":{href:"users.html",label:"Back to Users"},
+  "user-edit.html":{href:"users.html",label:"Back to Users"},
+  "helpdesk-automation-rule.html":{href:"helpdesk-automation.html",label:"Back to Automation"},
   "modules.html":{href:"admin.html",label:"Back to Admin Center"},
   "roles-permissions-v2.html":{href:"admin.html",label:"Back to Admin Center"}
 };

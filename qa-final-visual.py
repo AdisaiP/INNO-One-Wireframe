@@ -15,7 +15,7 @@ for p in sorted(ROOT.glob("*.html")):
     s=p.read_text(errors="ignore")
     if "inno-design-system.css" in s and p.name not in EXT|REF:web_pages.append(p.name)
 
-fails=[];checks=0;manifest={"generated":"2026-09-25","web":{},"surfaces":{},"states":{},"summary":{}}
+fails=[];checks=0;manifest={"generated":"2026-09-26","web":{},"surfaces":{},"states":{},"summary":{}}
 
 def check(name,cond,detail=""):
     global checks;checks+=1
@@ -205,7 +205,7 @@ manifest["summary"]={
  "h1SizeDistribution":sizes,"bodyBackgroundDistribution":bgs,"railWidthDistribution":rail,
  "sideWidthDistribution":side,"headerHeightDistribution":header
 }
-check("All canonical route screenshots captured",manifest["summary"]["routeScreenshots"]==87,manifest["summary"]["routeScreenshots"])
+check("All canonical route screenshots captured",manifest["summary"]["routeScreenshots"]==97,manifest["summary"]["routeScreenshots"])
 check("Important state screenshots captured",manifest["summary"]["stateScreenshots"]==14,manifest["summary"]["stateScreenshots"])
 check("Web shell rail width consistent",rail=={"60":len(web_pages)},rail)
 check("Web shell sidebar width consistent",side=={"216":len(web_pages)},side)

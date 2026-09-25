@@ -19,6 +19,9 @@ primary_tables={
     "remote-consent-history.html":"#consentHistoryRows",
     "remote-consent-rules.html":"#bypassRuleRows",
     "software-maintenance.html":"#softwareJobRows",
+    "users.html":"#userRows",
+    "reports-saved.html":"#savedReportRows",
+    "helpdesk-automation.html":"#automationRows",
 }
 
 action_tables={
@@ -29,6 +32,9 @@ action_tables={
     "device-alert-rules.html",
     "helpdesk-notification-templates.html",
     "remote-consent-rules.html",
+    "users.html",
+    "reports-saved.html",
+    "helpdesk-automation.html",
 }
 
 metrics={"web_routes":len(web),"table_pages":0,"tables":0,"primary_collections":len(primary_tables),"primary_search_targets":0,"compact_primary_tables":0,"action_columns":0}

@@ -1,10 +1,10 @@
 # INNO.One — Empty / Loading / Error / Permission State Contract
 
-**Status:** UX/UI final polish — Step 6  
-**Date:** 2026-09-26  
-**UI Contract:** 1.18.0  
-**Documentation:** Design System V1.24  
-**Scope:** 83 Web routes / 87 canonical pages  
+**Status:** UX/UI final polish — Step 6
+**Date:** 2026-09-26
+**UI Contract:** 1.18.0
+**Documentation:** Design System V1.24
+**Scope:** 93 Web routes / 97 canonical pages
 **Backend:** Not in scope
 
 ## 1. Goal
@@ -208,9 +208,9 @@ Rendered QA verifies:
 
 As of 2026-09-26:
 
-- Web routes: **83**
+- Web routes: **93**
 - shared canonical runtime states: **8 / 8**
-- browser regression: **96 / 96**
+- browser regression: **114 / 114**
 - state coverage audit target: **0 issues**
 - frozen visual states include Empty, No Results, Loading, Error, Permission, Disabled, Offline and Partial Failure.
 

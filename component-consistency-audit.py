@@ -5,7 +5,7 @@ import re, sys
 ROOT=Path(__file__).resolve().parent
 EXTERNAL={"asset-mobile.html","helpdesk-agent-request.html","agent-ownership-confirmation.html"}
 REFERENCE={"design-system.html"}
-SPECIAL_HEADERS={"workspace-v2.html","asset-detail.html","device-detail-v2.html","meeting-detail.html","remote-session.html","ticket-detail.html"}
+SPECIAL_HEADERS={"workspace-v2.html","asset-detail.html","device-detail-v2.html","device-group-detail.html","user-detail.html","meeting-detail.html","remote-session.html","ticket-detail.html"}
 issues=[]
 metrics={"modern_pages":0,"web_pages":0,"page_headers":0,"buttons":0,"fields":0,"tables":0,"subnavs":0,"tabsets":0,"sticky_action_areas":0}
 

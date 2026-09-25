@@ -1,8 +1,8 @@
 # INNO.One — Accessibility & Semantic UI Contract
 
-**Status:** UX/UI final polish — Step 1  
-**Date:** 2026-09-25  
-**Scope:** 83 Web routes + Design System + 2 Endpoint Agent surfaces + Android Assets Mobile  
+**Status:** UX/UI final polish — Step 1
+**Date:** 2026-09-25
+**Scope:** 93 Web routes + Design System + 2 Endpoint Agent surfaces + Android Assets Mobile
 **Backend:** Not in scope
 
 ## 1. Purpose
@@ -148,14 +148,14 @@ No action should require pointer-only interaction.
 
 Accessibility static audit covers all frozen canonical pages:
 
-- 83 Web Portal routes
+- 93 Web Portal routes
 - Design System reference
 - 2 Endpoint Agent routes
 - Android Assets Mobile
 
-Total: **87 canonical pages**
+Total: **97 canonical pages**
 
-Browser DOM regression additionally checks all 83 Web routes at:
+Browser DOM regression additionally checks all 93 Web routes at:
 - 1366 px
 - 1024 px
 - 768 px
@@ -180,15 +180,15 @@ Rendered-DOM route pass additionally fails on:
 
 ## 13. Current Step 1 baseline
 
-As of 2026-09-25:
+As of 2026-09-26:
 
-- canonical pages: **87**
+- canonical pages: **97**
 - unnamed icon-only controls: **0**
 - non-semantic clicks: **0**
 - invalid switches: **0**
 - images missing alt: **0**
-- Web browser UX/Input/A11y regression: **74 / 74 checks**
-- 83 Web routes pass at 1366 / 1024 / 768
+- Current Web browser UX/Input/A11y regression: **114 / 114 checks**
+- 93 Web routes pass at 1366 / 1024 / 768
 
 ## 14. Out of scope for Step 1
 

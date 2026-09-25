@@ -1,10 +1,10 @@
 # INNO.One — Availability & Unavailable-Feature UX Contract
 
-**Status:** UX/UI final polish — Step 2  
-**Date:** 2026-09-25  
-**UI Contract:** 1.14.0  
-**Documentation:** Design System V1.20  
-**Scope:** 87 canonical pages  
+**Status:** UX/UI final polish — Step 2
+**Date:** 2026-09-25
+**UI Contract:** 1.14.0
+**Documentation:** Design System V1.20
+**Scope:** 97 canonical pages
 **Backend:** Not in scope
 
 ## 1. Principle
@@ -165,17 +165,17 @@ Rendered Web regression fails when:
 
 ## 13. Step 2 baseline
 
-As of 2026-09-25:
+As of 2026-09-26:
 
-- canonical pages: **87**
+- canonical pages: **97**
 - Coming Soon task actions: **0**
-- hidden future navigation placeholders retained in source: **102**
+- hidden future navigation placeholders retained in source: **126**
 - non-interactive Admin action tiles: **0**
 - legitimate non-future disabled controls: **4**
-- browser UX regression: **80 / 80 checks**
-- Final Visual QA: **116 / 116 checks**
-- canonical route screenshots: **87**
-- state screenshots: **13**
+- browser UX regression: **114 / 114 checks**
+- Final Visual QA: **127 / 127 checks**
+- canonical route screenshots: **97**
+- state screenshots: **14**
 
 ## 14. Examples changed in Step 2
 

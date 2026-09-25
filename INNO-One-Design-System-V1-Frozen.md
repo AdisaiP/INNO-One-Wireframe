@@ -1,9 +1,9 @@
 # INNO.One Design System — Frozen UI Contract
 
-**UI Contract:** 1.18.0
-**Documentation:** Design System V1.24
+**UI Contract:** 1.19.0
+**Documentation:** Design System V1.25
 **Status:** Frozen  
-**Frozen:** 2026-09-25
+**Frozen:** 2026-09-26
 
 > This document is the implementation handoff for the current INNO.One prototype. New modules should reuse these contracts instead of introducing parallel UI patterns.
 
@@ -26,7 +26,7 @@ The frozen UI contract is represented by:
 - `INNO-One-Screen-Architecture-Refactor-Plan.md` — canonical screen patterns and mixed-purpose page refactor plan
 - `INNO-One-Final-Visual-QA-Baseline.md` — frozen route/state screenshot baseline and final visual regression contract
 - `INNO-One-Action-Layout-Contract.md` — canonical page-type action zones, editor/builder/wizard footer ownership and docking behavior
-- `action-layout-audit.py` — 83-route action/layout regression guard
+- `action-layout-audit.py` — 93-route action/layout regression guard
 - `INNO-One-Accessibility-Contract.md` / `accessibility-audit.py` — semantic accessibility contract and regression guard
 - `INNO-One-Availability-Contract.md` / `availability-audit.py` — unavailable-feature UX contract and regression guard
 - `INNO-One-Language-Terminology-Contract.md` / `language-terminology-audit.py` — surface language ownership and canonical terminology contract
@@ -431,3 +431,19 @@ A new module is UI-complete only when it:
 - Error preview recovery leaves the forced failure URL.
 - Partial retry state resolves its copy and status after successful retry.
 - `state-coverage-audit.py` is part of the frozen regression contract.
+
+## 34. Minor 1.19.0 — TOR-required management surfaces — 2026-09-26
+
+- Design System Documentation advanced to **V1.25** and UI Contract to **1.19.0**.
+- Canonical Web routes increased from 83 to **93** after the TOR-required surfaces were split by primary job.
+- Admin Center organization ownership is now explicit: **Structure**, **Locations**, **Positions**, and **Users** are separate navigation jobs.
+- Users follows **List → Resource Detail → Create/Edit** instead of combining a table and long editor on one screen.
+- Helpdesk Automation follows **Rule List → Rule Editor**; the rule editor reveals the three-level SLA escalation sequence only when that action is selected.
+- Reports **Saved Reports** uses real Search/Owner/Dataset filtering, a focused Run result dialog, and restores the chosen definition in Report Builder on Edit.
+- Device Groups opens a real **Device Group Detail**, and member Open actions restore the requested device identity in Device Detail.
+- Shared collection filters are implemented in the shared interaction layer rather than as page-local fake controls.
+- Current collection baseline: **15 / 15** compact primary tables and **10 / 10** canonical action columns.
+- Current visual baseline: **97 route screenshots + 14 state screenshots = 111 verified hashes**.
+- Current browser regression: **114 / 114 checks**.
+- These are frontend prototype contracts only; backend/API integration is still paused.
+- Step 7 page-by-page UX review has not started.

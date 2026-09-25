@@ -1,10 +1,10 @@
 # INNO.One — Table, List & Data Density Contract
 
-**Status:** UX/UI final polish — Step 5  
-**Date:** 2026-09-25  
-**UI Contract:** 1.17.0  
-**Documentation:** Design System V1.23  
-**Scope:** 83 Web routes / 87 canonical pages  
+**Status:** UX/UI final polish — Step 5
+**Date:** 2026-09-25
+**UI Contract:** 1.17.0
+**Documentation:** Design System V1.23
+**Scope:** 93 Web routes / 97 canonical pages
 **Backend:** Not in scope
 
 ## 1. Goal
@@ -217,17 +217,17 @@ Rendered QA verifies:
 
 ## 14. Step 5 baseline
 
-As of 2026-09-25:
+As of 2026-09-26:
 
-- Web routes: **83**
-- pages containing tables: **40**
-- total tables: **46**
-- canonical primary collections: **12**
-- compact primary tables: **12 / 12**
-- shared search targets: **12 / 12**
-- action-column collections: **7 / 7**
+- Web routes: **93**
+- pages containing tables: **45**
+- total tables: **51**
+- canonical primary collections: **15**
+- compact primary tables: **15 / 15**
+- shared search targets: **15 / 15**
+- action-column collections: **10 / 10**
 - table/list density audit issues: **0**
-- browser regression: **90 / 90**
+- browser regression: **114 / 114**
 
 ## 15. Out of scope
 

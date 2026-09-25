@@ -27,6 +27,11 @@ EDITOR_PAGES = {
     "software-maintenance-new.html",
     "ticket-new.html",
     "helpdesk-sla.html",
+    "organization.html",
+    "organization-locations.html",
+    "organization-positions.html",
+    "user-edit.html",
+    "helpdesk-automation-rule.html",
 }
 
 BUILDER_PAGES = {"asset-qr.html", "device-groups.html", "device-query.html", "report-builder.html"}
@@ -39,6 +44,8 @@ RESOURCE_DETAIL_PAGES = {
     "meeting-detail.html",
     "remote-session.html",
     "ticket-detail.html",
+    "device-group-detail.html",
+    "user-detail.html",
 }
 
 TASK_PAGES = EDITOR_PAGES | BUILDER_PAGES | WIZARD_PAGES | RESOURCE_DETAIL_PAGES

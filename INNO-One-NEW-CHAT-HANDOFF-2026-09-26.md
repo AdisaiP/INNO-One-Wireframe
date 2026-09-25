@@ -5,7 +5,7 @@
 **Project:** INNO.One UX/UI Prototype  
 **Local project path:** `/Users/adisaip/Desktop/INNO-One-Wireframe/`
 
-> **POST-CLOSURE UPDATE — 2026-09-26:** Step 6 State Coverage has now been fully closed on `ux/state-coverage-pass`. The frozen baseline is Design System V1.24 / UI Contract 1.18.0 with 87 canonical route screenshots + 14 state screenshots = 101 verified hashes. All 5 contact sheets were regenerated and visually reviewed, the full audit chain and 96-check browser regression passed, and the Step 6 closure is checkpointed on Git/GitHub. Sections below that describe Step 6 as uncommitted/not closed are preserved as the pre-closure recovery snapshot and are superseded by this update and the current Git state.
+> **LATEST UPDATE — 2026-09-26:** Step 6 remains fully closed. The pre-Step 7 TOR-required surface pass on `ux/tor-required-surfaces-pass` has been refined to enforce **one screen = one primary job**. Organization is split into Structure / Locations / Positions; Users is List → Detail → Create/Edit; Helpdesk Automation is Rule List → Rule Editor; Saved Reports has working filters/run/edit flows; Device Group member links restore the requested Device Detail. The current frozen baseline is Design System V1.25 / UI Contract 1.19.0 with 93 Web routes, 97 canonical route screenshots, 14 state screenshots and 111 verified hashes. The full audit chain, 114-check browser regression and all 5 regenerated contact sheets pass, with the affected Web screens also reviewed at 1024 and 768. Step 7 has **not** started; backend remains paused. Sections below that describe Step 6 as uncommitted/not closed are preserved only as the pre-closure recovery snapshot and are superseded by this update and current Git state.
 
 ---
 
