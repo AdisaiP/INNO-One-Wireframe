@@ -271,7 +271,26 @@ function enhanceTabs(){
 }
 function enhancePagination(){
   document.querySelectorAll(".ds-pages").forEach(group=>{
-    group.addEventListener("click",e=>{const b=e.target.closest(".ds-page");if(!b||!/^\d+$/.test(b.textContent.trim()))return;group.querySelectorAll(".ds-page").forEach(x=>x.classList.remove("active"));b.classList.add("active");toast("Page "+b.textContent.trim()+" loaded","info",{duration:1600})});
+    if(group.dataset.innoEnhanced)return;
+    group.dataset.innoEnhanced="1";
+    const buttons=[...group.querySelectorAll(".ds-page")];
+    buttons.forEach(b=>{b.type="button";b.dataset.innoPagination="1"});
+    group.addEventListener("click",e=>{
+      const b=e.target.closest(".ds-page");if(!b)return;
+      const numbered=[...group.querySelectorAll(".ds-page")].filter(x=>/^\d+$/.test(x.textContent.trim()));
+      if(!numbered.length)return;
+      let target=b;
+      if(!/^\d+$/.test(b.textContent.trim())){
+        const active=Math.max(0,numbered.findIndex(x=>x.classList.contains("active")));
+        const label=(b.getAttribute("aria-label")||"").toLowerCase();
+        if(label.includes("previous"))target=numbered[Math.max(0,active-1)];
+        else if(label.includes("next"))target=numbered[Math.min(numbered.length-1,active+1)];
+        else return;
+      }
+      numbered.forEach(x=>x.classList.remove("active"));
+      target.classList.add("active");
+      toast("Page "+target.textContent.trim()+" loaded","info",{duration:1600});
+    });
   });
 }
 function enhanceSearch(){

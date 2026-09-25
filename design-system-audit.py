@@ -4,7 +4,7 @@ import re, sys
 ROOT=Path(__file__).resolve().parent
 REQ_DESKTOP=["inno-inputs.js","inno-interactions.js","inno-states.js","platform-shell.js","inno-responsive.js","inno-navigation.js","inno-icons.js","inno-design-contract.js"]
 REQ_EXTERNAL=["inno-interactions.js","inno-icons.js","inno-design-contract.js"]
-SOT=["design-system.html","inno-design-system.css","inno-design-contract.js","inno-interactions.js","inno-inputs.js","inno-states.js","inno-responsive.js","inno-navigation.js","inno-icons.js","INNO-One-Design-System-V1-Frozen.md","INNO-One-Surface-Boundaries.md","INNO-One-Special-UI-Components.md","INNO-One-UI-Prototype-Summary.md","INNO-One-Screen-Architecture-Refactor-Plan.md","INNO-One-Final-Visual-QA-Baseline.md","INNO-One-Action-Layout-Contract.md","action-layout-audit.py"]
+SOT=["design-system.html","inno-design-system.css","inno-design-contract.js","inno-interactions.js","inno-inputs.js","inno-states.js","inno-responsive.js","inno-navigation.js","inno-icons.js","INNO-One-Design-System-V1-Frozen.md","INNO-One-Surface-Boundaries.md","INNO-One-Special-UI-Components.md","INNO-One-UI-Prototype-Summary.md","INNO-One-Screen-Architecture-Refactor-Plan.md","INNO-One-Final-Visual-QA-Baseline.md","INNO-One-Action-Layout-Contract.md","action-layout-audit.py","INNO-One-Accessibility-Contract.md","accessibility-audit.py","INNO-One-Availability-Contract.md","availability-audit.py"]
 EXTERNAL_SURFACE_ROUTES={"asset-mobile.html","helpdesk-agent-request.html","agent-ownership-confirmation.html"}
 issues=[]; pages=[]
 for p in sorted(ROOT.glob("*.html")):
@@ -30,14 +30,14 @@ for p in sorted(ROOT.glob("*.html")):
 for x in SOT:
     if not (ROOT/x).exists(): issues.append(f"missing source: {x}")
 ds=(ROOT/"design-system.html").read_text(encoding="utf-8")
-if "Design System V1.19" not in ds: issues.append("expected Design System V1.19")
-if "UI Contract 1.13.0 is frozen" not in ds: issues.append("freeze banner missing")
+if "Design System V1.20" not in ds: issues.append("expected Design System V1.20")
+if "UI Contract 1.14.0 is frozen" not in ds: issues.append("freeze banner missing")
 if 'id="freeze"' not in ds: issues.append("freeze section missing")
 nav=(ROOT/"inno-navigation.js").read_text(encoding="utf-8")
 for q in EXTERNAL_SURFACE_ROUTES:
     if q in nav: issues.append(f"inno-navigation.js: external surface route registered in Web navigation: {q}")
 ct=(ROOT/"inno-design-contract.js").read_text(encoding="utf-8")
-if 'contractVersion:"1.13.0"' not in ct: issues.append("contract version mismatch")
+if 'contractVersion:"1.14.0"' not in ct: issues.append("contract version mismatch")
 if 'status:"frozen"' not in ct: issues.append("contract status mismatch")
 print(f"modern_pages={len(pages)}")
 print(f"source_of_truth_files={len(SOT)}")

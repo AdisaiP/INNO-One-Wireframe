@@ -288,7 +288,7 @@ body.side-collapsed .context-nav-reveal i{font-size:10px}
 .rail a[aria-current="page"]{position:relative}
 .rail a[aria-current="page"]::after{content:"";position:absolute;left:-9px;top:9px;bottom:9px;width:3px;border-radius:3px;background:#4b7cf3}
 .side a[aria-current="page"]{font-weight:700}
-.side a.nav-disabled{opacity:.48;cursor:not-allowed;pointer-events:auto}
+.side a.nav-disabled{display:none!important}
 .side a.nav-disabled:hover{background:transparent;color:inherit}
 .side a.nav-disabled::after{content:"Soon";margin-left:auto;font-size:8px;font-weight:700;letter-spacing:.04em;color:#9aa4b3;text-transform:uppercase}
 a.nav-disabled:not(.side a){opacity:.55;cursor:not-allowed;text-decoration:none}

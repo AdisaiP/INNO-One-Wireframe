@@ -3,8 +3,8 @@
 
 const contract={
   name:"INNO.One Design System",
-  contractVersion:"1.13.0",
-  documentationVersion:"1.19",
+  contractVersion:"1.14.0",
+  documentationVersion:"1.20",
   status:"frozen",
   frozenAt:"2026-09-25",
   principles:[
@@ -14,7 +14,8 @@ const contract={
     "Every async/data surface defines loading, empty, error and permission behavior.",
     "Accessibility and responsive behavior are part of the component contract, not optional polish.",
     "One screen has one primary job; unrelated create/edit, monitoring, settings and history tasks must not be stacked into one scroll surface.",
-    "Action placement follows page type: page creation in Page Header, resource operations in Resource Actions, and Save/Create/Schedule for editors in the owning Action Footer."
+    "Action placement follows page type: page creation in Page Header, resource operations in Resource Actions, and Save/Create/Schedule for editors in the owning Action Footer.",
+    "Unavailable capability is hidden or presented as passive roadmap context; it never masquerades as a working control in normal task flow."
   ],
   foundations:{
     controlHeight:36,
@@ -67,7 +68,7 @@ const contract={
       implementation:"INNO.One layout composition using Button primitives",
       usage:["Create/Edit","Settings","Builder","Wizard"],
       zones:["start: Cancel/Discard","end: Secondary implemented action + Primary"],
-      behavior:["belongs to owning editor pane","docks to viewport when its natural position is below the viewport","preserves owning pane left/width","returns to document flow when natural position is visible","reserves bottom safe space while docked"],
+      behavior:["belongs to owning editor pane","clean footer stays in document flow","dirty editor footer may dock when its natural position is below the viewport","preserves owning pane left/width","returns to document flow when natural position is visible","reserves bottom safe space while docked"],
       rules:["Exactly one enabled primary action","Primary is right-most","No disabled or Coming Soon actions","Do not duplicate Save/Create/Schedule in Page Header"]
     },
     INNOIcon:{
@@ -238,7 +239,11 @@ const contract={
     "INNO-One-Screen-Architecture-Refactor-Plan.md",
     "INNO-One-Final-Visual-QA-Baseline.md",
     "INNO-One-Action-Layout-Contract.md",
-    "action-layout-audit.py"
+    "action-layout-audit.py",
+    "INNO-One-Accessibility-Contract.md",
+    "accessibility-audit.py",
+    "INNO-One-Availability-Contract.md",
+    "availability-audit.py"
   ],
   changePolicy:{
     patch:"Visual correction that does not change component API or behavior.",

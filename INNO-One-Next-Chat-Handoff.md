@@ -30,8 +30,8 @@ INNO.One กำลังถูกปรับจาก TOR coverage prototype �
 
 ## 2. Current UI Baseline
 
-- Design System: **V1.19**
-- UI Contract: **1.13.0**
+- Design System: **V1.20**
+- UI Contract: **1.14.0**
 - Registry Schema: **10**
 
 Source of truth หลัก:
@@ -40,10 +40,14 @@ Source of truth หลัก:
 - `inno-design-system.css`
 - `inno-design-contract.js`
 - `inno-interactions.js`
+- `inno-inputs.js`
 - `inno-states.js`
 - `inno-responsive.js`
 - `inno-navigation.js`
 - `INNO-One-Final-Visual-QA-Baseline.md`
+- `INNO-One-Action-Layout-Contract.md`
+- `INNO-One-Accessibility-Contract.md`
+- `INNO-One-Availability-Contract.md`
 - `inno-icons.js`
 - `INNO-One-Design-System-V1-Frozen.md`
 - `INNO-One-Surface-Boundaries.md`
@@ -613,7 +617,7 @@ Endpoint Agent และ Mobile ทดสอบแยกตาม Surface
 
 ## NEXT 6 — Final Visual QA ✅ COMPLETED 2026-09-24
 
-Historical NEXT 6 baseline was frozen at **Design System V1.18 / UI Contract 1.12.0**. The current accepted baseline is **Design System V1.19 / UI Contract 1.13.0** after the Final Action/Layout Consistency Pass.
+Historical NEXT 6 baseline was frozen at **Design System V1.18 / UI Contract 1.12.0**. The current accepted baseline is **Design System V1.20 / UI Contract 1.14.0** after Accessibility + Availability final polish.
 
 Checklist ที่ทำครบ:
 
@@ -646,7 +650,7 @@ Checklist ที่ทำครบ:
 - Final Visual audit = 0 issues
 - Final baseline อยู่ที่ `qa-final-visual/` และ contract อธิบายใน `INNO-One-Final-Visual-QA-Baseline.md`
 
-**สถานะ UI Prototype ปัจจุบัน: ✅ FROZEN AT V1.19 / CONTRACT 1.13.0 — BACKEND WORK PAUSED BY USER**
+**สถานะ UI Prototype ปัจจุบัน: ✅ FROZEN AT V1.20 / CONTRACT 1.14.0 — BACKEND WORK PAUSED BY USER**
 
 หมายเหตุ: Backend planning documents may exist on a separate branch, but the user explicitly paused Backend work. Do not resume Backend unless the user asks again.
 
@@ -672,7 +676,7 @@ Prototype CSS เป็น append-heavy อยู่แล้ว ต้องแ
 
 ใช้ข้อความนี้ได้เลย:
 
-> เปิดโปรเจกต์ `/Users/adisaip/Desktop/INNO-One-Wireframe/` ผ่าน MCP แล้วอ่าน `INNO-One-Next-Chat-Handoff.md`, `INNO-One-Final-Visual-QA-Baseline.md`, `INNO-One-Action-Layout-Contract.md`, `INNO-One-UI-Prototype-Summary.md` และ Design System ก่อน ปัจจุบัน UI Freeze อยู่ที่ **Design System V1.19 / UI Contract 1.13.0**. Backend ถูกพักไว้ตามคำสั่งผู้ใช้ ให้ทำเฉพาะ UX/UI review หรือ frontend prototype work ที่ผู้ใช้สั่ง และต้องรักษา Action/Layout Contract + visual regression baseline.
+> เปิดโปรเจกต์ `/Users/adisaip/Desktop/INNO-One-Wireframe/` ผ่าน MCP แล้วอ่าน `INNO-One-Next-Chat-Handoff.md`, `INNO-One-Final-Visual-QA-Baseline.md`, `INNO-One-Action-Layout-Contract.md`, `INNO-One-UI-Prototype-Summary.md` และ Design System ก่อน ปัจจุบัน UI Freeze อยู่ที่ **Design System V1.20 / UI Contract 1.14.0**. Backend ถูกพักไว้ตามคำสั่งผู้ใช้ ให้ทำเฉพาะ UX/UI review หรือ frontend prototype work ที่ผู้ใช้สั่ง และต้องรักษา Action/Layout Contract + visual regression baseline.
 
 ---
 
@@ -810,3 +814,45 @@ Next UX/UI step:
 **Step 2 — Coming Soon / Disabled Action Cleanup**
 
 Do not begin backend implementation.
+
+
+# UX/UI Final Polish — Step 2 Availability Cleanup ✅ COMPLETED 2026-09-25
+
+Branch: `ux/availability-cleanup-pass`
+
+Source of truth: `INNO-One-Availability-Contract.md`
+
+Design System: **V1.20**
+UI Contract: **1.14.0**
+
+Completed:
+
+- Removed all 33 Web Coming Soon task actions found at the start of Step 2.
+- Removed the remaining unavailable Mobile software-list action.
+- Future sidebar placeholders remain in source for roadmap continuity but are hidden from normal contextual navigation.
+- Replaced dead controls with canonical routes where available, including Workspace Recent history and Asset ownership.
+- Converted read-only configuration surfaces to passive status instead of fake Edit/Add controls.
+- Kept prototype-local commands active only when they provide visible feedback/confirmation.
+- Removed fake Install from future Module Registry entries while keeping Inspect.
+- Removed non-interactive Admin tiles that looked like navigation.
+- Enhanced pagination Previous/Next so accessible icon controls also have real prototype behavior.
+- Added `availability-audit.py` and browser availability regression gates.
+
+QA:
+
+- canonical pages = **87**.
+- Coming Soon task actions = **0**.
+- visible future sidebar entries = **0**.
+- hidden future navigation placeholders retained in source = **102**.
+- non-interactive Admin navigation tiles = **0**.
+- `availability-audit.py` = **0 issues**.
+- `accessibility-audit.py` = **0 issues**.
+- `qa-ux-input-browser.py` = **80 / 80 checks**.
+- `qa-final-visual.py` = **116 / 116 checks**.
+- frozen screenshots = **87 routes + 13 states = 100**.
+
+Next UX/UI step:
+
+**Step 3 — Language & Terminology Consistency**
+
+Do not begin Backend implementation.

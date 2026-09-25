@@ -179,7 +179,7 @@ check("Ticket internal-note control changes composer mode",c.eval("document.quer
 
 c.viewport(390,844);c.nav("asset-mobile.html","?screen=history")
 check("Mobile history rows all open assets",c.eval("document.querySelectorAll('.history-row').length===document.querySelectorAll('.history-row[data-asset]').length"))
-check("Unavailable full software list is explicitly disabled",c.eval("document.querySelector('.mobile-text-btn').disabled"))
+check("Mobile software list uses passive summary instead of unavailable action",c.eval("!!document.querySelector('.mobile-list-note') && !document.querySelector('.mobile-text-btn[disabled]')"))
 
 c.viewport(1366,900);c.nav("device-alerts.html");c.eval("document.querySelector('.ack').click()");time.sleep(.03)
 check("Alert acknowledge action is wired",c.eval("document.querySelector('.ack').disabled"))

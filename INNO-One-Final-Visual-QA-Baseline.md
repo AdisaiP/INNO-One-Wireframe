@@ -1,6 +1,6 @@
 # INNO.One Final Visual QA Baseline
 
-**UI Contract:** 1.13.0
+**UI Contract:** 1.14.0
 **Design System Documentation:** V1.19
 **Status:** Frozen visual baseline
 **Frozen:** 2026-09-25
@@ -176,7 +176,7 @@ Current baseline counts supersede the earlier snapshot counts recorded in histor
 
 ## 15. Action/Layout consistency baseline — 2026-09-25
 
-The canonical visual baseline now includes Design System V1.19 / UI Contract 1.13.0 action-placement behavior:
+The canonical visual baseline now includes Design System V1.20 / UI Contract 1.14.0 action-placement behavior:
 
 - 83 / 83 Web routes are classified by action-layout page type.
 - Editor Save/Create/Schedule actions use pane-owned canonical action footers.
@@ -191,6 +191,32 @@ Action/Layout verification at freeze:
 - Page type coverage: 83 / 83.
 - Editor / Builder / Wizard / Resource Detail / Overview-List = 18 / 4 / 1 / 6 / 54.
 - `action-layout-audit.py`: 0 issues.
-- `qa-ux-input-browser.py`: 74 checks / 0 failures, including all 83 Web routes at 1366 / 1024 / 768 and clean-vs-dirty editor footer behavior.
+- `qa-ux-input-browser.py`: 80 checks / 0 failures, including all 83 Web routes at 1366 / 1024 / 768, accessibility gates, availability gates and clean-vs-dirty editor footer behavior.
 - `qa-final-visual.py`: 116 checks / 0 failures.
 - Screenshot manifest verification: 100 / 100 hashes.
+
+
+## 16. Accessibility / Availability final-polish baseline — 2026-09-25
+
+The current frozen baseline is **Design System V1.20 / UI Contract 1.14.0**.
+
+Accessibility baseline:
+- 87 canonical pages covered by `accessibility-audit.py`.
+- unnamed icon-only controls = 0.
+- non-semantic clickable controls = 0.
+- invalid interactive switches = 0.
+- images missing alt = 0.
+
+Availability baseline:
+- Coming Soon task actions = 0.
+- visible future sidebar placeholders = 0.
+- hidden future navigation placeholders retained in source = 102.
+- non-interactive Admin navigation tiles = 0.
+- legitimate non-future disabled controls = 4.
+
+Final verification:
+- `qa-ux-input-browser.py`: 80 / 80 checks, 0 failures.
+- `qa-final-visual.py`: 116 / 116 checks, 0 failures.
+- canonical route screenshots: 87.
+- state screenshots: 13.
+- screenshot/hash baseline: 100 / 100.

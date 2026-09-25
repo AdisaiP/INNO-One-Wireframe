@@ -53,7 +53,7 @@ for w in (1366,1024,768):
     route_fails=[]
     for page in WEB:
         c.nav(page,"?qaMetrics=1")
-        m=c.eval("""(()=>{const sels=[...document.querySelectorAll('select')];const expected=sels.filter(s=>!s.hasAttribute('data-inno-native')&&!s.closest('.mock-desktop,.android-phone')).length;const enhanced=sels.filter(s=>s.dataset.innoEnhanced).length;const visibleNative=sels.filter(s=>{const r=s.getBoundingClientRect(),cs=getComputedStyle(s);return cs.position!=='absolute'&&cs.display!=='none'&&r.width>3&&r.height>3}).length;const visible=e=>{const r=e.getBoundingClientRect(),cs=getComputedStyle(e);return cs.display!=='none'&&cs.visibility!=='hidden'&&r.width>0&&r.height>0};const highDisabled=[...document.querySelectorAll('.page-head .actions .btn[disabled],.page-head .actions .btn[aria-disabled="true"],.resource-actions .btn[disabled],.resource-actions .btn[aria-disabled="true"]')].filter(visible).length;const cleanDocked=document.querySelectorAll('.inno-editor-footer.is-docked,.inno-builder-footer.is-docked,.inno-wizard-footer.is-docked').length;const a11yName=e=>{const aria=e.getAttribute('aria-label')?.trim();if(aria)return aria;const ids=e.getAttribute('aria-labelledby')?.trim();if(ids){const t=ids.split(/\\s+/).map(id=>document.getElementById(id)?.textContent?.trim()||'').filter(Boolean).join(' ');if(t)return t}const txt=e.textContent?.trim();if(txt)return txt;return e.getAttribute('title')?.trim()||''};const unnamedInteractive=[...document.querySelectorAll('button,a[href]')].filter(visible).filter(e=>!a11yName(e)).length;const unlabeledFields=[...document.querySelectorAll('input,textarea')].filter(visible).filter(e=>e.type!=='hidden'&&!e.labels?.length&&!e.getAttribute('aria-label')&&!e.getAttribute('aria-labelledby')).length;const nonSemanticClicks=[...document.querySelectorAll('[onclick]')].filter(visible).filter(e=>!['BUTTON','A','INPUT','SELECT','TEXTAREA','SUMMARY'].includes(e.tagName)).length;const badSwitches=[...document.querySelectorAll('[role="switch"]')].filter(visible).filter(e=>!['BUTTON','INPUT'].includes(e.tagName)||!e.hasAttribute('aria-checked')||!a11yName(e)).length;return {overflow:document.documentElement.scrollWidth>innerWidth+2,inputSystem:document.documentElement.dataset.innoInputSystem==='1',selects:sels.length,expected,enhanced,visibleNative,popovers:document.querySelectorAll('.inno-picker-popover').length,sideHash:[...document.querySelectorAll('.side a')].filter(a=>(a.getAttribute('href')||'').includes('#')).length,cleanDocked,highDisabled,unnamedInteractive,unlabeledFields,nonSemanticClicks,badSwitches}})()""")
+        m=c.eval("""(()=>{const sels=[...document.querySelectorAll('select')];const expected=sels.filter(s=>!s.hasAttribute('data-inno-native')&&!s.closest('.mock-desktop,.android-phone')).length;const enhanced=sels.filter(s=>s.dataset.innoEnhanced).length;const visibleNative=sels.filter(s=>{const r=s.getBoundingClientRect(),cs=getComputedStyle(s);return cs.position!=='absolute'&&cs.display!=='none'&&r.width>3&&r.height>3}).length;const visible=e=>{const r=e.getBoundingClientRect(),cs=getComputedStyle(e);return cs.display!=='none'&&cs.visibility!=='hidden'&&r.width>0&&r.height>0};const highDisabled=[...document.querySelectorAll('.page-head .actions .btn[disabled],.page-head .actions .btn[aria-disabled="true"],.resource-actions .btn[disabled],.resource-actions .btn[aria-disabled="true"]')].filter(visible).length;const cleanDocked=document.querySelectorAll('.inno-editor-footer.is-docked,.inno-builder-footer.is-docked,.inno-wizard-footer.is-docked').length;const a11yName=e=>{const aria=e.getAttribute('aria-label')?.trim();if(aria)return aria;const ids=e.getAttribute('aria-labelledby')?.trim();if(ids){const t=ids.split(/\\s+/).map(id=>document.getElementById(id)?.textContent?.trim()||'').filter(Boolean).join(' ');if(t)return t}const txt=e.textContent?.trim();if(txt)return txt;return e.getAttribute('title')?.trim()||''};const unnamedInteractive=[...document.querySelectorAll('button,a[href]')].filter(visible).filter(e=>!a11yName(e)).length;const unlabeledFields=[...document.querySelectorAll('input,textarea')].filter(visible).filter(e=>e.type!=='hidden'&&!e.labels?.length&&!e.getAttribute('aria-label')&&!e.getAttribute('aria-labelledby')).length;const nonSemanticClicks=[...document.querySelectorAll('[onclick]')].filter(visible).filter(e=>!['BUTTON','A','INPUT','SELECT','TEXTAREA','SUMMARY'].includes(e.tagName)).length;const badSwitches=[...document.querySelectorAll('[role="switch"]')].filter(visible).filter(e=>!['BUTTON','INPUT'].includes(e.tagName)||!e.hasAttribute('aria-checked')||!a11yName(e)).length;const visibleFutureNav=[...document.querySelectorAll('.side .nav-disabled')].filter(visible).length;const visibleComingSoon=[...document.querySelectorAll('button,a')].filter(visible).filter(e=>(((e.getAttribute('title')||'')+' '+(e.textContent||'')).toLowerCase().includes('coming soon'))).length;return {overflow:document.documentElement.scrollWidth>innerWidth+2,inputSystem:document.documentElement.dataset.innoInputSystem==='1',selects:sels.length,expected,enhanced,visibleNative,popovers:document.querySelectorAll('.inno-picker-popover').length,sideHash:[...document.querySelectorAll('.side a')].filter(a=>(a.getAttribute('href')||'').includes('#')).length,cleanDocked,highDisabled,unnamedInteractive,unlabeledFields,nonSemanticClicks,badSwitches,visibleFutureNav,visibleComingSoon}})()""")
         bad=[]
         if m["overflow"]:bad.append("overflow")
         if not m["inputSystem"]:bad.append("input-system-missing")
@@ -67,6 +67,8 @@ for w in (1366,1024,768):
         if m["unlabeledFields"]:bad.append(f"unlabeled-fields={m['unlabeledFields']}")
         if m["nonSemanticClicks"]:bad.append(f"nonsemantic-clicks={m['nonSemanticClicks']}")
         if m["badSwitches"]:bad.append(f"bad-switches={m['badSwitches']}")
+        if m["visibleFutureNav"]:bad.append(f"visible-future-nav={m['visibleFutureNav']}")
+        if m["visibleComingSoon"]:bad.append(f"visible-coming-soon={m['visibleComingSoon']}")
         if bad:route_fails.append((page,bad))
     check(f"All {len(WEB)} Web routes pass Input System at {w}",not route_fails,route_fails[:6])
 # Ticket: combobox, resource picker and segmented controls retain backing select events.
@@ -244,6 +246,25 @@ check("Dynamic Group save belongs to builder footer",c.eval("document.querySelec
 
 c.nav("asset-qr.html")
 check("QR workflow actions moved out of page header",c.eval("document.querySelector('.page-head .actions')===null && document.querySelector('.inno-builder-footer #printSelectedBtn')!==null && document.querySelector('.inno-builder-footer #generateQrBtn')!==null && !document.getElementById('labelSettingsBtn')"))
+
+# Availability / Coming Soon cleanup regression.
+c.nav("workspace-v2.html")
+check("Workspace recent history uses canonical route",c.eval("document.querySelector('#recent .panel-head a[href=\"workspace-recent.html\"]')!==null"))
+
+c.nav("modules.html")
+check("Available modules expose Inspect without fake Install",c.eval("document.querySelectorAll('[data-install]').length===0 && [...document.querySelectorAll('.registry-row')].some(r=>r.textContent.includes('Available')&&r.querySelector('[data-detail]'))"))
+
+c.nav("remote-operations.html")
+check("Remote Operations has no visible unavailable task action",c.eval("[...document.querySelectorAll('button,a')].filter(e=>getComputedStyle(e).display!=='none').every(e=>!(((e.getAttribute('title')||'')+' '+e.textContent).toLowerCase().includes('coming soon'))) && !document.querySelector('[title*=\"Create Job · Coming soon\"]')"))
+
+c.nav("helpdesk-statuses.html")
+check("Helpdesk statuses are read-only instead of fake-editable",c.eval("document.querySelectorAll('table th').length===4 && !document.querySelector('button[title*=\"Edit\"]') && !document.body.textContent.includes('Edit Transitions')"))
+
+c.nav("admin.html")
+check("Admin overview only uses interactive navigation tiles",c.eval("document.querySelectorAll('div.admin-tile').length===0 && document.querySelectorAll('a.admin-tile[href]').length>=4"))
+
+c.nav("device-add.html")
+check("Generate Installer is an active prototype action",c.eval("(()=>{const b=[...document.querySelectorAll('button')].find(x=>x.textContent.includes('Generate Installer'));return !!b&&!b.disabled&&b.getAttribute('aria-disabled')!=='true'})()"))
 
 print(f"checks={checks}")
 print(f"failures={len(fails)}")

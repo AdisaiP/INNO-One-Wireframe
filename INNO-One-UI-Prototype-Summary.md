@@ -177,8 +177,8 @@ Current interpretation:
 ## 8. Frozen UI contract
 
 Current accepted baseline:
-- Design System: V1.19.
-- UI Contract: 1.13.0.
+- Design System: V1.20.
+- UI Contract: 1.14.0.
 - Registry Schema: 10.
 - Surface contracts: Web / Endpoint Agent / Android Mobile.
 
@@ -327,3 +327,8 @@ The Action/Layout freeze was visually refined after route-wide review. Clean pag
 ## 19. Accessibility / semantic polish — 2026-09-25
 
 Final UX/UI Step 1 established a shared semantic baseline across all 87 canonical pages. Icon-only actions now expose names, interactive toggles use native button switch semantics, single-control field labels are associated automatically, table/action-item checkboxes receive contextual names, and Web route regression now checks rendered accessibility state at all required breakpoints. See `INNO-One-Accessibility-Contract.md`.
+
+
+## 20. Availability / unavailable-feature polish — 2026-09-25
+
+Design System V1.20 / UI Contract 1.14.0 makes availability an explicit UX rule. Unavailable features no longer appear as grey Coming Soon task controls or normal sidebar navigation. Future navigation remains in roadmap markup but is hidden from the normal product shell. Real routes are used where they exist; read-only data uses passive status; and prototype-only commands remain active only when they provide visible local feedback. `availability-audit.py` reports zero Coming Soon task actions across all 87 canonical pages, while browser regression confirms no future navigation is visible across all 83 Web routes.

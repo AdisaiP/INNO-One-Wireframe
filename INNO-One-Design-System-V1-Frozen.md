@@ -1,7 +1,7 @@
 # INNO.One Design System — Frozen UI Contract
 
-**UI Contract:** 1.13.0
-**Documentation:** Design System V1.19
+**UI Contract:** 1.14.0
+**Documentation:** Design System V1.20
 **Status:** Frozen  
 **Frozen:** 2026-09-25
 
@@ -368,3 +368,17 @@ A new module is UI-complete only when it:
 - Removed unavailable/Coming Soon actions from high-emphasis action zones.
 - Responsive primary-work ordering was corrected for Inventory Query and grid min-content no longer causes page overflow.
 - `action-layout-audit.py` is now part of the frozen regression contract.
+
+
+## 29. Minor 1.14.0 — Accessibility + Availability Final Polish — 2026-09-25
+
+- Design System Documentation advanced to **V1.20** and UI Contract to **1.14.0**.
+- Accessibility semantics are now part of the frozen UI contract through `INNO-One-Accessibility-Contract.md` and `accessibility-audit.py`.
+- Unavailable capability UX is now governed by `INNO-One-Availability-Contract.md` and `availability-audit.py`.
+- Normal task flow contains no visible Coming Soon actions. Future sidebar entries may remain as roadmap markup but are hidden from normal contextual navigation.
+- Action-looking Admin tiles must link to a canonical route; unavailable Admin domains are not presented as fake navigation.
+- Read-only/reference data uses passive status rather than disabled Edit/Create controls.
+- Where a canonical route or prototype interaction exists, the UI uses that working path instead of a disabled placeholder.
+- Browser regression now includes accessibility and availability gates across all 83 Web routes at 1366 / 1024 / 768.
+- Current browser UX regression baseline: **80 / 80 checks**.
+- Current Final Visual baseline: **116 / 116 checks**, 87 canonical route screenshots + 13 state screenshots.
