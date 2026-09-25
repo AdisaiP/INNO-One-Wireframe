@@ -190,6 +190,7 @@ platform.workspace.access
 platform.apps.view
 platform.notifications.view
 platform.search.use
+admin.access
 ```
 
 ### Organization
@@ -219,6 +220,25 @@ admin.access_scopes.view
 admin.access_scopes.manage
 admin.access_scopes.evaluate
 ```
+
+### Helpdesk capability gaps discovered during API mapping
+
+```text
+helpdesk.kb.view
+helpdesk.ticket.reply
+helpdesk.automation.view
+helpdesk.automation.manage
+```
+
+These are reserved separately because read-only Knowledge Base access, ticket reply, and Automation configuration should not reuse unrelated view or SLA permissions.
+
+### Meeting capability gap discovered during API mapping
+
+```text
+meeting.files.manage
+```
+
+Meeting file upload is a write capability and should not be granted by `meeting.view` alone.
 
 ### Apps & Modules
 
@@ -402,21 +422,24 @@ This mapping is the implementation starting point for the frozen route families.
 | Contracts & Warranty | `assets.view` | `assets.contract.manage` |
 | QR label generation | `assets.view` | `assets.qr.print` |
 | Mobile QR scanning | authenticated mobile user | `assets.qr.scan` |
-| Helpdesk ticket queues/detail | `helpdesk.ticket.view` | assign/resolve permissions by action |
+| Helpdesk ticket queues/detail | `helpdesk.ticket.view` | `helpdesk.ticket.reply` / assign / resolve permissions by action |
 | Create Ticket / Agent Request Help | authenticated user | `helpdesk.ticket.create` |
 | SLA | `helpdesk.ticket.view` | `helpdesk.sla.manage` |
 | Categories | `helpdesk.ticket.view` | `helpdesk.catalog.manage` |
 | Status configuration | `helpdesk.ticket.view` | `helpdesk.status.manage` |
 | Requester Groups | `helpdesk.ticket.view` | `helpdesk.requester_group.manage` |
-| Knowledge Base | `helpdesk.kb.manage` for management | read policy to be defined with API contract |
+| Knowledge Base | `helpdesk.kb.view` | `helpdesk.kb.manage` for management |
 | Helpdesk Notifications | `helpdesk.notifications.view` | `helpdesk.notifications.manage` |
 | Helpdesk Reports | `helpdesk.reports.view` | — |
+| Helpdesk Automation | `helpdesk.automation.view` | `helpdesk.automation.manage` |
 | Meeting list/detail | `meeting.view` | — |
 | Create/record meeting | `meeting.view` | `meeting.create` / `meeting.record` |
 | Generate summary | `meeting.view` | `meeting.summary.generate` |
 | Share meeting | `meeting.view` | `meeting.share` |
+| Upload meeting file | `meeting.view` | `meeting.files.manage` |
 | Reports catalog/saved reports | `reports.view` | `reports.create` / `reports.manage` |
 | Report export | `reports.view` | `reports.export.pdf` / `reports.export.xlsx` |
+| Admin Center Overview | `admin.access` | — |
 | Organization Structure | `admin.organization.view` | `admin.organization.manage` |
 | Locations | `admin.locations.view` | `admin.locations.manage` |
 | Positions | `admin.positions.view` | `admin.positions.manage` |
@@ -683,7 +706,7 @@ Detailed event contract is Step 12.
 1. Permission and resource scope are separate.
 2. Server-side authorization is authoritative.
 3. Existing registry permission IDs are retained.
-4. Admin/Platform permission namespaces are reserved as listed in this document.
+4. Reserved implementation permissions include explicit Devices Deploy plus Admin/Platform and Helpdesk read/manage gaps discovered while mapping the frozen UI to APIs.
 5. Concrete v1 scope types are Organization, Location and Device Group.
 6. Organization scope supports descendant inheritance.
 7. Role permissions may be narrowed by scoped assignment actions but not expanded beyond the role.

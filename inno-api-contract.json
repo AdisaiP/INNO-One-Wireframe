@@ -1,0 +1,2673 @@
+{
+  "contractVersion": "0.2.0",
+  "status": "implementation-planning",
+  "generatedFrom": {
+    "designSystem": "V1.26",
+    "uiContract": "1.20.0",
+    "implementationContract": "0.2.0",
+    "frozenAt": "2026-09-26"
+  },
+  "basePath": "/api/v1",
+  "authentication": {
+    "scheme": "Bearer",
+    "issuer": "Keycloak",
+    "subjectClaim": "sub"
+  },
+  "headers": {
+    "request": [
+      "Authorization",
+      "X-Correlation-Id"
+    ],
+    "conditionalWrite": [
+      "If-Match"
+    ],
+    "idempotentCommand": [
+      "Idempotency-Key"
+    ],
+    "response": [
+      "X-Correlation-Id",
+      "ETag"
+    ]
+  },
+  "pagination": {
+    "style": "page-number",
+    "query": [
+      "page",
+      "pageSize"
+    ],
+    "defaults": {
+      "page": 1,
+      "pageSize": 25
+    },
+    "maxPageSize": 100,
+    "responseFields": [
+      "items",
+      "page",
+      "pageSize",
+      "totalItems",
+      "totalPages"
+    ]
+  },
+  "queryConventions": {
+    "search": "search",
+    "sort": "sort",
+    "order": "asc|desc",
+    "filters": "resource-specific query parameters documented per endpoint"
+  },
+  "successShapes": {
+    "resource": {
+      "data": "object"
+    },
+    "collection": {
+      "data": "array"
+    },
+    "paged": {
+      "items": "array",
+      "page": "integer",
+      "pageSize": "integer",
+      "totalItems": "integer",
+      "totalPages": "integer"
+    },
+    "tree": {
+      "data": "hierarchical nodes"
+    },
+    "treegrid": {
+      "data": "hierarchical rows with columns/effective state"
+    },
+    "command": {
+      "data": "command result"
+    },
+    "operation": {
+      "operationId": "string",
+      "status": "queued|running|succeeded|failed|partial",
+      "statusUrl": "string"
+    }
+  },
+  "errorShape": {
+    "contentType": "application/problem+json",
+    "fields": [
+      "type",
+      "title",
+      "status",
+      "code",
+      "detail",
+      "traceId",
+      "correlationId",
+      "fieldErrors",
+      "retryable"
+    ],
+    "canonicalCodes": [
+      "VALIDATION_FAILED",
+      "UNAUTHENTICATED",
+      "PERMISSION_DENIED",
+      "RESOURCE_NOT_FOUND",
+      "CONFLICT",
+      "PRECONDITION_FAILED",
+      "MODULE_DISABLED",
+      "RESOURCE_OFFLINE",
+      "PARTIAL_FAILURE",
+      "DEPENDENCY_UNAVAILABLE",
+      "RATE_LIMITED"
+    ]
+  },
+  "stateMapping": {
+    "204|empty paged result": "Empty or No Results depending on active filters",
+    "401": "Sign in/session recovery",
+    "403": "Permission Denied",
+    "404": "Resource Not Found",
+    "409": "Conflict",
+    "412": "Stale edit / refresh required",
+    "422": "Validation Error",
+    "424|503": "Dependency unavailable",
+    "offline resource payload": "Resource Offline banner with cached detail when available",
+    "partial operation": "Partial Failure with successful items preserved"
+  },
+  "concurrency": {
+    "mutableConfig": "ETag + If-Match",
+    "conflictStatus": 412
+  },
+  "idempotency": {
+    "requiredFor": [
+      "high-impact POST jobs",
+      "remote-session creation",
+      "deployment jobs",
+      "restart jobs",
+      "meeting processing"
+    ],
+    "header": "Idempotency-Key"
+  },
+  "asyncOperations": {
+    "createStatus": 202,
+    "pollPattern": "/operations/{operationId}",
+    "terminalStates": [
+      "succeeded",
+      "failed",
+      "partial"
+    ]
+  },
+  "endpoints": [
+    {
+      "id": "platform.me.get",
+      "method": "GET",
+      "path": "/platform/me",
+      "module": "platform",
+      "permission": "platform.workspace.access",
+      "scope": "self",
+      "response": "resource",
+      "screens": [
+        "workspace-v2.html",
+        "profile.html"
+      ]
+    },
+    {
+      "id": "platform.workspace.get",
+      "method": "GET",
+      "path": "/platform/workspace",
+      "module": "platform",
+      "permission": "platform.workspace.access",
+      "scope": "self",
+      "response": "resource",
+      "screens": [
+        "workspace-v2.html"
+      ]
+    },
+    {
+      "id": "platform.workspace.continue.get",
+      "method": "GET",
+      "path": "/platform/workspace/continue",
+      "module": "platform",
+      "permission": "platform.workspace.access",
+      "scope": "self",
+      "response": "collection",
+      "screens": [
+        "workspace-continue.html"
+      ]
+    },
+    {
+      "id": "platform.workspace.attention.get",
+      "method": "GET",
+      "path": "/platform/workspace/attention",
+      "module": "platform",
+      "permission": "platform.workspace.access",
+      "scope": "effective",
+      "response": "collection",
+      "screens": [
+        "workspace-attention.html"
+      ]
+    },
+    {
+      "id": "platform.activity.list",
+      "method": "GET",
+      "path": "/platform/activity",
+      "module": "platform",
+      "permission": "platform.workspace.access",
+      "scope": "self",
+      "response": "paged",
+      "screens": [
+        "workspace-recent.html"
+      ]
+    },
+    {
+      "id": "platform.apps.list",
+      "method": "GET",
+      "path": "/platform/apps",
+      "module": "platform",
+      "permission": "platform.apps.view",
+      "scope": "effective",
+      "response": "collection",
+      "screens": [
+        "app-launcher-v2.html",
+        "modules.html"
+      ]
+    },
+    {
+      "id": "platform.notifications.list",
+      "method": "GET",
+      "path": "/platform/notifications",
+      "module": "platform",
+      "permission": "platform.notifications.view",
+      "scope": "self",
+      "response": "paged",
+      "screens": [
+        "notifications.html"
+      ]
+    },
+    {
+      "id": "platform.notifications.read",
+      "method": "PATCH",
+      "path": "/platform/notifications/{notificationId}",
+      "module": "platform",
+      "permission": "platform.notifications.view",
+      "scope": "self",
+      "response": "resource",
+      "screens": [
+        "notifications.html"
+      ]
+    },
+    {
+      "id": "platform.notifications.read_all",
+      "method": "POST",
+      "path": "/platform/notifications/mark-all-read",
+      "module": "platform",
+      "permission": "platform.notifications.view",
+      "scope": "self",
+      "response": "command",
+      "screens": [
+        "notifications.html"
+      ]
+    },
+    {
+      "id": "platform.profile.update",
+      "method": "PATCH",
+      "path": "/platform/me/profile",
+      "module": "platform",
+      "permission": "platform.workspace.access",
+      "scope": "self",
+      "response": "resource",
+      "screens": [
+        "profile.html"
+      ]
+    },
+    {
+      "id": "platform.search",
+      "method": "GET",
+      "path": "/search",
+      "module": "platform",
+      "permission": "platform.search.use",
+      "scope": "effective",
+      "response": "paged",
+      "screens": [
+        "workspace-v2.html",
+        "app-launcher-v2.html"
+      ],
+      "notes": "Search result items must already be authorization-filtered."
+    },
+    {
+      "id": "devices.overview.get",
+      "method": "GET",
+      "path": "/devices/overview",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "effective",
+      "response": "resource",
+      "screens": [
+        "devices-overview-v2.html"
+      ]
+    },
+    {
+      "id": "devices.list",
+      "method": "GET",
+      "path": "/devices",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "effective",
+      "response": "paged",
+      "screens": [
+        "devices.html"
+      ]
+    },
+    {
+      "id": "devices.get",
+      "method": "GET",
+      "path": "/devices/{deviceId}",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "device-detail-v2.html",
+        "device-group-detail.html"
+      ]
+    },
+    {
+      "id": "devices.update",
+      "method": "PATCH",
+      "path": "/devices/{deviceId}",
+      "module": "devices",
+      "permission": "devices.manage",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "device-detail-v2.html"
+      ]
+    },
+    {
+      "id": "devices.agent_installer.create",
+      "method": "POST",
+      "path": "/devices/agent-installers",
+      "module": "devices",
+      "permission": "devices.deploy",
+      "scope": "effective",
+      "response": "resource",
+      "screens": [
+        "device-add.html"
+      ]
+    },
+    {
+      "id": "devices.discovery_scan.create",
+      "method": "POST",
+      "path": "/devices/discovery-scans",
+      "module": "devices",
+      "permission": "devices.manage",
+      "scope": "effective",
+      "response": "operation",
+      "screens": [
+        "device-discovery.html"
+      ],
+      "asyncJob": true
+    },
+    {
+      "id": "devices.discovery_scan.get",
+      "method": "GET",
+      "path": "/devices/discovery-scans/{scanId}",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "effective",
+      "response": "resource",
+      "screens": [
+        "device-discovery.html"
+      ]
+    },
+    {
+      "id": "devices.discovery_results.list",
+      "method": "GET",
+      "path": "/devices/discovery-scans/{scanId}/results",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "effective",
+      "response": "paged",
+      "screens": [
+        "device-discovery.html"
+      ]
+    },
+    {
+      "id": "devices.groups.list",
+      "method": "GET",
+      "path": "/devices/groups",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "effective",
+      "response": "paged",
+      "screens": [
+        "device-groups.html"
+      ]
+    },
+    {
+      "id": "devices.groups.create",
+      "method": "POST",
+      "path": "/devices/groups",
+      "module": "devices",
+      "permission": "devices.manage",
+      "scope": "effective",
+      "response": "resource",
+      "screens": [
+        "device-groups.html"
+      ]
+    },
+    {
+      "id": "devices.groups.get",
+      "method": "GET",
+      "path": "/devices/groups/{groupId}",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "device-group-detail.html"
+      ]
+    },
+    {
+      "id": "devices.groups.update",
+      "method": "PATCH",
+      "path": "/devices/groups/{groupId}",
+      "module": "devices",
+      "permission": "devices.manage",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "device-group-detail.html"
+      ]
+    },
+    {
+      "id": "devices.group_members.list",
+      "method": "GET",
+      "path": "/devices/groups/{groupId}/members",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "resource",
+      "response": "paged",
+      "screens": [
+        "device-group-detail.html"
+      ]
+    },
+    {
+      "id": "devices.remote_sessions.list",
+      "method": "GET",
+      "path": "/devices/remote-sessions",
+      "module": "devices",
+      "permission": "devices.remote",
+      "scope": "effective",
+      "response": "paged",
+      "screens": [
+        "remote-operations.html"
+      ]
+    },
+    {
+      "id": "devices.remote_sessions.create",
+      "method": "POST",
+      "path": "/devices/{deviceId}/remote-sessions",
+      "module": "devices",
+      "permission": "devices.remote",
+      "scope": "resource",
+      "response": "operation",
+      "screens": [
+        "remote-operations.html",
+        "device-detail-v2.html"
+      ],
+      "asyncJob": true
+    },
+    {
+      "id": "devices.remote_sessions.get",
+      "method": "GET",
+      "path": "/devices/remote-sessions/{sessionId}",
+      "module": "devices",
+      "permission": "devices.remote",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "remote-session.html"
+      ]
+    },
+    {
+      "id": "devices.remote_sessions.disconnect",
+      "method": "POST",
+      "path": "/devices/remote-sessions/{sessionId}/disconnect",
+      "module": "devices",
+      "permission": "devices.remote",
+      "scope": "resource",
+      "response": "command",
+      "screens": [
+        "remote-session.html"
+      ]
+    },
+    {
+      "id": "devices.remote_sessions.mode",
+      "method": "PATCH",
+      "path": "/devices/remote-sessions/{sessionId}/mode",
+      "module": "devices",
+      "permission": "devices.remote",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "remote-session.html"
+      ]
+    },
+    {
+      "id": "devices.remote_sessions.file_transfer",
+      "method": "POST",
+      "path": "/devices/remote-sessions/{sessionId}/files",
+      "module": "devices",
+      "permission": "devices.remote",
+      "scope": "resource",
+      "response": "operation",
+      "screens": [
+        "remote-session.html"
+      ],
+      "asyncJob": true
+    },
+    {
+      "id": "devices.screenshot_jobs.list",
+      "method": "GET",
+      "path": "/devices/screenshot-jobs",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "effective",
+      "response": "paged",
+      "screens": [
+        "remote-operations.html"
+      ]
+    },
+    {
+      "id": "devices.screenshot_jobs.create",
+      "method": "POST",
+      "path": "/devices/screenshot-jobs",
+      "module": "devices",
+      "permission": "devices.manage",
+      "scope": "effective",
+      "response": "operation",
+      "screens": [
+        "remote-operations.html"
+      ],
+      "asyncJob": true
+    },
+    {
+      "id": "devices.wake.create",
+      "method": "POST",
+      "path": "/devices/wake-jobs",
+      "module": "devices",
+      "permission": "devices.manage",
+      "scope": "effective",
+      "response": "operation",
+      "screens": [
+        "remote-operations.html"
+      ],
+      "asyncJob": true
+    },
+    {
+      "id": "devices.consent_policy.get",
+      "method": "GET",
+      "path": "/devices/remote-consent/policy",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "all",
+      "response": "resource",
+      "screens": [
+        "remote-consent.html",
+        "remote-consent-policy.html"
+      ]
+    },
+    {
+      "id": "devices.consent_policy.update",
+      "method": "PUT",
+      "path": "/devices/remote-consent/policy",
+      "module": "devices",
+      "permission": "devices.remote.consent.manage",
+      "scope": "all",
+      "response": "resource",
+      "screens": [
+        "remote-consent-policy.html"
+      ]
+    },
+    {
+      "id": "devices.consent_message.get",
+      "method": "GET",
+      "path": "/devices/remote-consent/messages/{language}",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "all",
+      "response": "resource",
+      "screens": [
+        "remote-consent-message.html"
+      ]
+    },
+    {
+      "id": "devices.consent_message.update",
+      "method": "PUT",
+      "path": "/devices/remote-consent/messages/{language}",
+      "module": "devices",
+      "permission": "devices.remote.consent.manage",
+      "scope": "all",
+      "response": "resource",
+      "screens": [
+        "remote-consent-message.html"
+      ]
+    },
+    {
+      "id": "devices.consent_rules.list",
+      "method": "GET",
+      "path": "/devices/remote-consent/bypass-rules",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "all",
+      "response": "paged",
+      "screens": [
+        "remote-consent-rules.html"
+      ]
+    },
+    {
+      "id": "devices.consent_rules.create",
+      "method": "POST",
+      "path": "/devices/remote-consent/bypass-rules",
+      "module": "devices",
+      "permission": "devices.remote.consent.manage",
+      "scope": "all",
+      "response": "resource",
+      "screens": [
+        "remote-consent-rules.html"
+      ]
+    },
+    {
+      "id": "devices.consent_rules.update",
+      "method": "PATCH",
+      "path": "/devices/remote-consent/bypass-rules/{ruleId}",
+      "module": "devices",
+      "permission": "devices.remote.consent.manage",
+      "scope": "all",
+      "response": "resource",
+      "screens": [
+        "remote-consent-rules.html"
+      ]
+    },
+    {
+      "id": "devices.consent_history.list",
+      "method": "GET",
+      "path": "/devices/remote-consent/history",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "effective",
+      "response": "paged",
+      "screens": [
+        "remote-consent-history.html"
+      ]
+    },
+    {
+      "id": "devices.inventory_queries.list",
+      "method": "GET",
+      "path": "/devices/inventory-queries",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "self",
+      "response": "collection",
+      "screens": [
+        "device-query.html"
+      ]
+    },
+    {
+      "id": "devices.inventory_queries.save",
+      "method": "POST",
+      "path": "/devices/inventory-queries",
+      "module": "devices",
+      "permission": "devices.manage",
+      "scope": "self",
+      "response": "resource",
+      "screens": [
+        "device-query.html"
+      ]
+    },
+    {
+      "id": "devices.inventory_queries.run",
+      "method": "POST",
+      "path": "/devices/inventory-queries/runs",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "effective",
+      "response": "operation",
+      "screens": [
+        "device-query.html"
+      ],
+      "asyncJob": true
+    },
+    {
+      "id": "devices.inventory_query_results.list",
+      "method": "GET",
+      "path": "/devices/inventory-queries/runs/{runId}/results",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "effective",
+      "response": "paged",
+      "screens": [
+        "device-query.html"
+      ]
+    },
+    {
+      "id": "devices.deployments.list",
+      "method": "GET",
+      "path": "/devices/deployments",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "effective",
+      "response": "paged",
+      "screens": [
+        "deployment-jobs.html"
+      ]
+    },
+    {
+      "id": "devices.deployments.create",
+      "method": "POST",
+      "path": "/devices/deployments",
+      "module": "devices",
+      "permission": "devices.deploy",
+      "scope": "effective",
+      "response": "operation",
+      "screens": [
+        "deployment-new.html",
+        "deployment-jobs.html"
+      ],
+      "asyncJob": true
+    },
+    {
+      "id": "devices.deployments.get",
+      "method": "GET",
+      "path": "/devices/deployments/{deploymentId}",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "deployment-job-detail.html"
+      ]
+    },
+    {
+      "id": "devices.agent_rollouts.list",
+      "method": "GET",
+      "path": "/devices/agent-rollouts",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "effective",
+      "response": "paged",
+      "screens": [
+        "agent-maintenance.html",
+        "agent-updates.html"
+      ]
+    },
+    {
+      "id": "devices.agent_rollouts.create",
+      "method": "POST",
+      "path": "/devices/agent-rollouts",
+      "module": "devices",
+      "permission": "devices.deploy",
+      "scope": "effective",
+      "response": "operation",
+      "screens": [
+        "agent-rollout-new.html"
+      ],
+      "asyncJob": true
+    },
+    {
+      "id": "devices.software_jobs.list",
+      "method": "GET",
+      "path": "/devices/software-maintenance-jobs",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "effective",
+      "response": "paged",
+      "screens": [
+        "software-maintenance.html"
+      ]
+    },
+    {
+      "id": "devices.software_jobs.create",
+      "method": "POST",
+      "path": "/devices/software-maintenance-jobs",
+      "module": "devices",
+      "permission": "devices.deploy",
+      "scope": "effective",
+      "response": "operation",
+      "screens": [
+        "software-maintenance-new.html"
+      ],
+      "asyncJob": true
+    },
+    {
+      "id": "devices.restart_jobs.list",
+      "method": "GET",
+      "path": "/devices/restart-jobs",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "effective",
+      "response": "paged",
+      "screens": [
+        "restart-operations.html"
+      ]
+    },
+    {
+      "id": "devices.restart_jobs.create",
+      "method": "POST",
+      "path": "/devices/restart-jobs",
+      "module": "devices",
+      "permission": "devices.manage",
+      "scope": "effective",
+      "response": "operation",
+      "screens": [
+        "restart-schedule.html"
+      ],
+      "asyncJob": true
+    },
+    {
+      "id": "devices.maintenance_history.list",
+      "method": "GET",
+      "path": "/devices/maintenance-history",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "effective",
+      "response": "paged",
+      "screens": [
+        "maintenance-history.html",
+        "agent-maintenance.html"
+      ]
+    },
+    {
+      "id": "devices.policies.list",
+      "method": "GET",
+      "path": "/devices/policies",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "effective",
+      "response": "collection",
+      "screens": [
+        "endpoint-policies.html"
+      ]
+    },
+    {
+      "id": "devices.policies.get",
+      "method": "GET",
+      "path": "/devices/policies/{policyId}",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "endpoint-policies.html"
+      ]
+    },
+    {
+      "id": "devices.policies.update",
+      "method": "PUT",
+      "path": "/devices/policies/{policyId}",
+      "module": "devices",
+      "permission": "devices.policy.manage",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "endpoint-policies.html"
+      ]
+    },
+    {
+      "id": "devices.policy_compliance.list",
+      "method": "GET",
+      "path": "/devices/policies/{policyId}/compliance",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "resource",
+      "response": "paged",
+      "screens": [
+        "endpoint-policies.html"
+      ]
+    },
+    {
+      "id": "devices.alerts.list",
+      "method": "GET",
+      "path": "/devices/alerts",
+      "module": "devices",
+      "permission": "devices.alert.view",
+      "scope": "effective",
+      "response": "paged",
+      "screens": [
+        "device-alerts.html"
+      ]
+    },
+    {
+      "id": "devices.alerts.ack",
+      "method": "POST",
+      "path": "/devices/alerts/{alertId}/acknowledge",
+      "module": "devices",
+      "permission": "devices.alert.manage",
+      "scope": "resource",
+      "response": "command",
+      "screens": [
+        "device-alerts.html"
+      ]
+    },
+    {
+      "id": "devices.alerts.ack_all",
+      "method": "POST",
+      "path": "/devices/alerts/acknowledge-all",
+      "module": "devices",
+      "permission": "devices.alert.manage",
+      "scope": "effective",
+      "response": "command",
+      "screens": [
+        "device-alerts.html"
+      ]
+    },
+    {
+      "id": "devices.alert_rules.list",
+      "method": "GET",
+      "path": "/devices/alert-rules",
+      "module": "devices",
+      "permission": "devices.alert.view",
+      "scope": "effective",
+      "response": "paged",
+      "screens": [
+        "device-alert-rules.html"
+      ]
+    },
+    {
+      "id": "devices.alert_rules.get",
+      "method": "GET",
+      "path": "/devices/alert-rules/{ruleId}",
+      "module": "devices",
+      "permission": "devices.alert.view",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "device-alert-rule.html"
+      ]
+    },
+    {
+      "id": "devices.alert_rules.create",
+      "method": "POST",
+      "path": "/devices/alert-rules",
+      "module": "devices",
+      "permission": "devices.alert.manage",
+      "scope": "effective",
+      "response": "resource",
+      "screens": [
+        "device-alert-rules.html",
+        "device-alert-rule.html"
+      ]
+    },
+    {
+      "id": "devices.alert_rules.update",
+      "method": "PUT",
+      "path": "/devices/alert-rules/{ruleId}",
+      "module": "devices",
+      "permission": "devices.alert.manage",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "device-alert-rule.html"
+      ]
+    },
+    {
+      "id": "devices.alert_channels.get",
+      "method": "GET",
+      "path": "/devices/alert-channels",
+      "module": "devices",
+      "permission": "devices.alert.view",
+      "scope": "all",
+      "response": "resource",
+      "screens": [
+        "device-alert-channels.html"
+      ]
+    },
+    {
+      "id": "devices.alert_channels.update",
+      "method": "PUT",
+      "path": "/devices/alert-channels",
+      "module": "devices",
+      "permission": "devices.alert.manage",
+      "scope": "all",
+      "response": "resource",
+      "screens": [
+        "device-alert-channels.html"
+      ]
+    },
+    {
+      "id": "devices.alert_channels.test",
+      "method": "POST",
+      "path": "/devices/alert-channels/tests",
+      "module": "devices",
+      "permission": "devices.alert.manage",
+      "scope": "all",
+      "response": "operation",
+      "screens": [
+        "device-alert-channels.html"
+      ],
+      "asyncJob": true
+    },
+    {
+      "id": "devices.alert_history.list",
+      "method": "GET",
+      "path": "/devices/alert-history",
+      "module": "devices",
+      "permission": "devices.alert.view",
+      "scope": "effective",
+      "response": "paged",
+      "screens": [
+        "device-alert-history.html"
+      ]
+    },
+    {
+      "id": "assets.overview.get",
+      "method": "GET",
+      "path": "/assets/overview",
+      "module": "assets",
+      "permission": "assets.view",
+      "scope": "effective",
+      "response": "resource",
+      "screens": [
+        "assets-overview.html"
+      ]
+    },
+    {
+      "id": "assets.list",
+      "method": "GET",
+      "path": "/assets",
+      "module": "assets",
+      "permission": "assets.view",
+      "scope": "effective",
+      "response": "paged",
+      "screens": [
+        "asset-inventory.html"
+      ]
+    },
+    {
+      "id": "assets.get",
+      "method": "GET",
+      "path": "/assets/{assetId}",
+      "module": "assets",
+      "permission": "assets.view",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "asset-detail.html",
+        "user-detail.html"
+      ]
+    },
+    {
+      "id": "assets.update",
+      "method": "PATCH",
+      "path": "/assets/{assetId}",
+      "module": "assets",
+      "permission": "assets.manage",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "asset-detail.html"
+      ]
+    },
+    {
+      "id": "assets.ownership.list",
+      "method": "GET",
+      "path": "/assets/ownership",
+      "module": "assets",
+      "permission": "assets.view",
+      "scope": "effective",
+      "response": "paged",
+      "screens": [
+        "asset-ownership.html"
+      ]
+    },
+    {
+      "id": "assets.ownership.update",
+      "method": "POST",
+      "path": "/assets/{assetId}/ownership",
+      "module": "assets",
+      "permission": "assets.manage",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "asset-ownership.html"
+      ]
+    },
+    {
+      "id": "assets.owner_summary.list",
+      "method": "GET",
+      "path": "/assets/owners",
+      "module": "assets",
+      "permission": "assets.view",
+      "scope": "effective",
+      "response": "paged",
+      "screens": [
+        "asset-users.html"
+      ]
+    },
+    {
+      "id": "assets.owner_summary.get",
+      "method": "GET",
+      "path": "/assets/owners/{userId}",
+      "module": "assets",
+      "permission": "assets.view",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "asset-user-detail.html"
+      ]
+    },
+    {
+      "id": "assets.ownership_submissions.list",
+      "method": "GET",
+      "path": "/assets/ownership-submissions",
+      "module": "assets",
+      "permission": "assets.view",
+      "scope": "effective",
+      "response": "paged",
+      "screens": [
+        "asset-ownership-submissions.html"
+      ]
+    },
+    {
+      "id": "assets.ownership_submissions.decide",
+      "method": "POST",
+      "path": "/assets/ownership-submissions/{submissionId}/decision",
+      "module": "assets",
+      "permission": "assets.manage",
+      "scope": "resource",
+      "response": "command",
+      "screens": [
+        "asset-ownership-submissions.html"
+      ]
+    },
+    {
+      "id": "assets.custom_fields.list",
+      "method": "GET",
+      "path": "/assets/custom-fields",
+      "module": "assets",
+      "permission": "assets.view",
+      "scope": "all",
+      "response": "collection",
+      "screens": [
+        "asset-custom-fields.html"
+      ]
+    },
+    {
+      "id": "assets.custom_fields.update",
+      "method": "PUT",
+      "path": "/assets/custom-fields",
+      "module": "assets",
+      "permission": "assets.manage",
+      "scope": "all",
+      "response": "collection",
+      "screens": [
+        "asset-custom-fields.html"
+      ]
+    },
+    {
+      "id": "assets.qr_label.create",
+      "method": "POST",
+      "path": "/assets/{assetId}/qr-label",
+      "module": "assets",
+      "permission": "assets.qr.print",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "asset-qr.html"
+      ]
+    },
+    {
+      "id": "assets.qr_resolve",
+      "method": "POST",
+      "path": "/assets/qr/resolve",
+      "module": "assets",
+      "permission": "assets.qr.scan",
+      "scope": "effective",
+      "response": "resource",
+      "screens": [
+        "asset-mobile.html"
+      ],
+      "notes": "QR payload is a signed/opaque token, not a raw mutable asset identifier."
+    },
+    {
+      "id": "assets.licenses.list",
+      "method": "GET",
+      "path": "/assets/software-licenses",
+      "module": "assets",
+      "permission": "assets.license.manage",
+      "scope": "effective",
+      "response": "paged",
+      "screens": [
+        "software-licenses.html"
+      ]
+    },
+    {
+      "id": "assets.licenses.update",
+      "method": "PATCH",
+      "path": "/assets/software-licenses/{licenseId}",
+      "module": "assets",
+      "permission": "assets.license.manage",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "software-licenses.html"
+      ]
+    },
+    {
+      "id": "assets.contracts.list",
+      "method": "GET",
+      "path": "/assets/contracts",
+      "module": "assets",
+      "permission": "assets.view",
+      "scope": "effective",
+      "response": "paged",
+      "screens": [
+        "contracts-warranty.html"
+      ]
+    },
+    {
+      "id": "assets.contracts.update",
+      "method": "PATCH",
+      "path": "/assets/contracts/{contractId}",
+      "module": "assets",
+      "permission": "assets.contract.manage",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "contracts-warranty.html"
+      ]
+    },
+    {
+      "id": "reports.overview.get",
+      "method": "GET",
+      "path": "/reports/overview",
+      "module": "reports",
+      "permission": "reports.view",
+      "scope": "effective",
+      "response": "resource",
+      "screens": [
+        "reports-overview.html"
+      ]
+    },
+    {
+      "id": "reports.datasets.list",
+      "method": "GET",
+      "path": "/reports/datasets",
+      "module": "reports",
+      "permission": "reports.view",
+      "scope": "effective",
+      "response": "collection",
+      "screens": [
+        "report-builder.html"
+      ]
+    },
+    {
+      "id": "reports.preview",
+      "method": "POST",
+      "path": "/reports/preview",
+      "module": "reports",
+      "permission": "reports.view",
+      "scope": "effective",
+      "response": "resource",
+      "screens": [
+        "report-builder.html"
+      ]
+    },
+    {
+      "id": "reports.saved.list",
+      "method": "GET",
+      "path": "/reports/saved",
+      "module": "reports",
+      "permission": "reports.view",
+      "scope": "self",
+      "response": "paged",
+      "screens": [
+        "reports-saved.html"
+      ]
+    },
+    {
+      "id": "reports.saved.get",
+      "method": "GET",
+      "path": "/reports/saved/{reportId}",
+      "module": "reports",
+      "permission": "reports.view",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "reports-saved.html",
+        "report-builder.html"
+      ]
+    },
+    {
+      "id": "reports.saved.create",
+      "method": "POST",
+      "path": "/reports/saved",
+      "module": "reports",
+      "permission": "reports.create",
+      "scope": "self",
+      "response": "resource",
+      "screens": [
+        "report-builder.html"
+      ]
+    },
+    {
+      "id": "reports.saved.update",
+      "method": "PUT",
+      "path": "/reports/saved/{reportId}",
+      "module": "reports",
+      "permission": "reports.manage",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "report-builder.html"
+      ]
+    },
+    {
+      "id": "reports.runs.create",
+      "method": "POST",
+      "path": "/reports/saved/{reportId}/runs",
+      "module": "reports",
+      "permission": "reports.view",
+      "scope": "resource",
+      "response": "operation",
+      "screens": [
+        "reports-saved.html"
+      ],
+      "asyncJob": true
+    },
+    {
+      "id": "reports.exports.create",
+      "method": "POST",
+      "path": "/reports/exports",
+      "module": "reports",
+      "permission": "reports.view",
+      "scope": "effective",
+      "response": "operation",
+      "screens": [
+        "reports-overview.html",
+        "report-builder.html"
+      ],
+      "notes": "Requested format selects the required export permission.",
+      "asyncJob": true,
+      "permissionByRequest": {
+        "format.pdf": "reports.export.pdf",
+        "format.xlsx": "reports.export.xlsx"
+      }
+    },
+    {
+      "id": "helpdesk.overview.get",
+      "method": "GET",
+      "path": "/helpdesk/overview",
+      "module": "helpdesk",
+      "permission": "helpdesk.ticket.view",
+      "scope": "effective",
+      "response": "resource",
+      "screens": [
+        "helpdesk.html"
+      ]
+    },
+    {
+      "id": "helpdesk.tickets.list",
+      "method": "GET",
+      "path": "/helpdesk/tickets",
+      "module": "helpdesk",
+      "permission": "helpdesk.ticket.view",
+      "scope": "effective",
+      "response": "paged",
+      "screens": [
+        "helpdesk-tickets.html",
+        "helpdesk-assigned.html",
+        "helpdesk-team.html"
+      ]
+    },
+    {
+      "id": "helpdesk.tickets.get",
+      "method": "GET",
+      "path": "/helpdesk/tickets/{ticketId}",
+      "module": "helpdesk",
+      "permission": "helpdesk.ticket.view",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "ticket-detail.html",
+        "helpdesk-notification-delivery.html"
+      ]
+    },
+    {
+      "id": "helpdesk.tickets.create",
+      "method": "POST",
+      "path": "/helpdesk/tickets",
+      "module": "helpdesk",
+      "permission": "helpdesk.ticket.create",
+      "scope": "effective",
+      "response": "resource",
+      "screens": [
+        "ticket-new.html",
+        "helpdesk-agent-request.html"
+      ]
+    },
+    {
+      "id": "helpdesk.tickets.reply",
+      "method": "POST",
+      "path": "/helpdesk/tickets/{ticketId}/replies",
+      "module": "helpdesk",
+      "permission": "helpdesk.ticket.reply",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "ticket-detail.html"
+      ]
+    },
+    {
+      "id": "helpdesk.tickets.reassign",
+      "method": "POST",
+      "path": "/helpdesk/tickets/{ticketId}/assignment",
+      "module": "helpdesk",
+      "permission": "helpdesk.ticket.assign",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "ticket-detail.html"
+      ]
+    },
+    {
+      "id": "helpdesk.tickets.resolve",
+      "method": "POST",
+      "path": "/helpdesk/tickets/{ticketId}/resolve",
+      "module": "helpdesk",
+      "permission": "helpdesk.ticket.resolve",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "ticket-detail.html"
+      ]
+    },
+    {
+      "id": "helpdesk.sla_policies.list",
+      "method": "GET",
+      "path": "/helpdesk/sla-policies",
+      "module": "helpdesk",
+      "permission": "helpdesk.ticket.view",
+      "scope": "all",
+      "response": "collection",
+      "screens": [
+        "helpdesk-sla.html"
+      ]
+    },
+    {
+      "id": "helpdesk.sla_policies.update",
+      "method": "PUT",
+      "path": "/helpdesk/sla-policies/{policyId}",
+      "module": "helpdesk",
+      "permission": "helpdesk.sla.manage",
+      "scope": "all",
+      "response": "resource",
+      "screens": [
+        "helpdesk-sla.html"
+      ]
+    },
+    {
+      "id": "helpdesk.sla_monitor.get",
+      "method": "GET",
+      "path": "/helpdesk/sla-monitor",
+      "module": "helpdesk",
+      "permission": "helpdesk.ticket.view",
+      "scope": "effective",
+      "response": "collection",
+      "screens": [
+        "helpdesk-sla.html",
+        "helpdesk-team.html"
+      ]
+    },
+    {
+      "id": "helpdesk.categories.tree",
+      "method": "GET",
+      "path": "/helpdesk/categories/tree",
+      "module": "helpdesk",
+      "permission": "helpdesk.ticket.view",
+      "scope": "all",
+      "response": "tree",
+      "screens": [
+        "helpdesk-settings.html",
+        "helpdesk-categories.html",
+        "ticket-new.html"
+      ]
+    },
+    {
+      "id": "helpdesk.categories.upsert",
+      "method": "PUT",
+      "path": "/helpdesk/categories/{categoryId}",
+      "module": "helpdesk",
+      "permission": "helpdesk.catalog.manage",
+      "scope": "all",
+      "response": "resource",
+      "screens": [
+        "helpdesk-categories.html"
+      ]
+    },
+    {
+      "id": "helpdesk.statuses.list",
+      "method": "GET",
+      "path": "/helpdesk/statuses",
+      "module": "helpdesk",
+      "permission": "helpdesk.ticket.view",
+      "scope": "all",
+      "response": "collection",
+      "screens": [
+        "helpdesk-statuses.html"
+      ]
+    },
+    {
+      "id": "helpdesk.statuses.update",
+      "method": "PUT",
+      "path": "/helpdesk/statuses",
+      "module": "helpdesk",
+      "permission": "helpdesk.status.manage",
+      "scope": "all",
+      "response": "collection",
+      "screens": [
+        "helpdesk-statuses.html"
+      ]
+    },
+    {
+      "id": "helpdesk.requester_groups.list",
+      "method": "GET",
+      "path": "/helpdesk/requester-groups",
+      "module": "helpdesk",
+      "permission": "helpdesk.ticket.view",
+      "scope": "all",
+      "response": "collection",
+      "screens": [
+        "helpdesk-requester-groups.html"
+      ]
+    },
+    {
+      "id": "helpdesk.requester_groups.upsert",
+      "method": "PUT",
+      "path": "/helpdesk/requester-groups/{groupId}",
+      "module": "helpdesk",
+      "permission": "helpdesk.requester_group.manage",
+      "scope": "all",
+      "response": "resource",
+      "screens": [
+        "helpdesk-requester-groups.html"
+      ]
+    },
+    {
+      "id": "helpdesk.calendar.get",
+      "method": "GET",
+      "path": "/helpdesk/business-calendar",
+      "module": "helpdesk",
+      "permission": "helpdesk.ticket.view",
+      "scope": "all",
+      "response": "resource",
+      "screens": [
+        "helpdesk-calendar.html"
+      ]
+    },
+    {
+      "id": "helpdesk.calendar.update",
+      "method": "PUT",
+      "path": "/helpdesk/business-calendar",
+      "module": "helpdesk",
+      "permission": "helpdesk.sla.manage",
+      "scope": "all",
+      "response": "resource",
+      "screens": [
+        "helpdesk-calendar.html"
+      ]
+    },
+    {
+      "id": "helpdesk.notification_rules.list",
+      "method": "GET",
+      "path": "/helpdesk/notification-rules",
+      "module": "helpdesk",
+      "permission": "helpdesk.notifications.view",
+      "scope": "all",
+      "response": "paged",
+      "screens": [
+        "helpdesk-notifications.html"
+      ]
+    },
+    {
+      "id": "helpdesk.notification_rules.get",
+      "method": "GET",
+      "path": "/helpdesk/notification-rules/{ruleId}",
+      "module": "helpdesk",
+      "permission": "helpdesk.notifications.view",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "helpdesk-notification-rule.html"
+      ]
+    },
+    {
+      "id": "helpdesk.notification_rules.update",
+      "method": "PUT",
+      "path": "/helpdesk/notification-rules/{ruleId}",
+      "module": "helpdesk",
+      "permission": "helpdesk.notifications.manage",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "helpdesk-notification-rule.html"
+      ]
+    },
+    {
+      "id": "helpdesk.notification_templates.list",
+      "method": "GET",
+      "path": "/helpdesk/notification-templates",
+      "module": "helpdesk",
+      "permission": "helpdesk.notifications.view",
+      "scope": "all",
+      "response": "paged",
+      "screens": [
+        "helpdesk-notification-templates.html"
+      ]
+    },
+    {
+      "id": "helpdesk.notification_templates.get",
+      "method": "GET",
+      "path": "/helpdesk/notification-templates/{templateId}",
+      "module": "helpdesk",
+      "permission": "helpdesk.notifications.view",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "helpdesk-notification-template.html"
+      ]
+    },
+    {
+      "id": "helpdesk.notification_templates.upsert",
+      "method": "PUT",
+      "path": "/helpdesk/notification-templates/{templateId}",
+      "module": "helpdesk",
+      "permission": "helpdesk.notifications.manage",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "helpdesk-notification-template.html"
+      ]
+    },
+    {
+      "id": "helpdesk.notification_delivery.list",
+      "method": "GET",
+      "path": "/helpdesk/notification-deliveries",
+      "module": "helpdesk",
+      "permission": "helpdesk.notifications.view",
+      "scope": "effective",
+      "response": "paged",
+      "screens": [
+        "helpdesk-notification-delivery.html"
+      ]
+    },
+    {
+      "id": "helpdesk.notification_settings.get",
+      "method": "GET",
+      "path": "/helpdesk/notification-settings",
+      "module": "helpdesk",
+      "permission": "helpdesk.notifications.view",
+      "scope": "all",
+      "response": "resource",
+      "screens": [
+        "helpdesk-notification-settings.html"
+      ]
+    },
+    {
+      "id": "helpdesk.notification_settings.update",
+      "method": "PUT",
+      "path": "/helpdesk/notification-settings",
+      "module": "helpdesk",
+      "permission": "helpdesk.notifications.manage",
+      "scope": "all",
+      "response": "resource",
+      "screens": [
+        "helpdesk-notification-settings.html"
+      ]
+    },
+    {
+      "id": "helpdesk.notification_test.create",
+      "method": "POST",
+      "path": "/helpdesk/notification-tests",
+      "module": "helpdesk",
+      "permission": "helpdesk.notifications.manage",
+      "scope": "all",
+      "response": "operation",
+      "screens": [
+        "helpdesk-notification-settings.html"
+      ],
+      "asyncJob": true
+    },
+    {
+      "id": "helpdesk.knowledge.list",
+      "method": "GET",
+      "path": "/helpdesk/knowledge",
+      "module": "helpdesk",
+      "permission": "helpdesk.kb.view",
+      "scope": "effective",
+      "response": "paged",
+      "screens": [
+        "knowledge-base.html"
+      ]
+    },
+    {
+      "id": "helpdesk.reports.get",
+      "method": "GET",
+      "path": "/helpdesk/reports",
+      "module": "helpdesk",
+      "permission": "helpdesk.reports.view",
+      "scope": "effective",
+      "response": "resource",
+      "screens": [
+        "helpdesk-reports.html"
+      ]
+    },
+    {
+      "id": "helpdesk.automation.list",
+      "method": "GET",
+      "path": "/helpdesk/automation-rules",
+      "module": "helpdesk",
+      "permission": "helpdesk.automation.view",
+      "scope": "all",
+      "response": "paged",
+      "screens": [
+        "helpdesk-automation.html"
+      ]
+    },
+    {
+      "id": "helpdesk.automation.get",
+      "method": "GET",
+      "path": "/helpdesk/automation-rules/{ruleId}",
+      "module": "helpdesk",
+      "permission": "helpdesk.automation.view",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "helpdesk-automation-rule.html"
+      ]
+    },
+    {
+      "id": "helpdesk.automation.upsert",
+      "method": "PUT",
+      "path": "/helpdesk/automation-rules/{ruleId}",
+      "module": "helpdesk",
+      "permission": "helpdesk.automation.manage",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "helpdesk-automation-rule.html"
+      ]
+    },
+    {
+      "id": "meeting.overview.get",
+      "method": "GET",
+      "path": "/meeting/overview",
+      "module": "meeting",
+      "permission": "meeting.view",
+      "scope": "effective",
+      "response": "resource",
+      "screens": [
+        "meeting.html"
+      ]
+    },
+    {
+      "id": "meeting.list",
+      "method": "GET",
+      "path": "/meeting/meetings",
+      "module": "meeting",
+      "permission": "meeting.view",
+      "scope": "effective",
+      "response": "paged",
+      "screens": [
+        "meeting-list.html"
+      ]
+    },
+    {
+      "id": "meeting.upcoming.list",
+      "method": "GET",
+      "path": "/meeting/upcoming",
+      "module": "meeting",
+      "permission": "meeting.view",
+      "scope": "self",
+      "response": "collection",
+      "screens": [
+        "meeting-upcoming.html"
+      ]
+    },
+    {
+      "id": "meeting.get",
+      "method": "GET",
+      "path": "/meeting/meetings/{meetingId}",
+      "module": "meeting",
+      "permission": "meeting.view",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "meeting-detail.html"
+      ]
+    },
+    {
+      "id": "meeting.create",
+      "method": "POST",
+      "path": "/meeting/meetings",
+      "module": "meeting",
+      "permission": "meeting.create",
+      "scope": "self",
+      "response": "resource",
+      "screens": [
+        "meeting-new.html"
+      ]
+    },
+    {
+      "id": "meeting.recording.start",
+      "method": "POST",
+      "path": "/meeting/meetings/{meetingId}/recordings",
+      "module": "meeting",
+      "permission": "meeting.record",
+      "scope": "resource",
+      "response": "operation",
+      "screens": [
+        "meeting-new.html"
+      ],
+      "asyncJob": true
+    },
+    {
+      "id": "meeting.upload.process",
+      "method": "POST",
+      "path": "/meeting/meetings/{meetingId}/audio",
+      "module": "meeting",
+      "permission": "meeting.create",
+      "scope": "resource",
+      "response": "operation",
+      "screens": [
+        "meeting-new.html"
+      ],
+      "asyncJob": true
+    },
+    {
+      "id": "meeting.share",
+      "method": "POST",
+      "path": "/meeting/meetings/{meetingId}/shares",
+      "module": "meeting",
+      "permission": "meeting.share",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "meeting-detail.html"
+      ]
+    },
+    {
+      "id": "meeting.export",
+      "method": "POST",
+      "path": "/meeting/meetings/{meetingId}/exports",
+      "module": "meeting",
+      "permission": "meeting.view",
+      "scope": "resource",
+      "response": "operation",
+      "screens": [
+        "meeting-detail.html"
+      ],
+      "asyncJob": true
+    },
+    {
+      "id": "meeting.files.upload",
+      "method": "POST",
+      "path": "/meeting/meetings/{meetingId}/files",
+      "module": "meeting",
+      "permission": "meeting.files.manage",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "meeting-detail.html"
+      ]
+    },
+    {
+      "id": "admin.overview.get",
+      "method": "GET",
+      "path": "/admin/overview",
+      "module": "admin",
+      "permission": "admin.access",
+      "scope": "all",
+      "response": "resource",
+      "screens": [
+        "admin.html"
+      ]
+    },
+    {
+      "id": "admin.organization.tree",
+      "method": "GET",
+      "path": "/admin/organization/tree",
+      "module": "admin",
+      "permission": "admin.organization.view",
+      "scope": "all",
+      "response": "tree",
+      "screens": [
+        "organization.html",
+        "access-scope-browser.html"
+      ]
+    },
+    {
+      "id": "admin.organization.create",
+      "method": "POST",
+      "path": "/admin/organization/units",
+      "module": "admin",
+      "permission": "admin.organization.manage",
+      "scope": "all",
+      "response": "resource",
+      "screens": [
+        "organization.html"
+      ]
+    },
+    {
+      "id": "admin.organization.update",
+      "method": "PUT",
+      "path": "/admin/organization/units/{unitId}",
+      "module": "admin",
+      "permission": "admin.organization.manage",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "organization.html"
+      ]
+    },
+    {
+      "id": "admin.locations.tree",
+      "method": "GET",
+      "path": "/admin/locations/tree",
+      "module": "admin",
+      "permission": "admin.locations.view",
+      "scope": "all",
+      "response": "tree",
+      "screens": [
+        "organization-locations.html"
+      ]
+    },
+    {
+      "id": "admin.locations.create",
+      "method": "POST",
+      "path": "/admin/locations",
+      "module": "admin",
+      "permission": "admin.locations.manage",
+      "scope": "all",
+      "response": "resource",
+      "screens": [
+        "organization-locations.html"
+      ]
+    },
+    {
+      "id": "admin.locations.update",
+      "method": "PUT",
+      "path": "/admin/locations/{locationId}",
+      "module": "admin",
+      "permission": "admin.locations.manage",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "organization-locations.html"
+      ]
+    },
+    {
+      "id": "admin.positions.list",
+      "method": "GET",
+      "path": "/admin/positions",
+      "module": "admin",
+      "permission": "admin.positions.view",
+      "scope": "all",
+      "response": "paged",
+      "screens": [
+        "organization-positions.html",
+        "user-edit.html"
+      ]
+    },
+    {
+      "id": "admin.positions.create",
+      "method": "POST",
+      "path": "/admin/positions",
+      "module": "admin",
+      "permission": "admin.positions.manage",
+      "scope": "all",
+      "response": "resource",
+      "screens": [
+        "organization-positions.html"
+      ]
+    },
+    {
+      "id": "admin.positions.update",
+      "method": "PUT",
+      "path": "/admin/positions/{positionId}",
+      "module": "admin",
+      "permission": "admin.positions.manage",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "organization-positions.html"
+      ]
+    },
+    {
+      "id": "admin.users.list",
+      "method": "GET",
+      "path": "/admin/users",
+      "module": "admin",
+      "permission": "admin.users.view",
+      "scope": "effective",
+      "response": "paged",
+      "screens": [
+        "users.html"
+      ]
+    },
+    {
+      "id": "admin.users.get",
+      "method": "GET",
+      "path": "/admin/users/{userId}",
+      "module": "admin",
+      "permission": "admin.users.view",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "user-detail.html"
+      ]
+    },
+    {
+      "id": "admin.users.create",
+      "method": "POST",
+      "path": "/admin/users",
+      "module": "admin",
+      "permission": "admin.users.manage",
+      "scope": "all",
+      "response": "resource",
+      "screens": [
+        "user-edit.html"
+      ]
+    },
+    {
+      "id": "admin.users.update",
+      "method": "PUT",
+      "path": "/admin/users/{userId}",
+      "module": "admin",
+      "permission": "admin.users.manage",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "user-edit.html"
+      ]
+    },
+    {
+      "id": "admin.apps.list",
+      "method": "GET",
+      "path": "/admin/apps",
+      "module": "admin",
+      "permission": "admin.apps.view",
+      "scope": "all",
+      "response": "collection",
+      "screens": [
+        "modules.html"
+      ]
+    },
+    {
+      "id": "admin.apps.update",
+      "method": "PATCH",
+      "path": "/admin/apps/{appId}",
+      "module": "admin",
+      "permission": "admin.apps.manage",
+      "scope": "all",
+      "response": "resource",
+      "screens": [
+        "modules.html"
+      ]
+    },
+    {
+      "id": "admin.roles.list",
+      "method": "GET",
+      "path": "/admin/roles",
+      "module": "admin",
+      "permission": "admin.roles.view",
+      "scope": "all",
+      "response": "collection",
+      "screens": [
+        "roles-permissions-v2.html",
+        "access-scope-edit.html"
+      ]
+    },
+    {
+      "id": "admin.permissions.list",
+      "method": "GET",
+      "path": "/admin/permissions",
+      "module": "admin",
+      "permission": "admin.roles.view",
+      "scope": "all",
+      "response": "collection",
+      "screens": [
+        "roles-permissions-v2.html"
+      ]
+    },
+    {
+      "id": "admin.access_assignments.list",
+      "method": "GET",
+      "path": "/admin/access-assignments",
+      "module": "admin",
+      "permission": "admin.access_scopes.view",
+      "scope": "all",
+      "response": "paged",
+      "screens": [
+        "access-scopes.html"
+      ]
+    },
+    {
+      "id": "admin.access_assignments.get",
+      "method": "GET",
+      "path": "/admin/access-assignments/{assignmentId}",
+      "module": "admin",
+      "permission": "admin.access_scopes.view",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "access-scope-edit.html"
+      ]
+    },
+    {
+      "id": "admin.access_assignments.upsert",
+      "method": "PUT",
+      "path": "/admin/access-assignments/{assignmentId}",
+      "module": "admin",
+      "permission": "admin.access_scopes.manage",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "access-scope-edit.html"
+      ]
+    },
+    {
+      "id": "admin.access_scope_tree",
+      "method": "GET",
+      "path": "/admin/access-scopes/effective-tree",
+      "module": "admin",
+      "permission": "admin.access_scopes.view",
+      "scope": "effective",
+      "response": "treegrid",
+      "screens": [
+        "access-scope-browser.html"
+      ]
+    },
+    {
+      "id": "admin.access_evaluate",
+      "method": "POST",
+      "path": "/admin/access-scopes/evaluate",
+      "module": "admin",
+      "permission": "admin.access_scopes.evaluate",
+      "scope": "all",
+      "response": "resource",
+      "screens": [
+        "access-scope-evaluate.html"
+      ]
+    },
+    {
+      "id": "agent.context.get",
+      "method": "GET",
+      "path": "/agent/context",
+      "module": "agent",
+      "permission": null,
+      "scope": "self",
+      "response": "resource",
+      "screens": [
+        "helpdesk-agent-request.html",
+        "agent-ownership-confirmation.html"
+      ],
+      "authMode": "agent-device"
+    },
+    {
+      "id": "agent.ownership.confirm",
+      "method": "POST",
+      "path": "/agent/ownership-confirmations",
+      "module": "agent",
+      "permission": null,
+      "scope": "self",
+      "response": "command",
+      "screens": [
+        "agent-ownership-confirmation.html"
+      ],
+      "authMode": "agent-device"
+    },
+    {
+      "id": "agent.consent_requests.current",
+      "method": "GET",
+      "path": "/agent/remote-consent/requests/current",
+      "module": "agent",
+      "permission": null,
+      "scope": "self",
+      "response": "resource",
+      "screens": [
+        "helpdesk-agent-request.html"
+      ],
+      "authMode": "agent-device"
+    },
+    {
+      "id": "agent.consent_requests.decide",
+      "method": "POST",
+      "path": "/agent/remote-consent/requests/{requestId}/decision",
+      "module": "agent",
+      "permission": null,
+      "scope": "self",
+      "response": "command",
+      "screens": [
+        "helpdesk-agent-request.html"
+      ],
+      "authMode": "agent-device"
+    },
+    {
+      "id": "platform.operations.get",
+      "method": "GET",
+      "path": "/operations/{operationId}",
+      "module": "platform",
+      "permission": null,
+      "authMode": "operation-owner",
+      "scope": "self",
+      "response": "resource",
+      "screens": [
+        "deployment-job-detail.html",
+        "remote-operations.html",
+        "device-query.html",
+        "meeting-detail.html",
+        "reports-saved.html"
+      ]
+    },
+    {
+      "id": "helpdesk.attachments.create",
+      "method": "POST",
+      "path": "/helpdesk/attachments",
+      "module": "helpdesk",
+      "permission": "helpdesk.ticket.create",
+      "scope": "self",
+      "response": "resource",
+      "screens": [
+        "ticket-new.html",
+        "ticket-detail.html"
+      ]
+    },
+    {
+      "id": "helpdesk.notification_rules.create",
+      "method": "POST",
+      "path": "/helpdesk/notification-rules",
+      "module": "helpdesk",
+      "permission": "helpdesk.notifications.manage",
+      "scope": "all",
+      "response": "resource",
+      "screens": [
+        "helpdesk-notifications.html",
+        "helpdesk-notification-rule.html"
+      ]
+    },
+    {
+      "id": "helpdesk.notification_templates.create",
+      "method": "POST",
+      "path": "/helpdesk/notification-templates",
+      "module": "helpdesk",
+      "permission": "helpdesk.notifications.manage",
+      "scope": "all",
+      "response": "resource",
+      "screens": [
+        "helpdesk-notification-templates.html",
+        "helpdesk-notification-template.html"
+      ]
+    },
+    {
+      "id": "helpdesk.automation.create",
+      "method": "POST",
+      "path": "/helpdesk/automation-rules",
+      "module": "helpdesk",
+      "permission": "helpdesk.automation.manage",
+      "scope": "all",
+      "response": "resource",
+      "screens": [
+        "helpdesk-automation.html",
+        "helpdesk-automation-rule.html"
+      ]
+    }
+  ],
+  "screenCoverage": {
+    "workspace-v2.html": [
+      "platform.me.get",
+      "platform.workspace.get",
+      "platform.search"
+    ],
+    "profile.html": [
+      "platform.me.get",
+      "platform.profile.update"
+    ],
+    "workspace-continue.html": [
+      "platform.workspace.continue.get"
+    ],
+    "workspace-attention.html": [
+      "platform.workspace.attention.get"
+    ],
+    "workspace-recent.html": [
+      "platform.activity.list"
+    ],
+    "app-launcher-v2.html": [
+      "platform.apps.list",
+      "platform.search"
+    ],
+    "modules.html": [
+      "platform.apps.list",
+      "admin.apps.list",
+      "admin.apps.update"
+    ],
+    "notifications.html": [
+      "platform.notifications.list",
+      "platform.notifications.read",
+      "platform.notifications.read_all"
+    ],
+    "devices-overview-v2.html": [
+      "devices.overview.get"
+    ],
+    "devices.html": [
+      "devices.list"
+    ],
+    "device-detail-v2.html": [
+      "devices.get",
+      "devices.update",
+      "devices.remote_sessions.create"
+    ],
+    "device-group-detail.html": [
+      "devices.get",
+      "devices.groups.get",
+      "devices.groups.update",
+      "devices.group_members.list"
+    ],
+    "device-add.html": [
+      "devices.agent_installer.create"
+    ],
+    "device-discovery.html": [
+      "devices.discovery_scan.create",
+      "devices.discovery_scan.get",
+      "devices.discovery_results.list"
+    ],
+    "device-groups.html": [
+      "devices.groups.list",
+      "devices.groups.create"
+    ],
+    "remote-operations.html": [
+      "devices.remote_sessions.list",
+      "devices.remote_sessions.create",
+      "devices.screenshot_jobs.list",
+      "devices.screenshot_jobs.create",
+      "devices.wake.create",
+      "platform.operations.get"
+    ],
+    "remote-session.html": [
+      "devices.remote_sessions.get",
+      "devices.remote_sessions.disconnect",
+      "devices.remote_sessions.mode",
+      "devices.remote_sessions.file_transfer"
+    ],
+    "remote-consent.html": [
+      "devices.consent_policy.get"
+    ],
+    "remote-consent-policy.html": [
+      "devices.consent_policy.get",
+      "devices.consent_policy.update"
+    ],
+    "remote-consent-message.html": [
+      "devices.consent_message.get",
+      "devices.consent_message.update"
+    ],
+    "remote-consent-rules.html": [
+      "devices.consent_rules.list",
+      "devices.consent_rules.create",
+      "devices.consent_rules.update"
+    ],
+    "remote-consent-history.html": [
+      "devices.consent_history.list"
+    ],
+    "device-query.html": [
+      "devices.inventory_queries.list",
+      "devices.inventory_queries.save",
+      "devices.inventory_queries.run",
+      "devices.inventory_query_results.list",
+      "platform.operations.get"
+    ],
+    "deployment-jobs.html": [
+      "devices.deployments.list",
+      "devices.deployments.create"
+    ],
+    "deployment-new.html": [
+      "devices.deployments.create"
+    ],
+    "deployment-job-detail.html": [
+      "devices.deployments.get",
+      "platform.operations.get"
+    ],
+    "agent-maintenance.html": [
+      "devices.agent_rollouts.list",
+      "devices.maintenance_history.list"
+    ],
+    "agent-updates.html": [
+      "devices.agent_rollouts.list"
+    ],
+    "agent-rollout-new.html": [
+      "devices.agent_rollouts.create"
+    ],
+    "software-maintenance.html": [
+      "devices.software_jobs.list"
+    ],
+    "software-maintenance-new.html": [
+      "devices.software_jobs.create"
+    ],
+    "restart-operations.html": [
+      "devices.restart_jobs.list"
+    ],
+    "restart-schedule.html": [
+      "devices.restart_jobs.create"
+    ],
+    "maintenance-history.html": [
+      "devices.maintenance_history.list"
+    ],
+    "endpoint-policies.html": [
+      "devices.policies.list",
+      "devices.policies.get",
+      "devices.policies.update",
+      "devices.policy_compliance.list"
+    ],
+    "device-alerts.html": [
+      "devices.alerts.list",
+      "devices.alerts.ack",
+      "devices.alerts.ack_all"
+    ],
+    "device-alert-rules.html": [
+      "devices.alert_rules.list",
+      "devices.alert_rules.create"
+    ],
+    "device-alert-rule.html": [
+      "devices.alert_rules.get",
+      "devices.alert_rules.create",
+      "devices.alert_rules.update"
+    ],
+    "device-alert-channels.html": [
+      "devices.alert_channels.get",
+      "devices.alert_channels.update",
+      "devices.alert_channels.test"
+    ],
+    "device-alert-history.html": [
+      "devices.alert_history.list"
+    ],
+    "assets-overview.html": [
+      "assets.overview.get"
+    ],
+    "asset-inventory.html": [
+      "assets.list"
+    ],
+    "asset-detail.html": [
+      "assets.get",
+      "assets.update"
+    ],
+    "user-detail.html": [
+      "assets.get",
+      "admin.users.get"
+    ],
+    "asset-ownership.html": [
+      "assets.ownership.list",
+      "assets.ownership.update"
+    ],
+    "asset-users.html": [
+      "assets.owner_summary.list"
+    ],
+    "asset-user-detail.html": [
+      "assets.owner_summary.get"
+    ],
+    "asset-ownership-submissions.html": [
+      "assets.ownership_submissions.list",
+      "assets.ownership_submissions.decide"
+    ],
+    "asset-custom-fields.html": [
+      "assets.custom_fields.list",
+      "assets.custom_fields.update"
+    ],
+    "asset-qr.html": [
+      "assets.qr_label.create"
+    ],
+    "asset-mobile.html": [
+      "assets.qr_resolve"
+    ],
+    "software-licenses.html": [
+      "assets.licenses.list",
+      "assets.licenses.update"
+    ],
+    "contracts-warranty.html": [
+      "assets.contracts.list",
+      "assets.contracts.update"
+    ],
+    "reports-overview.html": [
+      "reports.overview.get",
+      "reports.exports.create"
+    ],
+    "report-builder.html": [
+      "reports.datasets.list",
+      "reports.preview",
+      "reports.saved.get",
+      "reports.saved.create",
+      "reports.saved.update",
+      "reports.exports.create"
+    ],
+    "reports-saved.html": [
+      "reports.saved.list",
+      "reports.saved.get",
+      "reports.runs.create",
+      "platform.operations.get"
+    ],
+    "helpdesk.html": [
+      "helpdesk.overview.get"
+    ],
+    "helpdesk-tickets.html": [
+      "helpdesk.tickets.list"
+    ],
+    "helpdesk-assigned.html": [
+      "helpdesk.tickets.list"
+    ],
+    "helpdesk-team.html": [
+      "helpdesk.tickets.list",
+      "helpdesk.sla_monitor.get"
+    ],
+    "ticket-detail.html": [
+      "helpdesk.tickets.get",
+      "helpdesk.tickets.reply",
+      "helpdesk.tickets.reassign",
+      "helpdesk.tickets.resolve",
+      "helpdesk.attachments.create"
+    ],
+    "helpdesk-notification-delivery.html": [
+      "helpdesk.tickets.get",
+      "helpdesk.notification_delivery.list"
+    ],
+    "ticket-new.html": [
+      "helpdesk.tickets.create",
+      "helpdesk.categories.tree",
+      "helpdesk.attachments.create"
+    ],
+    "helpdesk-agent-request.html": [
+      "helpdesk.tickets.create",
+      "agent.context.get",
+      "agent.consent_requests.current",
+      "agent.consent_requests.decide"
+    ],
+    "helpdesk-sla.html": [
+      "helpdesk.sla_policies.list",
+      "helpdesk.sla_policies.update",
+      "helpdesk.sla_monitor.get"
+    ],
+    "helpdesk-settings.html": [
+      "helpdesk.categories.tree"
+    ],
+    "helpdesk-categories.html": [
+      "helpdesk.categories.tree",
+      "helpdesk.categories.upsert"
+    ],
+    "helpdesk-statuses.html": [
+      "helpdesk.statuses.list",
+      "helpdesk.statuses.update"
+    ],
+    "helpdesk-requester-groups.html": [
+      "helpdesk.requester_groups.list",
+      "helpdesk.requester_groups.upsert"
+    ],
+    "helpdesk-calendar.html": [
+      "helpdesk.calendar.get",
+      "helpdesk.calendar.update"
+    ],
+    "helpdesk-notifications.html": [
+      "helpdesk.notification_rules.list",
+      "helpdesk.notification_rules.create"
+    ],
+    "helpdesk-notification-rule.html": [
+      "helpdesk.notification_rules.get",
+      "helpdesk.notification_rules.update",
+      "helpdesk.notification_rules.create"
+    ],
+    "helpdesk-notification-templates.html": [
+      "helpdesk.notification_templates.list",
+      "helpdesk.notification_templates.create"
+    ],
+    "helpdesk-notification-template.html": [
+      "helpdesk.notification_templates.get",
+      "helpdesk.notification_templates.upsert",
+      "helpdesk.notification_templates.create"
+    ],
+    "helpdesk-notification-settings.html": [
+      "helpdesk.notification_settings.get",
+      "helpdesk.notification_settings.update",
+      "helpdesk.notification_test.create"
+    ],
+    "knowledge-base.html": [
+      "helpdesk.knowledge.list"
+    ],
+    "helpdesk-reports.html": [
+      "helpdesk.reports.get"
+    ],
+    "helpdesk-automation.html": [
+      "helpdesk.automation.list",
+      "helpdesk.automation.create"
+    ],
+    "helpdesk-automation-rule.html": [
+      "helpdesk.automation.get",
+      "helpdesk.automation.upsert",
+      "helpdesk.automation.create"
+    ],
+    "meeting.html": [
+      "meeting.overview.get"
+    ],
+    "meeting-list.html": [
+      "meeting.list"
+    ],
+    "meeting-upcoming.html": [
+      "meeting.upcoming.list"
+    ],
+    "meeting-detail.html": [
+      "meeting.get",
+      "meeting.share",
+      "meeting.export",
+      "meeting.files.upload",
+      "platform.operations.get"
+    ],
+    "meeting-new.html": [
+      "meeting.create",
+      "meeting.recording.start",
+      "meeting.upload.process"
+    ],
+    "admin.html": [
+      "admin.overview.get"
+    ],
+    "organization.html": [
+      "admin.organization.tree",
+      "admin.organization.create",
+      "admin.organization.update"
+    ],
+    "access-scope-browser.html": [
+      "admin.organization.tree",
+      "admin.access_scope_tree"
+    ],
+    "organization-locations.html": [
+      "admin.locations.tree",
+      "admin.locations.create",
+      "admin.locations.update"
+    ],
+    "organization-positions.html": [
+      "admin.positions.list",
+      "admin.positions.create",
+      "admin.positions.update"
+    ],
+    "user-edit.html": [
+      "admin.positions.list",
+      "admin.users.create",
+      "admin.users.update"
+    ],
+    "users.html": [
+      "admin.users.list"
+    ],
+    "roles-permissions-v2.html": [
+      "admin.roles.list",
+      "admin.permissions.list"
+    ],
+    "access-scope-edit.html": [
+      "admin.roles.list",
+      "admin.access_assignments.get",
+      "admin.access_assignments.upsert"
+    ],
+    "access-scopes.html": [
+      "admin.access_assignments.list"
+    ],
+    "access-scope-evaluate.html": [
+      "admin.access_evaluate"
+    ],
+    "agent-ownership-confirmation.html": [
+      "agent.context.get",
+      "agent.ownership.confirm"
+    ]
+  }
+}

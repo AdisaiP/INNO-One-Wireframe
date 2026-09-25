@@ -1,5 +1,5 @@
 {
-  "contractVersion": "0.1.0",
+  "contractVersion": "0.2.0",
   "status": "implementation-planning",
   "generatedFrom": {
     "designSystem": "V1.26",
@@ -136,7 +136,13 @@
     "admin.security.manage",
     "admin.audit.view",
     "admin.branding.manage",
-    "admin.settings.manage"
+    "admin.settings.manage",
+    "admin.access",
+    "helpdesk.kb.view",
+    "helpdesk.automation.view",
+    "helpdesk.automation.manage",
+    "helpdesk.ticket.reply",
+    "meeting.files.manage"
   ],
   "logicalScopes": [
     "own",
@@ -179,5 +185,11 @@
       "permissions",
       "access-scopes"
     ]
+  },
+  "apiContract": {
+    "version": "0.2.0",
+    "basePath": "/api/v1",
+    "source": "inno-api-contract.json",
+    "openApi": "openapi-inno-one-v1.json"
   }
 }

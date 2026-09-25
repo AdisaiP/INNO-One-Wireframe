@@ -349,7 +349,7 @@ Recommended external route family:
 
 Reverse proxy/gateway routing may distribute these routes internally later without changing client contracts.
 
-The exact endpoint inventory belongs to Step 11 — API Contract.
+The exact endpoint inventory is now defined by Step 11 in `INNO-One-API-Contract.md`, `inno-api-contract.json` and `openapi-inno-one-v1.json`.
 
 ## 9. Event boundary
 
@@ -528,3 +528,28 @@ Not frozen yet:
 - exact Agent implementation language.
 
 These should be selected only when Step 11–15 provide enough implementation context.
+
+## 17. Step 11 API Contract checkpoint — 2026-09-26
+
+Step 11 now freezes the public planning API boundary at **API Contract 0.2.0**.
+
+- Base path: `/api/v1`.
+- Catalog: **172 operations / 137 unique paths**.
+- Frozen Web coverage: **93 / 93 routes**.
+- Runtime Agent/Mobile coverage: **3 / 3 surfaces** requiring APIs.
+- OpenAPI planning skeleton: `openapi-inno-one-v1.json` with **172 operations**.
+- Normal user authentication: Keycloak Bearer JWT.
+- Error contract: `application/problem+json`.
+- Mutable config concurrency: ETag + If-Match.
+- High-impact command retry safety: Idempotency-Key.
+- Long-running work: 202 + operation resource.
+- Agent-only endpoints are explicitly marked with provisional device-bound auth mode rather than normal end-user permissions.
+- API mapping refined the implementation permission catalog to **43 existing + 33 reserved** permissions.
+
+Source of truth:
+- `INNO-One-API-Contract.md`
+- `inno-api-contract.json`
+- `openapi-inno-one-v1.json`
+- `api-contract-audit.py`
+
+No backend feature implementation was started by Step 11.

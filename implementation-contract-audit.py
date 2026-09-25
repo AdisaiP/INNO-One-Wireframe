@@ -9,6 +9,17 @@ registry_text = (ROOT / "platform-registry.js").read_text()
 
 issues = []
 
+if contract.get("contractVersion") != "0.2.0":
+    issues.append(f"expected implementation contract 0.2.0, found {contract.get('contractVersion')}")
+api_contract = contract.get("apiContract", {})
+if api_contract.get("version") != "0.2.0":
+    issues.append("implementation contract must reference API Contract 0.2.0")
+if api_contract.get("basePath") != "/api/v1":
+    issues.append("implementation contract API base path must be /api/v1")
+for ref in (api_contract.get("source"), api_contract.get("openApi")):
+    if not ref or not (ROOT / ref).exists():
+        issues.append(f"missing API contract reference: {ref}")
+
 existing = contract.get("existingPermissions", [])
 reserved = contract.get("reservedImplementationPermissions", [])
 all_permissions = existing + reserved

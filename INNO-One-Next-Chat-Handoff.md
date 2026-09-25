@@ -1135,4 +1135,50 @@ New source-of-truth planning files:
 
 Current implementation contract audit: **0 issues**.
 
-**No backend feature code has started. Next: Step 11 API Contract.**
+**No backend feature code has started. Step 11 API Contract is complete; next is Step 12 Event & Audit Contract.**
+
+# Step 11 — API Contract ✅ COMPLETED 2026-09-26
+
+Branch: `architecture/step11-api-contract`
+
+UX/UI remains FINAL FROZEN at **Design System V1.26 / UI Contract 1.20.0**.
+
+API Contract: **0.2.0**
+
+Frozen API decisions:
+- Public base path: `/api/v1`.
+- Normal user auth: Keycloak Bearer JWT.
+- Page-number pagination: `page`, `pageSize`, `search`, `sort`, `order`.
+- Error shape: `application/problem+json` with canonical INNO.One error codes.
+- Mutable configuration: ETag + If-Match.
+- High-impact POST jobs: Idempotency-Key.
+- Long-running jobs: HTTP 202 + operation resource.
+- Stable opaque IDs for cross-module references.
+- MeshCentral/vendor DTOs remain behind Devices adapter APIs.
+- Agent-only API calls use provisional `authMode=agent-device`; exact agent credential provisioning is deferred.
+
+Coverage:
+- **172 operations**.
+- **137 unique paths**.
+- **93 / 93 frozen Web routes** mapped to APIs.
+- **3 / 3 runtime Agent/Mobile surfaces** mapped to APIs.
+- OpenAPI 3.1 planning skeleton: **172 operations**.
+- Async operations: **17**.
+
+Permission refinement from API mapping:
+- Existing registry permissions: **43**.
+- Reserved implementation permissions: **33**.
+- Additional gaps captured include `admin.access`, `helpdesk.kb.view`, `helpdesk.ticket.reply`, `helpdesk.automation.view`, `helpdesk.automation.manage`, `meeting.files.manage`, plus explicit `devices.deploy` from Step 10.
+
+New source-of-truth files:
+- `INNO-One-API-Contract.md`
+- `inno-api-contract.json`
+- `openapi-inno-one-v1.json`
+- `api-contract-audit.py`
+
+Current checks:
+- `api-contract-audit.py`: **0 issues**.
+- `implementation-contract-audit.py`: **0 issues**.
+- `final-visual-audit.py`: **0 issues**; frozen UX/UI baseline unchanged.
+
+**No backend feature code has started. Next: Step 12 Event & Audit Contract.**
