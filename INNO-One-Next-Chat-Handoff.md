@@ -30,8 +30,8 @@ INNO.One กำลังถูกปรับจาก TOR coverage prototype �
 
 ## 2. Current UI Baseline
 
-- Design System: **V1.22**
-- UI Contract: **1.16.0**
+- Design System: **V1.23**
+- UI Contract: **1.17.0**
 - Registry Schema: **10**
 
 Source of truth หลัก:
@@ -55,6 +55,8 @@ Source of truth หลัก:
 - `language-terminology-audit.py`
 - `INNO-One-Interaction-Feedback-Contract.md`
 - `interaction-feedback-audit.py`
+- `INNO-One-Table-List-Density-Contract.md`
+- `table-list-density-audit.py`
 - `inno-icons.js`
 - `INNO-One-Design-System-V1-Frozen.md`
 - `INNO-One-Surface-Boundaries.md`
@@ -622,7 +624,7 @@ Endpoint Agent และ Mobile ทดสอบแยกตาม Surface
 
 ## NEXT 6 — Final Visual QA ✅ COMPLETED 2026-09-24
 
-Historical NEXT 6 baseline was frozen at **Design System V1.18 / UI Contract 1.12.0**. The current accepted baseline is **Design System V1.22 / UI Contract 1.16.0** after Accessibility + Availability + Language/Terminology + Interaction/Feedback final polish.
+Historical NEXT 6 baseline was frozen at **Design System V1.18 / UI Contract 1.12.0**. The current accepted baseline is **Design System V1.23 / UI Contract 1.17.0** after Accessibility + Availability + Language/Terminology + Interaction/Feedback + Table/List Density final polish.
 
 Checklist ที่ทำครบ:
 
@@ -655,7 +657,7 @@ Checklist ที่ทำครบ:
 - Final Visual audit = 0 issues
 - Final baseline อยู่ที่ `qa-final-visual/` และ contract อธิบายใน `INNO-One-Final-Visual-QA-Baseline.md`
 
-**สถานะ UI Prototype ปัจจุบัน: ✅ FROZEN AT V1.22 / CONTRACT 1.16.0 — BACKEND WORK PAUSED BY USER**
+**สถานะ UI Prototype ปัจจุบัน: ✅ FROZEN AT V1.23 / CONTRACT 1.17.0 — BACKEND WORK PAUSED BY USER**
 
 หมายเหตุ: Backend planning documents may exist on a separate branch, but the user explicitly paused Backend work. Do not resume Backend unless the user asks again.
 
@@ -681,7 +683,7 @@ Prototype CSS เป็น append-heavy อยู่แล้ว ต้องแ
 
 ใช้ข้อความนี้ได้เลย:
 
-> เปิดโปรเจกต์ `/Users/adisaip/Desktop/INNO-One-Wireframe/` ผ่าน MCP แล้วอ่าน `INNO-One-Next-Chat-Handoff.md`, `INNO-One-Final-Visual-QA-Baseline.md`, `INNO-One-Action-Layout-Contract.md`, `INNO-One-Language-Terminology-Contract.md`, `INNO-One-UI-Prototype-Summary.md` และ Design System ก่อน ปัจจุบัน UI Freeze อยู่ที่ **Design System V1.22 / UI Contract 1.16.0**. Backend ถูกพักไว้ตามคำสั่งผู้ใช้ ให้ทำเฉพาะ UX/UI review หรือ frontend prototype work ที่ผู้ใช้สั่ง และต้องรักษา Action/Layout Contract + visual regression baseline.
+> เปิดโปรเจกต์ `/Users/adisaip/Desktop/INNO-One-Wireframe/` ผ่าน MCP แล้วอ่าน `INNO-One-Next-Chat-Handoff.md`, `INNO-One-Final-Visual-QA-Baseline.md`, `INNO-One-Action-Layout-Contract.md`, `INNO-One-Language-Terminology-Contract.md`, `INNO-One-UI-Prototype-Summary.md` และ Design System ก่อน ปัจจุบัน UI Freeze อยู่ที่ **Design System V1.23 / UI Contract 1.17.0**. Backend ถูกพักไว้ตามคำสั่งผู้ใช้ ให้ทำเฉพาะ UX/UI review หรือ frontend prototype work ที่ผู้ใช้สั่ง และต้องรักษา Action/Layout Contract + visual regression baseline.
 
 ---
 
@@ -927,5 +929,37 @@ QA:
 - native browser dialogs: **0**.
 - `interaction-feedback-audit.py`: **0 issues**.
 - `qa-ux-input-browser.py`: **85 / 85 checks**, including busy save, Danger/Warning confirmation and validation association.
+
+Backend remains paused.
+
+
+# UX/UI Final Polish — Step 5 Table / List / Data Density ✅ COMPLETED 2026-09-25
+
+Branch: `ux/table-list-density-pass`
+
+Source of truth: `INNO-One-Table-List-Density-Contract.md`
+
+Design System: **V1.23**
+UI Contract: **1.17.0**
+
+Completed:
+- Primary collection tables now share compact density, horizontal desktop toolbars and responsive stacked tablet controls.
+- Shared search wiring replaces one-off inline filtering on canonical collections.
+- Search now inherits the standard no-results and Escape-to-clear behavior.
+- Collection title/context is separated from search/filter controls instead of combining everything into one section-title row.
+- Row action columns are explicitly named and aligned; table action buttons use compact sizing.
+- Devices and Asset Inventory were aligned to the same compact/action-column contract.
+- Domain-specific Helpdesk queues and Meeting lists remain list components instead of being forced into generic tables.
+
+QA:
+- Web routes: **83**.
+- pages containing tables: **40**.
+- tables: **46**.
+- canonical primary collections: **12**.
+- compact primary tables: **12 / 12**.
+- shared search targets: **12 / 12**.
+- canonical action columns: **7 / 7**.
+- `table-list-density-audit.py`: **0 issues**.
+- `qa-ux-input-browser.py`: **90 / 90 checks**.
 
 Backend remains paused.

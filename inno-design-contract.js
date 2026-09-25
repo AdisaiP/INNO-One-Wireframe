@@ -3,8 +3,8 @@
 
 const contract={
   name:"INNO.One Design System",
-  contractVersion:"1.16.0",
-  documentationVersion:"1.22",
+  contractVersion:"1.17.0",
+  documentationVersion:"1.23",
   status:"frozen",
   frozenAt:"2026-09-25",
   principles:[
@@ -18,7 +18,8 @@ const contract={
     "Unavailable capability is hidden or presented as passive roadmap context; it never masquerades as a working control in normal task flow.",
     "Each product surface owns one primary UI language; localized business content declares its language explicitly instead of mixing languages in shared UI chrome.",
     "Canonical product terminology is consistent across contextual navigation, actions and configuration surfaces.",
-    "User feedback uses one shared contract for save progress, validation, toast intent, confirmation severity, retry and dirty-state protection."
+    "User feedback uses one shared contract for save progress, validation, toast intent, confirmation severity, retry and dirty-state protection.",
+    "Primary collection tables use shared data-toolbar, compact density, search wiring and action-column behavior; operational queues keep domain-specific list layouts."
   ],
   foundations:{
     controlHeight:36,
@@ -266,7 +267,9 @@ const contract={
     "INNO-One-Language-Terminology-Contract.md",
     "language-terminology-audit.py",
     "INNO-One-Interaction-Feedback-Contract.md",
-    "interaction-feedback-audit.py"
+    "interaction-feedback-audit.py",
+    "INNO-One-Table-List-Density-Contract.md",
+    "table-list-density-audit.py"
   ],
   changePolicy:{
     patch:"Visual correction that does not change component API or behavior.",

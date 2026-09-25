@@ -177,8 +177,8 @@ Current interpretation:
 ## 8. Frozen UI contract
 
 Current accepted baseline:
-- Design System: V1.22.
-- UI Contract: 1.16.0.
+- Design System: V1.23.
+- UI Contract: 1.17.0.
 - Registry Schema: 10.
 - Surface contracts: Web / Endpoint Agent / Android Mobile.
 
@@ -342,3 +342,8 @@ Design System V1.21 / UI Contract 1.15.0 defines surface language ownership: Web
 ## 22. Interaction & feedback consistency — 2026-09-25
 
 Step 4 standardizes feedback across the prototype. Save/Create controls now expose busy/success/error state and block duplicate activation; validation errors are associated with fields and focus the first invalid control; confirmation actions distinguish Warning from Danger; native browser dialogs are disallowed. `interaction-feedback-audit.py` reports zero issues and browser regression covers the shared behaviors.
+
+
+## 23. Table / list / data density consistency — 2026-09-25
+
+Step 5 standardizes primary collection browsing without turning every dataset into the same component. Twelve canonical collection tables now share compact row density, shared search/no-result behavior, responsive toolbar layout and explicit action-column treatment. Helpdesk queues and Meeting lists keep their richer domain-specific row layouts. See `INNO-One-Table-List-Density-Contract.md`.

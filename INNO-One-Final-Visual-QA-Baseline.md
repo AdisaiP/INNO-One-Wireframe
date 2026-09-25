@@ -1,7 +1,7 @@
 # INNO.One Final Visual QA Baseline
 
-**UI Contract:** 1.16.0
-**Design System Documentation:** V1.22
+**UI Contract:** 1.17.0
+**Design System Documentation:** V1.23
 **Status:** Frozen visual baseline
 **Frozen:** 2026-09-25
 **Backend:** Not implemented by this baseline
@@ -198,7 +198,7 @@ Action/Layout verification at freeze:
 
 ## 16. Accessibility / Availability final-polish baseline — 2026-09-25
 
-The current frozen baseline is **Design System V1.22 / UI Contract 1.16.0**.
+The current frozen baseline is **Design System V1.23 / UI Contract 1.17.0**.
 
 Accessibility baseline:
 - 87 canonical pages covered by `accessibility-audit.py`.
@@ -248,3 +248,17 @@ Current baseline:
 - Validation associates inline errors with invalid fields and focuses the first error.
 - `interaction-feedback-audit.py`: 0 issues.
 - Browser regression: 85 / 85 checks.
+
+
+## 19. Table / list density baseline — 2026-09-25
+
+Design System V1.23 / UI Contract 1.17.0 standardizes canonical collection density without flattening domain-specific queue/list patterns.
+
+Current baseline:
+- 12 / 12 primary collection tables use compact density.
+- 12 / 12 use shared search target wiring.
+- 7 / 7 action-bearing primary collections use named/aligned action columns.
+- Desktop collection toolbars remain horizontal; <=850 px search becomes full width and filters wrap below.
+- Primary collection search inherits shared no-results behavior.
+- `table-list-density-audit.py`: 0 issues.
+- Browser regression: 90 / 90 checks.

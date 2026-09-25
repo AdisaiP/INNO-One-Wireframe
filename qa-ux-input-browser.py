@@ -291,6 +291,20 @@ c.nav("ticket-new.html")
 c.eval("document.getElementById('subject').value='';document.querySelector('textarea[required]').value='';document.querySelector('[data-inno-save]').click()");time.sleep(.03)
 check("Validation associates error message with first invalid field",c.eval("(()=>{const f=document.getElementById('subject'),id=f.getAttribute('aria-describedby');return f.getAttribute('aria-invalid')==='true'&&!!id&&document.getElementById(id)?.getAttribute('role')==='alert'&&document.activeElement===f})()"))
 
+# Step 5 — Table / List / Data Density.
+c.viewport(1366);c.nav("asset-users.html")
+check("Asset Users uses compact collection table and action column",c.eval("document.querySelector('table[data-density=\"compact\"]')!==null && document.querySelector('th.table-action')!==null && document.querySelectorAll('td.table-action').length===2"))
+c.eval("(()=>{const i=document.querySelector('[data-inno-search-target=\"#assetUserRows\"]');i.value='no-such-user';i.dispatchEvent(new Event('input',{bubbles:true}))})()");time.sleep(.04)
+check("Collection search uses shared no-results state",c.eval("document.querySelector('#assetUserRows .inno-search-empty')!==null"))
+c.viewport(768)
+check("Collection toolbar stacks search cleanly at tablet width",c.eval("(()=>{const t=document.querySelector('.data-toolbar'),s=t.querySelector('.ds-search');return s.getBoundingClientRect().width>=t.getBoundingClientRect().width-4})()"))
+
+c.viewport(1366);c.nav("deployment-jobs.html")
+check("Deployment collection toolbar is separated from heading",c.eval("document.querySelector('.data-collection-head + .data-toolbar')!==null && document.querySelector('.section-title .arch-toolbar')===null"))
+
+c.nav("device-alert-history.html")
+check("Alert History exposes canonical search/filter toolbar",c.eval("document.querySelector('.data-toolbar [data-inno-search-target=\"#alertHistoryRows\"]')!==null && document.querySelectorAll('.data-toolbar select').length===2"))
+
 print(f"checks={checks}")
 print(f"failures={len(fails)}")
 for x in fails:print("FAILED",x)

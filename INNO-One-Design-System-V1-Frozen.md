@@ -1,7 +1,7 @@
 # INNO.One Design System — Frozen UI Contract
 
-**UI Contract:** 1.16.0
-**Documentation:** Design System V1.22
+**UI Contract:** 1.17.0
+**Documentation:** Design System V1.23
 **Status:** Frozen  
 **Frozen:** 2026-09-25
 
@@ -31,6 +31,7 @@ The frozen UI contract is represented by:
 - `INNO-One-Availability-Contract.md` / `availability-audit.py` — unavailable-feature UX contract and regression guard
 - `INNO-One-Language-Terminology-Contract.md` / `language-terminology-audit.py` — surface language ownership and canonical terminology contract
 - `INNO-One-Interaction-Feedback-Contract.md` / `interaction-feedback-audit.py` — save, validation, toast and confirmation feedback contract
+- `INNO-One-Table-List-Density-Contract.md` / `table-list-density-audit.py` — collection table/list density and toolbar contract
 
 The HTML prototype is not a backend implementation. It defines expected UI structure and behavior.
 
@@ -408,3 +409,14 @@ A new module is UI-complete only when it:
 - Confirmation severity is explicit: Warning for interruptive/reversible actions, Danger for destructive actions.
 - Native browser dialogs are prohibited.
 - `interaction-feedback-audit.py` and focused rendered-DOM checks are part of the frozen regression contract.
+
+
+## 32. Minor 1.17.0 — Table / List / Data Density — 2026-09-25
+
+- Design System Documentation advanced to **V1.23** and UI Contract to **1.17.0**.
+- Canonical primary collection tables use shared compact density and toolbar structure.
+- Shared search target wiring replaces one-off inline collection filtering.
+- Row action columns are named, aligned and compact.
+- Desktop and tablet/mobile collection toolbar behavior is explicitly defined.
+- Operational Helpdesk/Meeting queues remain domain-specific list layouts rather than generic tables.
+- `table-list-density-audit.py` and rendered collection regression are part of the frozen contract.
