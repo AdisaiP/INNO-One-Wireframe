@@ -9,8 +9,8 @@ registry_text = (ROOT / "platform-registry.js").read_text()
 
 issues = []
 
-if contract.get("contractVersion") != "0.3.0":
-    issues.append(f"expected implementation contract 0.3.0, found {contract.get('contractVersion')}")
+if contract.get("contractVersion") != "0.4.0":
+    issues.append(f"expected implementation contract 0.4.0, found {contract.get('contractVersion')}")
 api_contract = contract.get("apiContract", {})
 if api_contract.get("version") != "0.2.0":
     issues.append("implementation contract must reference API Contract 0.2.0")
@@ -30,6 +30,17 @@ if event_contract.get("delivery") != "at-least-once":
     issues.append("integration event delivery must be at-least-once")
 if event_contract.get("crossModuleDurability") != "transactional-outbox":
     issues.append("cross-module event durability must use transactional outbox")
+
+data_contract = contract.get("dataModelContract", {})
+if data_contract.get("version") != "0.4.0":
+    issues.append("implementation contract must reference Data Model Contract 0.4.0")
+for ref in (data_contract.get("source"), data_contract.get("documentation"), data_contract.get("audit")):
+    if not ref or not (ROOT / ref).exists():
+        issues.append(f"missing Data Model contract reference: {ref}")
+if data_contract.get("engine") != "PostgreSQL":
+    issues.append("data model engine must be PostgreSQL")
+if data_contract.get("coreDatabase") != "inno_core" or data_contract.get("meetingDatabase") != "inno_meeting":
+    issues.append("data model database ownership mismatch")
 
 existing = contract.get("existingPermissions", [])
 reserved = contract.get("reservedImplementationPermissions", [])

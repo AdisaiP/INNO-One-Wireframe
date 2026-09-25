@@ -1006,7 +1006,7 @@ The API contract therefore hands off these fields/behaviors directly into the ev
 - cross-module committed fact → transactional outbox integration event,
 - secrets/raw content → excluded from generic event/audit payloads.
 
-Next implementation-planning contract: **Step 13 Data Ownership / Database Model**.
+Step 13 Data Ownership / Database Model is now complete. The next implementation step is **Step 14 Production Project Skeleton**.
 
 ## 33. Canonical endpoint catalog
 

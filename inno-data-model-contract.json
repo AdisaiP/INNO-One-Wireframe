@@ -1,0 +1,1243 @@
+{
+  "contractVersion": "0.4.0",
+  "status": "implementation-planning",
+  "generatedFrom": {
+    "designSystem": "V1.26",
+    "uiContract": "1.20.0",
+    "implementationContract": "0.3.0",
+    "apiContract": "0.2.0",
+    "eventAuditContract": "0.3.0",
+    "frozenAt": "2026-09-26"
+  },
+  "databaseEngine": {
+    "product": "PostgreSQL",
+    "majorVersion": "deployment-supported",
+    "reason": [
+      "strong relational constraints and transactions for modular monolith",
+      "schema separation for module ownership",
+      "recursive CTE support for organization/location/category trees",
+      "JSONB for bounded extensible configuration without abandoning relational ownership",
+      "partial/GIN indexes where justified",
+      "transactional outbox and append-only audit fit"
+    ]
+  },
+  "deployment": {
+    "coreDatabase": {
+      "name": "inno_core",
+      "schemas": [
+        "platform",
+        "devices",
+        "assets",
+        "helpdesk",
+        "reports",
+        "integration",
+        "audit",
+        "readmodel"
+      ],
+      "owners": [
+        "platform-api"
+      ]
+    },
+    "meetingDatabase": {
+      "name": "inno_meeting",
+      "schemas": [
+        "meeting",
+        "integration"
+      ],
+      "owners": [
+        "meeting-service"
+      ],
+      "note": "Meeting remains independently extractable/deployable; it never reads core tables directly."
+    },
+    "keycloakDatabase": {
+      "name": "keycloak",
+      "owner": "Keycloak",
+      "rule": "INNO.One modules do not read Keycloak tables directly."
+    },
+    "meshCentralPersistence": {
+      "owner": "MeshCentral",
+      "rule": "INNO.One never queries vendor persistence directly; Devices adapter uses vendor API/protocol."
+    },
+    "objectStorage": {
+      "usage": [
+        "helpdesk attachments",
+        "meeting recordings/audio/files",
+        "report exports"
+      ],
+      "rule": "Database stores metadata/object key only; binaries are not stored in core relational tables."
+    }
+  },
+  "identity": {
+    "databasePrimaryKey": "uuid",
+    "generation": "application-generated UUID",
+    "apiIdentifier": "opaque prefixed ID serialization",
+    "businessIdentifiers": "separate unique columns where meaningful",
+    "rule": "Never use mutable display/business identifiers as primary keys."
+  },
+  "concurrency": {
+    "mutableEntities": "explicit bigint version column",
+    "apiETag": "serialize version as ETag",
+    "updateRule": "WHERE id = @id AND version = @expectedVersion; increment on success",
+    "staleResult": "HTTP 412 PRECONDITION_FAILED"
+  },
+  "ownershipRules": {
+    "sameModuleForeignKeys": "enforced by database FK where relationship is aggregate-safe",
+    "crossModuleForeignKeys": "forbidden",
+    "crossModuleReference": "store stable opaque ID only; validate through owning module contract/read model",
+    "crossDatabaseForeignKeys": "forbidden",
+    "writes": "only owning module writes its tables",
+    "reads": "another module must use API/query contract/read model; direct table reads forbidden",
+    "reporting": "reports/search consume authorized read models or module query contracts, not source tables"
+  },
+  "schemas": {
+    "platform": {
+      "owner": "platform",
+      "tables": [
+        {
+          "name": "user_profiles",
+          "purpose": "Canonical INNO.One business profile mapped to Keycloak subject",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [
+            "keycloak_subject",
+            "employee_id"
+          ],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "organization_units",
+          "purpose": "Organization hierarchy",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [
+            "code"
+          ],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "locations",
+          "purpose": "Location hierarchy",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [
+            "code"
+          ],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "positions",
+          "purpose": "Position master",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [
+            "code"
+          ],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "roles",
+          "purpose": "Reusable role definitions",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [
+            "code"
+          ],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "permissions",
+          "purpose": "Canonical permission catalog",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [
+            "permission_id"
+          ],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "role_permissions",
+          "purpose": "Role-to-permission membership",
+          "kind": "join",
+          "primaryKey": "role_id+permission_id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "access_assignments",
+          "purpose": "Role + scoped assignment to a subject",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "access_assignment_resources",
+          "purpose": "Concrete scoped resource rows for an access assignment",
+          "kind": "join",
+          "primaryKey": "assignment_id+resource_type+resource_id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "access_assignment_actions",
+          "purpose": "Optional action narrowing for an access assignment",
+          "kind": "join",
+          "primaryKey": "assignment_id+permission_id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "app_modules",
+          "purpose": "App registry availability/configuration",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [
+            "app_id"
+          ],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "notifications",
+          "purpose": "User-targeted platform notification records",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [
+            {
+              "column": "user_id",
+              "target": "platform.user_profiles",
+              "type": "same-module"
+            }
+          ],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "activity_items",
+          "purpose": "Workspace recent-activity read model",
+          "kind": "read-model",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "retention"
+        }
+      ]
+    },
+    "devices": {
+      "owner": "devices",
+      "tables": [
+        {
+          "name": "devices",
+          "purpose": "Canonical INNO.One managed device",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [
+            "agent_id"
+          ],
+          "crossModuleRefs": [
+            {
+              "column": "owner_user_id",
+              "target": "platform.user_profiles",
+              "type": "cross-module"
+            },
+            {
+              "column": "organization_unit_id",
+              "target": "platform.organization_units",
+              "type": "cross-module"
+            },
+            {
+              "column": "location_id",
+              "target": "platform.locations",
+              "type": "cross-module"
+            }
+          ],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "device_external_mappings",
+          "purpose": "Vendor engine identifiers for a device",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [
+            "provider+external_id"
+          ],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "device_inventory_snapshots",
+          "purpose": "Last/current normalized inventory snapshot",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "retention"
+        },
+        {
+          "name": "device_groups",
+          "purpose": "Static/dynamic device groups",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [
+            "code"
+          ],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "device_group_members",
+          "purpose": "Resolved group membership",
+          "kind": "join",
+          "primaryKey": "group_id+device_id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "remote_sessions",
+          "purpose": "Remote support session lifecycle",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [
+            {
+              "column": "operator_user_id",
+              "target": "platform.user_profiles",
+              "type": "cross-module"
+            }
+          ],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "remote_consent_policies",
+          "purpose": "Global/default remote consent policy",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "remote_consent_messages",
+          "purpose": "Localized consent prompt text",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [
+            "language_code"
+          ],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "remote_consent_bypass_rules",
+          "purpose": "Scoped consent bypass configuration",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "remote_consent_decisions",
+          "purpose": "Immutable consent decision history",
+          "kind": "history",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "retention"
+        },
+        {
+          "name": "discovery_scans",
+          "purpose": "Network discovery execution",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "discovery_results",
+          "purpose": "Discovered endpoint candidates",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "retention"
+        },
+        {
+          "name": "inventory_queries",
+          "purpose": "Saved inventory query definitions",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "inventory_query_runs",
+          "purpose": "Inventory query executions",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "retention"
+        },
+        {
+          "name": "inventory_query_results",
+          "purpose": "Materialized query run results",
+          "kind": "read-model",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "retention"
+        },
+        {
+          "name": "deployment_jobs",
+          "purpose": "Deployment command/job",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "deployment_items",
+          "purpose": "Per-target deployment result",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "retention"
+        },
+        {
+          "name": "agent_rollouts",
+          "purpose": "Agent rollout/update job",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "maintenance_jobs",
+          "purpose": "Software/restart/screenshot/wake maintenance jobs",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "maintenance_items",
+          "purpose": "Per-target maintenance result",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "retention"
+        },
+        {
+          "name": "endpoint_policies",
+          "purpose": "Managed endpoint policy definitions",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "policy_assignments",
+          "purpose": "Policy-to-scope assignments",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "policy_compliance",
+          "purpose": "Latest/device compliance result",
+          "kind": "read-model",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "retention"
+        },
+        {
+          "name": "device_alerts",
+          "purpose": "Raised device alerts",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "retention"
+        },
+        {
+          "name": "device_alert_rules",
+          "purpose": "Alert rule definitions",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "alert_channels",
+          "purpose": "Alert delivery channel configuration",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "alert_delivery_history",
+          "purpose": "Alert notification delivery history",
+          "kind": "history",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "retention"
+        }
+      ]
+    },
+    "assets": {
+      "owner": "assets",
+      "tables": [
+        {
+          "name": "assets",
+          "purpose": "Canonical asset inventory record",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [
+            "asset_tag"
+          ],
+          "crossModuleRefs": [
+            {
+              "column": "owner_user_id",
+              "target": "platform.user_profiles",
+              "type": "cross-module"
+            },
+            {
+              "column": "organization_unit_id",
+              "target": "platform.organization_units",
+              "type": "cross-module"
+            },
+            {
+              "column": "location_id",
+              "target": "platform.locations",
+              "type": "cross-module"
+            },
+            {
+              "column": "linked_device_id",
+              "target": "devices.devices",
+              "type": "cross-module"
+            }
+          ],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "asset_ownership_history",
+          "purpose": "Immutable ownership change history",
+          "kind": "history",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "retention"
+        },
+        {
+          "name": "ownership_submissions",
+          "purpose": "Ownership confirmation/submission queue",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [
+            {
+              "column": "user_id",
+              "target": "platform.user_profiles",
+              "type": "cross-module"
+            }
+          ],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "custom_field_definitions",
+          "purpose": "Asset custom-field schema",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [
+            "field_key"
+          ],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "custom_field_values",
+          "purpose": "Typed/custom asset values",
+          "kind": "entity",
+          "primaryKey": "asset_id+field_id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "qr_labels",
+          "purpose": "Opaque/signed QR label metadata",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [
+            "token_fingerprint"
+          ],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "qr_scans",
+          "purpose": "Auditable QR scan events",
+          "kind": "history",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [
+            {
+              "column": "scanner_user_id",
+              "target": "platform.user_profiles",
+              "type": "cross-module"
+            }
+          ],
+          "deletePolicy": "retention"
+        },
+        {
+          "name": "software_baselines",
+          "purpose": "Software baseline definitions",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "baseline_results",
+          "purpose": "Asset/device baseline comparison results",
+          "kind": "read-model",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "retention"
+        },
+        {
+          "name": "software_licenses",
+          "purpose": "Software license entitlement",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "license_allocations",
+          "purpose": "License allocation/usage detail",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "contracts",
+          "purpose": "Contract/warranty records",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "asset_contract_links",
+          "purpose": "Asset-to-contract relationship",
+          "kind": "join",
+          "primaryKey": "asset_id+contract_id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        }
+      ]
+    },
+    "helpdesk": {
+      "owner": "helpdesk",
+      "tables": [
+        {
+          "name": "tickets",
+          "purpose": "Canonical support ticket",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [
+            "ticket_number"
+          ],
+          "crossModuleRefs": [
+            {
+              "column": "requester_user_id",
+              "target": "platform.user_profiles",
+              "type": "cross-module"
+            },
+            {
+              "column": "assignee_user_id",
+              "target": "platform.user_profiles",
+              "type": "cross-module"
+            },
+            {
+              "column": "requester_organization_unit_id",
+              "target": "platform.organization_units",
+              "type": "cross-module"
+            },
+            {
+              "column": "related_device_id",
+              "target": "devices.devices",
+              "type": "cross-module"
+            },
+            {
+              "column": "related_asset_id",
+              "target": "assets.assets",
+              "type": "cross-module"
+            }
+          ],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "ticket_replies",
+          "purpose": "Ticket conversation entries",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [
+            {
+              "column": "author_user_id",
+              "target": "platform.user_profiles",
+              "type": "cross-module"
+            }
+          ],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "ticket_attachments",
+          "purpose": "Attachment metadata; binary stored externally",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "ticket_assignments",
+          "purpose": "Immutable assignment history",
+          "kind": "history",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "retention"
+        },
+        {
+          "name": "ticket_status_history",
+          "purpose": "Immutable status transition history",
+          "kind": "history",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "retention"
+        },
+        {
+          "name": "sla_policies",
+          "purpose": "SLA policy definitions",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "ticket_sla",
+          "purpose": "Resolved SLA targets/state per ticket",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "categories",
+          "purpose": "Hierarchical ticket categories",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [
+            "code"
+          ],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "statuses",
+          "purpose": "Ticket status configuration",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [
+            "code"
+          ],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "requester_groups",
+          "purpose": "Requester group configuration",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [
+            "code"
+          ],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "requester_group_members",
+          "purpose": "Resolved requester group members",
+          "kind": "join",
+          "primaryKey": "group_id+user_id",
+          "unique": [],
+          "crossModuleRefs": [
+            {
+              "column": "user_id",
+              "target": "platform.user_profiles",
+              "type": "cross-module"
+            }
+          ],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "business_calendar",
+          "purpose": "Business-calendar header/configuration",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "business_calendar_entries",
+          "purpose": "Working day/holiday/time window entries",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "notification_rules",
+          "purpose": "Helpdesk notification rules",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "notification_templates",
+          "purpose": "Notification templates",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [
+            "code+language_code"
+          ],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "notification_deliveries",
+          "purpose": "Email/notification delivery records",
+          "kind": "history",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "retention"
+        },
+        {
+          "name": "notification_settings",
+          "purpose": "Helpdesk notification/global delivery settings",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "knowledge_articles",
+          "purpose": "Knowledge base articles",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [
+            "slug"
+          ],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "automation_rules",
+          "purpose": "Helpdesk automation rule definitions",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "automation_executions",
+          "purpose": "Automation execution history",
+          "kind": "history",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "retention"
+        }
+      ]
+    },
+    "reports": {
+      "owner": "reports",
+      "tables": [
+        {
+          "name": "saved_reports",
+          "purpose": "Saved report definitions",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [
+            {
+              "column": "owner_user_id",
+              "target": "platform.user_profiles",
+              "type": "cross-module"
+            }
+          ],
+          "deletePolicy": "domain"
+        },
+        {
+          "name": "report_runs",
+          "purpose": "Report execution metadata",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "retention"
+        },
+        {
+          "name": "report_exports",
+          "purpose": "Generated export metadata; binary stored externally",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "retention"
+        }
+      ]
+    },
+    "integration": {
+      "owner": "platform-infrastructure",
+      "tables": [
+        {
+          "name": "operations",
+          "purpose": "Shared async-operation status and authorization origin",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [
+            "operation_id"
+          ],
+          "crossModuleRefs": [],
+          "deletePolicy": "retention"
+        },
+        {
+          "name": "outbox_messages",
+          "purpose": "Transactional integration-event outbox",
+          "kind": "entity",
+          "primaryKey": "id",
+          "unique": [
+            "event_id"
+          ],
+          "crossModuleRefs": [],
+          "deletePolicy": "retention"
+        },
+        {
+          "name": "inbox_messages",
+          "purpose": "Consumer/event dedupe state",
+          "kind": "entity",
+          "primaryKey": "consumer+event_id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "retention"
+        }
+      ]
+    },
+    "audit": {
+      "owner": "platform-infrastructure",
+      "tables": [
+        {
+          "name": "audit_records",
+          "purpose": "Append-only audit history",
+          "kind": "append-only",
+          "primaryKey": "audit_id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "retention"
+        }
+      ]
+    },
+    "readmodel": {
+      "owner": "platform-infrastructure",
+      "tables": [
+        {
+          "name": "search_documents",
+          "purpose": "Authorization-filterable global-search projection",
+          "kind": "read-model",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "rebuildable"
+        },
+        {
+          "name": "workspace_attention",
+          "purpose": "Workspace attention projection",
+          "kind": "read-model",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "rebuildable"
+        },
+        {
+          "name": "workspace_continue",
+          "purpose": "Workspace continue-work projection",
+          "kind": "read-model",
+          "primaryKey": "id",
+          "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "rebuildable"
+        }
+      ]
+    }
+  },
+  "meeting": {
+    "database": "inno_meeting",
+    "schema": "meeting",
+    "owner": "meeting-service",
+    "tables": [
+      {
+        "name": "meetings",
+        "purpose": "Canonical meeting record",
+        "kind": "entity",
+        "primaryKey": "id",
+        "unique": [],
+        "crossModuleRefs": [
+          {
+            "column": "created_by_user_id",
+            "target": "platform.user_profiles",
+            "type": "cross-database"
+          }
+        ],
+        "deletePolicy": "domain"
+      },
+      {
+        "name": "recordings",
+        "purpose": "Recording metadata; binary in object storage",
+        "kind": "entity",
+        "primaryKey": "id",
+        "unique": [],
+        "crossModuleRefs": [],
+        "deletePolicy": "domain"
+      },
+      {
+        "name": "transcripts",
+        "purpose": "Transcript metadata/content reference",
+        "kind": "entity",
+        "primaryKey": "id",
+        "unique": [],
+        "crossModuleRefs": [],
+        "deletePolicy": "domain"
+      },
+      {
+        "name": "summaries",
+        "purpose": "Generated meeting summary metadata/content reference",
+        "kind": "entity",
+        "primaryKey": "id",
+        "unique": [],
+        "crossModuleRefs": [],
+        "deletePolicy": "domain"
+      },
+      {
+        "name": "meeting_participants",
+        "purpose": "Meeting participants and speaker/time share metadata",
+        "kind": "entity",
+        "primaryKey": "id",
+        "unique": [
+          "meeting_id+participant_key"
+        ],
+        "crossModuleRefs": [
+          {
+            "column": "user_id",
+            "target": "platform.user_profiles",
+            "type": "cross-database"
+          }
+        ],
+        "deletePolicy": "domain"
+      },
+      {
+        "name": "action_items",
+        "purpose": "Meeting action items",
+        "kind": "entity",
+        "primaryKey": "id",
+        "unique": [],
+        "crossModuleRefs": [
+          {
+            "column": "assignee_user_id",
+            "target": "platform.user_profiles",
+            "type": "cross-database"
+          }
+        ],
+        "deletePolicy": "domain"
+      },
+      {
+        "name": "meeting_files",
+        "purpose": "Attached file metadata; binary in object storage",
+        "kind": "entity",
+        "primaryKey": "id",
+        "unique": [],
+        "crossModuleRefs": [],
+        "deletePolicy": "domain"
+      },
+      {
+        "name": "shares",
+        "purpose": "Meeting share/access records",
+        "kind": "entity",
+        "primaryKey": "id",
+        "unique": [],
+        "crossModuleRefs": [
+          {
+            "column": "shared_with_user_id",
+            "target": "platform.user_profiles",
+            "type": "cross-database"
+          }
+        ],
+        "deletePolicy": "domain"
+      },
+      {
+        "name": "processing_jobs",
+        "purpose": "Transcription/summary/export processing state",
+        "kind": "entity",
+        "primaryKey": "id",
+        "unique": [],
+        "crossModuleRefs": [],
+        "deletePolicy": "retention"
+      }
+    ]
+  },
+  "infrastructureTables": {
+    "coreOutbox": "inno_core.integration.outbox_messages",
+    "coreInbox": "inno_core.integration.inbox_messages",
+    "coreOperations": "inno_core.integration.operations",
+    "coreAudit": "inno_core.audit.audit_records",
+    "meetingOutbox": "inno_meeting.integration.outbox_messages",
+    "meetingInbox": "inno_meeting.integration.inbox_messages",
+    "meetingAuditRule": "Meeting persists an auditable local fact/outbox in its own transaction; central audit projection consumes the durable event. No cross-database transaction."
+  },
+  "jsonbPolicy": {
+    "allowed": [
+      "small extensible metadata",
+      "event outbox payload envelope",
+      "audit safe metadata/change details",
+      "report definition filters/grouping",
+      "automation rule conditions/actions",
+      "vendor-normalized extension attributes"
+    ],
+    "forbidden": [
+      "canonical relationships that should be foreign keys within a module",
+      "whole user/device/asset/ticket snapshots",
+      "secrets/tokens/passwords",
+      "large binary/file/audio content"
+    ],
+    "indexRule": "Create GIN/index only for fields proven by query workload; do not index arbitrary JSONB by default."
+  },
+  "deletion": {
+    "default": "No universal soft-delete column.",
+    "masterData": "use status/archived_at when lifecycle requires historical identity",
+    "operationalResources": "use domain status plus archived_at where required",
+    "immutableHistory": "never update/delete through normal CRUD; retention policy owns archival/purge",
+    "readModels": "rebuildable and may be truncated/rebuilt",
+    "hardDelete": "allowed only for transient/retention-managed data after policy expiry",
+    "referentialRule": "do not cascade-delete cross-module references"
+  },
+  "time": {
+    "databaseType": "timestamptz",
+    "storage": "UTC",
+    "createdUpdated": "created_at + updated_at on mutable entities",
+    "history": "occurred_at/effective_at fields where semantically meaningful"
+  },
+  "naming": {
+    "schemas": "snake_case singular domain names",
+    "tables": "snake_case plural nouns",
+    "columns": "snake_case",
+    "primaryKey": "id unless contract-specific append/history key",
+    "foreignKey": "<resource>_id",
+    "indexes": "ix_<table>__<columns>",
+    "uniqueIndexes": "ux_<table>__<columns>"
+  },
+  "migration": {
+    "platform": "PlatformDbContext / platform schema migrations",
+    "devices": "DevicesDbContext / devices schema migrations",
+    "assets": "AssetsDbContext / assets schema migrations",
+    "helpdesk": "HelpdeskDbContext / helpdesk schema migrations",
+    "reports": "ReportsDbContext / reports schema migrations",
+    "infrastructure": "InfrastructureDbContext / integration+audit+readmodel migrations",
+    "meeting": "Meeting service owns inno_meeting migrations",
+    "rule": "A module migration may not alter another module's tables.",
+    "deployment": "apply compatible expand/backfill/contract migration sequence; never rely on manual production edits"
+  },
+  "multiTenancy": {
+    "v1": "single deployment/security boundary; Organization Unit is not a SaaS tenant",
+    "tenantIdColumn": "not introduced until an explicit multi-tenant requirement/contract exists"
+  },
+  "security": {
+    "transport": "TLS",
+    "atRest": "infrastructure-managed database/storage encryption",
+    "secrets": "external secret manager/environment integration; never business tables",
+    "pii": "least-privilege API access and audit; column encryption only when a concrete requirement demands it",
+    "rowLevelSecurity": "not the primary v1 authorization layer; server-side permission/scope evaluation remains authoritative"
+  },
+  "indexing": {
+    "globalRules": [
+      "index all foreign keys used in joins within a module",
+      "index stable cross-module reference IDs used by scope/filter queries",
+      "index queue/list sort/filter columns together based on actual access patterns",
+      "use partial indexes for active/open rows when query profile benefits",
+      "time-series/history indexes put subject/resource ID with occurred_at where needed"
+    ],
+    "critical": [
+      "platform.user_profiles(keycloak_subject) unique",
+      "platform.organization_units(parent_unit_id, status)",
+      "devices.devices(connectivity_state, organization_unit_id, last_seen_at)",
+      "devices.device_external_mappings(provider, external_id) unique",
+      "devices.device_group_members(group_id, device_id) unique",
+      "devices.device_alerts(status, severity, detected_at desc)",
+      "helpdesk.tickets(status_id, priority, created_at desc)",
+      "helpdesk.tickets(assignee_user_id, status_id, updated_at desc)",
+      "assets.assets(asset_tag) unique",
+      "assets.assets(owner_user_id, lifecycle_status)",
+      "integration.outbox_messages(status, next_attempt_at, occurred_at)",
+      "integration.inbox_messages(consumer, event_id) unique",
+      "audit.audit_records(occurred_at desc)",
+      "audit.audit_records(actor_type, actor_id, occurred_at desc)",
+      "audit.audit_records(target_type, target_id, occurred_at desc)"
+    ]
+  }
+}

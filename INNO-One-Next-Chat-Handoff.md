@@ -1181,7 +1181,7 @@ Current checks:
 - `implementation-contract-audit.py`: **0 issues**.
 - `final-visual-audit.py`: **0 issues**; frozen UX/UI baseline unchanged.
 
-**No backend feature code has started. Step 12 Event & Audit Contract is complete; next is Step 13 Data Ownership / Database Model.**
+**Historical checkpoint: Step 12 Event & Audit Contract completed here. Step 13 Data Ownership / Database Model is now complete. No backend feature code has started.**
 
 # Step 12 — Event & Audit Contract ✅ COMPLETED 2026-09-26
 
@@ -1225,4 +1225,67 @@ Current checks:
 - `implementation-contract-audit.py`: **0 issues**.
 - `final-visual-audit.py`: **0 issues**; frozen UX/UI baseline unchanged.
 
-**No backend feature code has started. Next: Step 13 Data Ownership / Database Model.**
+**No backend feature code has started. Step 13 Data Ownership / Database Model is complete; next is Step 14 Production Project Skeleton.**
+
+# Step 13 — Data Ownership / Database Model ✅ COMPLETED 2026-09-26
+
+Branch: `architecture/step13-data-model`
+
+UX/UI remains FINAL FROZEN at **Design System V1.26 / UI Contract 1.20.0**.
+
+Implementation planning contract: **0.4.0**
+API Contract: **0.2.0**
+Event & Audit Contract: **0.3.0**
+Data Model Contract: **0.4.0**
+
+Database decisions:
+- Production relational engine = **PostgreSQL**.
+- Core database = `inno_core`.
+- Meeting database = `inno_meeting`.
+- Keycloak owns its own database.
+- MeshCentral owns its own persistence; INNO.One never queries it directly.
+
+Core schema ownership:
+- `platform`
+- `devices`
+- `assets`
+- `helpdesk`
+- `reports`
+- `integration`
+- `audit`
+- `readmodel`
+
+Planning catalog:
+- `inno_core`: **83 logical tables**.
+- `inno_meeting`: **9 logical tables**.
+- Total: **92 logical tables**.
+
+Key data rules:
+- DB PKs = UUID; API IDs remain opaque/prefixed at serialization boundary.
+- Cross-module / cross-database references = stable IDs, **no DB foreign keys**.
+- Same-module relationships use normal relational constraints.
+- Explicit bigint `version` backs ETag/If-Match concurrency.
+- No universal `is_deleted`; use domain status/archive/retention rules.
+- JSONB is bounded; canonical relationships stay relational.
+- Object storage owns binary/audio/export contents; DB stores metadata only.
+- Core transactional outbox/inbox/operation tables live under `integration`.
+- Core append-only audit records live under `audit`.
+- Meeting writes its own local outbox; central audit/event projection consumes durable facts without cross-DB transactions.
+- Reports/Search may use read models/query contracts, never direct cross-module business-table shortcuts.
+- v1 is not generic SaaS multi-tenant; do not add `tenant_id` without a dedicated contract.
+
+New source-of-truth files:
+- `INNO-One-Data-Ownership-Database-Contract.md`
+- `inno-data-model-contract.json`
+- `data-model-contract-audit.py`
+
+Current checks:
+- `data-model-contract-audit.py`: **0 issues**.
+- `event-audit-contract-audit.py`: **0 issues**.
+- `api-contract-audit.py`: **0 issues**.
+- `implementation-contract-audit.py`: **0 issues**.
+- Full static UX/UI audit chain: **0 issues**.
+- `qa-ux-input-browser.py`: **124 / 124**, failures 0.
+- Frozen visual baseline remains unchanged/green.
+
+**No backend feature code has started. Next: Step 14 Production Project Skeleton.**

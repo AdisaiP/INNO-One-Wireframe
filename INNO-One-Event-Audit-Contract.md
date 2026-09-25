@@ -834,20 +834,21 @@ Not frozen in Step 12:
 - Agent credential provisioning,
 - legal-hold workflow.
 
-## 33. Next contract
+## 33. Data Model Contract checkpoint
 
-Step 13 should define **Data Ownership / Database Model**:
+Step 13 Data Ownership / Database Model is now complete in 'INNO-One-Data-Ownership-Database-Contract.md' and 'inno-data-model-contract.json'.
 
-- module schemas,
-- aggregate/entity ownership,
-- cross-module IDs,
-- database engine decision,
-- migration ownership,
-- read models,
-- outbox/inbox tables,
-- audit storage tables,
-- soft-delete/status strategy,
-- indexing and retention boundaries.
+The event/audit layer now has a concrete persistence boundary:
+
+- PostgreSQL is the production relational engine.
+- Core transactional outbox/inbox/operation data lives in 'inno_core.integration'.
+- Core append-only audit history lives in 'inno_core.audit'.
+- Meeting owns 'inno_meeting' and writes its own local durable outbox; central audit consumes the published durable fact without a cross-database transaction.
+- Reports/Search use query contracts/read models rather than direct cross-module table reads.
+- Cross-module references use stable IDs without database foreign keys.
+- No universal soft-delete strategy is introduced.
+
+Next: **Step 14 Production Project Skeleton**.
 
 ## 34. Canonical integration-event catalog
 

@@ -1,5 +1,5 @@
 {
-  "contractVersion": "0.3.0",
+  "contractVersion": "0.4.0",
   "status": "implementation-planning",
   "generatedFrom": {
     "designSystem": "V1.26",
@@ -201,5 +201,18 @@
     "auditActions": 62,
     "delivery": "at-least-once",
     "crossModuleDurability": "transactional-outbox"
+  },
+  "dataModelContract": {
+    "version": "0.4.0",
+    "documentation": "INNO-One-Data-Ownership-Database-Contract.md",
+    "source": "inno-data-model-contract.json",
+    "audit": "data-model-contract-audit.py",
+    "engine": "PostgreSQL",
+    "coreDatabase": "inno_core",
+    "meetingDatabase": "inno_meeting",
+    "coreSchemas": 8,
+    "coreTables": 83,
+    "meetingTables": 9,
+    "totalPlanningTables": 92
   }
 }

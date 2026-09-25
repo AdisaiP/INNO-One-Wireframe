@@ -399,7 +399,7 @@ Recommended rule:
 - reports/search use read models or module APIs,
 - migrations are owned per module.
 
-The detailed entity/schema model belongs to Step 13.
+The detailed entity/schema model is now frozen by Step 13 in `INNO-One-Data-Ownership-Database-Contract.md` and `inno-data-model-contract.json`.
 
 ## 11. Shared packages
 
@@ -530,7 +530,7 @@ Not frozen yet:
 
 - exact .NET version/project templates,
 - exact React build tool,
-- exact database engine,
+- exact PostgreSQL major release / managed provider (engine itself is frozen to PostgreSQL by Step 13),
 - broker technology,
 - caching technology,
 - observability vendor,
@@ -586,4 +586,32 @@ Source of truth:
 - `inno-event-audit-contract.json`
 - `event-audit-contract-audit.py`
 
-No backend feature code was started by Step 12. Step 13 should define Data Ownership / Database Model, including outbox/inbox and audit storage tables.
+Historical checkpoint: no backend feature code was started by Step 12. Step 13 Data Ownership / Database Model is now complete, including PostgreSQL, schema ownership, outbox/inbox/audit storage and migration boundaries.
+
+## 19. Step 13 Data Ownership / Database Model checkpoint — 2026-09-26
+
+Implementation planning now advances to **Contract 0.4.0**.
+
+Step 13 freezes:
+- PostgreSQL as the production relational database engine.
+- `inno_core` as the modular-monolith database with 8 owned schemas.
+- `inno_meeting` as the separately owned Meeting database.
+- Keycloak and MeshCentral persistence remain outside INNO.One business schemas.
+- Core planning catalog: **83 tables**; Meeting: **9 tables**; total: **92 logical tables**.
+- Database PKs use UUID while public API IDs remain opaque.
+- Cross-module and cross-database references use stable IDs without DB foreign keys.
+- Mutable entities use explicit bigint version for ETag/If-Match concurrency.
+- No universal soft-delete; domain lifecycle/status/archival rules apply.
+- JSONB is bounded and cannot replace canonical relational ownership.
+- Helpdesk attachments, Meeting media/files and Report exports use object storage with DB metadata only.
+- Core outbox/inbox/operation state lives in `inno_core.integration`; core audit history lives in `inno_core.audit`.
+- Each module owns its own DbContext/migrations; a migration may not alter another module's tables.
+- Reports/Search use query contracts/read models rather than direct cross-module business-table reads.
+- v1 does not introduce generic SaaS `tenant_id`; Organization Unit is not a tenant boundary.
+
+Source of truth:
+- `INNO-One-Data-Ownership-Database-Contract.md`
+- `inno-data-model-contract.json`
+- `data-model-contract-audit.py`
+
+No backend feature code was started by Step 13. Next: **Step 14 Production Project Skeleton**.
