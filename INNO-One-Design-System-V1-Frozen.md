@@ -1,7 +1,7 @@
 # INNO.One Design System — Frozen UI Contract
 
-**UI Contract:** 1.14.0
-**Documentation:** Design System V1.20
+**UI Contract:** 1.15.0
+**Documentation:** Design System V1.21
 **Status:** Frozen  
 **Frozen:** 2026-09-25
 
@@ -27,6 +27,9 @@ The frozen UI contract is represented by:
 - `INNO-One-Final-Visual-QA-Baseline.md` — frozen route/state screenshot baseline and final visual regression contract
 - `INNO-One-Action-Layout-Contract.md` — canonical page-type action zones, editor/builder/wizard footer ownership and docking behavior
 - `action-layout-audit.py` — 83-route action/layout regression guard
+- `INNO-One-Accessibility-Contract.md` / `accessibility-audit.py` — semantic accessibility contract and regression guard
+- `INNO-One-Availability-Contract.md` / `availability-audit.py` — unavailable-feature UX contract and regression guard
+- `INNO-One-Language-Terminology-Contract.md` / `language-terminology-audit.py` — surface language ownership and canonical terminology contract
 
 The HTML prototype is not a backend implementation. It defines expected UI structure and behavior.
 
@@ -382,3 +385,15 @@ A new module is UI-complete only when it:
 - Browser regression now includes accessibility and availability gates across all 83 Web routes at 1366 / 1024 / 768.
 - Current browser UX regression baseline: **80 / 80 checks**.
 - Current Final Visual baseline: **116 / 116 checks**, 87 canonical route screenshots + 13 state screenshots.
+
+
+## 30. Minor 1.15.0 — Language & Terminology Consistency — 2026-09-25
+
+- Design System Documentation advanced to **V1.21** and UI Contract to **1.15.0**.
+- Web Portal + Design System are English UI surfaces.
+- Endpoint Agent + Android Assets Mobile remain Thai UI surfaces.
+- Localized Thai business/sample content inside English pages now declares nested `lang=th`.
+- Mixed Thai/English helper text was normalized to English across Web configuration and operational pages.
+- Canonical sidebar terminology now enforces Helpdesk `Overview`, Admin `Apps & Modules`, and Account `Profile & Settings`.
+- `language-terminology-audit.py` is part of the frozen regression contract.
+- Browser regression checks rendered document language, unscoped Thai content and canonical sidebar terminology across all 83 Web routes.

@@ -3,8 +3,8 @@
 
 const contract={
   name:"INNO.One Design System",
-  contractVersion:"1.14.0",
-  documentationVersion:"1.20",
+  contractVersion:"1.15.0",
+  documentationVersion:"1.21",
   status:"frozen",
   frozenAt:"2026-09-25",
   principles:[
@@ -15,7 +15,9 @@ const contract={
     "Accessibility and responsive behavior are part of the component contract, not optional polish.",
     "One screen has one primary job; unrelated create/edit, monitoring, settings and history tasks must not be stacked into one scroll surface.",
     "Action placement follows page type: page creation in Page Header, resource operations in Resource Actions, and Save/Create/Schedule for editors in the owning Action Footer.",
-    "Unavailable capability is hidden or presented as passive roadmap context; it never masquerades as a working control in normal task flow."
+    "Unavailable capability is hidden or presented as passive roadmap context; it never masquerades as a working control in normal task flow.",
+    "Each product surface owns one primary UI language; localized business content declares its language explicitly instead of mixing languages in shared UI chrome.",
+    "Canonical product terminology is consistent across contextual navigation, actions and configuration surfaces."
   ],
   foundations:{
     controlHeight:36,
@@ -36,6 +38,22 @@ const contract={
     agent:{shell:"agent window",navigation:"surface-local",owns:["endpoint request help","ownership confirmation","runtime remote consent"],forbidden:["platform-shell.js","Web contextual sidebar"]},
     mobile:{shell:"mobile client",navigation:"surface-local",owns:["asset QR scanning","mobile asset lookup"],forbidden:["platform-shell.js","Web contextual sidebar"]},
     rule:"Share identity, permissions, APIs, events and design tokens; do not share application navigation across surfaces."
+  },
+  language:{
+    web:"en",
+    designSystem:"en",
+    agent:"th",
+    mobile:"th",
+    localizedContent:"Nested localized business/sample content declares lang explicitly.",
+    terminology:{
+      workspaceHome:"Home",
+      helpdeskHome:"Overview",
+      adminModules:"Apps & Modules",
+      accountProfile:"Profile & Settings",
+      email:"Email",
+      wifi:"Wi-Fi",
+      signIn:"Sign in"
+    }
   },
   screenPatterns:{
     P01:{name:"Overview",purpose:"module summary, attention and entry points"},
@@ -243,7 +261,9 @@ const contract={
     "INNO-One-Accessibility-Contract.md",
     "accessibility-audit.py",
     "INNO-One-Availability-Contract.md",
-    "availability-audit.py"
+    "availability-audit.py",
+    "INNO-One-Language-Terminology-Contract.md",
+    "language-terminology-audit.py"
   ],
   changePolicy:{
     patch:"Visual correction that does not change component API or behavior.",

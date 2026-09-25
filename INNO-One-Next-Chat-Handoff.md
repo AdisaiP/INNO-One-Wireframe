@@ -30,8 +30,8 @@ INNO.One กำลังถูกปรับจาก TOR coverage prototype �
 
 ## 2. Current UI Baseline
 
-- Design System: **V1.20**
-- UI Contract: **1.14.0**
+- Design System: **V1.21**
+- UI Contract: **1.15.0**
 - Registry Schema: **10**
 
 Source of truth หลัก:
@@ -46,16 +46,19 @@ Source of truth หลัก:
 - `inno-navigation.js`
 - `INNO-One-Final-Visual-QA-Baseline.md`
 - `INNO-One-Action-Layout-Contract.md`
+- `action-layout-audit.py`
 - `INNO-One-Accessibility-Contract.md`
+- `accessibility-audit.py`
 - `INNO-One-Availability-Contract.md`
+- `availability-audit.py`
+- `INNO-One-Language-Terminology-Contract.md`
+- `language-terminology-audit.py`
 - `inno-icons.js`
 - `INNO-One-Design-System-V1-Frozen.md`
 - `INNO-One-Surface-Boundaries.md`
 - `INNO-One-Special-UI-Components.md`
 - `INNO-One-UI-Prototype-Summary.md`
 - `INNO-One-Screen-Architecture-Refactor-Plan.md`
-- `INNO-One-Action-Layout-Contract.md`
-- `action-layout-audit.py`
 
 ---
 
@@ -617,7 +620,7 @@ Endpoint Agent และ Mobile ทดสอบแยกตาม Surface
 
 ## NEXT 6 — Final Visual QA ✅ COMPLETED 2026-09-24
 
-Historical NEXT 6 baseline was frozen at **Design System V1.18 / UI Contract 1.12.0**. The current accepted baseline is **Design System V1.20 / UI Contract 1.14.0** after Accessibility + Availability final polish.
+Historical NEXT 6 baseline was frozen at **Design System V1.18 / UI Contract 1.12.0**. The current accepted baseline is **Design System V1.21 / UI Contract 1.15.0** after Accessibility + Availability + Language/Terminology final polish.
 
 Checklist ที่ทำครบ:
 
@@ -650,7 +653,7 @@ Checklist ที่ทำครบ:
 - Final Visual audit = 0 issues
 - Final baseline อยู่ที่ `qa-final-visual/` และ contract อธิบายใน `INNO-One-Final-Visual-QA-Baseline.md`
 
-**สถานะ UI Prototype ปัจจุบัน: ✅ FROZEN AT V1.20 / CONTRACT 1.14.0 — BACKEND WORK PAUSED BY USER**
+**สถานะ UI Prototype ปัจจุบัน: ✅ FROZEN AT V1.21 / CONTRACT 1.15.0 — BACKEND WORK PAUSED BY USER**
 
 หมายเหตุ: Backend planning documents may exist on a separate branch, but the user explicitly paused Backend work. Do not resume Backend unless the user asks again.
 
@@ -676,7 +679,7 @@ Prototype CSS เป็น append-heavy อยู่แล้ว ต้องแ
 
 ใช้ข้อความนี้ได้เลย:
 
-> เปิดโปรเจกต์ `/Users/adisaip/Desktop/INNO-One-Wireframe/` ผ่าน MCP แล้วอ่าน `INNO-One-Next-Chat-Handoff.md`, `INNO-One-Final-Visual-QA-Baseline.md`, `INNO-One-Action-Layout-Contract.md`, `INNO-One-UI-Prototype-Summary.md` และ Design System ก่อน ปัจจุบัน UI Freeze อยู่ที่ **Design System V1.20 / UI Contract 1.14.0**. Backend ถูกพักไว้ตามคำสั่งผู้ใช้ ให้ทำเฉพาะ UX/UI review หรือ frontend prototype work ที่ผู้ใช้สั่ง และต้องรักษา Action/Layout Contract + visual regression baseline.
+> เปิดโปรเจกต์ `/Users/adisaip/Desktop/INNO-One-Wireframe/` ผ่าน MCP แล้วอ่าน `INNO-One-Next-Chat-Handoff.md`, `INNO-One-Final-Visual-QA-Baseline.md`, `INNO-One-Action-Layout-Contract.md`, `INNO-One-Language-Terminology-Contract.md`, `INNO-One-UI-Prototype-Summary.md` และ Design System ก่อน ปัจจุบัน UI Freeze อยู่ที่ **Design System V1.21 / UI Contract 1.15.0**. Backend ถูกพักไว้ตามคำสั่งผู้ใช้ ให้ทำเฉพาะ UX/UI review หรือ frontend prototype work ที่ผู้ใช้สั่ง และต้องรักษา Action/Layout Contract + visual regression baseline.
 
 ---
 
@@ -856,3 +859,41 @@ Next UX/UI step:
 **Step 3 — Language & Terminology Consistency**
 
 Do not begin Backend implementation.
+
+
+# UX/UI Final Polish — Step 3 Language & Terminology ✅ COMPLETED 2026-09-25
+
+Branch: `ux/language-terminology-pass`
+
+Source of truth: `INNO-One-Language-Terminology-Contract.md`
+
+Design System: **V1.21**
+UI Contract: **1.15.0**
+
+Language ownership:
+
+- Web Portal: **English** (`lang=en`).
+- Design System: **English** (`lang=en`).
+- Endpoint Agent: **Thai** (`lang=th`).
+- Android Assets Mobile: **Thai** (`lang=th`).
+- Thai business/sample content shown inside English Web pages is retained and explicitly scoped with `lang=th`.
+
+Terminology normalized:
+
+- Helpdesk root = `Overview`, not `Home`.
+- Admin route `modules.html` = `Apps & Modules`.
+- Account route `profile.html` = `Profile & Settings`.
+- Web helper text / configuration descriptions use English consistently.
+- Canonical spelling includes `Email`, `Wi-Fi`, and `Sign in`.
+
+QA:
+
+- Web routes = **83**.
+- English Web + Design System surfaces = **84 / 84**.
+- Thai Agent/Mobile surfaces = **3 / 3**.
+- unscoped Thai fragments on English surfaces = **0**.
+- terminology mismatches = **0**.
+- `language-terminology-audit.py` = **0 issues**.
+- `qa-ux-input-browser.py` = **80 / 80 checks** including rendered language/terminology gates at 1366 / 1024 / 768.
+
+Backend remains paused. Continue UX/UI only until explicitly requested otherwise.

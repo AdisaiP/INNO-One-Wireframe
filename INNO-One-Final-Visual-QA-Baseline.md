@@ -1,7 +1,7 @@
 # INNO.One Final Visual QA Baseline
 
-**UI Contract:** 1.14.0
-**Design System Documentation:** V1.19
+**UI Contract:** 1.15.0
+**Design System Documentation:** V1.21
 **Status:** Frozen visual baseline
 **Frozen:** 2026-09-25
 **Backend:** Not implemented by this baseline
@@ -198,7 +198,7 @@ Action/Layout verification at freeze:
 
 ## 16. Accessibility / Availability final-polish baseline — 2026-09-25
 
-The current frozen baseline is **Design System V1.20 / UI Contract 1.14.0**.
+The current frozen baseline is **Design System V1.21 / UI Contract 1.15.0**.
 
 Accessibility baseline:
 - 87 canonical pages covered by `accessibility-audit.py`.
@@ -220,3 +220,18 @@ Final verification:
 - canonical route screenshots: 87.
 - state screenshots: 13.
 - screenshot/hash baseline: 100 / 100.
+
+
+## 17. Language & terminology baseline — 2026-09-25
+
+Design System V1.21 / UI Contract 1.15.0 adds explicit language ownership and terminology rules without changing route architecture.
+
+Current language baseline:
+- Web Portal routes: 83 / 83 use `lang=en`.
+- Design System uses `lang=en`.
+- 2 Endpoint Agent surfaces + Android Assets Mobile use `lang=th`.
+- Thai business/sample content embedded in English Web pages declares nested `lang=th`.
+- Unscoped Thai fragments on English surfaces: 0.
+- Canonical terminology mismatches: 0.
+- `language-terminology-audit.py`: 0 issues.
+- Browser route regression includes rendered language/terminology checks at 1366 / 1024 / 768.

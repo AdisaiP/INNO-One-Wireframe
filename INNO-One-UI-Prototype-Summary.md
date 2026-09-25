@@ -177,8 +177,8 @@ Current interpretation:
 ## 8. Frozen UI contract
 
 Current accepted baseline:
-- Design System: V1.20.
-- UI Contract: 1.14.0.
+- Design System: V1.21.
+- UI Contract: 1.15.0.
 - Registry Schema: 10.
 - Surface contracts: Web / Endpoint Agent / Android Mobile.
 
@@ -332,3 +332,8 @@ Final UX/UI Step 1 established a shared semantic baseline across all 87 canonica
 ## 20. Availability / unavailable-feature polish — 2026-09-25
 
 Design System V1.20 / UI Contract 1.14.0 makes availability an explicit UX rule. Unavailable features no longer appear as grey Coming Soon task controls or normal sidebar navigation. Future navigation remains in roadmap markup but is hidden from the normal product shell. Real routes are used where they exist; read-only data uses passive status; and prototype-only commands remain active only when they provide visible local feedback. `availability-audit.py` reports zero Coming Soon task actions across all 87 canonical pages, while browser regression confirms no future navigation is visible across all 83 Web routes.
+
+
+## 21. Language & terminology consistency — 2026-09-25
+
+Design System V1.21 / UI Contract 1.15.0 defines surface language ownership: Web Portal and Design System use English, while Endpoint Agent and Android Assets Mobile remain Thai. Thai business/sample content embedded in Web pages is retained with explicit `lang=th` semantics. Web helper text was normalized to English and canonical navigation terminology now uses `Overview`, `Apps & Modules`, and `Profile & Settings` consistently. `language-terminology-audit.py` reports zero unscoped Thai fragments and zero terminology mismatches.
