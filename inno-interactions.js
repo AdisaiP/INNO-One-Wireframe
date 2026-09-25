@@ -508,12 +508,73 @@ function enhanceComponentSemantics(){
   document.documentElement.dataset.uiTableRegions=String(document.querySelectorAll(".table-wrap[role=\"region\"]").length);
 }
 
+function enhanceActionDock(){
+  const selector=".inno-editor-footer:not([data-inno-dock-disabled]),.inno-builder-footer:not([data-inno-dock-disabled]),.inno-wizard-footer:not([data-inno-dock-disabled])";
+  const footers=[...document.querySelectorAll(selector)];
+  if(!footers.length)return;
+
+  footers.forEach(footer=>{
+    if(footer.dataset.innoDockBound)return;
+    footer.dataset.innoDockBound="1";
+    const owner=footer.parentElement;
+    if(!owner)return;
+    owner.classList.add("inno-action-dock-owner");
+    const placeholder=document.createElement("div");
+    placeholder.className="inno-action-dock-placeholder";
+    footer.parentNode.insertBefore(placeholder,footer);
+
+    const update=()=>{
+      if(!footer.isConnected||!owner.isConnected)return;
+      const wasDocked=footer.classList.contains("is-docked");
+      if(wasDocked){
+        footer.classList.remove("is-docked");
+        footer.style.left="";
+        footer.style.width="";
+        placeholder.classList.remove("active");
+        placeholder.style.height="";
+        owner.classList.remove("has-docked-actions");
+      }
+
+      const natural=footer.getBoundingClientRect();
+      const ownerRect=owner.getBoundingClientRect();
+      const footerHeight=Math.max(58,Math.round(natural.height));
+      const dockBottom=window.innerHeight-(window.innerWidth<=850?6:10);
+      const needsDock=natural.bottom>dockBottom && ownerRect.top<dockBottom-footerHeight && ownerRect.bottom>72;
+
+      if(needsDock){
+        placeholder.style.height=footerHeight+"px";
+        placeholder.classList.add("active");
+        owner.classList.add("has-docked-actions");
+        footer.classList.add("is-docked");
+        const currentOwner=owner.getBoundingClientRect();
+        footer.style.left=Math.round(currentOwner.left)+"px";
+        footer.style.width=Math.round(currentOwner.width)+"px";
+      }
+    };
+
+    footer.__innoDockUpdate=update;
+    requestAnimationFrame(update);
+  });
+
+  if(!document.documentElement.dataset.innoActionDock){
+    document.documentElement.dataset.innoActionDock="1";
+    let raf=0;
+    const refresh=()=>{
+      cancelAnimationFrame(raf);
+      raf=requestAnimationFrame(()=>document.querySelectorAll(selector).forEach(f=>f.__innoDockUpdate?.()));
+    };
+    window.addEventListener("scroll",refresh,{passive:true});
+    window.addEventListener("resize",refresh);
+    if(window.ResizeObserver)new ResizeObserver(refresh).observe(document.querySelector(".main")||document.body);
+  }
+}
+
 function init(){
-  ensureUI();wireDataActions();enhanceDialogs();enhanceDrawers();enhanceTabs();enhancePagination();enhanceSearch();enhanceComponentSemantics();enhanceDirtyTracking();enhanceBulkSelection();bindInteractionConsistency();handleEscape();
+  ensureUI();wireDataActions();enhanceDialogs();enhanceDrawers();enhanceTabs();enhancePagination();enhanceSearch();enhanceComponentSemantics();enhanceDirtyTracking();enhanceBulkSelection();bindInteractionConsistency();handleEscape();enhanceActionDock();
   if(typeof window.showToast==="function")window.showToast=(message,type="success")=>toast(message,type);
   document.querySelectorAll("[data-inno-menu],[data-inno-columns]").forEach(x=>{x.setAttribute("aria-haspopup","menu");x.setAttribute("aria-expanded","false")});
   document.querySelectorAll("[data-inno-filter],[data-inno-confirm]").forEach(x=>x.setAttribute("aria-haspopup","dialog"));
-  const obs=new MutationObserver(()=>{enhanceDialogs();enhanceDrawers();enhanceTabs();enhanceSearch();enhanceComponentSemantics();enhanceDirtyTracking();enhanceBulkSelection()});obs.observe(document.body,{childList:true,subtree:true});
+  const obs=new MutationObserver(()=>{enhanceDialogs();enhanceDrawers();enhanceTabs();enhanceSearch();enhanceComponentSemantics();enhanceDirtyTracking();enhanceBulkSelection();enhanceActionDock()});obs.observe(document.body,{childList:true,subtree:true});
 }
 window.INNOInteractions={toast,confirm:confirmAction,dialog:openDialog,closeDialog,menu:openMenu,filters:openFilterDrawer,columns:openColumns,closeDrawer,scopeFor,validateScope,markDirty,markClean,setDirtyState,isDirty,confirmDiscard};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();

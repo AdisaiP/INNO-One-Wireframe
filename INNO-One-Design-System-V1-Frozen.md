@@ -1,9 +1,9 @@
 # INNO.One Design System — Frozen UI Contract
 
-**UI Contract:** 1.12.0
-**Documentation:** Design System V1.18
+**UI Contract:** 1.13.0
+**Documentation:** Design System V1.19
 **Status:** Frozen  
-**Frozen:** 2026-09-24
+**Frozen:** 2026-09-25
 
 > This document is the implementation handoff for the current INNO.One prototype. New modules should reuse these contracts instead of introducing parallel UI patterns.
 
@@ -25,6 +25,8 @@ The frozen UI contract is represented by:
 - `INNO-One-UI-Prototype-Summary.md` — implementation/handoff summary
 - `INNO-One-Screen-Architecture-Refactor-Plan.md` — canonical screen patterns and mixed-purpose page refactor plan
 - `INNO-One-Final-Visual-QA-Baseline.md` — frozen route/state screenshot baseline and final visual regression contract
+- `INNO-One-Action-Layout-Contract.md` — canonical page-type action zones, editor/builder/wizard footer ownership and docking behavior
+- `action-layout-audit.py` — 83-route action/layout regression guard
 
 The HTML prototype is not a backend implementation. It defines expected UI structure and behavior.
 
@@ -67,6 +69,7 @@ Desktop contextual navigation is inline and collapsible. At compact/tablet width
 | INNO.One component | React implementation | Frozen behavior |
 | --- | --- | --- |
 | `INNOButton` | shadcn/ui Button | primary, secondary, ghost, danger, icon |
+| `INNOActionFooter` | INNO.One composition | owning editor/builder/wizard actions; pane-aligned viewport dock with safe space |
 | `INNOIcon` | Lucide | semantic token mapping; no raw FA dependency in React |
 | `INNODataTable` | TanStack Table | search, filter, columns, bulk selection, pagination, overflow |
 | `INNOForm` | React Hook Form + Zod | visible labels, local validation, preserved input on recoverable error |
@@ -92,13 +95,25 @@ Desktop contextual navigation is inline and collapsible. At compact/tablet width
 
 ## 5. Action hierarchy
 
-Use one primary action per action area.
+Use one primary action per action area, and place the action according to page type rather than page-by-page preference.
 
-- **Primary** — main next action
-- **Secondary** — normal alternate action
-- **Ghost** — low emphasis
-- **Danger** — destructive action; requires explicit confirmation where impact is meaningful
-- **Context Menu** — low-frequency secondary actions, never the only discoverable primary action
+- **Overview / List** — New/Create belongs in the Page Header; Search / Filters / Columns / Export belong with the table.
+- **Resource Detail** — resource operations belong in Resource Actions next to the resource identity.
+- **Create / Edit / Settings** — Cancel/Discard and Save/Create/Schedule belong in `INNOActionFooter`.
+- **Builder / Wizard** — Run/Save or Back/Continue belongs in the owning builder/wizard footer.
+- **Primary** — main next action; exactly one per action area and right-most in a footer.
+- **Secondary** — normal implemented alternate action.
+- **Ghost** — low emphasis.
+- **Danger** — destructive action; requires explicit confirmation where impact is meaningful.
+- **Context Menu** — low-frequency secondary actions, never the only discoverable primary action.
+
+`INNOActionFooter` behavior:
+- belongs to the editor pane that owns the pending change,
+- docks to the viewport when its natural position is below the viewport,
+- keeps the owning pane's left/width instead of spanning unrelated columns,
+- reserves bottom safe space while docked,
+- returns to document flow when its natural position becomes visible,
+- never contains disabled / Coming Soon actions.
 
 ## 6. Forms
 
@@ -341,3 +356,15 @@ A new module is UI-complete only when it:
 - Browser regression now covers 83 Web routes at 1366 / 1024 / 768 plus route-ownership interaction checks.
 - Current frozen visual set: 87 canonical route screenshots + 13 state screenshots = 100 files.
 - UI Contract remains 1.12.0 because existing component APIs are unchanged and old Overview anchor targets remain backward-compatible; only canonical generated navigation ownership changed.
+
+
+## 28. Final Action / Layout Consistency Freeze — 2026-09-25
+
+- Design System Documentation advanced to **V1.19** and UI Contract to **1.13.0**.
+- Added `INNOActionFooter` as a shared layout contract instead of allowing editor Save/Create/Schedule actions to float between headers, cards and page bottoms.
+- Classified all 83 Web routes into Editor, Builder, Wizard, Resource Detail or Overview/List action ownership.
+- `endpoint-policies.html` is the reference master/editor implementation: Policies editing is separated from Compliance monitoring.
+- Editor / builder / wizard action bars dock to their owning pane while below the viewport and preserve bottom safe space.
+- Removed unavailable/Coming Soon actions from high-emphasis action zones.
+- Responsive primary-work ordering was corrected for Inventory Query and grid min-content no longer causes page overflow.
+- `action-layout-audit.py` is now part of the frozen regression contract.

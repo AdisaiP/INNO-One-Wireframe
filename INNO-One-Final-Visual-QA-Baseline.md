@@ -1,7 +1,7 @@
 # INNO.One Final Visual QA Baseline
 
-**UI Contract:** 1.12.0
-**Design System Documentation:** V1.18
+**UI Contract:** 1.13.0
+**Design System Documentation:** V1.19
 **Status:** Frozen visual baseline
 **Frozen:** 2026-09-25
 **Backend:** Not implemented by this baseline
@@ -137,7 +137,7 @@ Final verification on 2026-09-25:
 - Responsive Pass audit: 0 issues.
 - Final Visual audit: 0 issues.
 
-The frozen UI is ready for backend architecture, API, event and permission mapping. Backend implementation and TOR acceptance remain separate work.
+The frozen UI baseline is internally consistent. Backend work is intentionally paused by user instruction; backend implementation and TOR acceptance remain separate work.
 
 
 ## 10. Repository cleanup policy
@@ -162,7 +162,7 @@ The 1.12.0 visual baseline was regenerated after the second B-grade pass. Screen
 
 ## 14. Canonical route ownership refresh — 2026-09-25
 
-The current 1.12.0 prototype baseline now owns distinct application routes for Devices, Helpdesk ticket queues, Meeting lists and Workspace activity views. App Launcher and Reports use query-state routes for true filters instead of hash navigation.
+At the 1.12.0 route-ownership pass, the prototype gained distinct application routes for Devices, Helpdesk ticket queues, Meeting lists and Workspace activity views. The current baseline is 1.13.0. App Launcher and Reports use query-state routes for true filters instead of hash navigation.
 
 Current baseline counts supersede the earlier snapshot counts recorded in historical pass sections above:
 
@@ -172,3 +172,25 @@ Current baseline counts supersede the earlier snapshot counts recorded in histor
 - Total frozen screenshots / hash checks: 100 / 100.
 - Application-shell hash navigation: 0.
 - Missing local route targets: 0.
+
+
+## 15. Action/Layout consistency baseline — 2026-09-25
+
+The canonical visual baseline now includes Design System V1.19 / UI Contract 1.13.0 action-placement behavior:
+
+- 83 / 83 Web routes are classified by action-layout page type.
+- Editor Save/Create/Schedule actions use pane-owned canonical action footers.
+- Builder/Wizard actions use their owning footer zones.
+- Resource Detail operations stay in resource action zones.
+- Overview/List create actions remain in Page Headers while table tools stay with the table.
+- Docked task footers preserve editor-pane width and bottom safe space on long forms.
+- Endpoint Policies editing and Compliance monitoring are separate views.
+- Action/Layout automated audit must remain at 0 issues.
+
+Action/Layout verification at freeze:
+- Page type coverage: 83 / 83.
+- Editor / Builder / Wizard / Resource Detail / Overview-List = 18 / 4 / 1 / 6 / 54.
+- `action-layout-audit.py`: 0 issues.
+- `qa-ux-input-browser.py`: 73 checks / 0 failures, including all 83 Web routes at 1366 / 1024 / 768.
+- `qa-final-visual.py`: 116 checks / 0 failures.
+- Screenshot manifest verification: 100 / 100 hashes.

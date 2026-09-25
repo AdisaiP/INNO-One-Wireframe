@@ -103,14 +103,15 @@ for page in sorted(ROOT.glob("*.html")):
     metrics["subnavs"]+=len(subnavs)
     for nav in subnavs:
         active=[a for a in descendants(nav,tag="a") if "active" in a.classes()]
-        if len(active)!=1:issues.append(f"{page.name}: section-subnav active count={len(active)}")
+        dynamic_subnav = "data-policy-view" in source and "classList.toggle('active'" in source
+        if len(active)!=1 and not dynamic_subnav:issues.append(f"{page.name}: section-subnav active count={len(active)}")
 
     tabsets=[n for n in nodes if any(x in n.classes() for x in ("surface-tabs","detail-tabs","asset-tabs"))]
     metrics["tabsets"]+=len(tabsets)
     for tabs in tabsets:
         active=[b for b in descendants(tabs,tag="button") if "active" in b.classes()]
         if len(active)!=1:issues.append(f"{page.name}: tabset active count={len(active)}")
-    sticky=any(any(c in n.classes() for c in ("arch-editor-actions","form-footer","editor-footer","sticky-actions")) for n in nodes)
+    sticky=any(any(c in n.classes() for c in ("inno-editor-footer","inno-builder-footer","inno-wizard-footer","arch-editor-actions","form-footer","editor-footer","sticky-actions")) for n in nodes)
     if sticky:metrics["sticky_action_areas"]+=1
     field_count=sum(1 for n in nodes if n.tag=="div" and "field" in n.classes())
     has_commit=bool(re.search(r">\s*(?:<i[^>]*></i>)?\s*(?:Save\b|Create Ticket\b|Create Job\b|Schedule Restart\b|Start Staged Rollout\b)",source,re.I))

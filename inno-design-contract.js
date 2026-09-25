@@ -3,17 +3,18 @@
 
 const contract={
   name:"INNO.One Design System",
-  contractVersion:"1.12.0",
-  documentationVersion:"1.18",
+  contractVersion:"1.13.0",
+  documentationVersion:"1.19",
   status:"frozen",
-  frozenAt:"2026-09-24",
+  frozenAt:"2026-09-25",
   principles:[
     "One global shell; each app owns its contextual navigation.",
     "One semantic meaning maps to one component, state and icon pattern.",
     "Prefer dense, calm enterprise UI over decorative dashboards.",
     "Every async/data surface defines loading, empty, error and permission behavior.",
     "Accessibility and responsive behavior are part of the component contract, not optional polish.",
-    "One screen has one primary job; unrelated create/edit, monitoring, settings and history tasks must not be stacked into one scroll surface."
+    "One screen has one primary job; unrelated create/edit, monitoring, settings and history tasks must not be stacked into one scroll surface.",
+    "Action placement follows page type: page creation in Page Header, resource operations in Resource Actions, and Save/Create/Schedule for editors in the owning Action Footer."
   ],
   foundations:{
     controlHeight:36,
@@ -61,6 +62,13 @@ const contract={
       implementation:"shadcn/ui Button",
       variants:["primary","secondary","ghost","danger","icon"],
       rules:["One primary action per action area","Destructive actions use confirmation"]
+    },
+    INNOActionFooter:{
+      implementation:"INNO.One layout composition using Button primitives",
+      usage:["Create/Edit","Settings","Builder","Wizard"],
+      zones:["start: Cancel/Discard","end: Secondary implemented action + Primary"],
+      behavior:["belongs to owning editor pane","docks to viewport when its natural position is below the viewport","preserves owning pane left/width","returns to document flow when natural position is visible","reserves bottom safe space while docked"],
+      rules:["Exactly one enabled primary action","Primary is right-most","No disabled or Coming Soon actions","Do not duplicate Save/Create/Schedule in Page Header"]
     },
     INNOIcon:{
       implementation:"Lucide",
@@ -228,7 +236,9 @@ const contract={
     "INNO-One-Special-UI-Components.md",
     "INNO-One-UI-Prototype-Summary.md",
     "INNO-One-Screen-Architecture-Refactor-Plan.md",
-    "INNO-One-Final-Visual-QA-Baseline.md"
+    "INNO-One-Final-Visual-QA-Baseline.md",
+    "INNO-One-Action-Layout-Contract.md",
+    "action-layout-audit.py"
   ],
   changePolicy:{
     patch:"Visual correction that does not change component API or behavior.",

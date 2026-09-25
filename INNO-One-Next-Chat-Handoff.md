@@ -1,6 +1,6 @@
 # INNO.One — Next Chat Handoff
 
-Last updated: 2026-09-24  
+Last updated: 2026-09-25
 Project: `/Users/adisaip/Desktop/INNO-One-Wireframe/`  
 Scope: UI/UX prototype only — **ยังไม่ทำ Backend**
 
@@ -30,8 +30,8 @@ INNO.One กำลังถูกปรับจาก TOR coverage prototype �
 
 ## 2. Current UI Baseline
 
-- Design System: **V1.18**
-- UI Contract: **1.12.0**
+- Design System: **V1.19**
+- UI Contract: **1.13.0**
 - Registry Schema: **10**
 
 Source of truth หลัก:
@@ -50,6 +50,8 @@ Source of truth หลัก:
 - `INNO-One-Special-UI-Components.md`
 - `INNO-One-UI-Prototype-Summary.md`
 - `INNO-One-Screen-Architecture-Refactor-Plan.md`
+- `INNO-One-Action-Layout-Contract.md`
+- `action-layout-audit.py`
 
 ---
 
@@ -611,7 +613,7 @@ Endpoint Agent และ Mobile ทดสอบแยกตาม Surface
 
 ## NEXT 6 — Final Visual QA ✅ COMPLETED 2026-09-24
 
-Final UI baseline ถูก Freeze แล้วที่ **Design System V1.18 / UI Contract 1.12.0**
+Historical NEXT 6 baseline was frozen at **Design System V1.18 / UI Contract 1.12.0**. The current accepted baseline is **Design System V1.19 / UI Contract 1.13.0** after the Final Action/Layout Consistency Pass.
 
 Checklist ที่ทำครบ:
 
@@ -644,9 +646,9 @@ Checklist ที่ทำครบ:
 - Final Visual audit = 0 issues
 - Final baseline อยู่ที่ `qa-final-visual/` และ contract อธิบายใน `INNO-One-Final-Visual-QA-Baseline.md`
 
-**สถานะ UI Prototype: ✅ FROZEN / READY FOR BACKEND PLANNING**
+**สถานะ UI Prototype ปัจจุบัน: ✅ FROZEN AT V1.19 / CONTRACT 1.13.0 — BACKEND WORK PAUSED BY USER**
 
-หมายเหตุ: Ready for Backend Planning ไม่ได้แปลว่า Backend, integration หรือ TOR acceptance ถูก implement แล้ว
+หมายเหตุ: Backend planning documents may exist on a separate branch, but the user explicitly paused Backend work. Do not resume Backend unless the user asks again.
 
 ---
 
@@ -670,13 +672,13 @@ Prototype CSS เป็น append-heavy อยู่แล้ว ต้องแ
 
 ใช้ข้อความนี้ได้เลย:
 
-> เปิดโปรเจกต์ `/Users/adisaip/Desktop/INNO-One-Wireframe/` ผ่าน MCP แล้วอ่าน `INNO-One-Next-Chat-Handoff.md`, `INNO-One-Final-Visual-QA-Baseline.md`, `INNO-One-UI-Prototype-Summary.md`, `INNO-One-Screen-Architecture-Refactor-Plan.md` และ Design System ก่อน ตอนนี้ UI ถูก Freeze ที่ **Design System V1.18 / UI Contract 1.12.0** แล้ว ให้เริ่ม **Backend Planning — Domain / API / Event / Permission Mapping** จาก frozen UI contract ก่อน ยังไม่แก้ UI baseline หรือเริ่ม Backend code จนกว่า architecture mapping จะชัดเจน
+> เปิดโปรเจกต์ `/Users/adisaip/Desktop/INNO-One-Wireframe/` ผ่าน MCP แล้วอ่าน `INNO-One-Next-Chat-Handoff.md`, `INNO-One-Final-Visual-QA-Baseline.md`, `INNO-One-Action-Layout-Contract.md`, `INNO-One-UI-Prototype-Summary.md` และ Design System ก่อน ปัจจุบัน UI Freeze อยู่ที่ **Design System V1.19 / UI Contract 1.13.0**. Backend ถูกพักไว้ตามคำสั่งผู้ใช้ ให้ทำเฉพาะ UX/UI review หรือ frontend prototype work ที่ผู้ใช้สั่ง และต้องรักษา Action/Layout Contract + visual regression baseline.
 
 ---
 
 ## 13. Definition of Done ก่อนเริ่ม Backend
 
-**Status: ✅ UI Definition of Done ผ่านแล้ว — Ready for Backend Planning**
+**Status: ✅ UI Definition of Done ผ่านแล้ว — Backend intentionally paused; continue only when explicitly requested**
 
 UI Prototype ถือว่าพร้อมต่อ Backend เมื่อ:
 
@@ -749,3 +751,26 @@ The navigation architecture pass is now complete for application-shell routes:
 - Application hash-link regression guard reports `app_hash_links=0`; local-route validation reports `broken_local_routes=0`.
 - Current Web route count = 83. Browser navigation/input regression = 63 / 63.
 - Current frozen screenshot baseline = 87 canonical route screenshots + 13 state screenshots = 100 files.
+
+
+# Final Action/Layout Consistency Pass ✅ COMPLETED 2026-09-25
+
+Branch: `ux/final-action-layout-pass`
+
+Backend work remains out of scope. This pass standardizes action ownership and layout across the frozen Web prototype.
+
+Key changes:
+
+- Added `INNO-One-Action-Layout-Contract.md` and `action-layout-audit.py`.
+- Design System = **V1.19** / UI Contract = **1.13.0**.
+- Classified all **83 / 83** Web routes by action-layout page type.
+- Editor 18 / Builder 4 / Wizard 1 / Resource Detail 6 / Overview-List 54.
+- All 18 editors now use canonical `INNOActionFooter`; legacy editor footer classes = 0.
+- Builders use `inno-builder-footer`; Deployment uses `inno-wizard-footer`.
+- Long task footers dock to the exact owning pane while below the viewport and reserve bottom safe space.
+- `endpoint-policies.html` was restructured into separate Policies and Compliance views; disabled Preview Impact no longer competes with Save.
+- Inventory Query puts Query Builder before Saved Queries on narrow layouts and contains wide results inside the table scroll region.
+- High-emphasis disabled actions = 0; multiple primary action-zone violations = 0.
+- Application hash links = 0; broken local routes = 0.
+
+Do not begin Backend implementation until the user explicitly asks. Further work after this freeze should be visual/content-specific QA or production frontend implementation.

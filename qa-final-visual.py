@@ -129,7 +129,7 @@ manifest["states"]["validation"]={"page":"ticket-new.html","invalid":invalid,**c
 check("State validation",invalid==2,invalid)
 
 # Unsaved discard confirm.
-c.nav("ticket-new.html");c.eval("""(()=>{const i=document.getElementById('subject');i.value='Final QA draft';i.dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('.form-footer a').click()})()""");time.sleep(.08)
+c.nav("ticket-new.html");c.eval("""(()=>{const i=document.getElementById('subject');i.value='Final QA draft';i.dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('.inno-editor-footer a').click()})()""");time.sleep(.08)
 open_=c.eval("document.getElementById('innoConfirmBackdrop').classList.contains('open')")
 manifest["states"]["unsaved-confirm"]={"page":"ticket-new.html","open":open_,**c.shot(OUT/"states"/"unsaved-confirm.png")}
 check("State unsaved-confirm",open_)

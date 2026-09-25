@@ -53,7 +53,7 @@ for w in (1366,1024,768):
     route_fails=[]
     for page in WEB:
         c.nav(page,"?qaMetrics=1")
-        m=c.eval("""(()=>{const sels=[...document.querySelectorAll('select')];const expected=sels.filter(s=>!s.hasAttribute('data-inno-native')&&!s.closest('.mock-desktop,.android-phone')).length;const enhanced=sels.filter(s=>s.dataset.innoEnhanced).length;const visibleNative=sels.filter(s=>{const r=s.getBoundingClientRect(),cs=getComputedStyle(s);return cs.position!=='absolute'&&cs.display!=='none'&&r.width>3&&r.height>3}).length;return {overflow:document.documentElement.scrollWidth>innerWidth+2,inputSystem:document.documentElement.dataset.innoInputSystem==='1',selects:sels.length,expected,enhanced,visibleNative,popovers:document.querySelectorAll('.inno-picker-popover').length,sideHash:[...document.querySelectorAll('.side a')].filter(a=>(a.getAttribute('href')||'').includes('#')).length}})()""")
+        m=c.eval("""(()=>{const sels=[...document.querySelectorAll('select')];const expected=sels.filter(s=>!s.hasAttribute('data-inno-native')&&!s.closest('.mock-desktop,.android-phone')).length;const enhanced=sels.filter(s=>s.dataset.innoEnhanced).length;const visibleNative=sels.filter(s=>{const r=s.getBoundingClientRect(),cs=getComputedStyle(s);return cs.position!=='absolute'&&cs.display!=='none'&&r.width>3&&r.height>3}).length;const visible=e=>{const r=e.getBoundingClientRect(),cs=getComputedStyle(e);return cs.display!=='none'&&cs.visibility!=='hidden'&&r.width>0&&r.height>0};const footers=[...document.querySelectorAll('.inno-editor-footer,.inno-builder-footer,.inno-wizard-footer')].filter(visible);const footerPositions=[...new Set(footers.map(x=>getComputedStyle(x).position))];const highDisabled=[...document.querySelectorAll('.page-head .actions .btn[disabled],.page-head .actions .btn[aria-disabled="true"],.resource-actions .btn[disabled],.resource-actions .btn[aria-disabled="true"]')].filter(visible).length;const footerInViewport=footers.every(x=>{const r=x.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight+2});return {overflow:document.documentElement.scrollWidth>innerWidth+2,inputSystem:document.documentElement.dataset.innoInputSystem==='1',selects:sels.length,expected,enhanced,visibleNative,popovers:document.querySelectorAll('.inno-picker-popover').length,sideHash:[...document.querySelectorAll('.side a')].filter(a=>(a.getAttribute('href')||'').includes('#')).length,footerPositions,footerInViewport,highDisabled}})()""")
         bad=[]
         if m["overflow"]:bad.append("overflow")
         if not m["inputSystem"]:bad.append("input-system-missing")
@@ -61,6 +61,8 @@ for w in (1366,1024,768):
         if m["visibleNative"]:bad.append(f"visible-native={m['visibleNative']}")
         if m["popovers"]:bad.append("orphan-popover")
         if m["sideHash"]:bad.append(f"side-hash-links={m['sideHash']}")
+        if m["highDisabled"]:bad.append(f"high-emphasis-disabled={m['highDisabled']}")
+        if m["footerPositions"] and not m["footerInViewport"]:bad.append(f"footer-not-visible={m['footerPositions']}")
         if bad:route_fails.append((page,bad))
     check(f"All {len(WEB)} Web routes pass Input System at {w}",not route_fails,route_fails[:6])
 # Ticket: combobox, resource picker and segmented controls retain backing select events.
@@ -212,6 +214,30 @@ check("App Launcher recent view uses query route without hash",c.eval("document.
 
 c.nav("reports-overview.html","?report=software")
 check("Report catalog uses query route and restores selected report",c.eval("document.querySelector('.side a.active')?.getAttribute('href')==='reports-overview.html?report=software' && document.getElementById('reportTitle').textContent==='Software Inventory'"))
+
+# Final Action/Layout contract regression.
+c.viewport(1366);c.nav("endpoint-policies.html")
+check("Endpoint Policies defaults to Policies editor view",c.eval("document.querySelector('[data-view=policies]').hidden===false && document.querySelector('[data-view=compliance]').hidden===true && document.querySelector('[data-policy-view=policies]').classList.contains('active')"))
+check("Endpoint Policies editor footer belongs to editor pane",c.eval("document.querySelector('.inno-editor-pane > .inno-editor-footer')!==null && getComputedStyle(document.querySelector('.inno-editor-footer')).position==='sticky'"))
+check("Endpoint Policies has no unavailable competing footer action",c.eval("document.querySelectorAll('.inno-editor-footer [disabled],.inno-editor-footer [aria-disabled=\"true\"]').length===0 && !document.body.textContent.includes('Preview Impact')"))
+c.nav("endpoint-policies.html","?view=compliance")
+check("Endpoint Policies Compliance is a separate view",c.eval("document.querySelector('[data-view=policies]').hidden===true && document.querySelector('[data-view=compliance]').hidden===false && document.querySelector('[data-policy-view=compliance]').classList.contains('active')"))
+
+c.viewport(768);c.nav("endpoint-policies.html")
+check("Editor footer stays visible at tablet width",c.eval("""(()=>{const f=document.querySelector('.inno-editor-footer'),r=f.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight+2&&(f.classList.contains('is-docked')||['sticky','fixed'].includes(getComputedStyle(f).position))})()"""))
+
+c.viewport(1366);c.nav("device-query.html")
+check("Inventory Query actions belong to builder, not page header",c.eval("document.querySelector('.page-head .actions')===null && document.querySelector('.query-workspace > .inno-builder-footer #saveQuery')!==null && document.querySelector('.query-workspace > .inno-builder-footer #runQuery')!==null"))
+
+c.nav("helpdesk-sla.html")
+check("SLA editor keeps editable behavior in main column",c.eval("""(()=>{const main=document.querySelector('.ux-operational-main'),aside=document.querySelector('.ux-operational-aside');return main.textContent.includes('Policy behavior')&&main.querySelector('.inno-editor-footer')&&aside.textContent.includes('Live SLA monitor')&&!aside.textContent.includes('Save Policy')})()"""))
+
+c.nav("device-groups.html","?tab=dynamic")
+check("Dynamic Group deep link opens builder tab",c.eval("document.querySelector('#groupTabs [data-tab=dynamic]').classList.contains('active') && document.querySelector('[data-panel=dynamic]').classList.contains('active')"))
+check("Dynamic Group save belongs to builder footer",c.eval("document.querySelector('[data-panel=dynamic] > .inno-builder-footer [data-inno-save]')!==null && document.querySelectorAll('[data-panel=dynamic] button[disabled]').length===0"))
+
+c.nav("asset-qr.html")
+check("QR workflow actions moved out of page header",c.eval("document.querySelector('.page-head .actions')===null && document.querySelector('.inno-builder-footer #printSelectedBtn')!==null && document.querySelector('.inno-builder-footer #labelSettingsBtn')!==null"))
 
 print(f"checks={checks}")
 print(f"failures={len(fails)}")

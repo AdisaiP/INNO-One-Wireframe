@@ -441,3 +441,20 @@ New canonical routes:
 - `workspace-recent.html` — recent activity.
 
 Filter-like navigation remains on the owning screen but uses query-state routes instead of hashes: App Launcher uses `?filter=` / `?view=`, and Reports uses `?report=`. Design System anchors remain intentionally in-page because that screen is documentation navigation.
+
+
+## 11. Final action/layout consistency pass — 2026-09-25
+
+The remaining cross-page action-placement inconsistency has been addressed through `INNO-One-Action-Layout-Contract.md` rather than page-specific alignment patches.
+
+Resolved:
+- Endpoint Policies no longer mixes editor Save placement with Compliance output; Policies / Compliance are separate views.
+- All 83 Web routes have explicit action-layout ownership.
+- 18 editor pages use the same canonical footer pattern.
+- 4 builders and 1 wizard use dedicated footer patterns.
+- 6 resource-detail pages reserve resource operations for the resource action zone.
+- 54 overview/list/read-oriented pages cannot accidentally acquire an editor footer without failing the audit.
+- High-emphasis Coming Soon actions were removed from primary action zones.
+- Inventory Query narrow hierarchy now prioritizes the Query Builder and contains wide table min-content.
+
+The automated action/layout audit is a regression guard; the pass was also reviewed visually using 23-page editor contact sheets at 1366 / 768 and an 83-route desktop contact-sheet sweep.

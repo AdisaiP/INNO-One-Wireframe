@@ -2,12 +2,73 @@
 <aside class="rail"><div class="brand">I1</div><a href="workspace-v2.html"><i class="fa-solid fa-house"></i></a><a href="app-launcher-v2.html"><i class="fa-solid fa-table-cells-large"></i></a><a class="active" href="devices-overview-v2.html"><i class="fa-solid fa-desktop"></i></a><a href="helpdesk.html"><i class="fa-solid fa-headset"></i></a><a href="meeting.html"><i class="fa-solid fa-microphone-lines"></i></a><div class="spacer"></div><a href="admin.html"><i class="fa-solid fa-gear"></i></a></aside>
 <aside class="side"><div class="side-title">Devices</div><div class="side-section">Workspace</div><a href="devices-overview-v2.html"><i class="fa-solid fa-house"></i>Overview</a><a href="devices.html"><i class="fa-solid fa-desktop"></i>Devices</a><a href="device-discovery.html"><i class="fa-solid fa-satellite-dish"></i>Discovery</a><a href="device-groups.html"><i class="fa-solid fa-layer-group"></i>Device Groups</a><a href="remote-operations.html"><i class="fa-solid fa-display"></i>Remote Operations</a><a href="remote-consent.html"><i class="fa-solid fa-hand"></i>Remote Consent</a><a href="device-query.html"><i class="fa-solid fa-magnifying-glass"></i>Inventory Query</a><div class="side-section">Operations</div><a href="deployment-jobs.html"><i class="fa-solid fa-box-open"></i>Deployment Jobs</a><a href="agent-maintenance.html"><i class="fa-solid fa-arrows-rotate"></i>Agent Maintenance</a><a class="active" href="endpoint-policies.html"><i class="fa-solid fa-shield-halved"></i>Policies</a><a href="device-alerts.html"><i class="fa-solid fa-triangle-exclamation"></i>Alerts</a><a href="reports-overview.html"><i class="fa-solid fa-chart-column"></i>Reports</a><a class="nav-disabled" aria-disabled="true" tabindex="-1" title="Settings · Coming soon"><i class="fa-solid fa-gear"></i>Settings</a></aside>
 <main class="main"><header class="topbar"></header><section class="content">
-<div class="page-head"><div><div class="eyebrow">Devices</div><h1>Endpoint Policies</h1><div class="sub">Manage one endpoint policy at a time, its assignment scope and policy-specific exceptions.</div></div></div>
-<div class="compliance" style="margin-bottom:16px"><div class="card compliance-card"><span class="small muted">Compliant</span><b>114</b><span class="status online">89%</span></div><div class="card compliance-card"><span class="small muted">Non-compliant</span><b>9</b><span class="tag warn">Needs action</span></div><div class="card compliance-card"><span class="small muted">Pending</span><b>5</b><span class="tag">Applying</span></div></div>
-<div class="policy-grid"><div class="card card-pad"><div class="section-title"><div><h3>Policies</h3><div class="small muted">Select a policy to inspect its settings.</div></div><span class="tag">4 policies</span></div><div class="policy-list"><div class="policy-item active"><div class="name">USB Storage Control</div><div class="meta">Assigned to 96 devices</div></div><div class="policy-item"><div class="name">Remote Consent</div><div class="meta">Assigned to All Devices</div></div><div class="policy-item"><div class="name">Screen Capture</div><div class="meta">Assigned to 42 devices</div></div><div class="policy-item"><div class="name">Agent Update</div><div class="meta">Assigned to All Devices</div></div></div></div>
-<div><div class="policy-section"><div class="section-title"><h3>USB Storage Control</h3><span class="tag success">Enabled</span></div><div class="small muted" style="margin-bottom:12px">Control read/write access to removable storage and optionally allow registered devices only.</div><div class="ux-decision-list"><label class="ux-decision"><input type="radio" name="usb" checked><span><b>Registered USB only</b><small>Block removable storage except approved Hardware ID / Serial.</small></span></label><label class="ux-decision"><input type="radio" name="usb"><span><b>Read only</b><small>Users can read files but cannot write.</small></span></label><label class="ux-decision"><input type="radio" name="usb"><span><b>Block read & write</b><small>Deny removable storage access completely.</small></span></label><label class="ux-decision"><input type="radio" name="usb"><span><b>Allow all</b><small>No removable-storage restriction.</small></span></label></div></div>
-<div class="policy-section"><div class="section-title"><div><h3>Assignment</h3><div class="small muted">Device groups currently covered by this policy.</div></div><span class="tag success">96 devices</span></div><div class="list"><div class="list-row"><div class="row-icon"><i class="fa-solid fa-layer-group"></i></div><div class="grow"><div class="item-title">Head Office</div><div class="item-meta">64 devices</div></div><span class="tag success">Applied</span></div><div class="list-row"><div class="row-icon"><i class="fa-solid fa-layer-group"></i></div><div class="grow"><div class="item-title">Finance</div><div class="item-meta">32 devices</div></div><span class="tag success">Applied</span></div></div></div>
-<details class="ux-advanced"><summary>Registered USB exceptions <span class="tag">2 devices</span></summary><div class="ux-advanced-body"><div class="usb-list"><div class="usb-item"><div class="usb-icon"><i class="fa-solid fa-usb"></i></div><div><div class="item-title">Kingston DataTraveler 64GB</div><div class="item-meta">Serial: KNG-91A7-2201 · Hardware ID: USB\VID_0951&PID_1666</div></div><span class="tag success">Allowed</span></div><div class="usb-item"><div class="usb-icon"><i class="fa-solid fa-usb"></i></div><div><div class="item-title">SanDisk Ultra 32GB</div><div class="item-meta">Serial: SDK-44B2-7731 · Hardware ID: USB\VID_0781&PID_5581</div></div><span class="tag success">Allowed</span></div></div><div class="ux-stat-note"><i class="fa-solid fa-circle-info"></i><span>Registration and exception maintenance are future capabilities; the current prototype shows the effective allow-list only.</span></div></div></details>
-<div class="actions"><button class="btn" data-inno-save data-inno-saving-label="Saving policy..." data-inno-saved-label="Policy saved" data-inno-success="Endpoint policy saved"><i class="fa-solid fa-floppy-disk"></i>Save Policy</button><button class="btn secondary" disabled aria-disabled="true" title="Preview Impact · Coming soon">Preview Impact</button></div></div></div>
-<div class="card" style="margin-top:16px"><div class="card-pad"><div class="section-title"><h3>Compliance Results</h3><span class="small muted">Latest policy evaluation</span></div></div><div class="table-wrap"><table class="table"><thead><tr><th>Device</th><th>Policy</th><th>Expected</th><th>Actual</th><th>Status</th><th>Last Check</th></tr></thead><tbody><tr><td>DESKTOP-HR-014</td><td>USB Storage Control</td><td>Registered only</td><td>Registered only</td><td><span class="tag success">Compliant</span></td><td>2 min ago</td></tr><tr><td>PC-FIN-021</td><td>USB Storage Control</td><td>Registered only</td><td>Allow all</td><td><span class="tag danger">Non-compliant</span></td><td>18 min ago</td></tr></tbody></table></div></div>
+<div class="page-head"><div><div class="eyebrow">Devices</div><h1>Endpoint Policies</h1><div class="sub">Configure endpoint behavior and review policy compliance without mixing the two jobs.</div></div></div>
+<nav class="section-subnav" id="policyViews" aria-label="Endpoint policy views"><a href="endpoint-policies.html" data-policy-view="policies">Policies</a><a href="endpoint-policies.html?view=compliance" data-policy-view="compliance">Compliance</a></nav>
+
+<div class="inno-view" data-view="policies">
+  <div class="inno-master-editor">
+    <aside class="inno-master-pane">
+      <div class="card card-pad">
+        <div class="section-title"><div><h3>Policies</h3><div class="small muted">Policy set currently available to this organization.</div></div><span class="tag">4 policies</span></div>
+        <div class="inno-master-list">
+          <div class="inno-master-item active"><div><b>USB Storage Control</b><small>Assigned to 96 devices</small></div><span class="tag success">Enabled</span></div>
+          <div class="inno-master-item"><div><b>Remote Consent</b><small>Assigned to all devices</small></div><span class="tag success">Enabled</span></div>
+          <div class="inno-master-item"><div><b>Screen Capture</b><small>Assigned to 42 devices</small></div><span class="tag">Draft</span></div>
+          <div class="inno-master-item"><div><b>Agent Update</b><small>Assigned to all devices</small></div><span class="tag success">Enabled</span></div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="inno-editor-pane">
+      <div class="inno-editor-section">
+        <div class="inno-editor-section-head"><div><h3>USB Storage Control</h3><p>Choose the normal removable-storage behavior for devices covered by this policy.</p></div><span class="tag success">Enabled</span></div>
+        <div class="ux-decision-list">
+          <label class="ux-decision"><input type="radio" name="usb" checked><span><b>Registered USB only</b><small>Block removable storage except approved Hardware ID / Serial.</small></span></label>
+          <label class="ux-decision"><input type="radio" name="usb"><span><b>Read only</b><small>Users can read files but cannot write.</small></span></label>
+          <label class="ux-decision"><input type="radio" name="usb"><span><b>Block read & write</b><small>Deny removable storage access completely.</small></span></label>
+          <label class="ux-decision"><input type="radio" name="usb"><span><b>Allow all</b><small>No removable-storage restriction.</small></span></label>
+        </div>
+      </div>
+
+      <div class="inno-editor-section">
+        <div class="inno-editor-section-head"><div><h3>Assignment</h3><p>Device groups currently covered by this policy.</p></div><span class="tag success">96 devices</span></div>
+        <div class="list">
+          <div class="list-row"><div class="row-icon"><i class="fa-solid fa-layer-group"></i></div><div class="grow"><div class="item-title">Head Office</div><div class="item-meta">64 devices</div></div><span class="tag success">Applied</span></div>
+          <div class="list-row"><div class="row-icon"><i class="fa-solid fa-layer-group"></i></div><div class="grow"><div class="item-title">Finance</div><div class="item-meta">32 devices</div></div><span class="tag success">Applied</span></div>
+        </div>
+      </div>
+
+      <details class="ux-advanced"><summary>Registered USB exceptions <span class="tag">2 devices</span></summary><div class="ux-advanced-body"><div class="usb-list"><div class="usb-item"><div class="usb-icon"><i class="fa-solid fa-usb"></i></div><div><div class="item-title">Kingston DataTraveler 64GB</div><div class="item-meta">Serial: KNG-91A7-2201 · Hardware ID: USB\\VID_0951&PID_1666</div></div><span class="tag success">Allowed</span></div><div class="usb-item"><div class="usb-icon"><i class="fa-solid fa-usb"></i></div><div><div class="item-title">SanDisk Ultra 32GB</div><div class="item-meta">Serial: SDK-44B2-7731 · Hardware ID: USB\\VID_0781&PID_5581</div></div><span class="tag success">Allowed</span></div></div><div class="ux-stat-note"><i class="fa-solid fa-circle-info"></i><span>Exception maintenance is not part of the current prototype interaction; this list shows the effective allow-list only.</span></div></div></details>
+
+      <div class="inno-editor-footer" data-inno-editor-footer>
+        <div class="inno-editor-footer-start"><button class="btn secondary" type="button" id="discardPolicy">Discard changes</button></div>
+        <div class="inno-editor-footer-end"><button class="btn" data-inno-save data-inno-saving-label="Saving policy..." data-inno-saved-label="Policy saved" data-inno-success="Endpoint policy saved"><i class="fa-solid fa-floppy-disk"></i>Save Policy</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="inno-view" data-view="compliance" hidden>
+  <div class="inno-compliance-kpis">
+    <div class="inno-compliance-kpi"><span>Compliant</span><b>114</b><small>89% of evaluated devices</small></div>
+    <div class="inno-compliance-kpi"><span>Non-compliant</span><b>9</b><small>Needs remediation</small></div>
+    <div class="inno-compliance-kpi"><span>Pending</span><b>5</b><small>Policy still applying</small></div>
+    <div class="inno-compliance-kpi"><span>Compliance rate</span><b>89%</b><small>Latest evaluation</small></div>
+  </div>
+  <div class="card">
+    <div class="card-pad"><div class="section-title"><div><h3>Compliance results</h3><div class="small muted">Latest evaluated state across endpoint policies.</div></div><button class="btn secondary" data-inno-filter="policy-compliance"><i class="fa-solid fa-filter"></i>Filters</button></div></div>
+    <div class="table-wrap"><table class="table"><thead><tr><th>Device</th><th>Policy</th><th>Expected</th><th>Actual</th><th>Status</th><th>Last Check</th></tr></thead><tbody><tr><td>DESKTOP-HR-014</td><td>USB Storage Control</td><td>Registered only</td><td>Registered only</td><td><span class="tag success">Compliant</span></td><td>2 min ago</td></tr><tr><td>PC-FIN-021</td><td>USB Storage Control</td><td>Registered only</td><td>Allow all</td><td><span class="tag danger">Non-compliant</span></td><td>18 min ago</td></tr><tr><td>NOTEBOOK-IT-003</td><td>Agent Update</td><td>1.8.4</td><td>1.8.4</td><td><span class="tag success">Compliant</span></td><td>21 min ago</td></tr><tr><td>DESKTOP-OPS-008</td><td>Screen Capture</td><td>Blocked</td><td>Pending</td><td><span class="tag">Pending</span></td><td>24 min ago</td></tr></tbody></table></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const params=new URLSearchParams(location.search);
+  const view=params.get('view')==='compliance'?'compliance':'policies';
+  document.querySelectorAll('[data-view]').forEach(x=>x.hidden=x.dataset.view!==view);
+  document.querySelectorAll('[data-policy-view]').forEach(x=>x.classList.toggle('active',x.dataset.policyView===view));
+  const discard=document.getElementById('discardPolicy');
+  if(discard)discard.addEventListener('click',()=>location.href='endpoint-policies.html');
+})();
+</script>
 </section></main></div><script src="inno-inputs.js"></script><script src="inno-interactions.js"></script><script src="inno-states.js"></script><script src="platform-shell.js"></script><script src="inno-responsive.js"></script><script src="inno-navigation.js"></script><script src="inno-icons.js"></script><script src="inno-design-contract.js"></script></body></html>

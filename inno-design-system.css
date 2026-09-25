@@ -866,3 +866,139 @@ body{line-height:1.45;text-rendering:optimizeLegibility}
 .ux-inline-tabs button.active{color:#2457bd}.ux-inline-tabs button.active:after{content:"";position:absolute;height:2px;background:#2f66db;left:0;right:0;bottom:-1px}
 @media(max-width:1150px){.ux-channel-grid{grid-template-columns:1fr 1fr}.ux-day-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.ux-capture-layout{grid-template-columns:1fr}}
 @media(max-width:850px){.ux-channel-grid,.ux-mode-switch,.ux-sla-targets,.ux-module-meta{grid-template-columns:1fr}.ux-day-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ux-inline-tabs{overflow:auto;white-space:nowrap}}
+
+/* UX/UI Final Consistency Pass — canonical action/layout contract */
+.inno-editor-footer{
+  position:sticky;
+  bottom:10px;
+  z-index:12;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  min-height:58px;
+  margin-top:14px;
+  padding:10px 12px;
+  border:1px solid var(--ds-border);
+  border-radius:12px;
+  background:rgba(255,255,255,.96);
+  box-shadow:0 8px 24px rgba(23,32,51,.08);
+  backdrop-filter:blur(10px);
+}
+.inno-editor-footer-start,.inno-editor-footer-end{display:flex;align-items:center;gap:8px}
+.inno-editor-footer-end{margin-left:auto}
+.inno-editor-footer>.btn.secondary:first-child,
+.arch-editor-actions>.btn.secondary:first-child,
+.form-footer>.btn.secondary:first-child{margin-right:auto}
+.inno-master-editor{display:grid;grid-template-columns:280px minmax(0,1fr);gap:14px;align-items:start}
+.inno-master-pane{min-width:0;position:sticky;top:72px}
+.inno-editor-pane{min-width:0}
+.inno-master-list{display:grid;gap:7px}
+.inno-master-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 12px;border:1px solid var(--ds-border);border-radius:10px;background:#fff;color:#425069}
+.inno-master-item.active{border-color:#9eb8ee;background:#f5f8ff;box-shadow:0 0 0 2px rgba(39,95,215,.05)}
+.inno-master-item b{display:block;font-size:11px;color:#243046}
+.inno-master-item small{display:block;margin-top:2px;font-size:9px;line-height:1.4;color:var(--ds-muted)}
+.inno-master-item .tag{justify-self:end}
+.inno-view[hidden]{display:none!important}
+.inno-editor-section{padding:15px 16px;border:1px solid var(--ds-border);border-radius:12px;background:#fff}
+.inno-editor-section+.inno-editor-section{margin-top:12px}
+.inno-editor-section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.inno-editor-section-head h3{margin:0;font-size:13px;line-height:1.35}
+.inno-editor-section-head p{margin:3px 0 0;font-size:10px;line-height:1.45;color:var(--ds-muted)}
+.inno-compliance-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.inno-compliance-kpi{padding:13px 14px;border:1px solid var(--ds-border);border-radius:12px;background:#fff}
+.inno-compliance-kpi span{display:block;font-size:9px;color:var(--ds-muted)}
+.inno-compliance-kpi b{display:block;margin:4px 0;font-size:19px;color:#1f2a3d}
+.inno-compliance-kpi small{font-size:9px;color:#7e899b}
+@media(max-width:1150px){
+  .inno-master-editor{grid-template-columns:1fr}
+  .inno-master-pane{position:static}
+  .inno-master-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .inno-compliance-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:850px){
+  .inno-master-list,.inno-compliance-kpis{grid-template-columns:1fr}
+  .inno-editor-footer{bottom:6px;padding:9px}
+  .inno-editor-footer-start,.inno-editor-footer-end{gap:6px}
+}
+@media(max-width:520px){
+  .inno-editor-footer{align-items:stretch;flex-direction:column}
+  .inno-editor-footer-start,.inno-editor-footer-end{width:100%}
+  .inno-editor-footer-start .btn,.inno-editor-footer-end .btn{flex:1}
+  .inno-editor-footer-end{margin-left:0}
+}
+
+/* Canonical editor / builder / wizard footer alignment */
+.inno-editor-footer,.inno-builder-footer,.inno-wizard-footer{
+  position:sticky;
+  bottom:10px;
+  z-index:12;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  min-height:58px;
+  margin-top:14px;
+  padding:10px 12px;
+  border:1px solid var(--ds-border);
+  border-radius:12px;
+  background:rgba(255,255,255,.96);
+  box-shadow:0 8px 24px rgba(23,32,51,.08);
+  backdrop-filter:blur(10px);
+}
+.inno-editor-footer-start,.inno-wizard-footer-start{margin-right:auto}
+.inno-editor-footer-end,.inno-builder-footer-end,.inno-wizard-footer-end{display:flex;align-items:center;gap:8px;margin-left:auto}
+.inno-builder-footer{position:sticky}
+@media(max-width:520px){
+  .inno-editor-footer,.inno-builder-footer,.inno-wizard-footer{align-items:stretch;flex-direction:column}
+  .inno-editor-footer-start,.inno-editor-footer-end,.inno-builder-footer-end,.inno-wizard-footer-start,.inno-wizard-footer-end{width:100%;margin-left:0;margin-right:0}
+  .inno-editor-footer-start .btn,.inno-editor-footer-end .btn,.inno-builder-footer-end .btn,.inno-wizard-footer-start .btn,.inno-wizard-footer-end .btn{flex:1}
+}
+.query-workspace{display:grid;gap:12px;min-width:0}
+
+/* Final action-layout responsive rule: do not overlay editor content on tablet/narrow widths. */
+@media(max-width:850px){
+  .inno-editor-footer,.inno-builder-footer,.inno-wizard-footer{
+    position:static;
+    bottom:auto;
+    box-shadow:0 2px 8px rgba(23,32,51,.05);
+  }
+}
+.condition-row.no-action{grid-template-columns:44px minmax(140px,.9fr) minmax(120px,.7fr) minmax(140px,1fr)}
+@media(max-width:850px){.condition-row.no-action{grid-template-columns:1fr}}
+
+
+/* Final consistency: viewport-docked actions remain aligned to their owning editor pane. */
+.inno-action-dock-placeholder{display:none;height:0}
+.inno-action-dock-placeholder.active{display:block}
+.inno-editor-footer.is-docked,
+.inno-builder-footer.is-docked,
+.inno-wizard-footer.is-docked{
+  position:fixed!important;
+  bottom:10px!important;
+  margin:0!important;
+  z-index:40;
+}
+.inno-action-dock-owner{position:relative}
+.inno-action-dock-owner.has-docked-actions{padding-bottom:72px!important}
+@media(max-width:850px){
+  .inno-editor-footer,.inno-builder-footer,.inno-wizard-footer{
+    position:sticky;
+    bottom:6px;
+  }
+  .inno-editor-footer.is-docked,
+  .inno-builder-footer.is-docked,
+  .inno-wizard-footer.is-docked{bottom:6px!important}
+}
+
+/* Primary work comes before supporting saved definitions on narrow Inventory Query layouts. */
+@media(max-width:850px){
+  .query-layout>.query-workspace{order:-1}
+}
+
+.inno-editor-footer.is-docked,
+.inno-builder-footer.is-docked,
+.inno-wizard-footer.is-docked{box-sizing:border-box}
+
+.query-workspace{grid-template-columns:minmax(0,1fr)}
+.query-workspace>*{min-width:0}

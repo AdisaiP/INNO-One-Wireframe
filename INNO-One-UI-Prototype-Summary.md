@@ -176,9 +176,9 @@ Current interpretation:
 
 ## 8. Frozen UI contract
 
-Current baseline at the time of this summary:
-- Design System: V1.18.
-- UI Contract: 1.12.0.
+Current accepted baseline:
+- Design System: V1.19.
+- UI Contract: 1.13.0.
 - Registry Schema: 10.
 - Surface contracts: Web / Endpoint Agent / Android Mobile.
 
@@ -312,3 +312,8 @@ The second B-grade batch reduces multi-form screens and separates supporting tec
 ## 16. Canonical route ownership — 2026-09-25
 
 Legacy application-shell hash navigation has been removed. Distinct navigation jobs now have canonical pages, while true filters use query-state URLs. The current Web route graph contains 83 routes and preserves old Overview section IDs only as backward-compatible anchors, not as generated navigation targets.
+
+
+## 18. Final Action/Layout consistency — 2026-09-25
+
+Design System V1.19 / UI Contract 1.13.0 adds a canonical action-placement contract across all 83 Web routes. Overview/List creation actions live in Page Headers, Resource Detail operations live in Resource Actions, and editor/builder/wizard commits live in pane-owned action footers. Endpoint Policies is the reference master/editor page and separates policy editing from compliance monitoring. Docked task footers preserve the owning pane width and reserve bottom safe space at desktop and narrow viewports.
