@@ -100,6 +100,7 @@ manifest["surfaces"]["asset-mobile.html"]={**m,**c.shot(OUT/"surfaces"/"asset-mo
 check("asset-mobile.html surface boundary",m["surface"]=="mobile" and not m["overflow"] and not m["webShell"],m)
 # Important states and interaction snapshots.
 states=[
+ ("empty","devices-overview-v2.html","?uiState=empty",".inno-state.empty"),
  ("loading","devices-overview-v2.html","?uiState=loading",".inno-skeleton-block"),
  ("partial","devices-overview-v2.html","?uiState=partial&succeeded=8&failed=2",".inno-partial-state"),
  ("permission","reports-overview.html","?uiState=permission",".inno-state.permission"),
@@ -118,9 +119,9 @@ for name,page,query,sel in states:
 # No-results search.
 c.nav("devices.html")
 c.eval("""(()=>{const i=document.getElementById('deviceSearch');i.value='__FINAL_QA_NO_RESULT__';i.dispatchEvent(new Event('input',{bubbles:true}))})()""");time.sleep(.1)
-present=c.eval("!!document.querySelector('#deviceRows .inno-search-empty')")
-manifest["states"]["no-results"]={"page":"devices.html","present":present,**c.shot(OUT/"states"/"no-results.png")}
-check("State no-results",present)
+state=c.eval("""(()=>{const row=document.querySelector('#deviceRows .inno-search-empty'),footer=document.querySelector('.ds-pagination'),count=footer?.querySelector(':scope > span')?.textContent?.trim(),pages=footer?.querySelector('.ds-pages');return {present:!!row,count,pagesHidden:!!pages&&(getComputedStyle(pages).display==='none'||pages.hidden)}})()""")
+manifest["states"]["no-results"]={"page":"devices.html",**state,**c.shot(OUT/"states"/"no-results.png")}
+check("State no-results",state["present"] and state["count"]=="0 matching results" and state["pagesHidden"],state)
 
 # Validation.
 c.nav("ticket-new.html");c.eval("document.querySelector('[data-inno-save]').click()");time.sleep(.08)
@@ -205,7 +206,7 @@ manifest["summary"]={
  "sideWidthDistribution":side,"headerHeightDistribution":header
 }
 check("All canonical route screenshots captured",manifest["summary"]["routeScreenshots"]==87,manifest["summary"]["routeScreenshots"])
-check("Important state screenshots captured",manifest["summary"]["stateScreenshots"]==13,manifest["summary"]["stateScreenshots"])
+check("Important state screenshots captured",manifest["summary"]["stateScreenshots"]==14,manifest["summary"]["stateScreenshots"])
 check("Web shell rail width consistent",rail=={"60":len(web_pages)},rail)
 check("Web shell sidebar width consistent",side=={"216":len(web_pages)},side)
 check("Web shell header height consistent",len(header)==1,header)

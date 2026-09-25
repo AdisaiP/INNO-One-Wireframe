@@ -1,7 +1,7 @@
 # INNO.One Final Visual QA Baseline
 
-**UI Contract:** 1.17.0
-**Design System Documentation:** V1.23
+**UI Contract:** 1.18.0
+**Design System Documentation:** V1.24
 **Status:** Frozen visual baseline
 **Frozen:** 2026-09-25
 **Backend:** Not implemented by this baseline
@@ -198,7 +198,7 @@ Action/Layout verification at freeze:
 
 ## 16. Accessibility / Availability final-polish baseline — 2026-09-25
 
-The current frozen baseline is **Design System V1.23 / UI Contract 1.17.0**.
+The current frozen baseline is **Design System V1.24 / UI Contract 1.18.0**.
 
 Accessibility baseline:
 - 87 canonical pages covered by `accessibility-audit.py`.
@@ -262,3 +262,17 @@ Current baseline:
 - Primary collection search inherits shared no-results behavior.
 - `table-list-density-audit.py`: 0 issues.
 - Browser regression: 90 / 90 checks.
+
+
+## 19. State coverage baseline — 2026-09-26
+
+Design System V1.24 / UI Contract 1.18.0 freezes the shared Empty / No Results / Loading / Error / Permission / Disabled / Offline / Partial Failure behavior.
+
+Current baseline:
+- shared runtime states: 8 / 8.
+- Loading has polite status semantics.
+- Error preview has recoverable `Try again`.
+- No Results reports `0 matching results` and suppresses pagination.
+- Partial retry resolves its warning copy when failed count reaches zero.
+- browser regression: 96 / 96 checks.
+- `state-coverage-audit.py`: 0 issues after baseline regeneration.

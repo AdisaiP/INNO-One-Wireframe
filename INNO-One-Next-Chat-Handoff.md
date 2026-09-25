@@ -30,8 +30,8 @@ INNO.One กำลังถูกปรับจาก TOR coverage prototype �
 
 ## 2. Current UI Baseline
 
-- Design System: **V1.23**
-- UI Contract: **1.17.0**
+- Design System: **V1.24**
+- UI Contract: **1.18.0**
 - Registry Schema: **10**
 
 Source of truth หลัก:
@@ -57,6 +57,8 @@ Source of truth หลัก:
 - `interaction-feedback-audit.py`
 - `INNO-One-Table-List-Density-Contract.md`
 - `table-list-density-audit.py`
+- `INNO-One-State-Coverage-Contract.md`
+- `state-coverage-audit.py`
 - `inno-icons.js`
 - `INNO-One-Design-System-V1-Frozen.md`
 - `INNO-One-Surface-Boundaries.md`
@@ -624,7 +626,7 @@ Endpoint Agent และ Mobile ทดสอบแยกตาม Surface
 
 ## NEXT 6 — Final Visual QA ✅ COMPLETED 2026-09-24
 
-Historical NEXT 6 baseline was frozen at **Design System V1.18 / UI Contract 1.12.0**. The current accepted baseline is **Design System V1.23 / UI Contract 1.17.0** after Accessibility + Availability + Language/Terminology + Interaction/Feedback + Table/List Density final polish.
+Historical NEXT 6 baseline was frozen at **Design System V1.18 / UI Contract 1.12.0**. The current accepted baseline is **Design System V1.24 / UI Contract 1.18.0** after Accessibility + Availability + Language/Terminology + Interaction/Feedback + Table/List Density + State Coverage final polish.
 
 Checklist ที่ทำครบ:
 
@@ -657,7 +659,7 @@ Checklist ที่ทำครบ:
 - Final Visual audit = 0 issues
 - Final baseline อยู่ที่ `qa-final-visual/` และ contract อธิบายใน `INNO-One-Final-Visual-QA-Baseline.md`
 
-**สถานะ UI Prototype ปัจจุบัน: ✅ FROZEN AT V1.23 / CONTRACT 1.17.0 — BACKEND WORK PAUSED BY USER**
+**สถานะ UI Prototype ปัจจุบัน: ✅ FROZEN AT V1.24 / CONTRACT 1.18.0 — BACKEND WORK PAUSED BY USER**
 
 หมายเหตุ: Backend planning documents may exist on a separate branch, but the user explicitly paused Backend work. Do not resume Backend unless the user asks again.
 
@@ -683,7 +685,7 @@ Prototype CSS เป็น append-heavy อยู่แล้ว ต้องแ
 
 ใช้ข้อความนี้ได้เลย:
 
-> เปิดโปรเจกต์ `/Users/adisaip/Desktop/INNO-One-Wireframe/` ผ่าน MCP แล้วอ่าน `INNO-One-Next-Chat-Handoff.md`, `INNO-One-Final-Visual-QA-Baseline.md`, `INNO-One-Action-Layout-Contract.md`, `INNO-One-Language-Terminology-Contract.md`, `INNO-One-UI-Prototype-Summary.md` และ Design System ก่อน ปัจจุบัน UI Freeze อยู่ที่ **Design System V1.23 / UI Contract 1.17.0**. Backend ถูกพักไว้ตามคำสั่งผู้ใช้ ให้ทำเฉพาะ UX/UI review หรือ frontend prototype work ที่ผู้ใช้สั่ง และต้องรักษา Action/Layout Contract + visual regression baseline.
+> เปิดโปรเจกต์ `/Users/adisaip/Desktop/INNO-One-Wireframe/` ผ่าน MCP แล้วอ่าน `INNO-One-Next-Chat-Handoff.md`, `INNO-One-Final-Visual-QA-Baseline.md`, `INNO-One-Action-Layout-Contract.md`, `INNO-One-Language-Terminology-Contract.md`, `INNO-One-UI-Prototype-Summary.md` และ Design System ก่อน ปัจจุบัน UI Freeze อยู่ที่ **Design System V1.24 / UI Contract 1.18.0**. Backend ถูกพักไว้ตามคำสั่งผู้ใช้ ให้ทำเฉพาะ UX/UI review หรือ frontend prototype work ที่ผู้ใช้สั่ง และต้องรักษา Action/Layout Contract + visual regression baseline.
 
 ---
 
@@ -961,5 +963,33 @@ QA:
 - canonical action columns: **7 / 7**.
 - `table-list-density-audit.py`: **0 issues**.
 - `qa-ux-input-browser.py`: **90 / 90 checks**.
+
+Backend remains paused.
+
+
+# UX/UI Final Polish — Step 6 State Coverage ✅ COMPLETED 2026-09-26
+
+Branch: `ux/state-coverage-pass`
+
+Source of truth: `INNO-One-State-Coverage-Contract.md`
+
+Design System: **V1.24**
+UI Contract: **1.18.0**
+
+Completed:
+- Added canonical full-page Empty preview state.
+- Loading skeleton now exposes `role=status`, `aria-live=polite` and screen-reader loading text.
+- Error recovery uses `Try again` and exits the forced preview error URL instead of reloading the same failure state.
+- No-results collections now show `0 matching results` and hide pagination until matching rows return.
+- Clearing search restores the original collection count and pagination.
+- Partial retry resolves warning copy to `Retry completed` and failed count to 0.
+- Added shared `.sr-only` utility and resolved partial-state styling.
+
+QA:
+- Web routes: **83**.
+- canonical shared states: **8 / 8**.
+- `state-coverage-audit.py`: **0 issues** after frozen-state regeneration.
+- `qa-ux-input-browser.py`: **96 / 96 checks**.
+- Frozen visual state set includes Empty, Loading, Error, Permission, Disabled, Offline, Partial and No Results.
 
 Backend remains paused.

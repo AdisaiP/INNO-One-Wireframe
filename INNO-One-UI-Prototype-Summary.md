@@ -177,8 +177,8 @@ Current interpretation:
 ## 8. Frozen UI contract
 
 Current accepted baseline:
-- Design System: V1.23.
-- UI Contract: 1.17.0.
+- Design System: V1.24.
+- UI Contract: 1.18.0.
 - Registry Schema: 10.
 - Surface contracts: Web / Endpoint Agent / Android Mobile.
 
@@ -347,3 +347,8 @@ Step 4 standardizes feedback across the prototype. Save/Create controls now expo
 ## 23. Table / list / data density consistency — 2026-09-25
 
 Step 5 standardizes primary collection browsing without turning every dataset into the same component. Twelve canonical collection tables now share compact row density, shared search/no-result behavior, responsive toolbar layout and explicit action-column treatment. Helpdesk queues and Meeting lists keep their richer domain-specific row layouts. See `INNO-One-Table-List-Density-Contract.md`.
+
+
+## 24. State coverage consistency — 2026-09-26
+
+Step 6 freezes a shared state model for Empty, No Results, Loading, Error, Permission, Disabled, Offline and Partial Failure. Search no-results now updates collection metadata truthfully, loading is announced semantically, error previews recover to the normal view, and partial retry resolves its own warning copy. See `INNO-One-State-Coverage-Contract.md`.

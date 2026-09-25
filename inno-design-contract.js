@@ -3,8 +3,8 @@
 
 const contract={
   name:"INNO.One Design System",
-  contractVersion:"1.17.0",
-  documentationVersion:"1.23",
+  contractVersion:"1.18.0",
+  documentationVersion:"1.24",
   status:"frozen",
   frozenAt:"2026-09-25",
   principles:[
@@ -269,7 +269,9 @@ const contract={
     "INNO-One-Interaction-Feedback-Contract.md",
     "interaction-feedback-audit.py",
     "INNO-One-Table-List-Density-Contract.md",
-    "table-list-density-audit.py"
+    "table-list-density-audit.py",
+    "INNO-One-State-Coverage-Contract.md",
+    "state-coverage-audit.py"
   ],
   changePolicy:{
     patch:"Visual correction that does not change component API or behavior.",

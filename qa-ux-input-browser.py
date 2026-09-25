@@ -305,6 +305,26 @@ check("Deployment collection toolbar is separated from heading",c.eval("document
 c.nav("device-alert-history.html")
 check("Alert History exposes canonical search/filter toolbar",c.eval("document.querySelector('.data-toolbar [data-inno-search-target=\"#alertHistoryRows\"]')!==null && document.querySelectorAll('.data-toolbar select').length===2"))
 
+# Step 6 — Empty / Loading / Error / Permission state coverage.
+c.nav("devices-overview-v2.html","?uiState=empty")
+check("Full-page empty state uses canonical state component",c.eval("document.querySelector('.inno-state.empty')!==null && document.querySelector('.content .page-head')===null"))
+
+c.nav("devices-overview-v2.html","?uiState=loading")
+check("Loading state is announced politely",c.eval("(()=>{const s=document.querySelector('.inno-skeleton-block');return s?.getAttribute('role')==='status'&&s?.getAttribute('aria-live')==='polite'&&!!s.querySelector('.sr-only')})()"))
+
+c.nav("assets-overview.html","?uiState=error")
+check("Error state provides recoverable Try again action",c.eval("(()=>{const b=document.querySelector('[data-state-action=\"retry-page\"]');return !!b&&b.textContent.includes('Try again')})()"))
+
+c.nav("devices.html")
+c.eval("(()=>{const i=document.getElementById('deviceSearch');i.value='__STATE_QA_NO_RESULT__';i.dispatchEvent(new Event('input',{bubbles:true}))})()");time.sleep(.04)
+check("No-results updates collection footer truthfully",c.eval("(()=>{const f=document.querySelector('.ds-pagination'),count=f?.querySelector(':scope > span')?.textContent.trim(),pages=f?.querySelector('.ds-pages');return count==='0 matching results'&&!!pages&&(pages.hidden||getComputedStyle(pages).display==='none')})()"))
+c.eval("(()=>{const i=document.getElementById('deviceSearch');i.value='';i.dispatchEvent(new Event('input',{bubbles:true}))})()");time.sleep(.04)
+check("Clearing search restores collection pagination",c.eval("(()=>{const f=document.querySelector('.ds-pagination'),pages=f?.querySelector('.ds-pages');return f?.querySelector(':scope > span')?.textContent.includes('128 devices')&&!!pages&&!pages.hidden&&getComputedStyle(pages).display!=='none'})()"))
+
+c.nav("devices-overview-v2.html","?uiState=partial&succeeded=8&failed=2")
+c.eval("document.querySelector('[data-inno-retry]').click()");time.sleep(.75)
+check("Partial retry resolves banner copy and failed count",c.eval("(()=>{const s=document.querySelector('.inno-partial-state');return s.classList.contains('resolved')&&s.querySelector('b')?.textContent==='Retry completed'&&s.querySelector('[data-inno-partial-failed]')?.textContent==='0'})()"))
+
 print(f"checks={checks}")
 print(f"failures={len(fails)}")
 for x in fails:print("FAILED",x)

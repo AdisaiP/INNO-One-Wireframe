@@ -1,7 +1,7 @@
 # INNO.One Design System — Frozen UI Contract
 
-**UI Contract:** 1.17.0
-**Documentation:** Design System V1.23
+**UI Contract:** 1.18.0
+**Documentation:** Design System V1.24
 **Status:** Frozen  
 **Frozen:** 2026-09-25
 
@@ -420,3 +420,14 @@ A new module is UI-complete only when it:
 - Desktop and tablet/mobile collection toolbar behavior is explicitly defined.
 - Operational Helpdesk/Meeting queues remain domain-specific list layouts rather than generic tables.
 - `table-list-density-audit.py` and rendered collection regression are part of the frozen contract.
+
+
+## 33. Minor 1.18.0 — State Coverage & Recovery — 2026-09-26
+
+- Design System Documentation advanced to **V1.24** and UI Contract to **1.18.0**.
+- Added canonical Empty preview state.
+- Loading skeletons now expose accessible status semantics.
+- No-results collections keep footer counts and pagination truthful.
+- Error preview recovery leaves the forced failure URL.
+- Partial retry state resolves its copy and status after successful retry.
+- `state-coverage-audit.py` is part of the frozen regression contract.

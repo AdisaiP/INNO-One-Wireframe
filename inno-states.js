@@ -69,7 +69,7 @@ function bindStateActions(scope,actions){
 function skeleton(target,opts={}){
   const node=el(target);if(!node)return;
   const rows=opts.rows||5,cols=opts.cols||4;
-  let html='<div class="inno-skeleton-block" aria-label="Loading"><div class="inno-skeleton-toolbar"><span></span><span></span><span></span></div>';
+  let html='<div class="inno-skeleton-block" role="status" aria-live="polite" aria-label="Loading content"><span class="sr-only">Loading content</span><div class="inno-skeleton-toolbar"><span></span><span></span><span></span></div>';
   for(let r=0;r<rows;r++){
     html+='<div class="inno-skeleton-row">';
     for(let c=0;c<cols;c++)html+='<span style="width:'+(c===0?"74":c===cols-1?"48":"62")+'%"></span>';
@@ -142,12 +142,30 @@ function simulateSave(button,opts={}){
   },opts.delay||650);
 }
 
+function syncCollectionMeta(input,target,visibleCount){
+  const collection=target.closest(".card,.panel")||target.parentElement;
+  const footer=collection?.querySelector(".ds-pagination,.data-table-meta");
+  if(!footer)return;
+  const count=footer.querySelector(":scope > span,.data-table-count");
+  const pages=footer.querySelector(".ds-pages");
+  if(count&&!count.dataset.innoOriginalText)count.dataset.innoOriginalText=count.textContent.trim();
+  if(visibleCount===0){
+    if(count)count.textContent=input.value.trim()?"0 matching results":"No items to show";
+    if(pages)pages.hidden=true;
+    footer.dataset.innoEmpty="true";
+  }else if(footer.dataset.innoEmpty==="true"){
+    if(count?.dataset.innoOriginalText)count.textContent=count.dataset.innoOriginalText;
+    if(pages)pages.hidden=false;
+    delete footer.dataset.innoEmpty;
+  }
+}
 function refreshSearchState(input){
   const targetSel=input.dataset.innoSearchTarget;if(!targetSel)return;
   const target=document.querySelector(targetSel);if(!target)return;
   const isTable=target.tagName==="TBODY";
   const rows=[...target.children].filter(x=>!x.classList.contains("inno-state-row")&&!x.classList.contains("inno-search-empty"));
   const visible=rows.filter(r=>getComputedStyle(r).display!=="none");
+  syncCollectionMeta(input,target,visible.length);
   let holder=target.querySelector(":scope > .inno-search-empty");
   if(visible.length===0){
     if(holder)return;
@@ -208,6 +226,8 @@ function enhanceRetry(){
         if(scope){
           scope.classList.add("resolved");
           const failed=scope.querySelector("[data-inno-partial-failed]");if(failed)failed.textContent="0";
+          const title=scope.querySelector("b");if(title)title.textContent="Retry completed";
+          const copy=scope.querySelector("span:not(.inno-partial-metrics span)");if(copy)copy.textContent="All failed items were retried successfully.";
         }
         window.INNOInteractions?.toast?.("Failed items were retried","success");
         setTimeout(()=>{setButtonState(b,"idle");if(scope?.classList.contains("resolved"))b.disabled=true},1400);
@@ -230,10 +250,11 @@ function applyPreviewState(){
     return;
   }
   if(type==="loading"){skeleton(content,{rows:7,cols:4,preserve:false});return}
+  if(type==="empty")return pageState("empty",{title:"Nothing here yet",description:"There is no data to show in this view."});
   if(type==="partial")return partial(content,{preserve:false,succeeded:Number(q.get("succeeded")||8),failed:Number(q.get("failed")||2),title:"Completed with some failures",description:"Successful items are kept. Retry only the failed items."});
   if(type==="permission")return pageState("permission",{title:"You do not have access",description:"Your current role does not include permission for this page.",actions:[{label:"Back to Workspace",href:"workspace-v2.html",icon:"fa-arrow-left"}]});
   if(type==="disabled")return pageState("disabled",{title:"This module is disabled",description:"The module is installed but disabled for this organization.",actions:[{label:"Open App Launcher",href:"app-launcher-v2.html",icon:"fa-table-cells-large"}]});
-  if(type==="error")return pageState("error",{title:"Could not load this page",description:"The prototype is showing the standard full-page error state.",actions:[{label:"Reload",id:"reload",icon:"fa-rotate-right",onClick:()=>location.reload()}]});
+  if(type==="error")return pageState("error",{title:"Could not load this page",description:"Something went wrong while loading this page. Try again to return to the normal view.",actions:[{label:"Try again",id:"retry-page",icon:"fa-rotate-right",onClick:()=>{const u=new URL(location.href);u.searchParams.delete("uiState");location.href=u.href}}]});
 }
 function init(){
   applyPreviewState();enhanceSearchEmpty();enhanceSaveButtons();enhanceRetry();
