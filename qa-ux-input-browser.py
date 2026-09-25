@@ -269,6 +269,28 @@ check("Admin overview only uses interactive navigation tiles",c.eval("document.q
 c.nav("device-add.html")
 check("Generate Installer is an active prototype action",c.eval("(()=>{const b=[...document.querySelectorAll('button')].find(x=>x.textContent.includes('Generate Installer'));return !!b&&!b.disabled&&b.getAttribute('aria-disabled')!=='true'})()"))
 
+# Step 4 — Interaction / feedback consistency.
+c.nav("helpdesk-calendar.html")
+c.eval("document.querySelector('input').dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('[data-inno-save]').click()")
+time.sleep(.08)
+check("Save enters busy disabled state",c.eval("(()=>{const b=document.querySelector('[data-inno-save]');return b.disabled&&b.getAttribute('aria-busy')==='true'&&b.textContent.includes('Saving')})()"))
+time.sleep(.75)
+check("Save completes and clears busy state",c.eval("(()=>{const b=document.querySelector('[data-inno-save]');return !b.disabled&&!b.hasAttribute('aria-busy')&&document.querySelector('.inno-toast.success')!==null})()"))
+
+c.nav("design-system.html")
+c.eval("document.querySelector('[data-inno-title=\"Delete this item?\"]').click()");time.sleep(.03)
+check("Danger confirmation uses destructive confirm styling",c.eval("document.getElementById('innoConfirmBackdrop').classList.contains('open')&&document.getElementById('innoConfirmOk').classList.contains('danger')"))
+c.eval("document.getElementById('innoConfirmCancel').click()")
+
+c.nav("device-detail-v2.html")
+c.eval("document.querySelector('[data-inno-variant=\"warning\"]').click()");time.sleep(.03)
+check("Warning confirmation does not use destructive confirm styling",c.eval("document.getElementById('innoConfirmBackdrop').classList.contains('open')&&!document.getElementById('innoConfirmOk').classList.contains('danger')"))
+c.eval("document.getElementById('innoConfirmCancel').click()")
+
+c.nav("ticket-new.html")
+c.eval("document.getElementById('subject').value='';document.querySelector('textarea[required]').value='';document.querySelector('[data-inno-save]').click()");time.sleep(.03)
+check("Validation associates error message with first invalid field",c.eval("(()=>{const f=document.getElementById('subject'),id=f.getAttribute('aria-describedby');return f.getAttribute('aria-invalid')==='true'&&!!id&&document.getElementById(id)?.getAttribute('role')==='alert'&&document.activeElement===f})()"))
+
 print(f"checks={checks}")
 print(f"failures={len(fails)}")
 for x in fails:print("FAILED",x)

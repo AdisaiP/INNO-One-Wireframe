@@ -1,7 +1,7 @@
 # INNO.One Design System — Frozen UI Contract
 
-**UI Contract:** 1.15.0
-**Documentation:** Design System V1.21
+**UI Contract:** 1.16.0
+**Documentation:** Design System V1.22
 **Status:** Frozen  
 **Frozen:** 2026-09-25
 
@@ -30,6 +30,7 @@ The frozen UI contract is represented by:
 - `INNO-One-Accessibility-Contract.md` / `accessibility-audit.py` — semantic accessibility contract and regression guard
 - `INNO-One-Availability-Contract.md` / `availability-audit.py` — unavailable-feature UX contract and regression guard
 - `INNO-One-Language-Terminology-Contract.md` / `language-terminology-audit.py` — surface language ownership and canonical terminology contract
+- `INNO-One-Interaction-Feedback-Contract.md` / `interaction-feedback-audit.py` — save, validation, toast and confirmation feedback contract
 
 The HTML prototype is not a backend implementation. It defines expected UI structure and behavior.
 
@@ -397,3 +398,13 @@ A new module is UI-complete only when it:
 - Canonical sidebar terminology now enforces Helpdesk `Overview`, Admin `Apps & Modules`, and Account `Profile & Settings`.
 - `language-terminology-audit.py` is part of the frozen regression contract.
 - Browser regression checks rendered document language, unscoped Thai content and canonical sidebar terminology across all 83 Web routes.
+
+
+## 31. Minor 1.16.0 — Interaction & Feedback Consistency — 2026-09-25
+
+- Design System Documentation advanced to **V1.22** and UI Contract to **1.16.0**.
+- Save controls expose progress, success/error, duplicate-submit prevention and `aria-busy`.
+- Validation errors are associated with fields and announced semantically.
+- Confirmation severity is explicit: Warning for interruptive/reversible actions, Danger for destructive actions.
+- Native browser dialogs are prohibited.
+- `interaction-feedback-audit.py` and focused rendered-DOM checks are part of the frozen regression contract.

@@ -177,8 +177,8 @@ Current interpretation:
 ## 8. Frozen UI contract
 
 Current accepted baseline:
-- Design System: V1.21.
-- UI Contract: 1.15.0.
+- Design System: V1.22.
+- UI Contract: 1.16.0.
 - Registry Schema: 10.
 - Surface contracts: Web / Endpoint Agent / Android Mobile.
 
@@ -337,3 +337,8 @@ Design System V1.20 / UI Contract 1.14.0 makes availability an explicit UX rule.
 ## 21. Language & terminology consistency — 2026-09-25
 
 Design System V1.21 / UI Contract 1.15.0 defines surface language ownership: Web Portal and Design System use English, while Endpoint Agent and Android Assets Mobile remain Thai. Thai business/sample content embedded in Web pages is retained with explicit `lang=th` semantics. Web helper text was normalized to English and canonical navigation terminology now uses `Overview`, `Apps & Modules`, and `Profile & Settings` consistently. `language-terminology-audit.py` reports zero unscoped Thai fragments and zero terminology mismatches.
+
+
+## 22. Interaction & feedback consistency — 2026-09-25
+
+Step 4 standardizes feedback across the prototype. Save/Create controls now expose busy/success/error state and block duplicate activation; validation errors are associated with fields and focus the first invalid control; confirmation actions distinguish Warning from Danger; native browser dialogs are disallowed. `interaction-feedback-audit.py` reports zero issues and browser regression covers the shared behaviors.

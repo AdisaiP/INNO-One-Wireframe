@@ -30,8 +30,8 @@ INNO.One กำลังถูกปรับจาก TOR coverage prototype �
 
 ## 2. Current UI Baseline
 
-- Design System: **V1.21**
-- UI Contract: **1.15.0**
+- Design System: **V1.22**
+- UI Contract: **1.16.0**
 - Registry Schema: **10**
 
 Source of truth หลัก:
@@ -53,6 +53,8 @@ Source of truth หลัก:
 - `availability-audit.py`
 - `INNO-One-Language-Terminology-Contract.md`
 - `language-terminology-audit.py`
+- `INNO-One-Interaction-Feedback-Contract.md`
+- `interaction-feedback-audit.py`
 - `inno-icons.js`
 - `INNO-One-Design-System-V1-Frozen.md`
 - `INNO-One-Surface-Boundaries.md`
@@ -620,7 +622,7 @@ Endpoint Agent และ Mobile ทดสอบแยกตาม Surface
 
 ## NEXT 6 — Final Visual QA ✅ COMPLETED 2026-09-24
 
-Historical NEXT 6 baseline was frozen at **Design System V1.18 / UI Contract 1.12.0**. The current accepted baseline is **Design System V1.21 / UI Contract 1.15.0** after Accessibility + Availability + Language/Terminology final polish.
+Historical NEXT 6 baseline was frozen at **Design System V1.18 / UI Contract 1.12.0**. The current accepted baseline is **Design System V1.22 / UI Contract 1.16.0** after Accessibility + Availability + Language/Terminology + Interaction/Feedback final polish.
 
 Checklist ที่ทำครบ:
 
@@ -653,7 +655,7 @@ Checklist ที่ทำครบ:
 - Final Visual audit = 0 issues
 - Final baseline อยู่ที่ `qa-final-visual/` และ contract อธิบายใน `INNO-One-Final-Visual-QA-Baseline.md`
 
-**สถานะ UI Prototype ปัจจุบัน: ✅ FROZEN AT V1.21 / CONTRACT 1.15.0 — BACKEND WORK PAUSED BY USER**
+**สถานะ UI Prototype ปัจจุบัน: ✅ FROZEN AT V1.22 / CONTRACT 1.16.0 — BACKEND WORK PAUSED BY USER**
 
 หมายเหตุ: Backend planning documents may exist on a separate branch, but the user explicitly paused Backend work. Do not resume Backend unless the user asks again.
 
@@ -679,7 +681,7 @@ Prototype CSS เป็น append-heavy อยู่แล้ว ต้องแ
 
 ใช้ข้อความนี้ได้เลย:
 
-> เปิดโปรเจกต์ `/Users/adisaip/Desktop/INNO-One-Wireframe/` ผ่าน MCP แล้วอ่าน `INNO-One-Next-Chat-Handoff.md`, `INNO-One-Final-Visual-QA-Baseline.md`, `INNO-One-Action-Layout-Contract.md`, `INNO-One-Language-Terminology-Contract.md`, `INNO-One-UI-Prototype-Summary.md` และ Design System ก่อน ปัจจุบัน UI Freeze อยู่ที่ **Design System V1.21 / UI Contract 1.15.0**. Backend ถูกพักไว้ตามคำสั่งผู้ใช้ ให้ทำเฉพาะ UX/UI review หรือ frontend prototype work ที่ผู้ใช้สั่ง และต้องรักษา Action/Layout Contract + visual regression baseline.
+> เปิดโปรเจกต์ `/Users/adisaip/Desktop/INNO-One-Wireframe/` ผ่าน MCP แล้วอ่าน `INNO-One-Next-Chat-Handoff.md`, `INNO-One-Final-Visual-QA-Baseline.md`, `INNO-One-Action-Layout-Contract.md`, `INNO-One-Language-Terminology-Contract.md`, `INNO-One-UI-Prototype-Summary.md` และ Design System ก่อน ปัจจุบัน UI Freeze อยู่ที่ **Design System V1.22 / UI Contract 1.16.0**. Backend ถูกพักไว้ตามคำสั่งผู้ใช้ ให้ทำเฉพาะ UX/UI review หรือ frontend prototype work ที่ผู้ใช้สั่ง และต้องรักษา Action/Layout Contract + visual regression baseline.
 
 ---
 
@@ -897,3 +899,33 @@ QA:
 - `qa-ux-input-browser.py` = **80 / 80 checks** including rendered language/terminology gates at 1366 / 1024 / 768.
 
 Backend remains paused. Continue UX/UI only until explicitly requested otherwise.
+
+
+# UX/UI Final Polish — Step 4 Interaction & Feedback ✅ COMPLETED 2026-09-25
+
+Branch: `ux/interaction-feedback-pass`
+
+Source of truth: `INNO-One-Interaction-Feedback-Contract.md`
+
+Design System: **V1.22**
+UI Contract: **1.16.0**
+
+Completed:
+- Save/Create actions expose Saving/Saved/Error feedback and prevent duplicate submit while busy.
+- Save controls expose `aria-busy=true` while processing.
+- Required-field validation uses `aria-invalid`, associated `aria-describedby`, inline `role=alert`, focus on the first invalid field and one summary toast.
+- Confirmation actions now declare explicit Warning vs Danger severity.
+- Danger is reserved for destructive/unavailable-producing actions; interruptive/reversible actions use Warning.
+- Generated filter drawer close control now has an accessible name.
+- Direct prototype toasts now use explicit Success vs Info intent for the reviewed actions.
+- Browser-native alert/confirm/prompt are forbidden by regression audit.
+
+QA:
+- canonical pages: **87**.
+- confirmation actions: **12**.
+- save actions: **25**.
+- native browser dialogs: **0**.
+- `interaction-feedback-audit.py`: **0 issues**.
+- `qa-ux-input-browser.py`: **85 / 85 checks**, including busy save, Danger/Warning confirmation and validation association.
+
+Backend remains paused.

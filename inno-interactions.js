@@ -104,14 +104,14 @@ function ensureUI(){
     '<div class="inno-toast-stack" id="innoToastStack" aria-live="polite"></div>'+
     '<div class="inno-menu" id="innoContextMenu" role="menu"></div>'+
     '<div class="inno-confirm-backdrop" id="innoConfirmBackdrop" aria-hidden="true">'+
-      '<div class="inno-confirm" role="dialog" aria-modal="true" aria-labelledby="innoConfirmTitle">'+
+      '<div class="inno-confirm" role="dialog" aria-modal="true" aria-labelledby="innoConfirmTitle" aria-describedby="innoConfirmText">'+
         '<div class="inno-confirm-icon" id="innoConfirmIcon"><i class="fa-solid fa-triangle-exclamation"></i></div>'+
         '<div class="inno-confirm-copy"><h3 id="innoConfirmTitle"></h3><p id="innoConfirmText"></p></div>'+
         '<div class="inno-confirm-actions"><button class="btn secondary" id="innoConfirmCancel">Cancel</button><button class="btn danger" id="innoConfirmOk">Confirm</button></div>'+
       '</div>'+
     '</div>'+
     '<div class="drawer-backdrop inno-generated-drawer" id="innoFilterDrawer" aria-hidden="true">'+
-      '<aside class="drawer"><div class="drawer-head"><div class="resource-icon" style="width:36px;height:36px;font-size:14px"><i class="fa-solid fa-filter"></i></div><div class="grow"><h3 id="innoFilterTitle">Filters</h3><p id="innoFilterDescription"></p></div><button class="platform-header-icon" data-inno-close-drawer><i class="fa-solid fa-xmark"></i></button></div>'+
+      '<aside class="drawer"><div class="drawer-head"><div class="resource-icon" style="width:36px;height:36px;font-size:14px"><i class="fa-solid fa-filter"></i></div><div class="grow"><h3 id="innoFilterTitle">Filters</h3><p id="innoFilterDescription"></p></div><button class="platform-header-icon" type="button" data-inno-close-drawer aria-label="Close filters"><i class="fa-solid fa-xmark"></i></button></div>'+
       '<div class="drawer-body"><div class="form" id="innoFilterFields"></div></div>'+
       '<div class="drawer-foot"><button class="btn ghost" id="innoFilterReset">Reset</button><span class="grow"></span><button class="btn secondary" data-inno-close-drawer>Cancel</button><button class="btn" id="innoFilterApply">Apply Filters</button></div></aside>'+
     '</div>';
@@ -124,7 +124,7 @@ function toast(message,type="success",opts={}){
   const icons={success:"fa-circle-check",warning:"fa-triangle-exclamation",error:"fa-circle-xmark",info:"fa-circle-info"};
   const t=document.createElement("div");
   t.className="inno-toast "+type;
-  const urgent=type==="error"||type==="warning";
+  const urgent=type==="error";
   t.setAttribute("role",urgent?"alert":"status");t.setAttribute("aria-live",urgent?"assertive":"polite");
   t.innerHTML='<i class="fa-solid '+(icons[type]||icons.info)+'"></i><div class="grow"><b>'+(opts.title||({success:"Success",warning:"Attention",error:"Something went wrong",info:"Information"}[type]))+'</b><span>'+message+'</span></div><button class="platform-header-icon" aria-label="Dismiss"><i class="fa-solid fa-xmark"></i></button>';
   t.querySelector("button").onclick=()=>dismissToast(t);
@@ -140,9 +140,10 @@ function confirmAction(opts={}){
   const b=document.getElementById("innoConfirmBackdrop"),ok=document.getElementById("innoConfirmOk"),cancel=document.getElementById("innoConfirmCancel"),icon=document.getElementById("innoConfirmIcon");
   document.getElementById("innoConfirmTitle").textContent=opts.title||"Confirm action";
   document.getElementById("innoConfirmText").textContent=opts.description||"Are you sure you want to continue?";
+  const variant=opts.variant||"warning";
   ok.textContent=opts.confirmLabel||"Confirm";
-  ok.className="btn "+(opts.variant==="danger"?"danger":"");
-  icon.className="inno-confirm-icon "+(opts.variant==="danger"?"danger":"");
+  ok.className="btn "+(variant==="danger"?"danger":"");
+  icon.className="inno-confirm-icon "+(variant==="danger"?"danger":"");
   state.dialog=b;state.lastTrigger=document.activeElement;
   b.classList.add("open");b.setAttribute("aria-hidden","false");
   const close=()=>{b.classList.remove("open");b.setAttribute("aria-hidden","true");state.dialog=null;setTimeout(()=>state.lastTrigger?.focus?.(),0)};
@@ -317,7 +318,7 @@ function wireDataActions(){
     const menu=e.target.closest("[data-inno-menu]");if(menu){e.preventDefault();e.stopPropagation();openMenu(menu,menu.dataset.innoMenu);return}
     const filter=e.target.closest("[data-inno-filter]");if(filter){e.preventDefault();openFilterDrawer(filter.dataset.innoFilter,filter);return}
     const cols=e.target.closest("[data-inno-columns]");if(cols){e.preventDefault();openColumns(cols,cols.dataset.innoColumns);return}
-    const c=e.target.closest("[data-inno-confirm]");if(c){e.preventDefault();const variant=c.dataset.innoVariant||"danger";confirmAction({title:c.dataset.innoTitle||"Confirm action",description:c.dataset.innoDescription||"Are you sure you want to continue?",confirmLabel:c.dataset.innoConfirm||"Confirm",variant,onConfirm:()=>toast(c.dataset.innoSuccess||"Action completed","success")});return}
+    const c=e.target.closest("[data-inno-confirm]");if(c){e.preventDefault();const variant=c.dataset.innoVariant||"warning";confirmAction({title:c.dataset.innoTitle||"Confirm action",description:c.dataset.innoDescription||"Are you sure you want to continue?",confirmLabel:c.dataset.innoConfirm||"Confirm",variant,onConfirm:()=>toast(c.dataset.innoSuccess||"Action completed","success")});return}
   });
   document.addEventListener("mousedown",e=>{const menu=document.getElementById("innoContextMenu");if(menu?.classList.contains("open")&&!menu.contains(e.target)&&!e.target.closest("[data-inno-menu],[data-inno-columns]"))closeMenu()});
 }
@@ -381,7 +382,7 @@ function clearValidation(control){
   control.removeAttribute("aria-invalid");
   const field=control.closest(".field");
   field?.classList.remove("is-invalid");
-  field?.querySelector(":scope > .field-error")?.remove();
+  const err=field?.querySelector(":scope > .field-error");if(err&&control.getAttribute("aria-describedby")===err.id)control.removeAttribute("aria-describedby");err?.remove();
 }
 function validateScope(scopeOrNode){
   const scope=scopeOrNode?.querySelectorAll?scopeOrNode:scopeFor(scopeOrNode);
@@ -402,7 +403,7 @@ function validateScope(scopeOrNode){
     if(field){
       field.classList.add("is-invalid");
       if(!field.querySelector(":scope > .field-error")){
-        const msg=document.createElement("div");msg.className="field-error";msg.textContent=control.dataset.innoRequiredMessage||"This field is required.";field.appendChild(msg);
+        const msg=document.createElement("div");msg.className="field-error";msg.id=(control.id||"inno-field")+"-error";msg.setAttribute("role","alert");msg.textContent=control.dataset.innoRequiredMessage||"This field is required.";field.appendChild(msg);control.setAttribute("aria-describedby",msg.id);
       }
     }
     if(!first)first=control;

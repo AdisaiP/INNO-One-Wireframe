@@ -1,7 +1,7 @@
 # INNO.One Final Visual QA Baseline
 
-**UI Contract:** 1.15.0
-**Design System Documentation:** V1.21
+**UI Contract:** 1.16.0
+**Design System Documentation:** V1.22
 **Status:** Frozen visual baseline
 **Frozen:** 2026-09-25
 **Backend:** Not implemented by this baseline
@@ -198,7 +198,7 @@ Action/Layout verification at freeze:
 
 ## 16. Accessibility / Availability final-polish baseline — 2026-09-25
 
-The current frozen baseline is **Design System V1.21 / UI Contract 1.15.0**.
+The current frozen baseline is **Design System V1.22 / UI Contract 1.16.0**.
 
 Accessibility baseline:
 - 87 canonical pages covered by `accessibility-audit.py`.
@@ -235,3 +235,16 @@ Current language baseline:
 - Canonical terminology mismatches: 0.
 - `language-terminology-audit.py`: 0 issues.
 - Browser route regression includes rendered language/terminology checks at 1366 / 1024 / 768.
+
+
+## 18. Interaction & feedback baseline — 2026-09-25
+
+Design System V1.22 / UI Contract 1.16.0 standardizes save progress, validation, toast intent and confirmation severity.
+
+Current baseline:
+- 25 canonical save actions expose Saving/Saved feedback and block duplicate submit while busy.
+- 12 canonical confirmation actions declare Warning or Danger explicitly.
+- Native browser alert/confirm/prompt usage: 0.
+- Validation associates inline errors with invalid fields and focuses the first error.
+- `interaction-feedback-audit.py`: 0 issues.
+- Browser regression: 85 / 85 checks.

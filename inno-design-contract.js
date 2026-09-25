@@ -3,8 +3,8 @@
 
 const contract={
   name:"INNO.One Design System",
-  contractVersion:"1.15.0",
-  documentationVersion:"1.21",
+  contractVersion:"1.16.0",
+  documentationVersion:"1.22",
   status:"frozen",
   frozenAt:"2026-09-25",
   principles:[
@@ -17,7 +17,8 @@ const contract={
     "Action placement follows page type: page creation in Page Header, resource operations in Resource Actions, and Save/Create/Schedule for editors in the owning Action Footer.",
     "Unavailable capability is hidden or presented as passive roadmap context; it never masquerades as a working control in normal task flow.",
     "Each product surface owns one primary UI language; localized business content declares its language explicitly instead of mixing languages in shared UI chrome.",
-    "Canonical product terminology is consistent across contextual navigation, actions and configuration surfaces."
+    "Canonical product terminology is consistent across contextual navigation, actions and configuration surfaces.",
+    "User feedback uses one shared contract for save progress, validation, toast intent, confirmation severity, retry and dirty-state protection."
   ],
   foundations:{
     controlHeight:36,
@@ -263,7 +264,9 @@ const contract={
     "INNO-One-Availability-Contract.md",
     "availability-audit.py",
     "INNO-One-Language-Terminology-Contract.md",
-    "language-terminology-audit.py"
+    "language-terminology-audit.py",
+    "INNO-One-Interaction-Feedback-Contract.md",
+    "interaction-feedback-audit.py"
   ],
   changePolicy:{
     patch:"Visual correction that does not change component API or behavior.",

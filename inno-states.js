@@ -108,16 +108,16 @@ function setButtonState(button,state,opts={}){
   const b=el(button);if(!b)return;
   if(!b.dataset.innoOriginalHtml)b.dataset.innoOriginalHtml=b.innerHTML;
   if(state==="saving"||state==="loading"){
-    b.disabled=true;b.classList.add("is-loading");b.classList.remove("is-saved");
+    b.disabled=true;b.setAttribute("aria-busy","true");b.classList.add("is-loading");b.classList.remove("is-saved");
     b.innerHTML='<i class="fa-solid fa-circle-notch fa-spin"></i>'+(opts.label||"Saving...");
   }else if(state==="saved"||state==="success"){
-    b.disabled=false;b.classList.remove("is-loading");b.classList.add("is-saved");
+    b.disabled=false;b.removeAttribute("aria-busy");b.classList.remove("is-loading");b.classList.add("is-saved");
     b.innerHTML='<i class="fa-solid fa-check"></i>'+(opts.label||"Saved");
   }else if(state==="error"){
-    b.disabled=false;b.classList.remove("is-loading","is-saved");b.classList.add("is-error");
+    b.disabled=false;b.removeAttribute("aria-busy");b.classList.remove("is-loading","is-saved");b.classList.add("is-error");
     b.innerHTML='<i class="fa-solid fa-circle-exclamation"></i>'+(opts.label||"Try again");
   }else{
-    b.disabled=false;b.classList.remove("is-loading","is-saved","is-error");b.innerHTML=b.dataset.innoOriginalHtml;
+    b.disabled=false;b.removeAttribute("aria-busy");b.classList.remove("is-loading","is-saved","is-error");b.innerHTML=b.dataset.innoOriginalHtml;
   }
 }
 
