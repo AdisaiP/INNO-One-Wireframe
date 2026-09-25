@@ -364,7 +364,7 @@ A new module is UI-complete only when it:
 - Added `INNOActionFooter` as a shared layout contract instead of allowing editor Save/Create/Schedule actions to float between headers, cards and page bottoms.
 - Classified all 83 Web routes into Editor, Builder, Wizard, Resource Detail or Overview/List action ownership.
 - `endpoint-policies.html` is the reference master/editor implementation: Policies editing is separated from Compliance monitoring.
-- Editor / builder / wizard action bars dock to their owning pane while below the viewport and preserve bottom safe space.
+- Clean editor / builder / wizard action bars stay in normal flow. Editor actions dock to their owning pane only after unsaved changes exist, preserving pane width and bottom safe space.
 - Removed unavailable/Coming Soon actions from high-emphasis action zones.
 - Responsive primary-work ordering was corrected for Inventory Query and grid min-content no longer causes page overflow.
 - `action-layout-audit.py` is now part of the frozen regression contract.

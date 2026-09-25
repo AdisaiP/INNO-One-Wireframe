@@ -317,3 +317,8 @@ Legacy application-shell hash navigation has been removed. Distinct navigation j
 ## 18. Final Action/Layout consistency — 2026-09-25
 
 Design System V1.19 / UI Contract 1.13.0 adds a canonical action-placement contract across all 83 Web routes. Overview/List creation actions live in Page Headers, Resource Detail operations live in Resource Actions, and editor/builder/wizard commits live in pane-owned action footers. Endpoint Policies is the reference master/editor page and separates policy editing from compliance monitoring. Docked task footers preserve the owning pane width and reserve bottom safe space at desktop and narrow viewports.
+
+
+## 18. Action footer visual follow-up — 2026-09-25
+
+The Action/Layout freeze was visually refined after route-wide review. Clean pages keep editor/builder/wizard footers in normal document flow so actions do not obscure untouched content. Once an editor becomes dirty, its canonical editor footer may dock to the owning pane until the change is saved/discarded. QR Labels now uses `Regenerate Preview` + `Print Selected` as the final builder actions, and Report Builder treats `Run Preview` as a secondary workflow action while `Save Report` remains the final primary action.

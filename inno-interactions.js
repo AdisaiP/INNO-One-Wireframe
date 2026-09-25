@@ -324,6 +324,9 @@ function ensureSaveState(scope){
   area.insertBefore(indicator,save);
   return indicator;
 }
+function refreshActionDocks(){
+  requestAnimationFrame(()=>document.querySelectorAll(".inno-editor-footer:not([data-inno-dock-disabled])").forEach(f=>f.__innoDockUpdate?.()));
+}
 function setDirtyState(scopeOrNode,status="unsaved"){
   const scope=scopeOrNode?.matches?.(".content,.arch-editor,.form-layout,.builder-grid,.settings-layout,.notification-grid,.ds-dialog,.drawer")?scopeOrNode:scopeFor(scopeOrNode);
   if(!scope)return;
@@ -337,6 +340,7 @@ function setDirtyState(scopeOrNode,status="unsaved"){
   if(status==="unsaved"||status==="error"){scope.dataset.innoDirty="true";dirtyScopes.add(scope)}
   if(status==="clean"||status==="saved"){delete scope.dataset.innoDirty;dirtyScopes.delete(scope)}
   document.documentElement.dataset.uiDirtyCount=String(dirtyScopes.size);
+  refreshActionDocks();
 }
 function markClean(scopeOrNode,opts={}){
   const scope=scopeOrNode?.dataset?.innoDirty!==undefined||scopeOrNode?.querySelector?.("[data-inno-save]")?scopeOrNode:scopeFor(scopeOrNode);
@@ -509,7 +513,7 @@ function enhanceComponentSemantics(){
 }
 
 function enhanceActionDock(){
-  const selector=".inno-editor-footer:not([data-inno-dock-disabled]),.inno-builder-footer:not([data-inno-dock-disabled]),.inno-wizard-footer:not([data-inno-dock-disabled])";
+  const selector=".inno-editor-footer:not([data-inno-dock-disabled])";
   const footers=[...document.querySelectorAll(selector)];
   if(!footers.length)return;
 
@@ -539,7 +543,9 @@ function enhanceActionDock(){
       const ownerRect=owner.getBoundingClientRect();
       const footerHeight=Math.max(58,Math.round(natural.height));
       const dockBottom=window.innerHeight-(window.innerWidth<=850?6:10);
-      const needsDock=natural.bottom>dockBottom && ownerRect.top<dockBottom-footerHeight && ownerRect.bottom>72;
+      const scope=scopeFor(footer);
+      const isDirty=scope?.dataset?.innoDirty==="true";
+      const needsDock=isDirty && natural.bottom>dockBottom && ownerRect.top<dockBottom-footerHeight && ownerRect.bottom>72;
 
       if(needsDock){
         placeholder.style.height=footerHeight+"px";

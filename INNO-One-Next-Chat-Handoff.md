@@ -767,10 +767,11 @@ Key changes:
 - Editor 18 / Builder 4 / Wizard 1 / Resource Detail 6 / Overview-List 54.
 - All 18 editors now use canonical `INNOActionFooter`; legacy editor footer classes = 0.
 - Builders use `inno-builder-footer`; Deployment uses `inno-wizard-footer`.
-- Long task footers dock to the exact owning pane while below the viewport and reserve bottom safe space.
+- Clean task footers stay in normal flow so they never cover untouched content; editor footers dock to the exact owning pane only after that editor has unsaved changes and reserve bottom safe space.
 - `endpoint-policies.html` was restructured into separate Policies and Compliance views; disabled Preview Impact no longer competes with Save.
 - Inventory Query puts Query Builder before Saved Queries on narrow layouts and contains wide results inside the table scroll region.
 - High-emphasis disabled actions = 0; multiple primary action-zone violations = 0.
 - Application hash links = 0; broken local routes = 0.
 
 Do not begin Backend implementation until the user explicitly asks. Further work after this freeze should be visual/content-specific QA or production frontend implementation.
+- Follow-up visual QA confirmed clean action bars no longer float over long forms; dirty-state editor docking is covered by browser regression.

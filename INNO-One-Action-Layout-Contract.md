@@ -97,12 +97,12 @@ Editor content
 ┌────────────────────────────────────────────┐
 │ [Discard / Cancel]              [Save]     │
 └────────────────────────────────────────────┘
-       canonical sticky editor footer
+       canonical editor footer
 ```
 
 Rules:
 - Save/Create/Schedule/Apply belongs in the canonical editor footer.
-- The footer is sticky to the bottom of the editor column, not the whole browser viewport.
+- The footer sits at the end of the owning editor in normal flow. After that editor becomes dirty, it may dock to the bottom of the viewport while preserving the editor column width.
 - Primary action is always the right-most action.
 - Cancel/Discard is left-most when present.
 - Secondary preview/testing action may sit before Primary only when it is implemented and relevant.
@@ -136,7 +136,7 @@ Builder:
 ```
 
 Rules:
-- navigation actions live in a sticky builder/wizard footer.
+- navigation/final actions live in a canonical builder/wizard footer at the end of that workflow; they do not float over untouched content.
 - Back precedes Continue.
 - Final step changes Continue to the final command.
 - Preview belongs in the builder toolbar only if it updates an adjacent preview; otherwise use the footer.
@@ -314,9 +314,11 @@ Allowed:
 
 All breakpoints:
 - action footer belongs to the editor/builder/wizard that owns the pending change,
-- if the footer's natural position is below the viewport, it docks to the viewport edge while retaining the exact left/width of its owning pane,
-- once the natural footer reaches the viewport, it returns to document flow,
-- the owning pane reserves bottom safe space while docked so the final field/section can scroll clear of the action bar.
+- untouched screens keep action footers in normal document flow so buttons never cover content,
+- editor footers may dock only after the editor has unsaved changes,
+- a docked editor footer retains the exact left/width of its owning pane,
+- the owning pane reserves bottom safe space while docked so the final field/section can scroll clear of the action bar,
+- builder/wizard footers remain in normal flow unless a future workflow explicitly requires persistent navigation.
 
 Desktop:
 - editor footer aligns to the owning editor column, never the supporting aside or the full page by accident,
@@ -324,8 +326,8 @@ Desktop:
 
 Tablet / narrow (≤850px):
 - supporting aside moves below the primary editor,
-- the docked action footer uses the stacked editor width after the sidebar collapses,
-- the primary action remains visible while the user edits a long form.
+- dirty-state docking uses the stacked editor width after the sidebar collapses,
+- untouched content is never hidden behind an action bar.
 
 Mobile:
 - footer actions may stack only when necessary,

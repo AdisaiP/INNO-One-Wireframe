@@ -183,7 +183,7 @@ The canonical visual baseline now includes Design System V1.19 / UI Contract 1.1
 - Builder/Wizard actions use their owning footer zones.
 - Resource Detail operations stay in resource action zones.
 - Overview/List create actions remain in Page Headers while table tools stay with the table.
-- Docked task footers preserve editor-pane width and bottom safe space on long forms.
+- Clean action footers remain in normal flow; dirty editor footers may dock while preserving editor-pane width and bottom safe space.
 - Endpoint Policies editing and Compliance monitoring are separate views.
 - Action/Layout automated audit must remain at 0 issues.
 
@@ -191,6 +191,6 @@ Action/Layout verification at freeze:
 - Page type coverage: 83 / 83.
 - Editor / Builder / Wizard / Resource Detail / Overview-List = 18 / 4 / 1 / 6 / 54.
 - `action-layout-audit.py`: 0 issues.
-- `qa-ux-input-browser.py`: 73 checks / 0 failures, including all 83 Web routes at 1366 / 1024 / 768.
+- `qa-ux-input-browser.py`: 74 checks / 0 failures, including all 83 Web routes at 1366 / 1024 / 768 and clean-vs-dirty editor footer behavior.
 - `qa-final-visual.py`: 116 checks / 0 failures.
 - Screenshot manifest verification: 100 / 100 hashes.

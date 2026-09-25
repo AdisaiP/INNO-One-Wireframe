@@ -17,8 +17,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/access-scope-browser.png",
-      "sha256": "cbdb69f21125fae09a979cab164950f718bbf41bfbb04fb18e11ca59cba513c2",
-      "bytes": 88712
+      "sha256": "edcb7b1ba230d6382a69c1250be8ae94995aa8473c0ee4c3925d8d8bfee2b38a",
+      "bytes": 88720
     },
     "access-scope-edit.html": {
       "overflow": false,
@@ -36,8 +36,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/access-scope-edit.png",
-      "sha256": "273aaab9480c9de776c38a4f499bcf813989352b96fddf0c1733b9143f594195",
-      "bytes": 120527
+      "sha256": "b7b7f1e5bcc1249875cd3b224c3978a8b57c18028bdf823329af4c5f7f352ffa",
+      "bytes": 120541
     },
     "access-scope-evaluate.html": {
       "overflow": false,
@@ -55,8 +55,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/access-scope-evaluate.png",
-      "sha256": "3c66e443194fd0b4198c2f33286b1fceea1e5808ba94ed3f614dadd8b966ff92",
-      "bytes": 73859
+      "sha256": "4208a77c2518d090867862c4a43d058cf150c723f50750663a8339533e62ac0c",
+      "bytes": 73826
     },
     "access-scopes.html": {
       "overflow": false,
@@ -283,8 +283,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/asset-qr.png",
-      "sha256": "22258557e0cbdd8d03e429b4ee9be20de55592b93b2edd9f39dadefdb18c9dc3",
-      "bytes": 140900
+      "sha256": "b1edf1feeed0a107a413d9a3c7119fb8b51434144251d99197d67acb51da8e7f",
+      "bytes": 135511
     },
     "asset-user-detail.html": {
       "overflow": false,
@@ -454,8 +454,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/device-alert-channels.png",
-      "sha256": "4cd2eb9862895c2d9f3dbdbe744f8f97648965d948ed8a76d6f4d0fcf53f2ff4",
-      "bytes": 131445
+      "sha256": "e019c081aab971b08f889e174766a4d4b00751f0a2a8646ea6cb207412d280bb",
+      "bytes": 131131
     },
     "device-alert-history.html": {
       "overflow": false,
@@ -492,8 +492,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/device-alert-rule.png",
-      "sha256": "85b30cbac721f34c2a67a3a85dd9f93620db67df728156eb3573462fde14e483",
-      "bytes": 140806
+      "sha256": "b148619e60a61114bf00bf62e79e966dc17360e3d4397b851fe61d672692fd79",
+      "bytes": 141573
     },
     "device-alert-rules.html": {
       "overflow": false,
@@ -549,8 +549,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/device-detail-v2.png",
-      "sha256": "0c5e3e28f9a64890ec8bff8db2f9a03473bc2aa9908f9e890b109a464da50ae5",
-      "bytes": 156718
+      "sha256": "3cdd57800f65b9adfd3cb8c15778f617975db67a6ab192c380b33d1788de1989",
+      "bytes": 156728
     },
     "device-discovery.html": {
       "overflow": false,
@@ -644,8 +644,8 @@
       "primaryHead": 1,
       "dead": [],
       "file": "qa-final-visual/routes-web/devices.png",
-      "sha256": "5fcef88f0092370e68042b10a2b52443698c820aeb938b6a6aaf98c85225cee1",
-      "bytes": 113912
+      "sha256": "765ed62bcc792530d6c881033e78fcba5b3912aeda6a11f64294293c2f7f2bd5",
+      "bytes": 113943
     },
     "endpoint-policies.html": {
       "overflow": false,
@@ -758,8 +758,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/helpdesk-notification-rule.png",
-      "sha256": "bf65c55fca8568f3034090328d5438689a1b9d97b73a34466a72d53e500015e6",
-      "bytes": 119835
+      "sha256": "387096ac4faeada9a313d4f63eab1df7b96e5609200b509cd51297023dad0b73",
+      "bytes": 119511
     },
     "helpdesk-notification-settings.html": {
       "overflow": false,
@@ -777,8 +777,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/helpdesk-notification-settings.png",
-      "sha256": "6080df3024c28a3c8cf18eea03acc0d422e56cba2b01190d75823b23d1cd33a6",
-      "bytes": 131826
+      "sha256": "f90c22ec0f9ebd2d1ac75dafa2ba17b8bdef5e13daa3184cf5734e06e745c889",
+      "bytes": 131012
     },
     "helpdesk-notification-template.html": {
       "overflow": false,
@@ -872,8 +872,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/helpdesk-requester-groups.png",
-      "sha256": "1e1f39ce4709e8bd6bd5b6f1684ccd730499756cf68de0e8b945cf5a4d435c6c",
-      "bytes": 104568
+      "sha256": "d870205cc683781569c7c2ca4b5c8149f1c7f78c83c8c066c7901ae5aa3f16a8",
+      "bytes": 104560
     },
     "helpdesk-settings.html": {
       "overflow": false,
@@ -910,8 +910,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/helpdesk-sla.png",
-      "sha256": "5559670826b71aff7dced0bbf268606abf3a3deb108de82df0d0add581ebc26c",
-      "bytes": 139916
+      "sha256": "45ef32b1c8cc29da45cf2ce0074bd5611bc8fe8d253326d3a1e750fad6f93c02",
+      "bytes": 137874
     },
     "helpdesk-statuses.html": {
       "overflow": false,
@@ -1119,8 +1119,8 @@
       "primaryHead": 1,
       "dead": [],
       "file": "qa-final-visual/routes-web/meeting.png",
-      "sha256": "dc4d62bc431cc4ad40d9c7a0c4573556096ceb9bfbd42b0bb2b2bc5acfb8e075",
-      "bytes": 162289
+      "sha256": "b69770ac4ce355fc02eebbc58dd3c128295b022384b81fb14e41a34c6c8dbc3a",
+      "bytes": 162298
     },
     "modules.html": {
       "overflow": false,
@@ -1214,8 +1214,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/remote-consent-message.png",
-      "sha256": "91c2ec5c5c07f2a45bd4bae74bf9fc68ccc9d866c44e42cb37192333c98eb6fe",
-      "bytes": 130121
+      "sha256": "f4b77a1c98ea4a794f4b352ffa72191f5ec1971e27848cd5c4554283e0f9dcf3",
+      "bytes": 130079
     },
     "remote-consent-policy.html": {
       "overflow": false,
@@ -1233,8 +1233,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/remote-consent-policy.png",
-      "sha256": "becfaa02b4215a3bf13544d0d9d01b2a4e2549e89b86a72bb229b6db0fda8571",
-      "bytes": 139665
+      "sha256": "3a5bacc531e05450c559acdfb159c5fdd1efc0ff2fa212446bead9a15ee04663",
+      "bytes": 141560
     },
     "remote-consent-rules.html": {
       "overflow": false,
@@ -1328,8 +1328,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/report-builder.png",
-      "sha256": "55ca60f43fc81d68d5eaf5ebab4d82e1ff25a0eb7b618e06545a3a8925eb7931",
-      "bytes": 123654
+      "sha256": "afa8ecbfefa5833255956cf405d7cd682a054e671cd029c6ba996da020ee0a22",
+      "bytes": 121653
     },
     "reports-overview.html": {
       "overflow": false,
@@ -1385,8 +1385,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/restart-schedule.png",
-      "sha256": "64c02e636494db153eea4d7448cd468acc0ea4654e62b4d967c37c1a56879ed1",
-      "bytes": 131000
+      "sha256": "91cb3730d032dc9dd46a889139e1d4ce3f2bb3aed772a0faef9e8a451f5992c9",
+      "bytes": 129211
     },
     "roles-permissions-v2.html": {
       "overflow": false,
@@ -1423,8 +1423,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/software-licenses.png",
-      "sha256": "88a03c04b66637eb4de78e8133f7aff19eccc813d531b8153f3b244ad941fc6d",
-      "bytes": 147672
+      "sha256": "10dbe317b644854b40cccb4041e0228f17bf1467e4c6be97b364f061c6fda413",
+      "bytes": 147833
     },
     "software-maintenance-new.html": {
       "overflow": false,
@@ -1499,8 +1499,8 @@
       "primaryHead": 0,
       "dead": [],
       "file": "qa-final-visual/routes-web/ticket-new.png",
-      "sha256": "24628f05ea535b524c8cb4a779aeb1a0f600b48b84296f205949bca8f5408db1",
-      "bytes": 140629
+      "sha256": "c33c049ca337e7bb06c059c7460a37f5cc795730913b2a7436105e9c45d62e45",
+      "bytes": 139949
     },
     "workspace-attention.html": {
       "overflow": false,
@@ -1585,8 +1585,8 @@
       "contract": "1.13.0",
       "status": "frozen",
       "file": "qa-final-visual/surfaces/design-system.png",
-      "sha256": "952978e871a20cdbc89afbac481eadf2ef82a4c2c34d379e74fbb9741b3d84c7",
-      "bytes": 197802
+      "sha256": "5c22736b27131c3cdaeddd5b0344f1f7f14cb596093a72fcbfcbe530ba5f35af",
+      "bytes": 197824
     },
     "helpdesk-agent-request.html": {
       "surface": "agent",
@@ -1685,15 +1685,15 @@
       "page": "ticket-new.html",
       "invalid": 2,
       "file": "qa-final-visual/states/validation.png",
-      "sha256": "61329a15ad78db4fd17bddd11f231788d80ce5dbe17e82fb3bf605303d785287",
-      "bytes": 149319
+      "sha256": "c00ff23e4ef5957e428fc1bb4ab95910608a6cf7abe689a624db90388d72efeb",
+      "bytes": 148376
     },
     "unsaved-confirm": {
       "page": "ticket-new.html",
       "open": true,
       "file": "qa-final-visual/states/unsaved-confirm.png",
-      "sha256": "c46ec7df1f03571a49bf4165a0b758431340d01d9fe5b2e1dd2018f641d6b381",
-      "bytes": 199765
+      "sha256": "2b2f3edcafc404f11b1376a1f92c406a4fea740231c7308c2f7d08e2063a9b83",
+      "bytes": 199769
     },
     "filter-drawer": {
       "page": "devices.html",
@@ -1720,8 +1720,8 @@
       "page": "ticket-new.html",
       "open": true,
       "file": "qa-final-visual/states/select-open.png",
-      "sha256": "e3e0045c28d21ed5cb40fc305e365e4db95818150cb51090b34c1b161bef7bb2",
-      "bytes": 143311
+      "sha256": "6095d8c9ee0037b4746777aae046545b89e79270eb17e8de1b3f6ad127bf2222",
+      "bytes": 142760
     }
   },
   "summary": {
