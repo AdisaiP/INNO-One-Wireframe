@@ -88,5 +88,6 @@ api.MapPlatformEndpoints();
 api.MapDevicesEndpoints();
 api.MapDeviceManagementEndpoints();
 api.MapHelpdeskEndpoints();
+api.MapHelpdeskSlaAutomationEndpoints();
 
 app.Run();

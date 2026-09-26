@@ -25,6 +25,11 @@ public static class HelpdeskDevelopmentSeed
     public static readonly Guid SoftwareCategoryId = Guid.Parse("91000000-0000-0000-0000-000000000003");
     public static readonly Guid AccessCategoryId = Guid.Parse("91000000-0000-0000-0000-000000000004");
 
+    public static readonly Guid DefaultBusinessCalendarId = Guid.Parse("92000000-0000-0000-0000-000000000001");
+    public static readonly Guid NetworkAutomationRuleId = Guid.Parse("95000000-0000-0000-0000-000000000001");
+    public static readonly Guid CriticalAutomationRuleId = Guid.Parse("95000000-0000-0000-0000-000000000002");
+    public static readonly Guid AfterHoursAutomationRuleId = Guid.Parse("95000000-0000-0000-0000-000000000003");
+
     public static async Task SeedAsync(
         HelpdeskDbContext db,
         CancellationToken cancellationToken = default)
@@ -49,6 +54,61 @@ public static class HelpdeskDevelopmentSeed
                 Category(AccessCategoryId, "access", "Access & Identity", null, 40, now));
         }
 
+        if (!await db.BusinessCalendars.AnyAsync(cancellationToken))
+        {
+            db.BusinessCalendars.Add(new BusinessCalendar
+            {
+                Id = DefaultBusinessCalendarId,
+                Code = "office-hours-th",
+                Name = "Office Hours TH",
+                TimeZoneId = "Asia/Bangkok",
+                IsDefault = true,
+                IsActive = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+            for (var day = 1; day <= 5; day++)
+            {
+                db.BusinessCalendarEntries.Add(new BusinessCalendarEntry
+                {
+                    Id = Guid.NewGuid(),
+                    CalendarId = DefaultBusinessCalendarId,
+                    EntryType = "weekly",
+                    DayOfWeek = day,
+                    StartMinute = 8 * 60 + 30,
+                    EndMinute = 17 * 60 + 30,
+                    IsWorking = true,
+                    CreatedAt = now,
+                    UpdatedAt = now
+                });
+            }
+
+            db.BusinessCalendarEntries.AddRange(
+                new BusinessCalendarEntry
+                {
+                    Id = Guid.NewGuid(),
+                    CalendarId = DefaultBusinessCalendarId,
+                    EntryType = "holiday",
+                    CalendarDate = new DateOnly(2026, 10, 13),
+                    Name = "King Bhumibol Memorial Day",
+                    IsWorking = false,
+                    CreatedAt = now,
+                    UpdatedAt = now
+                },
+                new BusinessCalendarEntry
+                {
+                    Id = Guid.NewGuid(),
+                    CalendarId = DefaultBusinessCalendarId,
+                    EntryType = "holiday",
+                    CalendarDate = new DateOnly(2026, 10, 23),
+                    Name = "Chulalongkorn Day",
+                    IsWorking = false,
+                    CreatedAt = now,
+                    UpdatedAt = now
+                });
+        }
+
         if (!await db.SlaPolicies.AnyAsync(cancellationToken))
         {
             db.SlaPolicies.AddRange(
@@ -56,6 +116,85 @@ public static class HelpdeskDevelopmentSeed
                 Sla("P2", "High", 60, 240, now),
                 Sla("P3", "Normal", 240, 480, now),
                 Sla("P4", "Low", 480, 960, now));
+        }
+
+        await db.SaveChangesAsync(cancellationToken);
+
+        var currentPolicies = await db.SlaPolicies.ToListAsync(cancellationToken);
+        foreach (var policy in currentPolicies)
+        {
+            policy.BusinessCalendarId ??= DefaultBusinessCalendarId;
+            policy.AppliesTo ??= "All " + policy.Priority + " tickets";
+            policy.PauseOnRequesterWait = true;
+            policy.NotifyRequesterOnStatusChange = true;
+            policy.ReassignOnBreach = true;
+            if (string.IsNullOrWhiteSpace(policy.EscalationLevelsJson)
+                || policy.EscalationLevelsJson == "[]")
+            {
+                policy.EscalationLevelsJson = DefaultEscalationJson();
+            }
+        }
+
+        if (!await db.AutomationRules.AnyAsync(cancellationToken))
+        {
+            db.AutomationRules.AddRange(
+                new AutomationRule
+                {
+                    Id = NetworkAutomationRuleId,
+                    Code = "route-network-vpn",
+                    Name = "Route Network / VPN by skill",
+                    RuleType = "Assignment",
+                    Trigger = "ticket_created",
+                    ScopeType = "category",
+                    ScopeValue = "network-vpn",
+                    ConditionField = "category",
+                    ConditionOperator = "equals",
+                    ConditionValue = "network-vpn",
+                    ActionType = "assign_team",
+                    ActionValue = "Network Support",
+                    Status = "active",
+                    SortOrder = 10,
+                    CreatedAt = now,
+                    UpdatedAt = now
+                },
+                new AutomationRule
+                {
+                    Id = CriticalAutomationRuleId,
+                    Code = "p1-escalation",
+                    Name = "P1 three-level escalation",
+                    RuleType = "Escalation",
+                    Trigger = "sla_at_risk",
+                    ScopeType = "priority",
+                    ScopeValue = "P1",
+                    ConditionField = "priority",
+                    ConditionOperator = "equals",
+                    ConditionValue = "P1",
+                    ActionType = "escalate_manager_chain",
+                    ActionValue = "Critical Support",
+                    Status = "active",
+                    SortOrder = 20,
+                    CreatedAt = now,
+                    UpdatedAt = now
+                },
+                new AutomationRule
+                {
+                    Id = AfterHoursAutomationRuleId,
+                    Code = "after-hours-routing",
+                    Name = "After-hours queue routing",
+                    RuleType = "Routing",
+                    Trigger = "ticket_created",
+                    ScopeType = "all",
+                    ScopeValue = null,
+                    ConditionField = "business_calendar",
+                    ConditionOperator = "equals",
+                    ConditionValue = "outside",
+                    ActionType = "assign_team",
+                    ActionValue = "After-hours Support",
+                    Status = "paused",
+                    SortOrder = 30,
+                    CreatedAt = now,
+                    UpdatedAt = now
+                });
         }
 
         await db.SaveChangesAsync(cancellationToken);
@@ -282,10 +421,19 @@ public static class HelpdeskDevelopmentSeed
             Priority = priority,
             ResponseMinutes = responseMinutes,
             ResolutionMinutes = resolutionMinutes,
+            BusinessCalendarId = DefaultBusinessCalendarId,
+            AppliesTo = "All " + priority + " tickets",
+            PauseOnRequesterWait = true,
+            NotifyRequesterOnStatusChange = true,
+            ReassignOnBreach = true,
+            EscalationLevelsJson = DefaultEscalationJson(),
             IsActive = true,
             CreatedAt = now,
             UpdatedAt = now
         };
+
+    private static string DefaultEscalationJson() =>
+        """[{"level":1,"percent":75,"targetType":"team","targetId":"team_lead","reassignTeam":"Network Support"},{"level":2,"percent":90,"targetType":"role","targetId":"service_manager","reassignTeam":"Service Management"},{"level":3,"percent":100,"targetType":"role","targetId":"platform_admin","reassignTeam":"Critical Support"}]""";
 
     private static Ticket Ticket(
         Guid id,

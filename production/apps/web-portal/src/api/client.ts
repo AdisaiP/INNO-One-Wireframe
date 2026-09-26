@@ -1,6 +1,9 @@
 import { getAccessToken } from '../auth/keycloak';
 import type {
   AgentInstaller,
+  AutomationRuleDetail,
+  AutomationRuleSummary,
+  BusinessCalendar,
   CreatedTicket,
   DeviceDetail,
   DeviceGroupDetail,
@@ -15,6 +18,9 @@ import type {
   ProblemDetails,
   Profile,
   ResourceEnvelope,
+  SlaEscalationLevel,
+  SlaMonitorItem,
+  SlaPolicy,
   TicketCategoryNode,
   TicketDetail,
   TicketStatusOption,
@@ -328,4 +334,146 @@ export async function getTicketCategories(): Promise<TicketCategoryNode[]> {
 export async function getTicketStatuses(): Promise<TicketStatusOption[]> {
   const response = await request<{ items: TicketStatusOption[] }>('/helpdesk/statuses');
   return response.items;
+}
+
+export async function getSlaPolicies(): Promise<SlaPolicy[]> {
+  const response = await request<{ items: SlaPolicy[] }>('/helpdesk/sla-policies');
+  return response.items;
+}
+
+export async function updateSlaPolicy(
+  policyId: string,
+  eTag: string,
+  input: {
+    responseMinutes: number;
+    resolutionMinutes: number;
+    businessCalendarId?: string;
+    appliesTo?: string;
+    pauseOnRequesterWait: boolean;
+    notifyRequesterOnStatusChange: boolean;
+    reassignOnBreach: boolean;
+    escalationLevels: SlaEscalationLevel[];
+    isActive: boolean;
+  },
+): Promise<SlaPolicy> {
+  const response = await request<ResourceEnvelope<SlaPolicy>>(
+    '/helpdesk/sla-policies/' + encodeURIComponent(policyId),
+    {
+      method: 'PUT',
+      ...jsonRequest(input, { 'If-Match': eTag }),
+    },
+  );
+  return response.data;
+}
+
+export async function getSlaMonitor(
+  query: { page?: number; pageSize?: number; state?: string } = {},
+): Promise<PagedResponse<SlaMonitorItem>> {
+  const params = new URLSearchParams({
+    page: String(query.page ?? 1),
+    pageSize: String(query.pageSize ?? 25),
+  });
+  if (query.state && query.state !== 'all') params.set('state', query.state);
+  return request<PagedResponse<SlaMonitorItem>>('/helpdesk/sla-monitor?' + params.toString());
+}
+
+export async function getBusinessCalendar(): Promise<BusinessCalendar> {
+  const response = await request<ResourceEnvelope<BusinessCalendar>>('/helpdesk/business-calendar');
+  return response.data;
+}
+
+export async function updateBusinessCalendar(
+  eTag: string,
+  input: {
+    name?: string;
+    timeZoneId: string;
+    workingDays: Array<{
+      dayOfWeek: number;
+      startMinute: number;
+      endMinute: number;
+      isWorking: boolean;
+    }>;
+  },
+): Promise<BusinessCalendar> {
+  const response = await request<ResourceEnvelope<BusinessCalendar>>(
+    '/helpdesk/business-calendar',
+    {
+      method: 'PUT',
+      ...jsonRequest(input, { 'If-Match': eTag }),
+    },
+  );
+  return response.data;
+}
+
+export interface AutomationRuleQuery {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  status?: string;
+  type?: string;
+}
+
+export interface AutomationRuleInput {
+  name: string;
+  ruleType: string;
+  trigger: string;
+  scopeType: string;
+  scopeValue?: string;
+  conditionField: string;
+  conditionOperator: string;
+  conditionValue: string;
+  actionType: string;
+  actionValue: string;
+  status: string;
+  sortOrder?: number;
+}
+
+export async function getAutomationRules(
+  query: AutomationRuleQuery = {},
+): Promise<PagedResponse<AutomationRuleSummary>> {
+  const params = new URLSearchParams({
+    page: String(query.page ?? 1),
+    pageSize: String(query.pageSize ?? 25),
+  });
+  if (query.search?.trim()) params.set('search', query.search.trim());
+  if (query.status && query.status !== 'all') params.set('status', query.status);
+  if (query.type && query.type !== 'all') params.set('type', query.type);
+  return request<PagedResponse<AutomationRuleSummary>>(
+    '/helpdesk/automation-rules?' + params.toString(),
+  );
+}
+
+export async function getAutomationRule(ruleId: string): Promise<AutomationRuleDetail> {
+  const response = await request<ResourceEnvelope<AutomationRuleDetail>>(
+    '/helpdesk/automation-rules/' + encodeURIComponent(ruleId),
+  );
+  return response.data;
+}
+
+export async function createAutomationRule(
+  input: AutomationRuleInput,
+): Promise<AutomationRuleDetail> {
+  const response = await request<ResourceEnvelope<AutomationRuleDetail>>(
+    '/helpdesk/automation-rules',
+    {
+      method: 'POST',
+      ...jsonRequest(input),
+    },
+  );
+  return response.data;
+}
+
+export async function updateAutomationRule(
+  ruleId: string,
+  eTag: string,
+  input: AutomationRuleInput,
+): Promise<AutomationRuleDetail> {
+  const response = await request<ResourceEnvelope<AutomationRuleDetail>>(
+    '/helpdesk/automation-rules/' + encodeURIComponent(ruleId),
+    {
+      method: 'PUT',
+      ...jsonRequest(input, { 'If-Match': eTag }),
+    },
+  );
+  return response.data;
 }

@@ -473,6 +473,7 @@ public static class HelpdeskEndpoints
         IPlatformDirectoryReader directoryReader,
         IDeviceDirectoryReader deviceDirectoryReader,
         HelpdeskLedgerWriter ledger,
+        BusinessTimeCalculator businessTime,
         CancellationToken cancellationToken)
     {
         var access = await accessEvaluator.EvaluateAsync(
@@ -578,13 +579,26 @@ public static class HelpdeskEndpoints
             UpdatedAt = now
         };
 
+        var calendarId = slaPolicy.BusinessCalendarId
+            ?? await businessTime.GetDefaultCalendarIdAsync(cancellationToken);
+        var responseDueAt = await businessTime.AddBusinessMinutesAsync(
+            now,
+            slaPolicy.ResponseMinutes,
+            calendarId,
+            cancellationToken);
+        var resolutionDueAt = await businessTime.AddBusinessMinutesAsync(
+            now,
+            slaPolicy.ResolutionMinutes,
+            calendarId,
+            cancellationToken);
+
         var ticketSla = new TicketSla
         {
             Id = Guid.NewGuid(),
             TicketId = ticket.Id,
             PolicyId = slaPolicy.Id,
-            ResponseDueAt = now.AddMinutes(slaPolicy.ResponseMinutes),
-            ResolutionDueAt = now.AddMinutes(slaPolicy.ResolutionMinutes),
+            ResponseDueAt = responseDueAt.ToUniversalTime(),
+            ResolutionDueAt = resolutionDueAt.ToUniversalTime(),
             State = "active",
             UpdatedAt = now
         };

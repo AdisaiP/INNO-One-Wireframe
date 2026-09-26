@@ -16,6 +16,8 @@ export function AppShell() {
   const canViewDevices = usePermission('devices.view');
   const canDeployDevices = usePermission('devices.deploy');
   const canViewHelpdesk = usePermission('helpdesk.ticket.view');
+  const canViewAutomation = usePermission('helpdesk.automation.view');
+  const canManageSla = usePermission('helpdesk.sla.manage');
   const location = useLocation();
   const inDevices = location.pathname.startsWith('/devices');
   const inHelpdesk = location.pathname.startsWith('/helpdesk');
@@ -74,6 +76,10 @@ export function AppShell() {
               <NavLink end to="/helpdesk/tickets">Tickets</NavLink>
               <NavLink to="/helpdesk/assigned">Assigned to Me</NavLink>
               <NavLink to="/helpdesk/team">Team Queue</NavLink>
+              <div className="prod-side-section">Manage</div>
+              <NavLink to="/helpdesk/sla">SLA & Escalation</NavLink>
+              {canManageSla ? <NavLink to="/helpdesk/calendar">Business Calendar</NavLink> : null}
+              {canViewAutomation ? <NavLink to="/helpdesk/automation">Automation</NavLink> : null}
             </>
           ) : (
             <>

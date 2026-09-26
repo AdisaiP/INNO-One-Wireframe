@@ -15,6 +15,10 @@ public sealed class HelpdeskDbContext(DbContextOptions<HelpdeskDbContext> option
     public DbSet<TicketSla> TicketSla => Set<TicketSla>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<TicketStatus> Statuses => Set<TicketStatus>();
+    public DbSet<BusinessCalendar> BusinessCalendars => Set<BusinessCalendar>();
+    public DbSet<BusinessCalendarEntry> BusinessCalendarEntries => Set<BusinessCalendarEntry>();
+    public DbSet<AutomationRule> AutomationRules => Set<AutomationRule>();
+    public DbSet<AutomationExecution> AutomationExecutions => Set<AutomationExecution>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -80,6 +84,9 @@ public sealed class HelpdeskDbContext(DbContextOptions<HelpdeskDbContext> option
             entity.Property(x => x.Code).HasMaxLength(64);
             entity.Property(x => x.Name).HasMaxLength(160);
             entity.Property(x => x.Priority).HasMaxLength(16);
+            entity.Property(x => x.AppliesTo).HasMaxLength(160);
+            entity.Property(x => x.EscalationLevelsJson).HasColumnType("jsonb").HasDefaultValue("[]");
+            entity.HasOne<BusinessCalendar>().WithMany().HasForeignKey(x => x.BusinessCalendarId).OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<TicketSla>(entity =>
@@ -113,6 +120,59 @@ public sealed class HelpdeskDbContext(DbContextOptions<HelpdeskDbContext> option
             entity.Property(x => x.Code).HasMaxLength(64);
             entity.Property(x => x.Name).HasMaxLength(120);
             entity.Property(x => x.Status).HasMaxLength(32);
+        });
+
+        modelBuilder.Entity<BusinessCalendar>(entity =>
+        {
+            entity.ToTable("business_calendar");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => x.Code).IsUnique();
+            entity.Property(x => x.Code).HasMaxLength(64);
+            entity.Property(x => x.Name).HasMaxLength(160);
+            entity.Property(x => x.TimeZoneId).HasMaxLength(128);
+        });
+
+        modelBuilder.Entity<BusinessCalendarEntry>(entity =>
+        {
+            entity.ToTable("business_calendar_entries");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => new { x.CalendarId, x.EntryType, x.DayOfWeek, x.CalendarDate });
+            entity.Property(x => x.EntryType).HasMaxLength(32);
+            entity.Property(x => x.Name).HasMaxLength(200);
+            entity.HasOne<BusinessCalendar>().WithMany().HasForeignKey(x => x.CalendarId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<AutomationRule>(entity =>
+        {
+            entity.ToTable("automation_rules");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => x.Code).IsUnique();
+            entity.HasIndex(x => new { x.Status, x.Trigger, x.SortOrder });
+            entity.Property(x => x.Code).HasMaxLength(64);
+            entity.Property(x => x.Name).HasMaxLength(200);
+            entity.Property(x => x.RuleType).HasMaxLength(32);
+            entity.Property(x => x.Trigger).HasMaxLength(64);
+            entity.Property(x => x.ScopeType).HasMaxLength(64);
+            entity.Property(x => x.ScopeValue).HasMaxLength(200);
+            entity.Property(x => x.ConditionField).HasMaxLength(64);
+            entity.Property(x => x.ConditionOperator).HasMaxLength(32);
+            entity.Property(x => x.ConditionValue).HasMaxLength(240);
+            entity.Property(x => x.ActionType).HasMaxLength(64);
+            entity.Property(x => x.ActionValue).HasMaxLength(240);
+            entity.Property(x => x.Status).HasMaxLength(32);
+        });
+
+        modelBuilder.Entity<AutomationExecution>(entity =>
+        {
+            entity.ToTable("automation_executions");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => new { x.RuleId, x.TicketId, x.Trigger }).IsUnique();
+            entity.HasIndex(x => new { x.ExecutedAt, x.Result });
+            entity.Property(x => x.Trigger).HasMaxLength(64);
+            entity.Property(x => x.Result).HasMaxLength(32);
+            entity.Property(x => x.DetailJson).HasColumnType("jsonb");
+            entity.HasOne<AutomationRule>().WithMany().HasForeignKey(x => x.RuleId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<Ticket>().WithMany().HasForeignKey(x => x.TicketId).OnDelete(DeleteBehavior.Cascade);
         });
 
         base.OnModelCreating(modelBuilder);

@@ -19,6 +19,8 @@ public static class HelpdeskModule
             .UseSnakeCaseNamingConvention());
 
         services.AddScoped<HelpdeskLedgerWriter>();
+        services.AddScoped<BusinessTimeCalculator>();
+        services.AddHostedService<HelpdeskSlaAutomationWorker>();
         return services;
     }
 }

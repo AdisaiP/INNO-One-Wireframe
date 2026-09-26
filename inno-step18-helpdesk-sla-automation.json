@@ -1,0 +1,109 @@
+{
+  "contractVersion": "0.9.0",
+  "status": "completed",
+  "branch": "implementation/step18-helpdesk-sla-automation",
+  "uxBaseline": {
+    "designSystem": "V1.26",
+    "uiContract": "1.20.0"
+  },
+  "apiContract": "0.2.0",
+  "eventAuditContract": "0.3.0",
+  "dataModelContract": "0.4.0",
+  "operations": [
+    "helpdesk.sla_policies.list",
+    "helpdesk.sla_policies.update",
+    "helpdesk.sla_monitor.get",
+    "helpdesk.calendar.get",
+    "helpdesk.calendar.update",
+    "helpdesk.automation.list",
+    "helpdesk.automation.get",
+    "helpdesk.automation.create",
+    "helpdesk.automation.upsert"
+  ],
+  "webRoutes": [
+    "/helpdesk/sla",
+    "/helpdesk/calendar",
+    "/helpdesk/automation",
+    "/helpdesk/automation/new",
+    "/helpdesk/automation/:ruleId"
+  ],
+  "persistence": {
+    "migration": "Step18HelpdeskSlaAutomation",
+    "newTables": [
+      "helpdesk.business_calendar",
+      "helpdesk.business_calendar_entries",
+      "helpdesk.automation_rules",
+      "helpdesk.automation_executions"
+    ],
+    "extendedTables": [
+      "helpdesk.sla_policies",
+      "helpdesk.ticket_sla"
+    ],
+    "crossModuleForeignKeys": false
+  },
+  "events": [
+    "sla.at_risk",
+    "sla.escalated"
+  ],
+  "auditActions": [
+    "helpdesk.sla_policy.updated",
+    "helpdesk.automation_rule.updated"
+  ],
+  "worker": {
+    "service": "HelpdeskSlaAutomationWorker",
+    "developmentIntervalSeconds": 3,
+    "productionIntervalSeconds": 30,
+    "pauseStatus": "waiting",
+    "escalationThresholds": [
+      75,
+      90,
+      100
+    ],
+    "automationActions": [
+      "assign_team",
+      "set_priority",
+      "escalate_manager_chain"
+    ]
+  },
+  "qa": {
+    "runtimeSmoke": "PASS",
+    "webTypecheck": "PASS",
+    "webBuild": "PASS",
+    "dotnetBuild": {
+      "status": "PASS",
+      "warnings": 0,
+      "errors": 0
+    },
+    "efPendingModelChanges": "PASS",
+    "visualQa": {
+      "status": "PASS",
+      "routes": 5,
+      "viewports": [
+        1366,
+        1024,
+        768
+      ],
+      "screens": 15,
+      "failures": 0
+    },
+    "frozenBrowserRegression": {
+      "status": "PASS",
+      "checks": 124,
+      "failures": 0
+    },
+    "frozenStaticAuditChain": {
+      "status": "PASS",
+      "issues": 0
+    },
+    "contractAuditChain": {
+      "status": "PASS",
+      "issues": 0
+    },
+    "step18Audit": {
+      "status": "PASS",
+      "issues": 0
+    },
+    "gitDiffCheck": "PASS"
+  },
+  "deferredStep16Revalidation": true
+}

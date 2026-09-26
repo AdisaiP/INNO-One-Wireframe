@@ -3,6 +3,9 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { getCurrentProfile } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import { AgentDeploymentPage } from '../pages/AgentDeploymentPage';
+import { AutomationRulePage } from '../pages/AutomationRulePage';
+import { AutomationRulesPage } from '../pages/AutomationRulesPage';
+import { BusinessCalendarPage } from '../pages/BusinessCalendarPage';
 import { DeviceDetailPage } from '../pages/DeviceDetailPage';
 import { DeviceGroupDetailPage } from '../pages/DeviceGroupDetailPage';
 import { DeviceGroupsPage } from '../pages/DeviceGroupsPage';
@@ -10,6 +13,7 @@ import { DevicesPage } from '../pages/DevicesPage';
 import { DiscoveryPage } from '../pages/DiscoveryPage';
 import { DeferredPage } from '../pages/DeferredPage';
 import { HelpdeskOverviewPage } from '../pages/HelpdeskOverviewPage';
+import { HelpdeskSlaPage } from '../pages/HelpdeskSlaPage';
 import { ProfilePage } from '../pages/ProfilePage';
 import { TicketCreatePage } from '../pages/TicketCreatePage';
 import { TicketDetailPage } from '../pages/TicketDetailPage';
@@ -37,6 +41,8 @@ export function AppRoot() {
   const canDeployDevices = profile.permissions.includes('devices.deploy');
   const canViewHelpdesk = profile.permissions.includes('helpdesk.ticket.view');
   const canCreateTicket = profile.permissions.includes('helpdesk.ticket.create');
+  const canViewAutomation = profile.permissions.includes('helpdesk.automation.view');
+  const canManageSla = profile.permissions.includes('helpdesk.sla.manage');
   const landingPath = canViewDevices ? '/devices' : canViewHelpdesk ? '/helpdesk' : '/profile';
 
   return (
@@ -59,6 +65,11 @@ export function AppRoot() {
           <Route path="helpdesk/team" element={canViewHelpdesk ? <TicketsPage mode="team" /> : <DeferredPage name="Team Queue" />} />
           <Route path="helpdesk/tickets/new" element={canCreateTicket ? <TicketCreatePage /> : <DeferredPage name="Create Ticket" />} />
           <Route path="helpdesk/tickets/:ticketId" element={canViewHelpdesk ? <TicketDetailPage /> : <DeferredPage name="Ticket" />} />
+          <Route path="helpdesk/sla" element={canViewHelpdesk ? <HelpdeskSlaPage /> : <DeferredPage name="SLA & Escalation" />} />
+          <Route path="helpdesk/calendar" element={canManageSla ? <BusinessCalendarPage /> : <DeferredPage name="Business Calendar" />} />
+          <Route path="helpdesk/automation" element={canViewAutomation ? <AutomationRulesPage /> : <DeferredPage name="Automation" />} />
+          <Route path="helpdesk/automation/new" element={canViewAutomation ? <AutomationRulePage /> : <DeferredPage name="New Automation Rule" />} />
+          <Route path="helpdesk/automation/:ruleId" element={canViewAutomation ? <AutomationRulePage /> : <DeferredPage name="Automation Rule" />} />
 
           <Route path="apps/*" element={<DeferredPage name="Apps" />} />
           <Route path="assets/*" element={<DeferredPage name="Assets" />} />

@@ -1514,4 +1514,42 @@ Source of truth:
 
 **Do not merge to `main` without explicit instruction.**
 
-Next recommended implementation slice: **Helpdesk SLA & Automation — SLA policy/calendar behavior, pause/resume rules, escalation and automation actions**. This is a recommendation, not a newly frozen requirement.
+# Step 18 — Helpdesk SLA & Automation ✅ COMPLETED 2026-09-27
+
+Branch: `implementation/step18-helpdesk-sla-automation`
+
+Implementation Contract: **0.9.0**.
+
+Implemented:
+
+- SLA policy management with Business Calendar references, pause behavior, requester notification intent, breach reassignment and ordered escalation levels.
+- Business Calendar working windows, holidays/exceptions and business-time calculation.
+- Ticket SLA pause/resume with accumulated paused time and due-date extension.
+- SLA at-risk / escalation worker with three-level escalation and optional breach reassignment.
+- Helpdesk automation rules with bounded triggers/actions and idempotent execution history.
+- React routes for SLA, Business Calendar, Automation list/new/detail.
+- Helpdesk-owned persistence for Business Calendar and Automation with no cross-module database FK.
+- UTC normalization at the persistence boundary for SLA due dates written to PostgreSQL `timestamp with time zone`.
+
+Final QA:
+
+- Step 18 runtime smoke: **PASS**.
+- Step 18 audit: **0 issues**.
+- Web typecheck/build: **PASS**.
+- .NET build: **0 warnings / 0 errors**.
+- EF pending-model checks: **PASS**.
+- contract/static audit chains: **0 issues**.
+- production Step 18 visual QA: **15 / 15 screens**, failures 0.
+- frozen browser regression: **124 / 124**, failures 0.
+- `git diff --check`: **PASS**.
+
+Source of truth:
+
+- `INNO-One-Step18-Helpdesk-SLA-Automation.md`
+- `inno-step18-helpdesk-sla-automation.json`
+- `step18-helpdesk-sla-automation-audit.py`
+- `production/scripts/step18-local-smoke.py`
+
+**Step 16 fresh re-validation remains deferred by explicit user request and must be rerun before merge/release.**
+
+**Do not merge `main` without explicit user instruction. No Step 19 work has been started.**

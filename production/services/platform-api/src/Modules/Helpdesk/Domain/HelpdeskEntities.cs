@@ -65,6 +65,12 @@ public sealed class SlaPolicy
     public required string Priority { get; set; }
     public int ResponseMinutes { get; set; }
     public int ResolutionMinutes { get; set; }
+    public Guid? BusinessCalendarId { get; set; }
+    public string? AppliesTo { get; set; }
+    public bool PauseOnRequesterWait { get; set; }
+    public bool NotifyRequesterOnStatusChange { get; set; }
+    public bool ReassignOnBreach { get; set; }
+    public string EscalationLevelsJson { get; set; } = "[]";
     public bool IsActive { get; set; }
     public long Version { get; set; } = 1;
     public DateTimeOffset CreatedAt { get; set; }
@@ -80,6 +86,11 @@ public sealed class TicketSla
     public DateTimeOffset ResolutionDueAt { get; set; }
     public DateTimeOffset? ResponseMetAt { get; set; }
     public DateTimeOffset? ResolvedAt { get; set; }
+    public DateTimeOffset? PausedAt { get; set; }
+    public long AccumulatedPausedSeconds { get; set; }
+    public DateTimeOffset? RiskEmittedAt { get; set; }
+    public int EscalationLevel { get; set; }
+    public DateTimeOffset? LastEvaluatedAt { get; set; }
     public required string State { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
 }

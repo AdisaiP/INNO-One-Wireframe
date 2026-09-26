@@ -1,5 +1,5 @@
 {
-  "contractVersion": "0.8.0",
+  "contractVersion": "0.9.0",
   "status": "implementation-in-progress",
   "generatedFrom": {
     "designSystem": "V1.26",
@@ -318,6 +318,42 @@
       "audit"
     ],
     "crossModuleReads": "shared directory contracts only",
+    "featureImplementationStarted": true
+  },
+  "helpdeskSlaAutomationSlice": {
+    "version": "0.9.0",
+    "name": "Helpdesk SLA & Automation Slice",
+    "documentation": "INNO-One-Step18-Helpdesk-SLA-Automation.md",
+    "manifest": "inno-step18-helpdesk-sla-automation.json",
+    "audit": "step18-helpdesk-sla-automation-audit.py",
+    "implementedOperations": [
+      "helpdesk.sla_policies.list",
+      "helpdesk.sla_policies.update",
+      "helpdesk.sla_monitor.get",
+      "helpdesk.calendar.get",
+      "helpdesk.calendar.update",
+      "helpdesk.automation.list",
+      "helpdesk.automation.get",
+      "helpdesk.automation.create",
+      "helpdesk.automation.upsert"
+    ],
+    "webRoutes": [
+      "/helpdesk/sla",
+      "/helpdesk/calendar",
+      "/helpdesk/automation",
+      "/helpdesk/automation/new",
+      "/helpdesk/automation/:ruleId"
+    ],
+    "persistence": [
+      "business_calendar",
+      "business_calendar_entries",
+      "automation_rules",
+      "automation_executions"
+    ],
+    "activeEvents": [
+      "sla.at_risk",
+      "sla.escalated"
+    ],
     "featureImplementationStarted": true
   }
 }

@@ -4,7 +4,7 @@ export const contractVersions = {
   api: '0.2.0',
   eventAudit: '0.3.0',
   dataModel: '0.4.0',
-  implementation: '0.8.0',
+  implementation: '0.9.0',
 } as const;
 
 export const apiBasePath = '/api/v1' as const;

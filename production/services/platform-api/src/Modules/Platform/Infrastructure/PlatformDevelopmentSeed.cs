@@ -46,13 +46,19 @@ public static class PlatformDevelopmentSeed
         ("helpdesk.status.manage", "helpdesk", "Manage helpdesk statuses")
     ];
 
+    private static readonly (string Id, string Module, string Name)[] Step18Permissions =
+    [
+        ("helpdesk.automation.view", "helpdesk", "View helpdesk automation"),
+        ("helpdesk.automation.manage", "helpdesk", "Manage helpdesk automation")
+    ];
+
     public static async Task SeedAsync(
         PlatformDbContext db,
         CancellationToken cancellationToken = default)
     {
         if (await db.UserProfiles.AnyAsync(cancellationToken))
         {
-            await EnsureStep16And17Async(db, cancellationToken);
+            await EnsureStep16To18Async(db, cancellationToken);
             return;
         }
 
@@ -201,6 +207,12 @@ public static class PlatformDevelopmentSeed
             Module = x.Module,
             Name = x.Name
         }));
+        db.Permissions.AddRange(Step18Permissions.Select(x => new Permission
+        {
+            PermissionId = x.Id,
+            Module = x.Module,
+            Name = x.Name
+        }));
 
         db.RolePermissions.AddRange(basePermissions.Select(x => new RolePermission
         {
@@ -208,6 +220,11 @@ public static class PlatformDevelopmentSeed
             PermissionId = x.PermissionId
         }));
         db.RolePermissions.AddRange(Step17Permissions.Select(x => new RolePermission
+        {
+            RoleId = PlatformAdminRoleId,
+            PermissionId = x.Id
+        }));
+        db.RolePermissions.AddRange(Step18Permissions.Select(x => new RolePermission
         {
             RoleId = PlatformAdminRoleId,
             PermissionId = x.Id
@@ -305,7 +322,7 @@ public static class PlatformDevelopmentSeed
         await db.SaveChangesAsync(cancellationToken);
     }
 
-    private static async Task EnsureStep16And17Async(
+    private static async Task EnsureStep16To18Async(
         PlatformDbContext db,
         CancellationToken cancellationToken)
     {
@@ -323,7 +340,7 @@ public static class PlatformDevelopmentSeed
             });
         }
 
-        foreach (var (permissionId, module, name) in Step17Permissions)
+        foreach (var (permissionId, module, name) in Step17Permissions.Concat(Step18Permissions))
         {
             if (!await db.Permissions.AnyAsync(
                 x => x.PermissionId == permissionId,
@@ -405,7 +422,7 @@ public static class PlatformDevelopmentSeed
             "devices.deploy",
             cancellationToken);
 
-        foreach (var (permissionId, _, _) in Step17Permissions)
+        foreach (var (permissionId, _, _) in Step17Permissions.Concat(Step18Permissions))
         {
             await EnsureRolePermissionAsync(
                 db,

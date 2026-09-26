@@ -296,6 +296,114 @@ export interface CreatedTicket {
   eTag: string;
 }
 
+
+export interface SlaEscalationLevel {
+  level: number;
+  percent: number;
+  targetType: string;
+  targetId: string;
+  reassignTeam?: string | null;
+}
+
+export interface SlaPolicy {
+  id: string;
+  code: string;
+  name: string;
+  priority: string;
+  responseMinutes: number;
+  resolutionMinutes: number;
+  businessCalendar?: {
+    id: string;
+    name: string;
+    timeZoneId: string;
+  } | null;
+  appliesTo?: string | null;
+  pauseOnRequesterWait: boolean;
+  notifyRequesterOnStatusChange: boolean;
+  reassignOnBreach: boolean;
+  escalationLevels: SlaEscalationLevel[];
+  isActive: boolean;
+  eTag: string;
+}
+
+export interface SlaMonitorItem {
+  ticketId: string;
+  ticketNumber: string;
+  subject: string;
+  priority: string;
+  status: string;
+  state: string;
+  elapsedPercent: number;
+  escalationLevel: number;
+  responseDueAt: string;
+  resolutionDueAt: string;
+  pausedAt?: string | null;
+  policyId: string;
+  policyName: string;
+}
+
+export interface BusinessWorkingDay {
+  dayOfWeek: number;
+  startMinute: number;
+  endMinute: number;
+  isWorking: boolean;
+}
+
+export interface BusinessHoliday {
+  date: string;
+  name: string;
+  isWorking: boolean;
+}
+
+export interface BusinessCalendar {
+  id: string;
+  code: string;
+  name: string;
+  timeZoneId: string;
+  workingDays: BusinessWorkingDay[];
+  holidays: BusinessHoliday[];
+  eTag: string;
+}
+
+export interface AutomationRuleSummary {
+  id: string;
+  name: string;
+  ruleType: string;
+  trigger: string;
+  primaryAction: string;
+  status: string;
+  executionCount: number;
+  lastExecutedAt?: string | null;
+  eTag: string;
+}
+
+export interface AutomationExecution {
+  id: string;
+  ticketId: string;
+  trigger: string;
+  result: string;
+  executedAt: string;
+}
+
+export interface AutomationRuleDetail {
+  id: string;
+  code: string;
+  name: string;
+  ruleType: string;
+  trigger: string;
+  scopeType: string;
+  scopeValue?: string | null;
+  conditionField: string;
+  conditionOperator: string;
+  conditionValue: string;
+  actionType: string;
+  actionValue: string;
+  status: string;
+  sortOrder: number;
+  recentExecutions: AutomationExecution[];
+  eTag: string;
+}
+
 export interface ProblemDetails {
   type?: string;
   title?: string;
