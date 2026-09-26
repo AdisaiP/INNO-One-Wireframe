@@ -1,0 +1,145 @@
+{
+  "contractVersion": "0.5.0",
+  "status": "production-skeleton",
+  "generatedFrom": {
+    "designSystem": "V1.26",
+    "uiContract": "1.20.0",
+    "apiContract": "0.2.0",
+    "eventAuditContract": "0.3.0",
+    "dataModelContract": "0.4.0"
+  },
+  "root": "production",
+  "toolchain": {
+    "dotnetSdk": "10.0.103",
+    "targetFramework": "net10.0",
+    "efCore": "10.0.4",
+    "npgsqlEfCore": "10.0.3",
+    "nodeMinimum": "18.18.0",
+    "pnpm": "10.17.0",
+    "react": "19.2.0",
+    "typescript": "5.9.3",
+    "vite": "6.4.3",
+    "reactRouter": "6.30.6"
+  },
+  "clients": {
+    "webPortal": {
+      "path": "apps/web-portal",
+      "status": "buildable-shell",
+      "surface": "web",
+      "devPort": 5180
+    },
+    "endpointAgent": {
+      "path": "apps/endpoint-agent",
+      "status": "boundary-only",
+      "surface": "agent",
+      "language": "deferred"
+    },
+    "assetsMobile": {
+      "path": "apps/assets-mobile",
+      "status": "boundary-only",
+      "surface": "android",
+      "technologyDirection": "Expo"
+    }
+  },
+  "services": {
+    "platformApi": {
+      "path": "services/platform-api",
+      "style": "dotnet-modular-monolith",
+      "projects": [
+        "INNO.One.PlatformApi",
+        "INNO.One.Contracts",
+        "INNO.One.SharedKernel",
+        "INNO.One.Infrastructure",
+        "INNO.One.Integrations.Keycloak",
+        "INNO.One.Integrations.MeshCentral",
+        "INNO.One.Modules.Platform",
+        "INNO.One.Modules.Devices",
+        "INNO.One.Modules.Assets",
+        "INNO.One.Modules.Helpdesk",
+        "INNO.One.Modules.Reports"
+      ]
+    },
+    "meetingService": {
+      "path": "services/meeting-service",
+      "runtime": ".NET 10",
+      "status": "separate-service-skeleton",
+      "projects": [
+        "INNO.One.MeetingService"
+      ]
+    }
+  },
+  "sharedPackages": [
+    "@inno/ui",
+    "@inno/contracts",
+    "@inno/auth",
+    "@inno/shared"
+  ],
+  "dbContexts": [
+    {
+      "name": "PlatformDbContext",
+      "schema": "platform",
+      "database": "inno_core"
+    },
+    {
+      "name": "DevicesDbContext",
+      "schema": "devices",
+      "database": "inno_core"
+    },
+    {
+      "name": "AssetsDbContext",
+      "schema": "assets",
+      "database": "inno_core"
+    },
+    {
+      "name": "HelpdeskDbContext",
+      "schema": "helpdesk",
+      "database": "inno_core"
+    },
+    {
+      "name": "ReportsDbContext",
+      "schema": "reports",
+      "database": "inno_core"
+    },
+    {
+      "name": "InfrastructureDbContext",
+      "schema": "integration",
+      "database": "inno_core",
+      "alsoOwns": [
+        "audit",
+        "readmodel"
+      ]
+    },
+    {
+      "name": "MeetingDbContext",
+      "schema": "meeting",
+      "database": "inno_meeting"
+    },
+    {
+      "name": "MeetingIntegrationDbContext",
+      "schema": "integration",
+      "database": "inno_meeting"
+    }
+  ],
+  "adapters": {
+    "keycloak": "services/platform-api/src/Integrations/Keycloak",
+    "meshCentral": "services/platform-api/src/Integrations/MeshCentral"
+  },
+  "localInfrastructure": {
+    "compose": "infrastructure/docker/compose.yml",
+    "postgresImage": "postgres:17-alpine",
+    "keycloakImage": "quay.io/keycloak/keycloak:26.4.0",
+    "databases": [
+      "inno_core",
+      "inno_meeting",
+      "keycloak"
+    ],
+    "meshCentral": "external-not-composed"
+  },
+  "constraints": {
+    "frozenPrototypeUntouched": true,
+    "featureHeavyBackendImplemented": false,
+    "directMeshCentralPersistence": false,
+    "crossModuleProjectReferences": false,
+    "crossModuleDatabaseForeignKeys": false
+  }
+}

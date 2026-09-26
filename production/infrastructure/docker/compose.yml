@@ -1,0 +1,40 @@
+name: inno-one-local
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-inno}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-inno_dev_only}
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - inno-postgres:/var/lib/postgresql/data
+      - ../database/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-inno} -d postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.4.0
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: ${POSTGRES_USER:-inno}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:-inno_dev_only}
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin_dev_only}
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./keycloak/realm-inno-one.json:/opt/keycloak/data/import/realm-inno-one.json:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  inno-postgres:

@@ -1,5 +1,5 @@
 {
-  "contractVersion": "0.4.0",
+  "contractVersion": "0.5.0",
   "status": "implementation-planning",
   "generatedFrom": {
     "designSystem": "V1.26",
@@ -214,5 +214,18 @@
     "coreTables": 83,
     "meetingTables": 9,
     "totalPlanningTables": 92
+  },
+  "productionSkeleton": {
+    "version": "0.5.0",
+    "root": "production",
+    "documentation": "INNO-One-Production-Project-Skeleton.md",
+    "manifest": "production/production-skeleton.json",
+    "audit": "production-skeleton-audit.py",
+    "dotnet": ".NET 10",
+    "web": "React 19.2 + TypeScript 5.9 + Vite 6.4",
+    "dotnetProjects": 12,
+    "sharedWebPackages": 4,
+    "dbContexts": 8,
+    "featureHeavyBackendImplemented": false
   }
 }

@@ -1,0 +1,17 @@
+{
+  "name": "inno-one-production",
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "pnpm@10.17.0",
+  "engines": {
+    "node": ">=18.18.0"
+  },
+  "scripts": {
+    "build:packages": "pnpm --filter @inno/contracts build && pnpm --filter @inno/shared build && pnpm --filter @inno/auth build && pnpm --filter @inno/ui build",
+    "typecheck": "pnpm run build:packages && pnpm --filter @inno/web-portal typecheck",
+    "build": "pnpm run build:packages && pnpm --filter @inno/web-portal build",
+    "dev:web": "pnpm run build:packages && pnpm --filter @inno/web-portal dev",
+    "build:dotnet": "dotnet build INNO.One.sln",
+    "check": "pnpm typecheck && pnpm build && dotnet build INNO.One.sln"
+  }
+}

@@ -528,14 +528,14 @@ This is a target production structure, not a request to rewrite the current froz
 
 Not frozen yet:
 
-- exact .NET version/project templates,
-- exact React build tool,
+- .NET 10 production patch/update cadence (runtime/project skeleton is now frozen by Step 14),
+- Web dependency update cadence (React/Vite/TypeScript checkpoint is now frozen by Step 14),
 - exact PostgreSQL major release / managed provider (engine itself is frozen to PostgreSQL by Step 13),
 - broker technology,
 - caching technology,
 - observability vendor,
 - deployment target/Kubernetes requirement,
-- exact Meeting runtime language,
+- long-term Meeting runtime divergence, if .NET 10 no longer fits the processing workload,
 - exact Agent implementation language.
 
 These should be selected only when Step 11–15 provide enough implementation context.
@@ -615,3 +615,32 @@ Source of truth:
 - `data-model-contract-audit.py`
 
 No backend feature code was started by Step 13. Next: **Step 14 Production Project Skeleton**.
+
+## 20. Step 14 Production Project Skeleton checkpoint — 2026-09-26
+
+Implementation planning now advances to **Contract 0.5.0**.
+
+The buildable implementation root is `production/` and contains:
+- React 19.2 + TypeScript 5.9 + Vite 6.4 Web Portal shell.
+- pnpm workspace packages: `@inno/ui`, `@inno/contracts`, `@inno/auth`, `@inno/shared`.
+- .NET 10 solution with **12 projects**.
+- Platform API modular-monolith composition root plus Platform / Devices / Assets / Helpdesk / Reports modules.
+- Dedicated Keycloak and MeshCentral adapter projects.
+- Separate .NET 10 Meeting service skeleton.
+- **8 DbContext boundaries** aligned with Step 13 schema ownership.
+- Per-module EF migration folders and local `dotnet-ef` tool manifest.
+- Local Docker bootstrap for PostgreSQL + Keycloak.
+- Reverse-proxy, monitoring and deployment boundaries.
+
+Important scope rule:
+- the frozen HTML prototype remains the UX/UI source of truth,
+- no Step 11 feature endpoint is falsely marked implemented,
+- Agent implementation language remains deferred,
+- Assets Mobile retains Expo direction but its runtime scaffold waits for the mobile vertical slice.
+
+Source of truth:
+- `INNO-One-Production-Project-Skeleton.md`
+- `production/production-skeleton.json`
+- `production-skeleton-audit.py`
+
+Next: **Step 15 First Vertical Slice**.

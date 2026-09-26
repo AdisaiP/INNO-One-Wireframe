@@ -1,0 +1,6 @@
+packages:
+  - 'apps/web-portal'
+  - 'packages/*'
+
+onlyBuiltDependencies:
+  - esbuild

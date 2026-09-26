@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\INNO.One.Contracts\INNO.One.Contracts.csproj" />
+    <ProjectReference Include="..\INNO.One.SharedKernel\INNO.One.SharedKernel.csproj" />
+    <ProjectReference Include="..\INNO.One.Infrastructure\INNO.One.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Platform\INNO.One.Modules.Platform.csproj" />
+    <ProjectReference Include="..\Modules\Devices\INNO.One.Modules.Devices.csproj" />
+    <ProjectReference Include="..\Modules\Assets\INNO.One.Modules.Assets.csproj" />
+    <ProjectReference Include="..\Modules\Helpdesk\INNO.One.Modules.Helpdesk.csproj" />
+    <ProjectReference Include="..\Modules\Reports\INNO.One.Modules.Reports.csproj" />
+    <ProjectReference Include="..\Integrations\Keycloak\INNO.One.Integrations.Keycloak.csproj" />
+    <ProjectReference Include="..\Integrations\MeshCentral\INNO.One.Integrations.MeshCentral.csproj" />
+  </ItemGroup>
+</Project>

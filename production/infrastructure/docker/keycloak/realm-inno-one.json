@@ -1,0 +1,29 @@
+{
+  "realm": "inno-one",
+  "enabled": true,
+  "displayName": "INNO.One",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "clients": [
+    {
+      "clientId": "inno-one-web",
+      "name": "INNO.One Web Portal",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": [
+        "http://localhost:5180/*"
+      ],
+      "webOrigins": [
+        "http://localhost:5180"
+      ]
+    },
+    {
+      "clientId": "inno-one-api",
+      "name": "INNO.One API",
+      "enabled": true,
+      "bearerOnly": true
+    }
+  ]
+}

@@ -1288,4 +1288,56 @@ Current checks:
 - `qa-ux-input-browser.py`: **124 / 124**, failures 0.
 - Frozen visual baseline remains unchanged/green.
 
-**No backend feature code has started. Next: Step 14 Production Project Skeleton.**
+**Historical checkpoint: Step 13 completed here; Step 14 Production Project Skeleton is now complete.**
+
+# Step 14 — Production Project Skeleton ✅ COMPLETED 2026-09-26
+
+Branch: `implementation/step14-production-skeleton`
+
+UX/UI remains FINAL FROZEN at **Design System V1.26 / UI Contract 1.20.0**.
+
+Implementation planning contract: **0.5.0**
+API Contract: **0.2.0**
+Event & Audit Contract: **0.3.0**
+Data Model Contract: **0.4.0**
+Production Skeleton Contract: **0.5.0**
+
+Production root: `production/`
+
+Implemented skeleton:
+- React 19.2 + TypeScript 5.9 + Vite 6.4 Web Portal shell.
+- Top-level Web route boundaries for Workspace / Apps / Devices / Assets / Helpdesk / Meeting / Reports / Admin.
+- pnpm workspaces with `@inno/ui`, `@inno/contracts`, `@inno/auth`, `@inno/shared`.
+- .NET 10 solution with **12 projects**.
+- Platform API modular monolith with 5 module projects: Platform / Devices / Assets / Helpdesk / Reports.
+- Keycloak and MeshCentral adapter projects.
+- Separate .NET 10 Meeting service skeleton.
+- **8 DbContext boundaries** aligned to Step 13 schemas.
+- EF migration ownership directories and local `dotnet-ef` 10.0.4 tool manifest.
+- Local Docker PostgreSQL + Keycloak bootstrap.
+- Reverse-proxy, monitoring, deployment and test boundaries.
+- Endpoint Agent repository boundary remains language-deferred.
+- Assets Mobile boundary retains Android/Expo direction; heavy Expo runtime is deferred to its first vertical slice.
+
+Validation:
+- Web typecheck: pass.
+- Web production build: pass.
+- Web local dev port: **5180**; 1366px + 768px production-shell visual smoke reviewed.
+- Responsive shell defect found during review and fixed before checkpoint.
+- .NET restore/build: **12 projects, 0 warnings, 0 errors**.
+- Platform API `/health/ready`: pass.
+- Meeting service `/health/ready`: pass.
+- Docker Compose config validation: pass.
+- `production-skeleton-audit.py`: **0 issues**.
+- Contract audit chain: **0 issues**.
+- Full static frozen UX/UI audit chain: **0 issues**.
+- `qa-ux-input-browser.py`: **124 / 124**, failures 0.
+- Frozen visual baseline remains unchanged.
+
+Source-of-truth additions:
+- `INNO-One-Production-Project-Skeleton.md`
+- `production/production-skeleton.json`
+- `production-skeleton-audit.py`
+- `production/`
+
+**Next: Step 15 First Vertical Slice — Sign in/User Profile → Organization/Permission resolution → Devices list → Device detail.**

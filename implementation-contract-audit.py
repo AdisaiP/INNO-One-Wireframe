@@ -9,8 +9,8 @@ registry_text = (ROOT / "platform-registry.js").read_text()
 
 issues = []
 
-if contract.get("contractVersion") != "0.4.0":
-    issues.append(f"expected implementation contract 0.4.0, found {contract.get('contractVersion')}")
+if contract.get("contractVersion") != "0.5.0":
+    issues.append(f"expected implementation contract 0.5.0, found {contract.get('contractVersion')}")
 api_contract = contract.get("apiContract", {})
 if api_contract.get("version") != "0.2.0":
     issues.append("implementation contract must reference API Contract 0.2.0")
@@ -41,6 +41,23 @@ if data_contract.get("engine") != "PostgreSQL":
     issues.append("data model engine must be PostgreSQL")
 if data_contract.get("coreDatabase") != "inno_core" or data_contract.get("meetingDatabase") != "inno_meeting":
     issues.append("data model database ownership mismatch")
+
+skeleton = contract.get("productionSkeleton", {})
+if skeleton.get("version") != "0.5.0":
+    issues.append("implementation contract must reference Production Skeleton 0.5.0")
+for ref in (skeleton.get("documentation"), skeleton.get("manifest"), skeleton.get("audit")):
+    if not ref or not (ROOT / ref).exists():
+        issues.append(f"missing Production Skeleton reference: {ref}")
+if skeleton.get("root") != "production":
+    issues.append("production skeleton root must be production")
+if skeleton.get("dotnetProjects") != 12:
+    issues.append("production skeleton must expose 12 .NET projects")
+if skeleton.get("sharedWebPackages") != 4:
+    issues.append("production skeleton must expose 4 shared Web packages")
+if skeleton.get("dbContexts") != 8:
+    issues.append("production skeleton must expose 8 DbContexts")
+if skeleton.get("featureHeavyBackendImplemented") is not False:
+    issues.append("Step 14 must not claim feature-heavy backend implementation")
 
 existing = contract.get("existingPermissions", [])
 reserved = contract.get("reservedImplementationPermissions", [])

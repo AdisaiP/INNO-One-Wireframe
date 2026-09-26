@@ -857,19 +857,13 @@ Not frozen in Step 13:
 - full-text search engine vs PostgreSQL projection,
 - data warehouse/analytics platform.
 
-## 34. Next step
+## 34. Production Skeleton checkpoint
 
-Step 14 should create the **Production Project Skeleton** from the contracts now frozen:
+Step 14 Production Project Skeleton is now complete under 'production/'.
 
-- repository/folder structure,
-- React Web shell,
-- .NET solution/module projects,
-- shared contract packages,
-- PostgreSQL module migration projects,
-- Meeting service placeholder boundary,
-- Docker/local-dev infrastructure,
-- Keycloak/MeshCentral adapter project boundaries,
-- no feature-heavy backend implementation yet.
+The data contract now has buildable DbContext/migration ownership boundaries for Platform, Devices, Assets, Helpdesk, Reports, shared infrastructure, Meeting and Meeting integration. Local PostgreSQL bootstrap creates the frozen databases/schemas, while business tables remain intentionally ungenerated until vertical slices implement real aggregates.
+
+Next: **Step 15 First Vertical Slice**.
 
 ## 35. Canonical table ownership catalog
 

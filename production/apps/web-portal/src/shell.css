@@ -1,0 +1,15 @@
+.production-shell { min-height: 100vh; }
+.production-header { height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: white; border-bottom: 1px solid var(--ds-border); }
+.production-header strong { font-size: 15px; }
+.production-header strong span { color: var(--ds-primary); }
+.production-contract { color: var(--ds-muted); font-size: 11px; }
+.production-body { display: grid; grid-template-columns: 216px minmax(0, 1fr); min-height: calc(100vh - 56px); }
+.production-nav { padding: 16px 12px; background: white; border-right: 1px solid var(--ds-border); }
+.production-nav a { display: block; padding: 9px 10px; border-radius: 7px; color: var(--ds-text-2); text-decoration: none; font-size: 13px; }
+.production-nav a.active { background: var(--ds-primary-soft); color: var(--ds-primary); font-weight: 650; }
+@media (max-width: 850px) {
+  .production-body { display: block; min-height: calc(100vh - 56px); }
+  .production-nav { display: flex; align-items: center; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--ds-border); }
+  .production-nav a { flex: 0 0 auto; white-space: nowrap; }
+  .production-contract { display: none; }
+}
