@@ -1,3 +1,5 @@
+using INNO.One.Contracts.Directory;
+using INNO.One.Modules.Devices.Application;
 using INNO.One.Modules.Devices.Infrastructure;
 using INNO.One.Modules.Devices.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +16,7 @@ public static class DevicesModule
                 npgsql.MigrationsHistoryTable("__ef_migrations_history", DevicesDbContext.Schema))
             .UseSnakeCaseNamingConvention());
 
+        services.AddScoped<IDeviceDirectoryReader, DeviceDirectoryReader>();
         services.AddScoped<DeviceLedgerWriter>();
         services.AddHostedService<DiscoveryScanWorker>();
         services.AddHostedService<MeshCentralSyncWorker>();

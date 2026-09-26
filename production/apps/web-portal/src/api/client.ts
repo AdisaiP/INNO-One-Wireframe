@@ -1,6 +1,7 @@
 import { getAccessToken } from '../auth/keycloak';
 import type {
   AgentInstaller,
+  CreatedTicket,
   DeviceDetail,
   DeviceGroupDetail,
   DeviceGroupListItem,
@@ -8,11 +9,16 @@ import type {
   DeviceListItem,
   DiscoveryResult,
   DiscoveryScan,
+  HelpdeskOverview,
   OperationAccepted,
   PagedResponse,
   ProblemDetails,
   Profile,
   ResourceEnvelope,
+  TicketCategoryNode,
+  TicketDetail,
+  TicketStatusOption,
+  TicketSummary,
 } from './types';
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? '/api/v1';
@@ -214,4 +220,112 @@ export async function createAgentInstaller(input: {
     ...jsonRequest(input),
   });
   return response.data;
+}
+
+export interface TicketQuery {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  status?: string;
+  priority?: string;
+  assignedToMe?: boolean;
+  unassigned?: boolean;
+  sort?: string;
+  order?: 'asc' | 'desc';
+}
+
+export async function getHelpdeskOverview(): Promise<HelpdeskOverview> {
+  const response = await request<ResourceEnvelope<HelpdeskOverview>>('/helpdesk/overview');
+  return response.data;
+}
+
+export async function getTickets(
+  query: TicketQuery = {},
+): Promise<PagedResponse<TicketSummary>> {
+  const params = new URLSearchParams({
+    page: String(query.page ?? 1),
+    pageSize: String(query.pageSize ?? 25),
+    sort: query.sort ?? 'updatedAt',
+    order: query.order ?? 'desc',
+  });
+  if (query.search?.trim()) params.set('search', query.search.trim());
+  if (query.status && query.status !== 'all') params.set('status', query.status);
+  if (query.priority && query.priority !== 'all') params.set('priority', query.priority);
+  if (query.assignedToMe) params.set('assignedToMe', 'true');
+  if (query.unassigned) params.set('unassigned', 'true');
+  return request<PagedResponse<TicketSummary>>('/helpdesk/tickets?' + params.toString());
+}
+
+export async function getTicket(ticketId: string): Promise<TicketDetail> {
+  const response = await request<ResourceEnvelope<TicketDetail>>(
+    '/helpdesk/tickets/' + encodeURIComponent(ticketId),
+  );
+  return response.data;
+}
+
+export async function createTicket(input: {
+  subject: string;
+  description: string;
+  categoryId?: string;
+  priority?: string;
+  impact?: string;
+  urgency?: string;
+  relatedDeviceId?: string;
+}): Promise<CreatedTicket> {
+  const response = await request<ResourceEnvelope<CreatedTicket>>('/helpdesk/tickets', {
+    method: 'POST',
+    ...jsonRequest(input),
+  });
+  return response.data;
+}
+
+export async function replyToTicket(
+  ticketId: string,
+  input: { body: string; visibility?: 'public' | 'internal' },
+): Promise<void> {
+  await request<ResourceEnvelope<unknown>>(
+    '/helpdesk/tickets/' + encodeURIComponent(ticketId) + '/replies',
+    {
+      method: 'POST',
+      ...jsonRequest(input),
+    },
+  );
+}
+
+export async function reassignTicket(
+  ticketId: string,
+  eTag: string,
+  input: { assigneeUserId?: string; team?: string; note?: string },
+): Promise<void> {
+  await request<ResourceEnvelope<unknown>>(
+    '/helpdesk/tickets/' + encodeURIComponent(ticketId) + '/assignment',
+    {
+      method: 'POST',
+      ...jsonRequest(input, { 'If-Match': eTag }),
+    },
+  );
+}
+
+export async function resolveTicket(
+  ticketId: string,
+  eTag: string,
+  input: { resolutionCode?: string; note?: string },
+): Promise<void> {
+  await request<ResourceEnvelope<unknown>>(
+    '/helpdesk/tickets/' + encodeURIComponent(ticketId) + '/resolve',
+    {
+      method: 'POST',
+      ...jsonRequest(input, { 'If-Match': eTag }),
+    },
+  );
+}
+
+export async function getTicketCategories(): Promise<TicketCategoryNode[]> {
+  const response = await request<{ items: TicketCategoryNode[] }>('/helpdesk/categories/tree');
+  return response.items;
+}
+
+export async function getTicketStatuses(): Promise<TicketStatusOption[]> {
+  const response = await request<{ items: TicketStatusOption[] }>('/helpdesk/statuses');
+  return response.items;
 }

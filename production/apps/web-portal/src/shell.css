@@ -1129,3 +1129,287 @@
   .enrollment-link-row { align-items: stretch; flex-direction: column; }
   .inno-link-button { width: fit-content; }
 }
+
+
+/* Step 17 · Helpdesk Core */
+.helpdesk-stat-strip { margin-bottom: 16px; }
+.helpdesk-overview-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(320px, .8fr);
+  gap: 14px;
+}
+.helpdesk-queue-list { display: grid; }
+.helpdesk-queue-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-width: 0;
+  padding: 12px 16px;
+  border-bottom: 1px solid #eef1f4;
+  color: var(--ds-text);
+  text-decoration: none;
+}
+.helpdesk-queue-row:last-child { border-bottom: 0; }
+.helpdesk-queue-row:hover,
+.helpdesk-queue-row:focus-visible {
+  background: #fafcff;
+  outline: none;
+}
+.helpdesk-queue-row > div:first-child { min-width: 0; }
+.helpdesk-queue-row b {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+.helpdesk-queue-row span {
+  color: var(--ds-muted);
+  font-size: 9px;
+}
+.helpdesk-queue-meta {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: none;
+}
+.priority-chip,
+.sla-chip {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 22px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 750;
+  text-transform: uppercase;
+}
+.priority-chip.p1 {
+  background: #fdecec;
+  color: #a83232;
+}
+.priority-chip.p2 {
+  background: #fff3df;
+  color: #996116;
+}
+.priority-chip.p3 {
+  background: #edf3ff;
+  color: #3f62a8;
+}
+.priority-chip.p4 {
+  background: #f1f3f6;
+  color: #687384;
+}
+.sla-chip {
+  background: #f1f3f6;
+  color: #657184;
+}
+.sla-chip.at_risk {
+  background: #fff3df;
+  color: #996116;
+}
+.sla-chip.breached {
+  background: #fdecec;
+  color: #a83232;
+}
+.sla-chip.met {
+  background: #eaf7f0;
+  color: #16794b;
+}
+.ticket-create-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, .65fr);
+  gap: 14px;
+  align-items: start;
+}
+.form-error {
+  margin-bottom: 12px;
+  padding: 9px 11px;
+  border: 1px solid #efc5c5;
+  border-radius: 8px;
+  background: #fff3f3;
+  color: #9b3333;
+  font-size: 10px;
+}
+.ticket-action-error { margin-top: 10px; }
+.helpdesk-resource-head { margin-bottom: 14px; }
+.ticket-resource-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+.helpdesk-detail-stats { margin-bottom: 14px; }
+.ticket-assign-panel { margin-bottom: 14px; }
+.ticket-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, .65fr);
+  gap: 14px;
+  align-items: start;
+}
+.ticket-thread { padding: 4px 16px 16px; }
+.ticket-message {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 10px;
+  padding: 14px 0;
+  border-bottom: 1px solid #eef1f4;
+}
+.ticket-message-avatar {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #e8edf6;
+  color: #45546a;
+  font-size: 9px;
+  font-weight: 760;
+}
+.ticket-message.agent .ticket-message-avatar {
+  background: #e8f0ff;
+  color: #2858b8;
+}
+.ticket-message-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.ticket-message-head b { font-size: 11px; }
+.ticket-message-head > span:not(.prod-tag) {
+  margin-left: auto;
+  color: var(--ds-muted);
+  font-size: 9px;
+}
+.ticket-message-body {
+  margin-top: 6px;
+  color: #3e4b5f;
+  font-size: 11px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+.ticket-composer {
+  margin-top: 14px;
+  padding-top: 14px;
+}
+.ticket-composer-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 9px;
+}
+.ticket-note-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--ds-muted);
+  font-size: 10px;
+}
+.ticket-note-toggle input { width: 15px; height: 15px; }
+.ticket-activity-list { padding: 4px 16px; }
+.ticket-activity-row {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+  padding: 11px 0;
+  border-bottom: 1px solid #eef1f4;
+}
+.ticket-activity-row:last-child { border-bottom: 0; }
+.ticket-activity-mark {
+  width: 7px;
+  height: 7px;
+  margin-top: 4px;
+  border-radius: 50%;
+  background: var(--ds-primary);
+}
+.ticket-activity-row b {
+  display: block;
+  font-size: 10px;
+}
+.ticket-activity-row div span,
+.ticket-activity-row time {
+  display: block;
+  margin-top: 3px;
+  color: var(--ds-muted);
+  font-size: 9px;
+}
+.ticket-activity-row time { white-space: nowrap; }
+.ticket-properties { grid-template-columns: 1fr; }
+.ticket-sla-panel { padding: 10px 16px 16px; }
+.sla-progress {
+  height: 7px;
+  overflow: hidden;
+  margin: 11px 0 7px;
+  border-radius: 999px;
+  background: #edf1f6;
+}
+.sla-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #b6791b;
+}
+.ticket-sla-panel small {
+  color: var(--ds-muted);
+  font-size: 9px;
+}
+.related-resource-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  color: var(--ds-text);
+  text-decoration: none;
+}
+.related-resource-row:hover,
+.related-resource-row:focus-visible {
+  background: #fafcff;
+  outline: none;
+}
+.related-resource-row div {
+  min-width: 0;
+}
+.related-resource-row b {
+  display: block;
+  font-size: 11px;
+}
+.related-resource-row div span {
+  display: block;
+  margin-top: 4px;
+  color: var(--ds-muted);
+  font-size: 9px;
+}
+.related-resource-row > span {
+  color: var(--ds-primary);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+@media (max-width: 1100px) {
+  .helpdesk-overview-grid,
+  .ticket-create-layout,
+  .ticket-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 850px) {
+  .ticket-resource-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .helpdesk-queue-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .helpdesk-queue-meta { width: 100%; }
+  .ticket-composer-foot {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

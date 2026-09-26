@@ -170,6 +170,132 @@ export interface AgentInstaller {
   status: string;
 }
 
+
+export interface HelpdeskOverview {
+  openTickets: number;
+  assignedToMe: number;
+  unassigned: number;
+  dueToday: number;
+  slaAtRisk: number;
+  slaBreached: number;
+  priorityTickets: TicketSummary[];
+  myTickets: TicketSummary[];
+}
+
+export interface TicketSummary {
+  id: string;
+  ticketNumber: string;
+  subject: string;
+  status: string;
+  statusName: string;
+  priority: string;
+  organization?: string | null;
+  requester: string;
+  assignee?: string | null;
+  team?: string | null;
+  category?: string | null;
+  slaState?: string | null;
+  resolutionDueAt?: string | null;
+  slaElapsedPercent: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TicketMessage {
+  id: string;
+  authorUserId: string;
+  authorName: string;
+  body: string;
+  visibility: string;
+  isRequester: boolean;
+  createdAt: string;
+}
+
+export interface TicketActivity {
+  id: string;
+  type: string;
+  title: string;
+  detail?: string | null;
+  occurredAt: string;
+}
+
+export interface TicketSla {
+  policyId: string;
+  policyName: string;
+  responseMinutes: number;
+  resolutionMinutes: number;
+  responseDueAt: string;
+  resolutionDueAt: string;
+  responseMetAt?: string | null;
+  state: string;
+  elapsedPercent: number;
+}
+
+export interface TicketDeviceReference {
+  id: string;
+  name: string;
+  status: string;
+  operatingSystem?: string | null;
+}
+
+export interface TicketCategoryReference {
+  id: string;
+  code: string;
+  name: string;
+}
+
+export interface TicketDetail {
+  id: string;
+  ticketNumber: string;
+  subject: string;
+  status: string;
+  statusName: string;
+  priority: string;
+  impact: string;
+  urgency: string;
+  requester: ReferenceValue;
+  organization?: ReferenceValue | null;
+  assignee?: ReferenceValue | null;
+  team?: string | null;
+  category?: TicketCategoryReference | null;
+  relatedDevice?: TicketDeviceReference | null;
+  relatedAssetId?: string | null;
+  messages: TicketMessage[];
+  activities: TicketActivity[];
+  sla?: TicketSla | null;
+  assigneeOptions: ReferenceValue[];
+  resolvedAt?: string | null;
+  resolutionCode?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  eTag: string;
+}
+
+export interface TicketCategoryNode {
+  id: string;
+  code: string;
+  name: string;
+  children: TicketCategoryNode[];
+}
+
+export interface TicketStatusOption {
+  id: string;
+  code: string;
+  name: string;
+  isClosed: boolean;
+}
+
+export interface CreatedTicket {
+  id: string;
+  ticketNumber: string;
+  subject: string;
+  status: string;
+  priority: string;
+  responseDueAt: string;
+  resolutionDueAt: string;
+  eTag: string;
+}
+
 export interface ProblemDetails {
   type?: string;
   title?: string;

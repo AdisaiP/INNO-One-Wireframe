@@ -1,5 +1,5 @@
 {
-  "contractVersion": "0.7.0",
+  "contractVersion": "0.8.0",
   "status": "implementation-in-progress",
   "generatedFrom": {
     "designSystem": "V1.26",
@@ -284,5 +284,40 @@
     "qaStatus": "PASS",
     "liveMeshCentralSyncVerified": true,
     "frozenBrowserRegression": "124/124"
+  },
+  "helpdeskCoreSlice": {
+    "version": "0.8.0",
+    "name": "Helpdesk Core Ticket Lifecycle Slice",
+    "documentation": "INNO-One-Step17-Helpdesk-Core.md",
+    "manifest": "inno-step17-helpdesk-core.json",
+    "audit": "step17-helpdesk-core-audit.py",
+    "implementedOperations": [
+      "helpdesk.overview.get",
+      "helpdesk.tickets.list",
+      "helpdesk.tickets.get",
+      "helpdesk.tickets.create",
+      "helpdesk.tickets.reply",
+      "helpdesk.tickets.reassign",
+      "helpdesk.tickets.resolve",
+      "helpdesk.categories.tree",
+      "helpdesk.statuses.list"
+    ],
+    "webRoutes": [
+      "/helpdesk",
+      "/helpdesk/tickets",
+      "/helpdesk/assigned",
+      "/helpdesk/team",
+      "/helpdesk/tickets/new",
+      "/helpdesk/tickets/:ticketId"
+    ],
+    "modules": [
+      "helpdesk",
+      "platform",
+      "devices",
+      "integration",
+      "audit"
+    ],
+    "crossModuleReads": "shared directory contracts only",
+    "featureImplementationStarted": true
   }
 }

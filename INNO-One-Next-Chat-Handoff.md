@@ -1467,3 +1467,51 @@ User decision on 2026-09-26: **skip the additional Step 16 re-test for now and c
 Keep the existing recorded PASS evidence as the last known QA result, but do not claim a newer re-run. Before merge/release, return to Step 16 and rerun `production/scripts/step16-local-smoke.py`, Step 16 audit, Web/.NET builds, frozen browser regression, Step 16 visual QA and `git diff --check`.
 
 Step 16 implementation may be checkpointed to Git and the next implementation branch may proceed, but **do not merge `main` until the deferred re-validation has been completed**.
+
+# Step 17 — Helpdesk Core ✅ COMPLETED 2026-09-26
+
+Branch: `implementation/step17-helpdesk-core`
+
+Implementation Contract: **0.8.0** — project implementation remains in progress.
+
+Implemented:
+
+- Helpdesk Overview with scoped operational metrics.
+- Ticket Queue / Assigned to Me / Team Queue.
+- Create Ticket with requester profile, Category, Impact/Urgency and optional Device reference.
+- Ticket Detail with Conversation, Activity, Properties, SLA and related Device context.
+- Ticket reply / internal-note flow.
+- Assignment with ETag / If-Match concurrency.
+- Resolve flow with status history and SLA finalization.
+- Helpdesk Categories / Statuses read APIs.
+- Helpdesk persistence migration for tickets, replies, assignments, status history, SLA policies, ticket SLA, categories and statuses.
+- Server-authoritative Helpdesk permission/scope filtering.
+- Platform and Devices cross-module reads only through `IPlatformDirectoryReader` / `IDeviceDirectoryReader`.
+- No Helpdesk → Platform / Devices / Assets database FK.
+- `ticket.created`, `ticket.assigned`, `ticket.status.changed`, `ticket.resolved` outbox facts.
+- Helpdesk audit actions without copying ticket/reply body text into audit/event payloads.
+
+QA:
+
+- Step 17 runtime smoke: **PASS**.
+- Step 17 audit: **0 issues**.
+- Web typecheck/build: **PASS**.
+- .NET build: **0 warnings / 0 errors**.
+- EF pending-model checks: **PASS**.
+- contract/static audit chain: **0 issues**.
+- Helpdesk route visual QA: **15 / 15 screens**, failures 0.
+- frozen browser regression: **124 / 124**, failures 0.
+- `git diff --check`: **PASS**.
+
+Source of truth:
+
+- `INNO-One-Step17-Helpdesk-Core.md`
+- `inno-step17-helpdesk-core.json`
+- `step17-helpdesk-core-audit.py`
+- `production/scripts/step17-local-smoke.py`
+
+**Step 16 fresh re-validation remains deferred by explicit user request and must be rerun before merge/release.**
+
+**Do not merge to `main` without explicit instruction.**
+
+Next recommended implementation slice: **Helpdesk SLA & Automation — SLA policy/calendar behavior, pause/resume rules, escalation and automation actions**. This is a recommendation, not a newly frozen requirement.

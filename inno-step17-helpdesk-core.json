@@ -1,0 +1,103 @@
+{
+  "contractVersion": "0.8.0",
+  "status": "completed",
+  "branch": "implementation/step17-helpdesk-core",
+  "uxBaseline": {
+    "designSystem": "V1.26",
+    "uiContract": "1.20.0"
+  },
+  "apiContract": "0.2.0",
+  "eventAuditContract": "0.3.0",
+  "dataModelContract": "0.4.0",
+  "operations": [
+    "helpdesk.overview.get",
+    "helpdesk.tickets.list",
+    "helpdesk.tickets.get",
+    "helpdesk.tickets.create",
+    "helpdesk.tickets.reply",
+    "helpdesk.tickets.reassign",
+    "helpdesk.tickets.resolve",
+    "helpdesk.categories.tree",
+    "helpdesk.statuses.list"
+  ],
+  "webRoutes": [
+    "/helpdesk",
+    "/helpdesk/tickets",
+    "/helpdesk/assigned",
+    "/helpdesk/team",
+    "/helpdesk/tickets/new",
+    "/helpdesk/tickets/:ticketId"
+  ],
+  "persistence": {
+    "migration": "Step17HelpdeskCore",
+    "tables": [
+      "helpdesk.tickets",
+      "helpdesk.ticket_replies",
+      "helpdesk.ticket_assignments",
+      "helpdesk.ticket_status_history",
+      "helpdesk.sla_policies",
+      "helpdesk.ticket_sla",
+      "helpdesk.categories",
+      "helpdesk.statuses"
+    ],
+    "crossModuleForeignKeys": false
+  },
+  "crossModuleContracts": [
+    "IPlatformDirectoryReader",
+    "IDeviceDirectoryReader"
+  ],
+  "events": [
+    "ticket.created",
+    "ticket.assigned",
+    "ticket.status.changed",
+    "ticket.resolved"
+  ],
+  "auditActions": [
+    "helpdesk.ticket.created",
+    "helpdesk.ticket.replied",
+    "helpdesk.ticket.assigned",
+    "helpdesk.ticket.status_changed",
+    "helpdesk.ticket.resolved"
+  ],
+  "qa": {
+    "runtimeSmoke": "PASS",
+    "webTypecheck": "PASS",
+    "webBuild": "PASS",
+    "dotnetBuild": {
+      "status": "PASS",
+      "warnings": 0,
+      "errors": 0
+    },
+    "efPendingModelChanges": "PASS",
+    "visualQa": {
+      "status": "PASS",
+      "routes": 5,
+      "viewports": [
+        1366,
+        1024,
+        768
+      ],
+      "screens": 15,
+      "failures": 0
+    },
+    "frozenBrowserRegression": {
+      "status": "PASS",
+      "checks": 124,
+      "failures": 0
+    },
+    "frozenStaticAuditChain": {
+      "status": "PASS",
+      "issues": 0
+    },
+    "contractAuditChain": {
+      "status": "PASS",
+      "issues": 0
+    },
+    "step17Audit": {
+      "status": "PASS",
+      "issues": 0
+    },
+    "gitDiffCheck": "PASS"
+  },
+  "deferredStep16Revalidation": true
+}

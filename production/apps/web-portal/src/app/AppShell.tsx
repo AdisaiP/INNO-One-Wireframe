@@ -15,14 +15,17 @@ export function AppShell() {
   const profile = useProfile();
   const canViewDevices = usePermission('devices.view');
   const canDeployDevices = usePermission('devices.deploy');
+  const canViewHelpdesk = usePermission('helpdesk.ticket.view');
   const location = useLocation();
   const inDevices = location.pathname.startsWith('/devices');
+  const inHelpdesk = location.pathname.startsWith('/helpdesk');
   const inProfile = location.pathname.startsWith('/profile');
+  const homePath = canViewDevices ? '/devices' : canViewHelpdesk ? '/helpdesk' : '/profile';
 
   return (
     <div className="inno-production-shell">
       <header className="prod-header">
-        <NavLink className="prod-brand" to={canViewDevices ? '/devices' : '/profile'}>
+        <NavLink className="prod-brand" to={homePath}>
           <span className="prod-logo-mark">I1</span>
           <span>INNO.<b>One</b></span>
         </NavLink>
@@ -46,16 +49,31 @@ export function AppShell() {
           {canViewDevices ? (
             <NavLink className={inDevices ? 'active' : ''} to="/devices" aria-label="Devices">D</NavLink>
           ) : null}
+          {canViewHelpdesk ? (
+            <NavLink className={inHelpdesk ? 'active' : ''} to="/helpdesk" aria-label="Helpdesk">H</NavLink>
+          ) : null}
           <span className="grow" />
           <NavLink className={inProfile ? 'active' : ''} to="/profile" aria-label="Profile & Settings">P</NavLink>
         </aside>
 
-        <aside className="prod-side" aria-label={inProfile ? 'Account navigation' : 'Devices navigation'}>
+        <aside
+          className="prod-side"
+          aria-label={inProfile ? 'Account navigation' : inHelpdesk ? 'Helpdesk navigation' : 'Devices navigation'}
+        >
           {inProfile ? (
             <>
               <div className="prod-side-title">Account</div>
               <div className="prod-side-section">Workspace</div>
               <NavLink to="/profile">Profile & Settings</NavLink>
+            </>
+          ) : inHelpdesk ? (
+            <>
+              <div className="prod-side-title">Helpdesk</div>
+              <div className="prod-side-section">Workspace</div>
+              <NavLink end to="/helpdesk">Overview</NavLink>
+              <NavLink end to="/helpdesk/tickets">Tickets</NavLink>
+              <NavLink to="/helpdesk/assigned">Assigned to Me</NavLink>
+              <NavLink to="/helpdesk/team">Team Queue</NavLink>
             </>
           ) : (
             <>

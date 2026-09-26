@@ -13,8 +13,8 @@ issues = []
 
 if manifest.get("contractVersion") != "0.6.0":
     issues.append("Step 15 manifest must be version 0.6.0")
-if impl.get("contractVersion") != "0.7.0":
-    issues.append("current Implementation Contract must be 0.7.0 after Step 16")
+if impl.get("contractVersion") != "0.8.0":
+    issues.append("current Implementation Contract must be 0.8.0 after Step 17")
 if impl.get("status") != "implementation-in-progress":
     issues.append("implementation status must be implementation-in-progress after Step 15")
 

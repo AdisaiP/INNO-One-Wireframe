@@ -9,8 +9,8 @@ registry_text = (ROOT / "platform-registry.js").read_text()
 
 issues = []
 
-if contract.get("contractVersion") != "0.7.0":
-    issues.append(f"expected implementation contract 0.7.0, found {contract.get('contractVersion')}")
+if contract.get("contractVersion") != "0.8.0":
+    issues.append(f"expected implementation contract 0.8.0, found {contract.get('contractVersion')}")
 api_contract = contract.get("apiContract", {})
 if api_contract.get("version") != "0.2.0":
     issues.append("implementation contract must reference API Contract 0.2.0")
@@ -91,6 +91,30 @@ if step16.get("implementedOperations") != expected_step16_operations:
     issues.append("Step 16 implemented operation catalog mismatch")
 if step16.get("realMeshCentralAdapter") is not True:
     issues.append("Step 16 must use the real MeshCentral adapter boundary")
+
+step17 = contract.get("helpdeskCoreSlice", {})
+if step17.get("version") != "0.8.0":
+    issues.append("implementation contract must reference Step 17 Helpdesk Core 0.8.0")
+for ref in (step17.get("documentation"), step17.get("manifest"), step17.get("audit")):
+    if not ref or not (ROOT / ref).exists():
+        issues.append(f"missing Step 17 helpdesk-core reference: {ref}")
+expected_step17_operations = [
+    "helpdesk.overview.get",
+    "helpdesk.tickets.list",
+    "helpdesk.tickets.get",
+    "helpdesk.tickets.create",
+    "helpdesk.tickets.reply",
+    "helpdesk.tickets.reassign",
+    "helpdesk.tickets.resolve",
+    "helpdesk.categories.tree",
+    "helpdesk.statuses.list",
+]
+if step17.get("implementedOperations") != expected_step17_operations:
+    issues.append("Step 17 implemented operation catalog mismatch")
+if step17.get("crossModuleReads") != "shared directory contracts only":
+    issues.append("Step 17 cross-module reads must use shared directory contracts only")
+if step17.get("featureImplementationStarted") is not True:
+    issues.append("Step 17 must mark feature implementation as started")
 
 existing = contract.get("existingPermissions", [])
 reserved = contract.get("reservedImplementationPermissions", [])

@@ -8,6 +8,9 @@ using INNO.One.Modules.Devices.Api;
 using INNO.One.Modules.Devices.Infrastructure;
 using INNO.One.Modules.Devices.Persistence;
 using INNO.One.Modules.Helpdesk;
+using INNO.One.Modules.Helpdesk.Api;
+using INNO.One.Modules.Helpdesk.Infrastructure;
+using INNO.One.Modules.Helpdesk.Persistence;
 using INNO.One.Modules.Platform;
 using INNO.One.Modules.Platform.Api;
 using INNO.One.Modules.Platform.Infrastructure;
@@ -52,15 +55,18 @@ if (app.Environment.IsDevelopment()
     var infrastructureDb = scope.ServiceProvider.GetRequiredService<InfrastructureDbContext>();
     var platformDb = scope.ServiceProvider.GetRequiredService<PlatformDbContext>();
     var devicesDb = scope.ServiceProvider.GetRequiredService<DevicesDbContext>();
+    var helpdeskDb = scope.ServiceProvider.GetRequiredService<HelpdeskDbContext>();
 
     await infrastructureDb.Database.MigrateAsync();
     await platformDb.Database.MigrateAsync();
     await devicesDb.Database.MigrateAsync();
+    await helpdeskDb.Database.MigrateAsync();
 
     if (builder.Configuration.GetValue("DevelopmentSeed:Enabled", false))
     {
         await PlatformDevelopmentSeed.SeedAsync(platformDb);
         await DevicesDevelopmentSeed.SeedAsync(devicesDb);
+        await HelpdeskDevelopmentSeed.SeedAsync(helpdeskDb);
     }
 }
 
@@ -81,5 +87,6 @@ var api = app.MapGroup(ContractVersions.ApiBasePath)
 api.MapPlatformEndpoints();
 api.MapDevicesEndpoints();
 api.MapDeviceManagementEndpoints();
+api.MapHelpdeskEndpoints();
 
 app.Run();
