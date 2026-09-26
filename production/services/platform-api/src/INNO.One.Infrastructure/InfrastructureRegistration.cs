@@ -10,7 +10,8 @@ public static class InfrastructureRegistration
     {
         services.AddDbContext<InfrastructureDbContext>(options =>
             options.UseNpgsql(connectionString, npgsql =>
-                npgsql.MigrationsHistoryTable("__ef_migrations_history", InfrastructureDbContext.MigrationsSchema)));
+                npgsql.MigrationsHistoryTable("__ef_migrations_history", InfrastructureDbContext.MigrationsSchema))
+            .UseSnakeCaseNamingConvention());
 
         return services;
     }

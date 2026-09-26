@@ -10,14 +10,17 @@ var meetingDatabase = builder.Configuration.GetConnectionString("MeetingDatabase
 
 builder.Services.AddDbContext<MeetingDbContext>(options =>
     options.UseNpgsql(meetingDatabase, npgsql =>
-        npgsql.MigrationsHistoryTable("__ef_migrations_history", MeetingDbContext.Schema)));
+        npgsql.MigrationsHistoryTable("__ef_migrations_history", MeetingDbContext.Schema))
+        .UseSnakeCaseNamingConvention());
 builder.Services.AddDbContext<MeetingIntegrationDbContext>(options =>
     options.UseNpgsql(meetingDatabase, npgsql =>
-        npgsql.MigrationsHistoryTable("__ef_migrations_history", MeetingIntegrationDbContext.Schema)));
+        npgsql.MigrationsHistoryTable("__ef_migrations_history", MeetingIntegrationDbContext.Schema))
+        .UseSnakeCaseNamingConvention());
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        options.MapInboundClaims = false;
         options.Authority = builder.Configuration["Authentication:Authority"];
         options.Audience = builder.Configuration["Authentication:Audience"];
         options.RequireHttpsMetadata = builder.Configuration.GetValue("Authentication:RequireHttpsMetadata", true);

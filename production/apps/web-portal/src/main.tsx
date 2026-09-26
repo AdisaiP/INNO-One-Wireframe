@@ -1,68 +1,54 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, NavLink, Route, Routes } from 'react-router-dom';
-import { contractVersions, moduleRoutes } from '@inno/contracts';
-import { INNOPage, INNOState } from '@inno/ui';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { BrowserRouter } from 'react-router-dom';
 import '@inno/ui/styles.css';
 import './shell.css';
+import { AppRoot } from './app/AppRoot';
+import { initializeAuthentication } from './auth/keycloak';
 
-const modules = [
-  ['Workspace', moduleRoutes.workspace],
-  ['Apps', moduleRoutes.apps],
-  ['Devices', moduleRoutes.devices],
-  ['Assets', moduleRoutes.assets],
-  ['Helpdesk', moduleRoutes.helpdesk],
-  ['Meeting', moduleRoutes.meeting],
-  ['Reports', moduleRoutes.reports],
-  ['Admin', moduleRoutes.admin],
-] as const;
+const root = ReactDOM.createRoot(document.getElementById('root')!);
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
-function Shell() {
-  return (
-    <div className="production-shell">
-      <header className="production-header">
-        <strong>INNO.<span>One</span></strong>
-        <div className="production-contract">Implementation Contract {contractVersions.implementation}</div>
-      </header>
-      <div className="production-body">
-        <nav className="production-nav" aria-label="Production module skeleton">
-          {modules.map(([label, href]) => (
-            <NavLink key={label} to={href} end={href === '/'}>
-              {label}
-            </NavLink>
-          ))}
-        </nav>
-        <Routes>
-          <Route path="/" element={<ModulePage name="Workspace" />} />
-          <Route path="/apps/*" element={<ModulePage name="Apps" />} />
-          <Route path="/devices/*" element={<ModulePage name="Devices" />} />
-          <Route path="/assets/*" element={<ModulePage name="Assets" />} />
-          <Route path="/helpdesk/*" element={<ModulePage name="Helpdesk" />} />
-          <Route path="/meeting/*" element={<ModulePage name="Meeting" />} />
-          <Route path="/reports/*" element={<ModulePage name="Reports" />} />
-          <Route path="/admin/*" element={<ModulePage name="Admin Center" />} />
-          <Route path="*" element={<ModulePage name="Not Found" />} />
-        </Routes>
-      </div>
-    </div>
-  );
-}
-
-function ModulePage({ name }: { name: string }) {
-  return (
-    <INNOPage eyebrow="Production skeleton" title={name}>
-      <INNOState
-        title={name + ' boundary is wired'}
-        description="Step 14 establishes routing and package boundaries only. Frozen V1.26 screens are ported in later vertical slices without inventing parallel UI patterns."
-      />
-    </INNOPage>
-  );
-}
-
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <Shell />
-    </BrowserRouter>
-  </React.StrictMode>,
+root.render(
+  <div className="boot-screen" role="status">
+    <span className="production-spinner" aria-hidden="true" />
+    <span>Connecting to organization sign-in…</span>
+  </div>,
 );
+
+initializeAuthentication()
+  .then((authenticated) => {
+    if (!authenticated) {
+      throw new Error('Organization sign-in was not completed.');
+    }
+
+    root.render(
+      <React.StrictMode>
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
+            <AppRoot />
+          </BrowserRouter>
+        </QueryClientProvider>
+      </React.StrictMode>,
+    );
+  })
+  .catch((error: unknown) => {
+    const message = error instanceof Error ? error.message : 'Unable to initialize organization sign-in.';
+    root.render(
+      <div className="boot-screen boot-error">
+        <div className="auth-error-card">
+          <b>Unable to connect to organization sign-in</b>
+          <span>{message}</span>
+          <button type="button" onClick={() => window.location.reload()}>Try again</button>
+        </div>
+      </div>,
+    );
+  });

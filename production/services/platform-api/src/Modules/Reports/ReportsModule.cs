@@ -10,7 +10,8 @@ public static class ReportsModule
     {
         services.AddDbContext<ReportsDbContext>(options =>
             options.UseNpgsql(connectionString, npgsql =>
-                npgsql.MigrationsHistoryTable("__ef_migrations_history", ReportsDbContext.Schema)));
+                npgsql.MigrationsHistoryTable("__ef_migrations_history", ReportsDbContext.Schema))
+            .UseSnakeCaseNamingConvention());
 
         return services;
     }

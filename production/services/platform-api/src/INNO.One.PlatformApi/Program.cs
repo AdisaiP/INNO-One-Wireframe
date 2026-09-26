@@ -2,10 +2,17 @@ using INNO.One.Contracts;
 using INNO.One.Infrastructure;
 using INNO.One.Modules.Assets;
 using INNO.One.Modules.Devices;
+using INNO.One.Modules.Devices.Api;
+using INNO.One.Modules.Devices.Infrastructure;
+using INNO.One.Modules.Devices.Persistence;
 using INNO.One.Modules.Helpdesk;
 using INNO.One.Modules.Platform;
+using INNO.One.Modules.Platform.Api;
+using INNO.One.Modules.Platform.Infrastructure;
+using INNO.One.Modules.Platform.Persistence;
 using INNO.One.Modules.Reports;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +30,7 @@ builder.Services
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        options.MapInboundClaims = false;
         options.Authority = builder.Configuration["Authentication:Authority"];
         options.Audience = builder.Configuration["Authentication:Audience"];
         options.RequireHttpsMetadata = builder.Configuration.GetValue("Authentication:RequireHttpsMetadata", true);
@@ -32,6 +40,27 @@ builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
+if (app.Environment.IsDevelopment()
+    && builder.Configuration.GetValue("Database:ApplyMigrationsOnStartup", false))
+{
+    await using var scope = app.Services.CreateAsyncScope();
+
+    var platformDb = scope.ServiceProvider.GetRequiredService<PlatformDbContext>();
+    var devicesDb = scope.ServiceProvider.GetRequiredService<DevicesDbContext>();
+
+    await platformDb.Database.MigrateAsync();
+    await devicesDb.Database.MigrateAsync();
+
+    if (builder.Configuration.GetValue("DevelopmentSeed:Enabled", false))
+    {
+        await PlatformDevelopmentSeed.SeedAsync(platformDb);
+        await DevicesDevelopmentSeed.SeedAsync(devicesDb);
+    }
+}
+
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapHealthChecks("/health/live");
 app.MapGet("/health/ready", () => Results.Ok(new
 {
@@ -39,5 +68,11 @@ app.MapGet("/health/ready", () => Results.Ok(new
     apiBasePath = ContractVersions.ApiBasePath,
     implementationContract = ContractVersions.ImplementationContract
 }));
+
+var api = app.MapGroup(ContractVersions.ApiBasePath)
+    .RequireAuthorization();
+
+api.MapPlatformEndpoints();
+api.MapDevicesEndpoints();
 
 app.Run();

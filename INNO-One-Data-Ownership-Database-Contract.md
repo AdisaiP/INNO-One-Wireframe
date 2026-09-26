@@ -863,7 +863,9 @@ Step 14 Production Project Skeleton is now complete under 'production/'.
 
 The data contract now has buildable DbContext/migration ownership boundaries for Platform, Devices, Assets, Helpdesk, Reports, shared infrastructure, Meeting and Meeting integration. Local PostgreSQL bootstrap creates the frozen databases/schemas, while business tables remain intentionally ungenerated until vertical slices implement real aggregates.
 
-Next: **Step 15 First Vertical Slice**.
+Step 15 First Vertical Slice is now implemented with the first `platform` and `devices` migrations. The full 92-table catalog remains the planning target; only tables required by the implemented slice are created so far.
+
+Next recommended implementation slice: **Devices Management — Device Groups → Discovery / Add Device → Agent enrollment → live MeshCentral synchronization**.
 
 ## 35. Canonical table ownership catalog
 

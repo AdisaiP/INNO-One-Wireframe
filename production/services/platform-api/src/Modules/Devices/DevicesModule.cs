@@ -1,6 +1,6 @@
+using INNO.One.Modules.Devices.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using INNO.One.Modules.Devices.Persistence;
 
 namespace INNO.One.Modules.Devices;
 
@@ -10,7 +10,8 @@ public static class DevicesModule
     {
         services.AddDbContext<DevicesDbContext>(options =>
             options.UseNpgsql(connectionString, npgsql =>
-                npgsql.MigrationsHistoryTable("__ef_migrations_history", DevicesDbContext.Schema)));
+                npgsql.MigrationsHistoryTable("__ef_migrations_history", DevicesDbContext.Schema))
+            .UseSnakeCaseNamingConvention());
 
         return services;
     }

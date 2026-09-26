@@ -10,7 +10,8 @@ public static class HelpdeskModule
     {
         services.AddDbContext<HelpdeskDbContext>(options =>
             options.UseNpgsql(connectionString, npgsql =>
-                npgsql.MigrationsHistoryTable("__ef_migrations_history", HelpdeskDbContext.Schema)));
+                npgsql.MigrationsHistoryTable("__ef_migrations_history", HelpdeskDbContext.Schema))
+            .UseSnakeCaseNamingConvention());
 
         return services;
     }

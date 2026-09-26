@@ -1224,3 +1224,22 @@ Machine-readable source: `inno-api-contract.json` (172 operations).
 | `GET` | `/agent/remote-consent/requests/current` | auth:`agent-device` | `self` | `helpdesk-agent-request.html` |
 | `POST` | `/agent/remote-consent/requests/{requestId}/decision` | auth:`agent-device` | `self` | `helpdesk-agent-request.html` |
 
+
+## Step 15 implementation checkpoint — 2026-09-26
+
+API Contract **0.2.0** remains semantically unchanged. Step 15 now implements three already-declared operations in the production skeleton:
+
+- `platform.me.get` → `GET /api/v1/platform/me`
+- `devices.list` → `GET /api/v1/devices`
+- `devices.get` → `GET /api/v1/devices/{deviceId}`
+
+Runtime verification confirms:
+- unauthenticated requests are rejected before business data access,
+- `devices.view` is resolved server-side,
+- effective Organization/Location/Device Group scope filters the Device query before `totalItems` is counted,
+- an out-of-scope Device detail returns 403,
+- a missing Device returns 404,
+- opaque `dev_...` identifiers are public while MeshCentral external IDs remain private,
+- search, Status filter, OS filter and pagination are functional.
+
+The remaining API catalog is still planning-only until later vertical slices implement those operations.

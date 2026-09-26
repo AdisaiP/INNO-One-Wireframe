@@ -644,3 +644,30 @@ Source of truth:
 - `production-skeleton-audit.py`
 
 Next: **Step 15 First Vertical Slice**.
+
+## 21. Step 15 First Vertical Slice checkpoint — 2026-09-26
+
+Implementation advances to **Contract 0.6.0** and status **implementation-in-progress**.
+
+Implemented production slice:
+- normal Web authentication boundary = Keycloak Authorization Code + PKCE S256,
+- Platform API Bearer JWT validation with unmapped Keycloak `sub`,
+- `sub` → `platform.user_profiles.keycloak_subject`,
+- server-side `IAccessEvaluator` for module availability, role permission, assignment scope, include-children and action overrides,
+- shared `IPlatformDirectoryReader` query contract so Devices never reads Platform persistence directly,
+- Platform EF migration `Step15IdentityAccess`,
+- Devices EF migration `Step15DeviceCatalog`,
+- API operations `platform.me.get`, `devices.list`, `devices.get`,
+- React Profile, Devices list and Device Overview routes,
+- offline cached resource state,
+- provider mapping that identifies MeshCentral without exposing its node ID.
+
+The frozen API/Event/Data contracts remain at **0.2.0 / 0.3.0 / 0.4.0** because Step 15 implements already-declared contracts rather than changing their semantics.
+
+Source of truth:
+- `INNO-One-Step15-First-Vertical-Slice.md`
+- `inno-step15-vertical-slice.json`
+- `step15-vertical-slice-audit.py`
+- `production/scripts/step15-local-smoke.py`
+
+Next recommended implementation slice: **Devices Management — Device Groups → Discovery / Add Device → Agent enrollment → live MeshCentral synchronization**.

@@ -9,8 +9,8 @@ registry_text = (ROOT / "platform-registry.js").read_text()
 
 issues = []
 
-if contract.get("contractVersion") != "0.5.0":
-    issues.append(f"expected implementation contract 0.5.0, found {contract.get('contractVersion')}")
+if contract.get("contractVersion") != "0.6.0":
+    issues.append(f"expected implementation contract 0.6.0, found {contract.get('contractVersion')}")
 api_contract = contract.get("apiContract", {})
 if api_contract.get("version") != "0.2.0":
     issues.append("implementation contract must reference API Contract 0.2.0")
@@ -57,7 +57,18 @@ if skeleton.get("sharedWebPackages") != 4:
 if skeleton.get("dbContexts") != 8:
     issues.append("production skeleton must expose 8 DbContexts")
 if skeleton.get("featureHeavyBackendImplemented") is not False:
-    issues.append("Step 14 must not claim feature-heavy backend implementation")
+    issues.append("Step 14 skeleton snapshot must not claim feature-heavy backend implementation")
+
+vertical = contract.get("verticalSlice", {})
+if vertical.get("version") != "0.6.0":
+    issues.append("implementation contract must reference Step 15 Vertical Slice 0.6.0")
+for ref in (vertical.get("documentation"), vertical.get("manifest"), vertical.get("audit")):
+    if not ref or not (ROOT / ref).exists():
+        issues.append(f"missing Step 15 vertical-slice reference: {ref}")
+if vertical.get("implementedOperations") != ["platform.me.get", "devices.list", "devices.get"]:
+    issues.append("Step 15 implemented operation catalog mismatch")
+if vertical.get("featureImplementationStarted") is not True:
+    issues.append("Step 15 must mark feature implementation as started")
 
 existing = contract.get("existingPermissions", [])
 reserved = contract.get("reservedImplementationPermissions", [])

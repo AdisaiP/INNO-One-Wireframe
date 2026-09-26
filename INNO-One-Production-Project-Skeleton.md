@@ -327,22 +327,28 @@ Those begin as vertical slices after the skeleton is accepted.
 13. Assets Mobile remains Expo direction but runtime scaffold is deferred to its vertical slice.
 14. No feature endpoint is marked implemented merely because a project skeleton exists.
 
-## 19. Next step
+## 19. Step 15 implementation checkpoint — 2026-09-26
 
-Step 15 should implement the **first vertical slice** through the real skeleton.
+Step 15 First Vertical Slice is now implemented on top of this skeleton.
 
-Recommended slice:
+Completed slice:
 
 **Sign in / User Profile → Organization/Permission resolution → Devices list → Device detail**
 
-This slice proves:
+It now proves:
 
-- Keycloak token validation,
-- INNO.One user mapping,
-- RBAC/scope evaluation,
-- Platform + Devices module boundaries,
-- PostgreSQL migrations,
-- API conventions,
-- React query/API layer,
-- frozen Web shell/page port,
-- MeshCentral adapter mapping without leaking vendor IDs.
+- Keycloak JWT validation plus normal browser Authorization Code + PKCE configuration,
+- Keycloak `sub` → INNO.One User Profile mapping,
+- server-side role/permission/resource-scope evaluation,
+- Organization/Location include-children and Device Group scope support,
+- Platform + Devices module boundaries without cross-module project/database coupling,
+- real PostgreSQL EF migrations for the first Platform and Devices tables,
+- `GET /api/v1/platform/me`, `GET /api/v1/devices`, `GET /api/v1/devices/{deviceId}`,
+- React Query API/data layer and Keycloak browser client,
+- frozen Profile / Devices list / Device Overview UI jobs,
+- offline cached Device detail state,
+- MeshCentral provider mapping without exposing vendor external IDs.
+
+Source of truth: `INNO-One-Step15-First-Vertical-Slice.md` and `inno-step15-vertical-slice.json`.
+
+Next recommended implementation slice: **Devices Management — Device Groups → Discovery / Add Device → Agent enrollment → live MeshCentral synchronization**.

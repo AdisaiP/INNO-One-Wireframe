@@ -1,6 +1,9 @@
+using INNO.One.Contracts.Authorization;
+using INNO.One.Contracts.Directory;
+using INNO.One.Modules.Platform.Application;
+using INNO.One.Modules.Platform.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using INNO.One.Modules.Platform.Persistence;
 
 namespace INNO.One.Modules.Platform;
 
@@ -10,7 +13,11 @@ public static class PlatformModule
     {
         services.AddDbContext<PlatformDbContext>(options =>
             options.UseNpgsql(connectionString, npgsql =>
-                npgsql.MigrationsHistoryTable("__ef_migrations_history", PlatformDbContext.Schema)));
+                npgsql.MigrationsHistoryTable("__ef_migrations_history", PlatformDbContext.Schema))
+            .UseSnakeCaseNamingConvention());
+
+        services.AddScoped<IAccessEvaluator, AccessEvaluator>();
+        services.AddScoped<IPlatformDirectoryReader, PlatformDirectoryReader>();
 
         return services;
     }

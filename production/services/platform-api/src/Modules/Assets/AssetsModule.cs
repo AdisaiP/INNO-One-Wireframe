@@ -10,7 +10,8 @@ public static class AssetsModule
     {
         services.AddDbContext<AssetsDbContext>(options =>
             options.UseNpgsql(connectionString, npgsql =>
-                npgsql.MigrationsHistoryTable("__ef_migrations_history", AssetsDbContext.Schema)));
+                npgsql.MigrationsHistoryTable("__ef_migrations_history", AssetsDbContext.Schema))
+            .UseSnakeCaseNamingConvention());
 
         return services;
     }

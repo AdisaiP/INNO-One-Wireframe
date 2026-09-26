@@ -11,6 +11,8 @@
   "dependencies": {
     "@inno/contracts": "workspace:*",
     "@inno/ui": "workspace:*",
+    "@tanstack/react-query": "5.104.0",
+    "keycloak-js": "26.2.4",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-router-dom": "6.30.6"

@@ -1,0 +1,151 @@
+{
+  "contractVersion": "0.6.0",
+  "status": "implemented-first-vertical-slice",
+  "generatedFrom": {
+    "designSystem": "V1.26",
+    "uiContract": "1.20.0",
+    "apiContract": "0.2.0",
+    "eventAuditContract": "0.3.0",
+    "dataModelContract": "0.4.0",
+    "productionSkeleton": "0.5.0"
+  },
+  "branch": "implementation/step15-first-vertical-slice",
+  "scope": {
+    "name": "Identity, effective access, Devices list and Device detail",
+    "implementedOperations": [
+      "platform.me.get",
+      "devices.list",
+      "devices.get"
+    ],
+    "webRoutes": [
+      "/profile",
+      "/devices",
+      "/devices/:deviceId"
+    ],
+    "modules": [
+      "platform",
+      "devices"
+    ]
+  },
+  "authentication": {
+    "web": "Keycloak Authorization Code + PKCE S256",
+    "api": "Keycloak Bearer JWT",
+    "inboundClaims": "unmapped so Keycloak sub remains canonical subject claim",
+    "normalClient": "inno-one-web",
+    "localSmokeClient": "inno-one-e2e",
+    "localSmokeClientRule": "development-only direct grant fixture; never a production sign-in path"
+  },
+  "authorization": {
+    "authoritativeLayer": "server",
+    "evaluator": "IAccessEvaluator / AccessEvaluator",
+    "profileMapping": "Keycloak sub -> platform.user_profiles.keycloak_subject",
+    "moduleAvailability": true,
+    "rolePermission": true,
+    "assignmentScopes": [
+      "organization",
+      "location",
+      "device_group",
+      "all"
+    ],
+    "includeChildren": [
+      "organization",
+      "location"
+    ],
+    "actionOverrides": true,
+    "deviceListFilteredBeforeCount": true,
+    "outOfScopeDetailStatus": 403
+  },
+  "persistence": {
+    "database": "inno_core",
+    "naming": "snake_case",
+    "namingConventionPackage": "EFCore.NamingConventions 10.0.1",
+    "migrations": [
+      "Platform/Persistence/Migrations/*_Step15IdentityAccess.cs",
+      "Devices/Persistence/Migrations/*_Step15DeviceCatalog.cs"
+    ],
+    "crossModuleForeignKeys": false,
+    "deviceExternalMappingPrivate": true
+  },
+  "web": {
+    "dataLayer": "@tanstack/react-query 5.104.0",
+    "identityClient": "keycloak-js 26.2.4",
+    "futureActionsHidden": true,
+    "futureModuleNavigationHidden": true,
+    "states": [
+      "loading",
+      "error",
+      "permission denied",
+      "no results",
+      "offline cached detail"
+    ],
+    "listFilters": [
+      "search",
+      "status",
+      "os"
+    ],
+    "viewportsReviewed": [
+      1366,
+      1024,
+      768
+    ]
+  },
+  "devices": {
+    "canonicalId": "INNO.One opaque dev_ ID",
+    "providerMapping": "devices.device_external_mappings",
+    "provider": "meshcentral",
+    "externalProviderIdExposedByApi": false,
+    "actualMeshCentralNetworkCallImplemented": false
+  },
+  "localFixtures": {
+    "administrator": "adisai",
+    "scopedViewer": "hr.viewer",
+    "devices": 4,
+    "purpose": "local development and automated integration smoke only"
+  },
+  "qa": {
+    "localApiSmoke": "PASS",
+    "unauthenticatedStatus": 401,
+    "adminDeviceCount": 4,
+    "scopedViewerDeviceCount": 1,
+    "outOfScopeDetailStatus": 403,
+    "missingResourceStatus": 404,
+    "externalProviderIdHidden": true,
+    "authRedirectPkce": "PASS",
+    "visualQa": {
+      "pages": [
+        "devices",
+        "profile",
+        "device-detail",
+        "offline-device-detail"
+      ],
+      "viewports": [
+        1366,
+        1024,
+        768
+      ],
+      "pageOverflowFailures": 0,
+      "unnamedControlFailures": 0
+    },
+    "authLoginPage": "PASS",
+    "webTypecheckBuild": "PASS",
+    "dotnetBuild": {
+      "status": "PASS",
+      "warnings": 0,
+      "errors": 0
+    },
+    "dockerComposeConfig": "PASS",
+    "contractStaticAuditChain": "PASS",
+    "frozenBrowserRegression": {
+      "checks": 124,
+      "failures": 0
+    }
+  },
+  "deferred": [
+    "real MeshCentral synchronization/network calls",
+    "device add/discovery/enrollment commands",
+    "device remote-control command APIs",
+    "device settings/maintenance/deployment vertical slices",
+    "production Keycloak realm hardening and secret management",
+    "event outbox/audit writer integration for mutations"
+  ]
+}

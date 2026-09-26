@@ -1,6 +1,6 @@
 {
-  "contractVersion": "0.5.0",
-  "status": "implementation-planning",
+  "contractVersion": "0.6.0",
+  "status": "implementation-in-progress",
   "generatedFrom": {
     "designSystem": "V1.26",
     "uiContract": "1.20.0",
@@ -227,5 +227,27 @@
     "sharedWebPackages": 4,
     "dbContexts": 8,
     "featureHeavyBackendImplemented": false
+  },
+  "verticalSlice": {
+    "version": "0.6.0",
+    "name": "Identity + Effective Access + Devices Read Slice",
+    "documentation": "INNO-One-Step15-First-Vertical-Slice.md",
+    "manifest": "inno-step15-vertical-slice.json",
+    "audit": "step15-vertical-slice-audit.py",
+    "implementedOperations": [
+      "platform.me.get",
+      "devices.list",
+      "devices.get"
+    ],
+    "webRoutes": [
+      "/profile",
+      "/devices",
+      "/devices/:deviceId"
+    ],
+    "modules": [
+      "platform",
+      "devices"
+    ],
+    "featureImplementationStarted": true
   }
 }

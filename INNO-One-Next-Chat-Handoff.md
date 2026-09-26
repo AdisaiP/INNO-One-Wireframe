@@ -1340,4 +1340,70 @@ Source-of-truth additions:
 - `production-skeleton-audit.py`
 - `production/`
 
-**Next: Step 15 First Vertical Slice — Sign in/User Profile → Organization/Permission resolution → Devices list → Device detail.**
+**Historical checkpoint: Step 14 completed here; Step 15 First Vertical Slice is now complete.**
+
+# Step 15 — First Vertical Slice ✅ COMPLETED 2026-09-26
+
+Branch: `implementation/step15-first-vertical-slice`
+
+UX/UI remains FINAL FROZEN at **Design System V1.26 / UI Contract 1.20.0**.
+
+Implementation Contract: **0.6.0** — `implementation-in-progress`
+API Contract: **0.2.0**
+Event & Audit Contract: **0.3.0**
+Data Model Contract: **0.4.0**
+Production Skeleton Contract: **0.5.0**
+
+Implemented production flow:
+- Keycloak normal Web sign-in uses Authorization Code + PKCE S256.
+- Platform API validates Keycloak Bearer JWT with `MapInboundClaims=false` so `sub` stays canonical.
+- `sub` maps to `platform.user_profiles.keycloak_subject`.
+- `IAccessEvaluator` resolves active profile, module availability, role permission, Access Assignment, action override and Organization/Location/Device Group scope.
+- Organization/Location `includeChildren` is supported.
+- Devices reads Platform names through `IPlatformDirectoryReader`; no Devices → Platform project/table dependency was introduced.
+- `platform.me.get`, `devices.list`, `devices.get` are implemented from the existing API Contract.
+- Device list scope filtering happens before `totalItems`/pagination.
+- Device detail returns 403 outside scope and 404 for a missing resource.
+- Public Device IDs are `dev_...`; MeshCentral external IDs stay private.
+- Offline Device detail preserves cached inventory.
+
+Persistence:
+- Platform migration: `Step15IdentityAccess`.
+- Devices migration: `Step15DeviceCatalog`.
+- Physical PostgreSQL names use snake_case via `EFCore.NamingConventions`.
+- No cross-module database FK was introduced.
+
+Production Web:
+- `keycloak-js` + React Query.
+- `/profile`
+- `/devices`
+- `/devices/:deviceId`
+- Search + Status + OS filters.
+- Loading / Error / Permission / No Results / Offline state handling.
+- Future actions/modules remain hidden until their backend is implemented.
+
+Runtime QA:
+- normal auth redirect: Authorization Code + PKCE S256 verified.
+- unauthenticated API: **401**.
+- admin Device scope: **4**.
+- HR-scoped viewer: **1** Device.
+- out-of-scope Device detail: **403**.
+- missing Device: **404**.
+- search/status/OS/pagination: pass.
+- offline cached detail: pass.
+- MeshCentral external ID leakage: none.
+- DB fixtures: profiles=2, assignments=2, devices=4, mappings=4.
+- Web typecheck/build: pass.
+- .NET build: pass, 0 warnings / 0 errors.
+- production component visual QA: **1366 / 1024 / 768**, no page overflow or unnamed visible controls.
+- frozen browser regression: **124 / 124**, failures 0.
+- full contract + static audit chain: **0 issues**.
+- Docker Compose config + Web typecheck/build + .NET build: pass.
+
+Source of truth:
+- `INNO-One-Step15-First-Vertical-Slice.md`
+- `inno-step15-vertical-slice.json`
+- `step15-vertical-slice-audit.py`
+- `production/scripts/step15-local-smoke.py`
+
+Next recommended slice: **Devices Management — Device Groups → Discovery / Add Device → Agent enrollment → live MeshCentral synchronization**. This recommendation is not a newly frozen product requirement.
