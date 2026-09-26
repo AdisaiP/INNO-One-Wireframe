@@ -1553,3 +1553,25 @@ Source of truth:
 **Step 16 fresh re-validation remains deferred by explicit user request and must be rerun before merge/release.**
 
 **Do not merge `main` without explicit user instruction. No Step 19 work has been started.**
+
+## Remote Docker relocation — 2026-09-27
+
+The Step 18 local infrastructure Docker stack was relocated to the Ubuntu host at `172.10.1.58` (user `inno360`). Credentials are intentionally not stored in this repository.
+
+Remote deployment root:
+
+`/home/inno360/INNO.One-Step18/infrastructure/docker`
+
+Remote Compose project: `inno-one-step18`
+
+- PostgreSQL 17: host port `5432`, healthy.
+- Keycloak 26.4.0: host port `8080`, realm discovery verified from the Mac.
+- MeshCentral 1.2.6: host port `8444`, healthy; `HOSTNAME=172.10.1.58`.
+- MeshCentral uses `8444` because the pre-existing INNO.One MeshCentral remains on `8443`.
+- The pre-existing `innoone-*` Docker stack was left running and was not replaced or stopped.
+- Migrated PostgreSQL databases: `inno_core`, `inno_meeting`, `keycloak`.
+- MeshCentral data/files/backups were transferred; migration artifacts are retained under `/home/inno360/INNO.One-Step18/migration`.
+- All three new containers use `restart: unless-stopped`; the same policy is persisted in the remote Compose file.
+- Mac-to-server connectivity checks passed for PostgreSQL `:5432`, Keycloak `:8080` and MeshCentral `:8444`.
+
+The remote snapshot was taken before the final local Step 18 QA smoke. The Mac has one additional QA-only ticket and automation rule from that final smoke; these test artifacts were intentionally not re-synced to the server.
