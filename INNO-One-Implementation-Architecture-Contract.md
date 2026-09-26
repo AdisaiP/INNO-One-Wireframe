@@ -671,3 +671,21 @@ Source of truth:
 - `production/scripts/step15-local-smoke.py`
 
 Next recommended implementation slice: **Devices Management — Device Groups → Discovery / Add Device → Agent enrollment → live MeshCentral synchronization**.
+
+## 22. Step 16 Devices Management implementation checkpoint — 2026-09-26
+
+Implementation Contract **0.7.0** is now verified for the Devices Management slice.
+
+Implemented boundaries:
+
+- Device Groups list/create/detail/update/member list.
+- Private IPv4 Discovery as a durable async operation.
+- Agent Enrollment protected by devices.deploy.
+- Real MeshCentral WebSocket adapter behind IRemoteDeviceEngine.
+- Periodic MeshCentral node synchronization into canonical INNO.One Device IDs.
+- Shared integration.operations, transactional outbox and append-only audit persistence.
+- React production routes /devices/groups, /devices/groups/:groupId, /devices/discovery, /devices/add.
+
+Runtime verification proves that vendor IDs remain internal, resource scope is enforced server-side, ETag concurrency is active, and a real MeshCentral node is synchronized into a canonical dev_ resource.
+
+See INNO-One-Step16-Devices-Management.md and inno-step16-devices-management.json.

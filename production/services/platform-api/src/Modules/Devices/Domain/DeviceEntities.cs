@@ -45,7 +45,14 @@ public sealed class DeviceGroup
     public Guid Id { get; set; }
     public required string Code { get; set; }
     public required string Name { get; set; }
+    public string? Description { get; set; }
     public required string GroupType { get; set; }
+    public Guid? OrganizationUnitId { get; set; }
+    public Guid? LocationId { get; set; }
+    public string? ExternalProvider { get; set; }
+    public string? ExternalGroupId { get; set; }
+    public required string SyncStatus { get; set; }
+    public DateTimeOffset? LastSyncedAt { get; set; }
     public required string Status { get; set; }
     public long Version { get; set; } = 1;
     public DateTimeOffset CreatedAt { get; set; }
@@ -57,4 +64,36 @@ public sealed class DeviceGroupMember
     public Guid GroupId { get; set; }
     public Guid DeviceId { get; set; }
     public DateTimeOffset ResolvedAt { get; set; }
+}
+
+public sealed class DiscoveryScan
+{
+    public Guid Id { get; set; }
+    public Guid OperationId { get; set; }
+    public Guid RequestedByUserId { get; set; }
+    public required string RangesJson { get; set; }
+    public required string Status { get; set; }
+    public int Progress { get; set; }
+    public int AddressesScanned { get; set; }
+    public int DevicesFound { get; set; }
+    public int UnmanagedCount { get; set; }
+    public string? ErrorCode { get; set; }
+    public DateTimeOffset? StartedAt { get; set; }
+    public DateTimeOffset? CompletedAt { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
+}
+
+public sealed class DiscoveryResult
+{
+    public Guid Id { get; set; }
+    public Guid ScanId { get; set; }
+    public required string IpAddress { get; set; }
+    public string? Hostname { get; set; }
+    public string? DetectedOperatingSystem { get; set; }
+    public string? Vendor { get; set; }
+    public required string DiscoveryMethod { get; set; }
+    public required string ManagementStatus { get; set; }
+    public Guid? MatchedDeviceId { get; set; }
+    public DateTimeOffset DiscoveredAt { get; set; }
 }

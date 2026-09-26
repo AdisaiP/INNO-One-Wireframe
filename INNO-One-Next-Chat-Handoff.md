@@ -1407,3 +1407,63 @@ Source of truth:
 - `production/scripts/step15-local-smoke.py`
 
 Next recommended slice: **Devices Management — Device Groups → Discovery / Add Device → Agent enrollment → live MeshCentral synchronization**. This recommendation is not a newly frozen product requirement.
+
+# Step 16 — Devices Management ✅ COMPLETED 2026-09-26
+
+Branch: implementation/step16-devices-management
+
+UX/UI remains FINAL FROZEN at **Design System V1.26 / UI Contract 1.20.0**.
+
+Implementation Contract: **0.7.0** — implementation-in-progress
+
+Implemented:
+
+- Device Groups list/create/detail/update/member list.
+- Organization / Location / Device Group effective-scope enforcement.
+- ETag / If-Match concurrency.
+- bounded private IPv4 Network Discovery as a durable async operation.
+- integration.operations progress/state.
+- Agent Enrollment guarded by devices.deploy.
+- real MeshCentral /control.ashx WebSocket adapter.
+- real Device Group provisioning/update in MeshCentral.
+- periodic MeshCentral node to canonical Device synchronization.
+- device_external_mappings keeps MeshCentral node IDs private.
+- existing device.online / device.offline facts can be written through the transactional outbox.
+- shared execution/audit/outbox persistence migration.
+- React routes: /devices/groups, /devices/groups/:groupId, /devices/discovery, /devices/add.
+
+Runtime QA:
+
+- Device Groups scope/create/update: PASS.
+- stale ETag: 412 PASS.
+- Agent Enrollment: PASS.
+- private-range Discovery async flow: PASS.
+- real live MeshCentral synchronization: PASS.
+- durable operation + audit + external mapping persistence: PASS.
+- vendor ID leakage: none.
+- Step 15 regression: PASS.
+- Web typecheck/build: PASS.
+- .NET build: 0 warnings / 0 errors.
+- Step 16 audit: 0 issues.
+- full contract/static audit chain: 0 issues.
+- frozen browser regression: **124 / 124**.
+- Step 16 visual QA: **12 / 12 route-width screens**, failures 0.
+
+QA detail: MeshCentral AddLocalDevice only supports an agentless mesh, so the synthetic live-sync harness uses a temporary agentless MeshCentral group solely to manufacture a test node. Normal product Agent Enrollment still uses a standard agent group.
+
+Source of truth:
+
+- INNO-One-Step16-Devices-Management.md
+- inno-step16-devices-management.json
+- step16-devices-management-audit.py
+- production/scripts/step16-local-smoke.py
+
+**Do not merge to main without explicit instruction.**
+
+## Step 16 — deferred fresh re-validation
+
+User decision on 2026-09-26: **skip the additional Step 16 re-test for now and continue forward**.
+
+Keep the existing recorded PASS evidence as the last known QA result, but do not claim a newer re-run. Before merge/release, return to Step 16 and rerun `production/scripts/step16-local-smoke.py`, Step 16 audit, Web/.NET builds, frozen browser regression, Step 16 visual QA and `git diff --check`.
+
+Step 16 implementation may be checkpointed to Git and the next implementation branch may proceed, but **do not merge `main` until the deferred re-validation has been completed**.

@@ -27,6 +27,38 @@ public static class PlatformDevelopmentSeed
     {
         if (await db.UserProfiles.AnyAsync(cancellationToken))
         {
+            var changed = false;
+            if (!await db.Permissions.AnyAsync(
+                x => x.PermissionId == "devices.deploy",
+                cancellationToken))
+            {
+                db.Permissions.Add(new Permission
+                {
+                    PermissionId = "devices.deploy",
+                    Module = "devices",
+                    Name = "Deploy device agents and software"
+                });
+                changed = true;
+            }
+
+            if (!await db.RolePermissions.AnyAsync(
+                x => x.RoleId == PlatformAdminRoleId
+                    && x.PermissionId == "devices.deploy",
+                cancellationToken))
+            {
+                db.RolePermissions.Add(new RolePermission
+                {
+                    RoleId = PlatformAdminRoleId,
+                    PermissionId = "devices.deploy"
+                });
+                changed = true;
+            }
+
+            if (changed)
+            {
+                await db.SaveChangesAsync(cancellationToken);
+            }
+
             return;
         }
 
@@ -142,6 +174,7 @@ public static class PlatformDevelopmentSeed
             new Permission { PermissionId = "platform.workspace.access", Module = "platform", Name = "Workspace access" },
             new Permission { PermissionId = "devices.view", Module = "devices", Name = "View devices" },
             new Permission { PermissionId = "devices.manage", Module = "devices", Name = "Manage devices" },
+            new Permission { PermissionId = "devices.deploy", Module = "devices", Name = "Deploy device agents and software" },
             new Permission { PermissionId = "devices.remote", Module = "devices", Name = "Remote devices" }
         };
         db.Permissions.AddRange(permissions);

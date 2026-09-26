@@ -9,8 +9,8 @@ registry_text = (ROOT / "platform-registry.js").read_text()
 
 issues = []
 
-if contract.get("contractVersion") != "0.6.0":
-    issues.append(f"expected implementation contract 0.6.0, found {contract.get('contractVersion')}")
+if contract.get("contractVersion") != "0.7.0":
+    issues.append(f"expected implementation contract 0.7.0, found {contract.get('contractVersion')}")
 api_contract = contract.get("apiContract", {})
 if api_contract.get("version") != "0.2.0":
     issues.append("implementation contract must reference API Contract 0.2.0")
@@ -69,6 +69,28 @@ if vertical.get("implementedOperations") != ["platform.me.get", "devices.list", 
     issues.append("Step 15 implemented operation catalog mismatch")
 if vertical.get("featureImplementationStarted") is not True:
     issues.append("Step 15 must mark feature implementation as started")
+
+step16 = contract.get("devicesManagementSlice", {})
+if step16.get("version") != "0.7.0":
+    issues.append("implementation contract must reference Step 16 Devices Management 0.7.0")
+for ref in (step16.get("documentation"), step16.get("manifest"), step16.get("audit")):
+    if not ref or not (ROOT / ref).exists():
+        issues.append(f"missing Step 16 devices-management reference: {ref}")
+expected_step16_operations = [
+    "devices.groups.list",
+    "devices.groups.create",
+    "devices.groups.get",
+    "devices.groups.update",
+    "devices.group_members.list",
+    "devices.discovery_scan.create",
+    "devices.discovery_scan.get",
+    "devices.discovery_results.list",
+    "devices.agent_installer.create",
+]
+if step16.get("implementedOperations") != expected_step16_operations:
+    issues.append("Step 16 implemented operation catalog mismatch")
+if step16.get("realMeshCentralAdapter") is not True:
+    issues.append("Step 16 must use the real MeshCentral adapter boundary")
 
 existing = contract.get("existingPermissions", [])
 reserved = contract.get("reservedImplementationPermissions", [])

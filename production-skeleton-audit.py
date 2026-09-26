@@ -14,8 +14,8 @@ issues = []
 
 if manifest.get("contractVersion") != "0.5.0":
     issues.append(f"expected skeleton contract 0.5.0, found {manifest.get('contractVersion')}")
-if impl.get("contractVersion") != "0.6.0":
-    issues.append(f"expected current Implementation Contract 0.6.0, found {impl.get('contractVersion')}")
+if impl.get("contractVersion") != "0.7.0":
+    issues.append(f"expected current Implementation Contract 0.7.0, found {impl.get('contractVersion')}")
 ref = impl.get("productionSkeleton", {})
 if ref.get("version") != "0.5.0":
     issues.append("implementation contract must reference Production Skeleton 0.5.0")
@@ -112,7 +112,7 @@ if manifest_contexts != expected_contexts:
 
 # Contract bridge.
 contracts_source = (PROD / "services/platform-api/src/INNO.One.Contracts/ContractVersions.cs").read_text()
-for version in ("V1.26", "1.20.0", "0.2.0", "0.3.0", "0.4.0", "0.6.0"):
+for version in ("V1.26", "1.20.0", "0.2.0", "0.3.0", "0.4.0", "0.7.0"):
     if version not in contracts_source:
         issues.append(f"ContractVersions.cs missing {version}")
 
@@ -161,10 +161,17 @@ for schema in data["deployment"]["coreDatabase"]["schemas"]:
     if f"SCHEMA IF NOT EXISTS {schema}" not in sql:
         issues.append(f"local bootstrap missing core schema {schema}")
 
-# Compose should not pretend to own MeshCentral.
+# Step 14 originally left MeshCentral external; Step 16 deliberately adds the vendor engine
+# to local development while keeping its persistence isolated behind the adapter boundary.
 compose = (PROD / "infrastructure/docker/compose.yml").read_text()
-if re.search(r"^\s{2}meshcentral:", compose, re.M):
-    issues.append("MeshCentral must remain external to the Step 14 local compose checkpoint")
+step16_exists = (ROOT / "inno-step16-devices-management.json").exists()
+if step16_exists:
+    if not re.search(r"^\s{2}meshcentral:", compose, re.M):
+        issues.append("Step 16 requires the local MeshCentral vendor-engine checkpoint")
+    if "ghcr.io/ylianst/meshcentral:1.2.6" not in compose:
+        issues.append("Step 16 local MeshCentral image checkpoint mismatch")
+elif re.search(r"^\s{2}meshcentral:", compose, re.M):
+    issues.append("MeshCentral was not part of the Step 14 local compose checkpoint")
 if "postgres:17-alpine" not in compose:
     issues.append("local compose PostgreSQL checkpoint mismatch")
 if "quay.io/keycloak/keycloak:26.4.0" not in compose:

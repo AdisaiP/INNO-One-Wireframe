@@ -1,5 +1,5 @@
 {
-  "contractVersion": "0.6.0",
+  "contractVersion": "0.7.0",
   "status": "implementation-in-progress",
   "generatedFrom": {
     "designSystem": "V1.26",
@@ -249,5 +249,40 @@
       "devices"
     ],
     "featureImplementationStarted": true
+  },
+  "devicesManagementSlice": {
+    "version": "0.7.0",
+    "name": "Devices Management + Enrollment + MeshCentral Sync Slice",
+    "documentation": "INNO-One-Step16-Devices-Management.md",
+    "manifest": "inno-step16-devices-management.json",
+    "audit": "step16-devices-management-audit.py",
+    "implementedOperations": [
+      "devices.groups.list",
+      "devices.groups.create",
+      "devices.groups.get",
+      "devices.groups.update",
+      "devices.group_members.list",
+      "devices.discovery_scan.create",
+      "devices.discovery_scan.get",
+      "devices.discovery_results.list",
+      "devices.agent_installer.create"
+    ],
+    "webRoutes": [
+      "/devices/groups",
+      "/devices/groups/:groupId",
+      "/devices/discovery",
+      "/devices/add"
+    ],
+    "modules": [
+      "devices",
+      "integration",
+      "audit"
+    ],
+    "realMeshCentralAdapter": true,
+    "featureImplementationStarted": true,
+    "runtimeVerified": true,
+    "qaStatus": "PASS",
+    "liveMeshCentralSyncVerified": true,
+    "frozenBrowserRegression": "124/124"
   }
 }

@@ -16,6 +16,36 @@ public static class DevicesDevelopmentSeed
     {
         if (await db.Devices.AnyAsync(cancellationToken))
         {
+            var groups = await db.DeviceGroups.ToListAsync(cancellationToken);
+            foreach (var group in groups)
+            {
+                if (group.Id == Guid.Parse("81000000-0000-0000-0000-000000000001"))
+                {
+                    group.OrganizationUnitId ??= HumanResourcesId;
+                    group.LocationId ??= BangkokLocationId;
+                }
+                else if (group.Id == Guid.Parse("81000000-0000-0000-0000-000000000002"))
+                {
+                    group.OrganizationUnitId ??= DigitalTechnologyId;
+                    group.LocationId ??= BangkokLocationId;
+                }
+                else if (group.Id == Guid.Parse("81000000-0000-0000-0000-000000000003"))
+                {
+                    group.OrganizationUnitId ??= FinanceId;
+                    group.LocationId ??= BangkokLocationId;
+                }
+
+                if (string.IsNullOrWhiteSpace(group.SyncStatus))
+                {
+                    group.SyncStatus = "local";
+                }
+            }
+
+            if (groups.Count > 0)
+            {
+                await db.SaveChangesAsync(cancellationToken);
+            }
+
             return;
         }
 
@@ -28,17 +58,20 @@ public static class DevicesDevelopmentSeed
             new DeviceGroup
             {
                 Id = hrGroup, Code = "HR-BKK", Name = "HR / Bangkok", GroupType = "static",
-                Status = "active", CreatedAt = now, UpdatedAt = now
+                OrganizationUnitId = HumanResourcesId, LocationId = BangkokLocationId,
+                SyncStatus = "local", Status = "active", CreatedAt = now, UpdatedAt = now
             },
             new DeviceGroup
             {
                 Id = itGroup, Code = "IT-OPS", Name = "IT Operations", GroupType = "static",
-                Status = "active", CreatedAt = now, UpdatedAt = now
+                OrganizationUnitId = DigitalTechnologyId, LocationId = BangkokLocationId,
+                SyncStatus = "local", Status = "active", CreatedAt = now, UpdatedAt = now
             },
             new DeviceGroup
             {
                 Id = financeGroup, Code = "FIN", Name = "Finance", GroupType = "static",
-                Status = "active", CreatedAt = now, UpdatedAt = now
+                OrganizationUnitId = FinanceId, LocationId = BangkokLocationId,
+                SyncStatus = "local", Status = "active", CreatedAt = now, UpdatedAt = now
             });
 
         var devices = new[]

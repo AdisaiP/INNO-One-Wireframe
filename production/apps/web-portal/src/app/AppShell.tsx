@@ -14,6 +14,7 @@ function initials(name: string): string {
 export function AppShell() {
   const profile = useProfile();
   const canViewDevices = usePermission('devices.view');
+  const canDeployDevices = usePermission('devices.deploy');
   const location = useLocation();
   const inDevices = location.pathname.startsWith('/devices');
   const inProfile = location.pathname.startsWith('/profile');
@@ -43,14 +44,10 @@ export function AppShell() {
       <div className="prod-shell-body">
         <aside className="prod-rail" aria-label="App navigation">
           {canViewDevices ? (
-            <NavLink className={inDevices ? 'active' : ''} to="/devices" aria-label="Devices">
-              D
-            </NavLink>
+            <NavLink className={inDevices ? 'active' : ''} to="/devices" aria-label="Devices">D</NavLink>
           ) : null}
           <span className="grow" />
-          <NavLink className={inProfile ? 'active' : ''} to="/profile" aria-label="Profile & Settings">
-            P
-          </NavLink>
+          <NavLink className={inProfile ? 'active' : ''} to="/profile" aria-label="Profile & Settings">P</NavLink>
         </aside>
 
         <aside className="prod-side" aria-label={inProfile ? 'Account navigation' : 'Devices navigation'}>
@@ -58,13 +55,16 @@ export function AppShell() {
             <>
               <div className="prod-side-title">Account</div>
               <div className="prod-side-section">Workspace</div>
-              <NavLink className="active" to="/profile">Profile & Settings</NavLink>
+              <NavLink to="/profile">Profile & Settings</NavLink>
             </>
           ) : (
             <>
               <div className="prod-side-title">Devices</div>
               <div className="prod-side-section">Workspace</div>
-              <NavLink className="active" to="/devices">Devices</NavLink>
+              <NavLink end to="/devices">Devices</NavLink>
+              <NavLink to="/devices/discovery">Discovery</NavLink>
+              <NavLink to="/devices/groups">Device Groups</NavLink>
+              {canDeployDevices ? <NavLink to="/devices/add">Agent Deployment</NavLink> : null}
             </>
           )}
         </aside>

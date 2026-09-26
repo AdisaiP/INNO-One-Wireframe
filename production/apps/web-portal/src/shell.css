@@ -945,3 +945,187 @@
     flex-direction: column;
   }
 }
+
+/* Step 16 · Devices Management */
+.page-intro-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.page-intro-row .page-helper { margin-bottom: 0; }
+
+.create-panel { margin-bottom: 16px; }
+.editor-form { padding: 15px 16px 0; }
+.editor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.field-block { display: grid; gap: 6px; min-width: 0; }
+.field-block > span {
+  color: #596579;
+  font-size: 10px;
+  font-weight: 700;
+}
+.field-block > small { color: var(--ds-muted); font-size: 9px; }
+.field-block input,
+.field-block select,
+.field-block textarea {
+  width: 100%;
+  border: 1px solid var(--ds-border-strong);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ds-text);
+  font: inherit;
+  font-size: 12px;
+  outline: none;
+}
+.field-block input,
+.field-block select { height: 38px; padding: 0 10px; }
+.field-block textarea { padding: 9px 10px; resize: vertical; }
+.field-block input:focus,
+.field-block select:focus,
+.field-block textarea:focus {
+  border-color: #86a5eb;
+  box-shadow: 0 0 0 3px rgba(39, 95, 215, .14);
+}
+.field-wide { grid-column: 1 / -1; }
+.editor-scope-note {
+  margin-top: 12px;
+  padding: 9px 11px;
+  border-radius: 8px;
+  background: #f7f9fc;
+  color: var(--ds-muted);
+  font-size: 10px;
+}
+.editor-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 15px;
+  margin-inline: -16px;
+  padding: 11px 16px;
+  border-top: 1px solid var(--ds-border);
+  background: #fafbfc;
+}
+.resource-head-actions {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.discovery-layout,
+.deployment-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr);
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.compact-empty {
+  padding: 24px 16px;
+  color: var(--ds-muted);
+  font-size: 11px;
+}
+.scan-summary { padding: 16px; }
+.scan-progress-track {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #edf1f6;
+}
+.scan-progress-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ds-primary);
+  transition: width .2s ease;
+}
+.scan-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+  margin: 15px 0 12px;
+}
+.scan-metrics > div {
+  padding: 11px;
+  border: 1px solid var(--ds-border);
+  border-radius: 8px;
+}
+.scan-metrics b { display: block; font-size: 18px; }
+.scan-metrics span { display: block; margin-top: 3px; color: var(--ds-muted); font-size: 9px; }
+.enrollment-steps {
+  display: grid;
+  gap: 0;
+  padding: 8px 16px 16px;
+}
+.enrollment-steps > div {
+  display: grid;
+  grid-template-columns: 27px minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
+  padding: 10px 0;
+  border-bottom: 1px solid #eef1f4;
+  color: #485568;
+  font-size: 11px;
+}
+.enrollment-steps > div:last-child { border-bottom: 0; }
+.enrollment-steps b {
+  width: 25px;
+  height: 25px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--ds-primary-soft);
+  color: var(--ds-primary);
+  font-size: 10px;
+}
+.enrollment-result { margin-top: 16px; }
+.enrollment-link-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 14px;
+  padding: 16px;
+}
+.enrollment-link-row > div {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+.enrollment-link-row span { color: var(--ds-muted); font-size: 9px; }
+.enrollment-link-row code {
+  overflow-wrap: anywhere;
+  color: #30405a;
+  font-size: 10px;
+}
+.inno-link-button {
+  flex: none;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: var(--ds-primary);
+  color: #fff;
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+@media (max-width: 1100px) {
+  .discovery-layout,
+  .deployment-layout { grid-template-columns: 1fr; }
+}
+@media (max-width: 850px) {
+  .page-intro-row { align-items: stretch; flex-direction: column; }
+  .page-intro-row .inno-btn { width: fit-content; }
+  .editor-grid { grid-template-columns: 1fr; }
+  .field-wide { grid-column: auto; }
+  .resource-head-actions { align-items: stretch; flex-direction: column; }
+  .scan-metrics { grid-template-columns: 1fr; }
+  .enrollment-link-row { align-items: stretch; flex-direction: column; }
+  .inno-link-button { width: fit-content; }
+}

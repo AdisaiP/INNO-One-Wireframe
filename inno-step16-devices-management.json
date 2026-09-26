@@ -1,0 +1,105 @@
+{
+  "contractVersion": "0.7.0",
+  "status": "implemented-verified",
+  "branch": "implementation/step16-devices-management",
+  "scope": {
+    "implementedOperations": [
+      "devices.groups.list",
+      "devices.groups.create",
+      "devices.groups.get",
+      "devices.groups.update",
+      "devices.group_members.list",
+      "devices.discovery_scan.create",
+      "devices.discovery_scan.get",
+      "devices.discovery_results.list",
+      "devices.agent_installer.create"
+    ],
+    "webRoutes": [
+      "/devices/groups",
+      "/devices/groups/:groupId",
+      "/devices/discovery",
+      "/devices/add"
+    ],
+    "dynamicDeviceGroupsImplemented": false,
+    "realMeshCentralAdapter": true,
+    "discoveryPrivateIpv4Only": true,
+    "discoveryMaxAddresses": 512,
+    "canonicalDeviceIdBoundary": true
+  },
+  "persistence": {
+    "infrastructureMigration": "Step16ExecutionLedger",
+    "devicesMigration": "Step16DevicesManagement",
+    "tables": [
+      "integration.operations",
+      "integration.outbox_messages",
+      "audit.audit_records",
+      "devices.discovery_scans",
+      "devices.discovery_results"
+    ],
+    "transactionalGroupAudit": true,
+    "connectivityOutbox": true
+  },
+  "meshCentral": {
+    "adapter": "MeshCentralRemoteDeviceEngine",
+    "controlTransport": "WebSocket /control.ashx",
+    "vendorIdsPrivate": true,
+    "localDockerImage": "ghcr.io/ylianst/meshcentral:1.2.6",
+    "syncWorker": "MeshCentralSyncWorker",
+    "qaAgentlessHarnessOnly": true,
+    "productEnrollmentMeshType": "agent"
+  },
+  "qa": {
+    "staticAudit": "PASS",
+    "runtimeSmoke": "PASS",
+    "liveMeshCentralSync": "PASS",
+    "agentEnrollment": "PASS",
+    "discoveryAsync": "PASS",
+    "durableOperationAuditOutbox": "PASS",
+    "webTypecheck": "PASS",
+    "webBuild": "PASS",
+    "dotnetBuild": {
+      "status": "PASS",
+      "warnings": 0,
+      "errors": 0
+    },
+    "step15Regression": "PASS",
+    "efPendingModelChanges": {
+      "DevicesDbContext": "none",
+      "InfrastructureDbContext": "none"
+    },
+    "visualQa": {
+      "status": "PASS",
+      "routes": 4,
+      "viewports": [
+        1366,
+        1024,
+        768
+      ],
+      "screens": 12,
+      "failures": 0,
+      "isolatedVisualHarness": true
+    },
+    "frozenBrowserRegression": {
+      "checks": 124,
+      "failures": 0
+    },
+    "frozenStaticAuditChain": "PASS",
+    "contractAuditChain": "PASS",
+    "dockerComposeConfig": "PASS"
+  },
+  "deferredRevalidation": {
+    "requestedByUser": true,
+    "date": "2026-09-26",
+    "scope": "additional fresh Step 16 re-test before merge/release",
+    "existingQaEvidenceRemainsLastKnownPass": true,
+    "requiredBeforeMainMergeOrRelease": [
+      "production/scripts/step16-local-smoke.py",
+      "step16-devices-management-audit.py",
+      "web typecheck/build",
+      ".NET solution build",
+      "frozen browser regression",
+      "Step 16 route visual QA",
+      "git diff --check"
+    ]
+  }
+}

@@ -1,5 +1,7 @@
 using INNO.One.Contracts;
 using INNO.One.Infrastructure;
+using INNO.One.Infrastructure.Persistence;
+using INNO.One.Integrations.MeshCentral;
 using INNO.One.Modules.Assets;
 using INNO.One.Modules.Devices;
 using INNO.One.Modules.Devices.Api;
@@ -27,6 +29,8 @@ builder.Services
     .AddReportsModule(coreDatabase)
     .AddInnoInfrastructure(coreDatabase);
 
+builder.Services.AddMeshCentralIntegration(builder.Configuration);
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -45,9 +49,11 @@ if (app.Environment.IsDevelopment()
 {
     await using var scope = app.Services.CreateAsyncScope();
 
+    var infrastructureDb = scope.ServiceProvider.GetRequiredService<InfrastructureDbContext>();
     var platformDb = scope.ServiceProvider.GetRequiredService<PlatformDbContext>();
     var devicesDb = scope.ServiceProvider.GetRequiredService<DevicesDbContext>();
 
+    await infrastructureDb.Database.MigrateAsync();
     await platformDb.Database.MigrateAsync();
     await devicesDb.Database.MigrateAsync();
 
@@ -74,5 +80,6 @@ var api = app.MapGroup(ContractVersions.ApiBasePath)
 
 api.MapPlatformEndpoints();
 api.MapDevicesEndpoints();
+api.MapDeviceManagementEndpoints();
 
 app.Run();

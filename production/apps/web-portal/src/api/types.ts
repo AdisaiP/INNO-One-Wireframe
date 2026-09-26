@@ -77,10 +77,104 @@ export interface DeviceDetail {
   managementEngine?: string | null;
 }
 
+export interface DeviceGroupListItem {
+  id: string;
+  code: string;
+  name: string;
+  description?: string | null;
+  groupType: string;
+  status: string;
+  syncStatus: string;
+  organization?: string | null;
+  location?: string | null;
+  members: number;
+  online: number;
+  lastSyncedAt?: string | null;
+  eTag: string;
+}
+
+export interface DeviceGroupDetail {
+  id: string;
+  code: string;
+  name: string;
+  description?: string | null;
+  groupType: string;
+  status: string;
+  syncStatus: string;
+  organization?: ReferenceValue | null;
+  location?: ReferenceValue | null;
+  members: number;
+  online: number;
+  lastSyncedAt?: string | null;
+  eTag: string;
+}
+
+export interface DeviceGroupMember {
+  id: string;
+  name: string;
+  type: string;
+  status: string;
+  user?: string | null;
+  organization?: string | null;
+  location?: string | null;
+  ipAddress?: string | null;
+  operatingSystem?: string | null;
+  lastSeenAt?: string | null;
+}
+
+export interface DiscoveryScan {
+  id: string;
+  operationId: string;
+  status: string;
+  progress: number;
+  ranges: string[];
+  addressesScanned: number;
+  devicesFound: number;
+  unmanagedCount: number;
+  errorCode?: string | null;
+  startedAt?: string | null;
+  completedAt?: string | null;
+  createdAt: string;
+}
+
+export interface DiscoveryResult {
+  id: string;
+  ipAddress: string;
+  hostname?: string | null;
+  detectedOperatingSystem?: string | null;
+  vendor?: string | null;
+  discoveryMethod: string;
+  managementStatus: string;
+  matchedDeviceId?: string | null;
+  discoveredAt: string;
+}
+
+export interface OperationAccepted {
+  operationId: string;
+  status: string;
+  progress: number;
+  resource: {
+    scanId: string;
+    addressCount: number;
+  };
+}
+
+export interface AgentInstaller {
+  id: string;
+  groupId: string;
+  groupName: string;
+  operatingSystem: string;
+  profile: string;
+  enrollmentUrl: string;
+  expiresAt?: string | null;
+  status: string;
+}
+
 export interface ProblemDetails {
   type?: string;
   title?: string;
   status?: number;
   detail?: string;
   instance?: string;
+  errors?: Record<string, string[]>;
 }

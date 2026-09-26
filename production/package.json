@@ -13,5 +13,8 @@
     "dev:web": "pnpm run build:packages && pnpm --filter @inno/web-portal dev",
     "build:dotnet": "dotnet build INNO.One.sln",
     "check": "pnpm typecheck && pnpm build && dotnet build INNO.One.sln"
+  },
+  "devDependencies": {
+    "ws": "8.18.3"
   }
 }

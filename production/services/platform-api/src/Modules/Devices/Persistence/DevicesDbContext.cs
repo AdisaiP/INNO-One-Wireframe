@@ -11,6 +11,8 @@ public sealed class DevicesDbContext(DbContextOptions<DevicesDbContext> options)
     public DbSet<DeviceExternalMapping> DeviceExternalMappings => Set<DeviceExternalMapping>();
     public DbSet<DeviceGroup> DeviceGroups => Set<DeviceGroup>();
     public DbSet<DeviceGroupMember> DeviceGroupMembers => Set<DeviceGroupMember>();
+    public DbSet<DiscoveryScan> DiscoveryScans => Set<DiscoveryScan>();
+    public DbSet<DiscoveryResult> DiscoveryResults => Set<DiscoveryResult>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -55,9 +57,14 @@ public sealed class DevicesDbContext(DbContextOptions<DevicesDbContext> options)
             entity.ToTable("device_groups");
             entity.HasKey(x => x.Id);
             entity.HasIndex(x => x.Code).IsUnique();
+            entity.HasIndex(x => new { x.ExternalProvider, x.ExternalGroupId }).IsUnique();
             entity.Property(x => x.Code).HasMaxLength(64);
             entity.Property(x => x.Name).HasMaxLength(200);
+            entity.Property(x => x.Description).HasMaxLength(1000);
             entity.Property(x => x.GroupType).HasMaxLength(32);
+            entity.Property(x => x.ExternalProvider).HasMaxLength(64);
+            entity.Property(x => x.ExternalGroupId).HasMaxLength(512);
+            entity.Property(x => x.SyncStatus).HasMaxLength(32).HasDefaultValue("local");
             entity.Property(x => x.Status).HasMaxLength(32);
         });
 
@@ -68,6 +75,32 @@ public sealed class DevicesDbContext(DbContextOptions<DevicesDbContext> options)
             entity.HasOne<DeviceGroup>().WithMany().HasForeignKey(x => x.GroupId).OnDelete(DeleteBehavior.Cascade);
             entity.HasOne<Device>().WithMany().HasForeignKey(x => x.DeviceId).OnDelete(DeleteBehavior.Cascade);
             entity.HasIndex(x => x.DeviceId);
+        });
+
+        modelBuilder.Entity<DiscoveryScan>(entity =>
+        {
+            entity.ToTable("discovery_scans");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => x.OperationId).IsUnique();
+            entity.HasIndex(x => new { x.Status, x.CreatedAt });
+            entity.Property(x => x.RangesJson).HasColumnType("jsonb");
+            entity.Property(x => x.Status).HasMaxLength(32);
+            entity.Property(x => x.ErrorCode).HasMaxLength(128);
+        });
+
+        modelBuilder.Entity<DiscoveryResult>(entity =>
+        {
+            entity.ToTable("discovery_results");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => new { x.ScanId, x.IpAddress }).IsUnique();
+            entity.HasIndex(x => x.MatchedDeviceId);
+            entity.Property(x => x.IpAddress).HasMaxLength(64);
+            entity.Property(x => x.Hostname).HasMaxLength(255);
+            entity.Property(x => x.DetectedOperatingSystem).HasMaxLength(200);
+            entity.Property(x => x.Vendor).HasMaxLength(200);
+            entity.Property(x => x.DiscoveryMethod).HasMaxLength(64);
+            entity.Property(x => x.ManagementStatus).HasMaxLength(32);
+            entity.HasOne<DiscoveryScan>().WithMany().HasForeignKey(x => x.ScanId).OnDelete(DeleteBehavior.Cascade);
         });
 
         base.OnModelCreating(modelBuilder);

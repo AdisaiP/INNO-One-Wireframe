@@ -2,8 +2,12 @@ import { useQuery } from '@tanstack/react-query';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { getCurrentProfile } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
+import { AgentDeploymentPage } from '../pages/AgentDeploymentPage';
 import { DeviceDetailPage } from '../pages/DeviceDetailPage';
+import { DeviceGroupDetailPage } from '../pages/DeviceGroupDetailPage';
+import { DeviceGroupsPage } from '../pages/DeviceGroupsPage';
 import { DevicesPage } from '../pages/DevicesPage';
+import { DiscoveryPage } from '../pages/DiscoveryPage';
 import { DeferredPage } from '../pages/DeferredPage';
 import { ProfilePage } from '../pages/ProfilePage';
 import { AppShell } from './AppShell';
@@ -17,23 +21,16 @@ export function AppRoot() {
   });
 
   if (profileQuery.isPending) {
-    return (
-      <div className="boot-screen">
-        <LoadingState label="Loading your INNO.One profile…" />
-      </div>
-    );
+    return <div className="boot-screen"><LoadingState label="Loading your INNO.One profile…" /></div>;
   }
 
   if (profileQuery.isError) {
-    return (
-      <div className="boot-screen boot-error">
-        <ErrorState error={profileQuery.error} retry={() => void profileQuery.refetch()} />
-      </div>
-    );
+    return <div className="boot-screen boot-error"><ErrorState error={profileQuery.error} retry={() => void profileQuery.refetch()} /></div>;
   }
 
   const profile = profileQuery.data;
   const canViewDevices = profile.permissions.includes('devices.view');
+  const canDeployDevices = profile.permissions.includes('devices.deploy');
 
   return (
     <ProfileProvider profile={profile}>
@@ -41,14 +38,12 @@ export function AppRoot() {
         <Route element={<AppShell />}>
           <Route index element={<Navigate to={canViewDevices ? '/devices' : '/profile'} replace />} />
           <Route path="profile" element={<ProfilePage />} />
-          <Route
-            path="devices"
-            element={canViewDevices ? <DevicesPage /> : <DeferredPage name="Devices" />}
-          />
-          <Route
-            path="devices/:deviceId"
-            element={canViewDevices ? <DeviceDetailPage /> : <DeferredPage name="Device" />}
-          />
+          <Route path="devices" element={canViewDevices ? <DevicesPage /> : <DeferredPage name="Devices" />} />
+          <Route path="devices/discovery" element={canViewDevices ? <DiscoveryPage /> : <DeferredPage name="Discovery" />} />
+          <Route path="devices/groups" element={canViewDevices ? <DeviceGroupsPage /> : <DeferredPage name="Device Groups" />} />
+          <Route path="devices/groups/:groupId" element={canViewDevices ? <DeviceGroupDetailPage /> : <DeferredPage name="Device Group" />} />
+          <Route path="devices/add" element={canDeployDevices ? <AgentDeploymentPage /> : <DeferredPage name="Agent Deployment" />} />
+          <Route path="devices/:deviceId" element={canViewDevices ? <DeviceDetailPage /> : <DeferredPage name="Device" />} />
           <Route path="apps/*" element={<DeferredPage name="Apps" />} />
           <Route path="assets/*" element={<DeferredPage name="Assets" />} />
           <Route path="helpdesk/*" element={<DeferredPage name="Helpdesk" />} />
