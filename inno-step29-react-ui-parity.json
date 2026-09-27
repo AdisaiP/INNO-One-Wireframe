@@ -99,5 +99,14 @@
     "/assets/software-baselines": "Frozen Assets collection/master-detail patterns + Step 26–28 evidence contracts"
   },
   "inProgressPhase": "assets",
-  "assetsImplementationStatus": "implemented_pending_local_qa"
+  "assetsImplementationStatus": "implemented_pending_local_qa",
+  "assetsValidation": {
+    "step29StaticAudit": "passed",
+    "step15To28Regression": "passed",
+    "webTypecheck": "passed",
+    "webBuild": "passed",
+    "dotnetBuild": "passed",
+    "browserQa": "pending",
+    "buildQaRunId": 36342574582
+  }
 }
