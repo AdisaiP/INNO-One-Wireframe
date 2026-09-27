@@ -40,10 +40,13 @@ issues=[]
 if manifest.get('step') != 29: issues.append('step number')
 if manifest.get('frozenDesignSystem') != 'V1.26': issues.append('design system baseline')
 if manifest.get('frozenUiContract') != '1.20.0': issues.append('ui contract baseline')
-if manifest.get('completedPhases') != ['shell', 'shared_primitives', 'devices', 'assets']: issues.append('completed phases')
-if manifest.get('nextPhase') != 'helpdesk': issues.append('next phase')
-if manifest.get('inProgressPhase') != 'helpdesk': issues.append('helpdesk in-progress phase')
-if manifest.get('helpdeskImplementationStatus') != 'implemented_pending_qa': issues.append('helpdesk implementation status')
+if manifest.get('completedPhases') != ['shell', 'shared_primitives', 'devices', 'assets', 'helpdesk']: issues.append('completed phases')
+if manifest.get('nextPhase') != 'remaining_routes': issues.append('next phase')
+helpdesk_validation = manifest.get('helpdeskValidation', {})
+if helpdesk_validation.get('browserQa') != 'passed' or helpdesk_validation.get('browserQaFailures') != 0:
+    issues.append('helpdesk browser qa status')
+if helpdesk_validation.get('browserQaChecks') != 159:
+    issues.append('helpdesk browser qa count')
 assets_validation = manifest.get('assetsValidation', {})
 if assets_validation.get('browserQa') != 'passed' or assets_validation.get('browserQaFailures') != 0:
     issues.append('assets browser qa status')
