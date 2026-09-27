@@ -41,15 +41,31 @@ feedback=(root/'production/apps/web-portal/src/components/Feedback.tsx').read_te
 issues=[]
 
 if manifest.get('step') != 29: issues.append('step number')
+if manifest.get('status') != 'completed': issues.append('step status')
 if manifest.get('frozenDesignSystem') != 'V1.26': issues.append('design system baseline')
 if manifest.get('frozenUiContract') != '1.20.0': issues.append('ui contract baseline')
 if manifest.get('completedPhases') != ['shell', 'shared_primitives', 'devices', 'assets', 'helpdesk', 'remaining_routes']: issues.append('completed phases')
-if manifest.get('nextPhase') != 'final_full_parity_audit': issues.append('next phase')
+if manifest.get('nextPhase') is not None: issues.append('next phase')
 remaining_validation = manifest.get('remainingRoutesValidation', {})
 if remaining_validation.get('browserQa') != 'passed' or remaining_validation.get('browserQaFailures') != 0:
     issues.append('remaining routes browser qa status')
 if remaining_validation.get('browserQaChecks') != 60:
     issues.append('remaining routes browser qa count')
+
+final_validation = manifest.get('finalValidation', {})
+if final_validation.get('fullBrowserRegression') != 'passed' or final_validation.get('fullBrowserFailures') != 0:
+    issues.append('final browser regression')
+if final_validation.get('fullBrowserChecks') != 456:
+    issues.append('final browser check count')
+if [final_validation.get('shellChecks'), final_validation.get('devicesChecks'), final_validation.get('assetsChecks'),
+    final_validation.get('helpdeskChecks'), final_validation.get('remainingRoutesChecks')] != [23, 73, 141, 159, 60]:
+    issues.append('final browser suite counts')
+if final_validation.get('finalVisualCapture') != 'passed' or final_validation.get('finalVisualReview') != 'passed':
+    issues.append('final visual validation')
+if final_validation.get('finalVisualScreenshots') != 33 or final_validation.get('finalVisualIssues') != 0:
+    issues.append('final visual counts')
+if final_validation.get('finalVisualViewports') != [1366, 1024, 768]:
+    issues.append('final visual viewports')
 helpdesk_validation = manifest.get('helpdeskValidation', {})
 if helpdesk_validation.get('browserQa') != 'passed' or helpdesk_validation.get('browserQaFailures') != 0:
     issues.append('helpdesk browser qa status')
