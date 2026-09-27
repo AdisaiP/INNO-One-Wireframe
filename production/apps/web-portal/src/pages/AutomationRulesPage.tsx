@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOButton, INNOPage, INNOState } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { getAutomationRules } from '../api/client';
 import { usePermission } from '../app/ProfileContext';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -48,12 +48,12 @@ export function AutomationRulesPage() {
   }, [query.data]);
 
   return (
-    <INNOPage eyebrow="Helpdesk · Manage" title="Automation">
-      <div className="page-intro-row">
-        <p className="page-helper">Assignment, routing, classification and SLA escalation rules.</p>
-        {canManage ? <Link className="inno-link-button" to="/helpdesk/automation/new">New Rule</Link> : null}
-      </div>
-
+    <INNOPage
+      eyebrow="Helpdesk · Manage"
+      title="Automation"
+      description="Assignment, routing, classification and SLA escalation rules."
+      actions={canManage ? <Link className="inno-link-button" to="/helpdesk/automation/new">New Rule</Link> : undefined}
+    >
       <div className="production-stat-strip helpdesk-stat-strip">
         <div><span>Automation rules</span><b>{query.data?.totalItems ?? 0}</b><small>{stats.active} active · {stats.paused} paused</small></div>
         <div><span>Executions</span><b>{stats.executions}</b><small>Visible rule sample</small></div>
@@ -61,36 +61,32 @@ export function AutomationRulesPage() {
         <div><span>Last execution</span><b>{formatRelative(stats.last)}</b><small>Automation worker history</small></div>
       </div>
 
-      <section className="collection-card">
-        <div className="collection-head">
-          <div><h2>Automation rules</h2><p>Open one rule to edit its trigger, condition and action.</p></div>
-          {query.data ? <span className="prod-tag">{query.data.totalItems} rules</span> : null}
-        </div>
-
-        <div className="collection-toolbar">
-          <label className="search-field">
-            <span className="sr-only">Search automation rules</span>
-            <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search rule, trigger or action…" />
-          </label>
-          <label>
-            <span className="sr-only">Filter rules by status</span>
-            <select value={status} onChange={(event) => setStatus(event.target.value)}>
-              <option value="all">Status: All</option>
-              <option value="active">Active</option>
-              <option value="paused">Paused</option>
-            </select>
-          </label>
-          <label>
-            <span className="sr-only">Filter rules by type</span>
-            <select value={type} onChange={(event) => setType(event.target.value)}>
-              <option value="all">Type: All</option>
-              <option value="assignment">Assignment</option>
-              <option value="escalation">Escalation</option>
-              <option value="classification">Classification</option>
-              <option value="routing">Routing</option>
-            </select>
-          </label>
-        </div>
+      <INNOCollection>
+        <INNOCollectionHeader
+          title="Automation rules"
+          description="Open one rule to edit its trigger, condition and action."
+          meta={query.data ? <INNOStatus>{query.data.totalItems} rules</INNOStatus> : undefined}
+        />
+        <INNOCollectionToolbar>
+          <INNOSearchField
+            label="Search automation rules"
+            value={search}
+            onChange={setSearch}
+            placeholder="Search rule, trigger or action…"
+          />
+          <INNOSelectField label="Filter rules by status" value={status} onChange={setStatus}>
+            <option value="all">Status: All</option>
+            <option value="active">Active</option>
+            <option value="paused">Paused</option>
+          </INNOSelectField>
+          <INNOSelectField label="Filter rules by type" value={type} onChange={setType}>
+            <option value="all">Type: All</option>
+            <option value="assignment">Assignment</option>
+            <option value="escalation">Escalation</option>
+            <option value="classification">Classification</option>
+            <option value="routing">Routing</option>
+          </INNOSelectField>
+        </INNOCollectionToolbar>
 
         {query.isPending ? (
           <div className="collection-state"><LoadingState label="Loading automation rules…" /></div>
@@ -99,21 +95,20 @@ export function AutomationRulesPage() {
         ) : query.data.items.length === 0 ? (
           <div className="collection-state">
             <INNOState
-              title="No automation rules found"
-              description="Try another search or clear the filters."
-              action={search || status !== 'all' || type !== 'all' ? (
-                <div className="state-action">
-                  <INNOButton variant="secondary" onClick={() => { setSearch(''); setStatus('all'); setType('all'); }}>
-                    Clear filters
-                  </INNOButton>
-                </div>
-              ) : undefined}
+              kind={search || status !== 'all' || type !== 'all' ? 'no-results' : 'empty'}
+              title={search || status !== 'all' || type !== 'all' ? 'No automation rules found' : 'No automation rules yet'}
+              description={search || status !== 'all' || type !== 'all'
+                ? 'Try another search or clear the filters.'
+                : 'Create the first rule when automation is ready for this workspace.'}
+              action={search || status !== 'all' || type !== 'all'
+                ? <INNOButton variant="secondary" onClick={() => { setSearch(''); setStatus('all'); setType('all'); }}>Clear filters</INNOButton>
+                : undefined}
             />
           </div>
         ) : (
           <>
-            <div className="production-table-wrap">
-              <table className="production-table">
+            <INNOTableWrap width="xwide">
+              <table>
                 <thead><tr><th>Rule</th><th>Type</th><th>Trigger</th><th>Primary action</th><th>Status</th><th>Last execution</th><th className="action-column">Action</th></tr></thead>
                 <tbody>
                   {query.data.items.map((rule) => (
@@ -122,25 +117,24 @@ export function AutomationRulesPage() {
                       <td>{rule.ruleType}</td>
                       <td>{rule.trigger.replaceAll('_', ' ')}</td>
                       <td>{rule.primaryAction}</td>
-                      <td><span className={'prod-tag ' + (rule.status === 'active' ? 'success' : '')}>{rule.status === 'active' ? 'Active' : 'Paused'}</span></td>
+                      <td><INNOStatus tone={rule.status === 'active' ? 'success' : 'neutral'}>{rule.status === 'active' ? 'Active' : 'Paused'}</INNOStatus></td>
                       <td>{formatRelative(rule.lastExecutedAt)}</td>
                       <td className="action-column"><Link className="open-resource" to={'/helpdesk/automation/' + rule.id}>Open</Link></td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-            </div>
-            <div className="collection-footer">
-              <span>Showing {(query.data.page - 1) * query.data.pageSize + 1}–{Math.min(query.data.page * query.data.pageSize, query.data.totalItems)} of {query.data.totalItems}</span>
-              <div className="pagination-actions">
-                <INNOButton variant="secondary" disabled={query.data.page <= 1} onClick={() => setPage((value) => Math.max(1, value - 1))}>Previous</INNOButton>
-                <span>Page {query.data.page} of {Math.max(query.data.totalPages, 1)}</span>
-                <INNOButton variant="secondary" disabled={query.data.page >= query.data.totalPages} onClick={() => setPage((value) => value + 1)}>Next</INNOButton>
-              </div>
-            </div>
+            </INNOTableWrap>
+            <INNOPagination
+              page={query.data.page}
+              totalPages={query.data.totalPages}
+              totalItems={query.data.totalItems}
+              pageSize={query.data.pageSize}
+              onPageChange={setPage}
+            />
           </>
         )}
-      </section>
+      </INNOCollection>
     </INNOPage>
   );
 }

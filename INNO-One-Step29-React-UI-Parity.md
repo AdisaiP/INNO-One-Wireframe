@@ -21,8 +21,8 @@ Bring the production React Web Portal back to the approved frozen prototype lang
 ## Port order
 
 1. Production shell geometry, header, rail, contextual sidebar and responsive behavior. **DONE — browser regression 23/23.**
-2. Shared React primitives: page header, buttons, status, collection toolbar/table, resource header, form/footer and states. **NEXT.**
-3. Devices routes.
+2. Shared React primitives: page header, buttons, status, collection toolbar/table, resource header, form/footer and states. **DONE — browser regression 75/75.**
+3. Devices routes. **NEXT.**
 4. Assets routes.
 5. Helpdesk routes.
 6. Profile and remaining currently implemented production routes.
@@ -55,3 +55,15 @@ Each React route already implemented in production must be mapped to its frozen 
 - Representative React visual QA passes at 1366 / 1024 / 768 with 0 page overflow.
 - Contact sheets or equivalent side-by-side review cover Devices, Assets, Helpdesk and shared shell.
 - Working tree is clean after Step 29 checkpoint.
+
+## Shared primitives checkpoint
+
+Phase 2 moves frozen visual contracts into `@inno/ui` instead of duplicating them per page. The shared layer now owns Page/Header actions, buttons with busy state, typed UI states, status badges, collection header/toolbar, search/select controls, contained wide tables, pagination, resource headers and canonical editor footers.
+
+Representative migrations prove reuse across module boundaries:
+- Devices: `/devices` collection + Device Detail resource header.
+- Assets: `/assets/inventory` collection.
+- Helpdesk: `/helpdesk/automation` collection/page action + `/helpdesk/tickets/new` editor footer.
+- Feedback: loading/error/permission states now use the shared state primitive.
+
+Browser QA: **75 / 75**, 0 failures at 1366 / 1024 / 768. Primary table density remains 40px headers / 48px rows; x-wide tables scroll inside their own wrapper on narrow Web viewports; page-level overflow remains 0.

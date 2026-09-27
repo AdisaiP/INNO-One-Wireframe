@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
+import { INNOResourceHeader, INNOStatus } from '@inno/ui';
 import { getDevice, getDeviceSoftwareInventory } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 
@@ -48,17 +49,11 @@ export function DeviceDetailPage() {
         <Link to="/devices">Devices</Link><span>›</span><span>{device.name}</span>
       </div>
 
-      <div className="resource-head production-resource-head">
-        <div>
-          <div className="resource-title-line">
-            <h1>{device.name}</h1>
-            <span className={`status-dot ${device.status}`}>{device.status}</span>
-          </div>
-          <div className="resource-meta-line">
-            <span>{model}</span><span>·</span><span>{device.operatingSystem ?? 'Unknown OS'}</span><span>·</span><span>{group}</span>
-          </div>
-        </div>
-      </div>
+      <INNOResourceHeader
+        title={device.name}
+        status={<INNOStatus tone={device.status === 'online' ? 'success' : 'neutral'} dot>{device.status}</INNOStatus>}
+        meta={<><span>{model}</span><span>·</span><span>{device.operatingSystem ?? 'Unknown OS'}</span><span>·</span><span>{group}</span></>}
+      />
 
       {device.isOffline ? (
         <div className="offline-banner" role="status">

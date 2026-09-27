@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOButton, INNOPage, INNOState } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarSpacer } from '@inno/ui';
 import { getDevices } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 
@@ -45,47 +45,39 @@ export function DevicesPage() {
   });
 
   return (
-    <INNOPage eyebrow="Devices" title="All Devices">
-      <p className="page-helper">Find, filter and open managed endpoints inside your effective access scope.</p>
+    <INNOPage
+      eyebrow="Devices"
+      title="All Devices"
+      description="Find, filter and open managed endpoints inside your effective access scope."
+    >
+      <INNOCollection>
+        <INNOCollectionHeader
+          title="Devices"
+          description={query.data ? `${query.data.totalItems} managed endpoints in scope` : 'Managed endpoints'}
+          meta={query.data ? <INNOStatus>{query.data.totalItems} devices</INNOStatus> : undefined}
+        />
 
-      <section className="collection-card">
-        <div className="collection-head">
-          <div>
-            <h2>Devices</h2>
-            <p>{query.data ? `${query.data.totalItems} managed endpoints in scope` : 'Managed endpoints'}</p>
-          </div>
-          {query.data ? <span className="prod-tag">{query.data.totalItems} devices</span> : null}
-        </div>
-
-        <div className="collection-toolbar">
-          <label className="search-field">
-            <span className="sr-only">Search devices</span>
-            <input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search name, IP, serial, OS…"
-            />
-          </label>
-          <label>
-            <span className="sr-only">Status filter</span>
-            <select value={status} onChange={(event) => setStatus(event.target.value)}>
-              <option value="all">Status: All</option>
-              <option value="online">Online</option>
-              <option value="offline">Offline</option>
-            </select>
-          </label>
-          <label>
-            <span className="sr-only">Operating system filter</span>
-            <select value={os} onChange={(event) => setOs(event.target.value)}>
-              <option value="all">OS: All</option>
-              <option value="Windows 11">Windows 11</option>
-              <option value="Windows 10">Windows 10</option>
-              <option value="Windows Server">Windows Server</option>
-            </select>
-          </label>
-          <span className="toolbar-spacer" />
+        <INNOCollectionToolbar>
+          <INNOSearchField
+            label="Search devices"
+            value={search}
+            onChange={setSearch}
+            placeholder="Search name, IP, serial, OS…"
+          />
+          <INNOSelectField label="Status filter" value={status} onChange={setStatus}>
+            <option value="all">Status: All</option>
+            <option value="online">Online</option>
+            <option value="offline">Offline</option>
+          </INNOSelectField>
+          <INNOSelectField label="Operating system filter" value={os} onChange={setOs}>
+            <option value="all">OS: All</option>
+            <option value="Windows 11">Windows 11</option>
+            <option value="Windows 10">Windows 10</option>
+            <option value="Windows Server">Windows Server</option>
+          </INNOSelectField>
+          <INNOToolbarSpacer />
           <span className="collection-scope">Authorization filtered server-side</span>
-        </div>
+        </INNOCollectionToolbar>
 
         {query.isPending ? (
           <div className="collection-state"><LoadingState label="Loading devices…" /></div>
@@ -94,23 +86,22 @@ export function DevicesPage() {
         ) : query.data.items.length === 0 ? (
           <div className="collection-state">
             <INNOState
+              kind={search || status !== 'all' || os !== 'all' ? 'no-results' : 'empty'}
               title={search || status !== 'all' || os !== 'all' ? 'No devices found' : 'No devices in scope'}
               description={search || status !== 'all' || os !== 'all'
                 ? 'Try another search or clear the filters.'
                 : 'No managed endpoint is visible inside your effective resource scope.'}
               action={search || status !== 'all' || os !== 'all' ? (
-                <div className="state-action">
-                  <INNOButton variant="secondary" onClick={() => { setSearch(''); setStatus('all'); setOs('all'); }}>
-                    Clear filters
-                  </INNOButton>
-                </div>
+                <INNOButton variant="secondary" onClick={() => { setSearch(''); setStatus('all'); setOs('all'); }}>
+                  Clear filters
+                </INNOButton>
               ) : undefined}
             />
           </div>
         ) : (
           <>
-            <div className="production-table-wrap">
-              <table className="production-table">
+            <INNOTableWrap width="xwide">
+              <table>
                 <thead>
                   <tr>
                     <th>Device</th>
@@ -133,7 +124,7 @@ export function DevicesPage() {
                         </div>
                       </td>
                       <td>{typeLabel(device.type)}</td>
-                      <td><span className={`status-dot ${device.status}`}>{device.status}</span></td>
+                      <td><INNOStatus tone={device.status === 'online' ? 'success' : 'neutral'} dot>{device.status}</INNOStatus></td>
                       <td>{device.user ?? '—'}</td>
                       <td>{device.operatingSystem ?? '—'}</td>
                       <td>{device.group ?? device.organization ?? '—'}</td>
@@ -147,33 +138,17 @@ export function DevicesPage() {
                   ))}
                 </tbody>
               </table>
-            </div>
-            <div className="collection-footer">
-              <span>
-                Showing {(query.data.page - 1) * query.data.pageSize + 1}–
-                {Math.min(query.data.page * query.data.pageSize, query.data.totalItems)} of {query.data.totalItems}
-              </span>
-              <div className="pagination-actions">
-                <INNOButton
-                  variant="secondary"
-                  disabled={query.data.page <= 1}
-                  onClick={() => setPage((value) => Math.max(1, value - 1))}
-                >
-                  Previous
-                </INNOButton>
-                <span>Page {query.data.page} of {Math.max(query.data.totalPages, 1)}</span>
-                <INNOButton
-                  variant="secondary"
-                  disabled={query.data.page >= query.data.totalPages}
-                  onClick={() => setPage((value) => value + 1)}
-                >
-                  Next
-                </INNOButton>
-              </div>
-            </div>
+            </INNOTableWrap>
+            <INNOPagination
+              page={query.data.page}
+              totalPages={query.data.totalPages}
+              totalItems={query.data.totalItems}
+              pageSize={query.data.pageSize}
+              onPageChange={setPage}
+            />
           </>
         )}
-      </section>
+      </INNOCollection>
     </INNOPage>
   );
 }
