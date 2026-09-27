@@ -25,9 +25,10 @@
     "shared_primitives",
     "devices",
     "assets",
-    "helpdesk"
+    "helpdesk",
+    "remaining_routes"
   ],
-  "nextPhase": "remaining_routes",
+  "nextPhase": "final_full_parity_audit",
   "sharedPrimitives": [
     "INNOPage",
     "INNOButton",
@@ -137,8 +138,6 @@
     "browserQaRunId": 36348620829,
     "buildQaRunId": 36348620757
   },
-  "inProgressPhase": "remaining_routes",
-  "remainingRoutesImplementationStatus": "implemented_pending_qa",
   "remainingParityRoutes": [
     "/profile",
     "/apps/*",
@@ -153,5 +152,17 @@
     "futureModuleBoundaries": "disabled",
     "unauthorizedImplementedRoutes": "permission",
     "unknownRoutes": "no-results"
+  },
+  "remainingRoutesValidation": {
+    "step29StaticAudit": "passed",
+    "step15To28Regression": "passed",
+    "webTypecheck": "passed",
+    "webBuild": "passed",
+    "dotnetBuild": "passed",
+    "browserQa": "passed",
+    "browserQaChecks": 60,
+    "browserQaFailures": 0,
+    "browserQaRunId": 36349832490,
+    "buildQaRunId": 36349832401
   }
 }
