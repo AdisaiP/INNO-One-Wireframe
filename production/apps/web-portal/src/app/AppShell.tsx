@@ -79,6 +79,8 @@ export function AppShell() {
               <div className="prod-side-section">Inventory</div>
               <NavLink end to="/assets">Overview</NavLink>
               <NavLink to="/assets/inventory">Asset Inventory</NavLink>
+              <div className="prod-side-section">Management</div>
+              <NavLink to="/assets/custom-fields">Custom Fields</NavLink>
               <div className="prod-side-section">Ownership</div>
               <NavLink end to="/assets/ownership">Ownership & Users</NavLink>
               <NavLink to="/assets/owners">User Profiles</NavLink>

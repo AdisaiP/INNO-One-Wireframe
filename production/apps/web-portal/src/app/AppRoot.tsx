@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { getCurrentProfile } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import { AgentDeploymentPage } from '../pages/AgentDeploymentPage';
+import { AssetCustomFieldsPage } from '../pages/AssetCustomFieldsPage';
 import { AssetDetailPage } from '../pages/AssetDetailPage';
 import { AssetInventoryPage } from '../pages/AssetInventoryPage';
 import { AssetOwnerDetailPage } from '../pages/AssetOwnerDetailPage';
@@ -74,6 +75,7 @@ export function AppRoot() {
           <Route path="assets/owners" element={canViewAssets ? <AssetOwnersPage /> : <DeferredPage name="Asset Owners" />} />
           <Route path="assets/owners/:userId" element={canViewAssets ? <AssetOwnerDetailPage /> : <DeferredPage name="Asset Owner" />} />
           <Route path="assets/ownership/submissions" element={canViewAssets ? <AssetOwnershipSubmissionsPage /> : <DeferredPage name="Agent Submissions" />} />
+          <Route path="assets/custom-fields" element={canViewAssets ? <AssetCustomFieldsPage /> : <DeferredPage name="Custom Fields" />} />
           <Route path="assets/:assetId" element={canViewAssets ? <AssetDetailPage /> : <DeferredPage name="Asset" />} />
 
           <Route path="helpdesk" element={canViewHelpdesk ? <HelpdeskOverviewPage /> : <DeferredPage name="Helpdesk" />} />

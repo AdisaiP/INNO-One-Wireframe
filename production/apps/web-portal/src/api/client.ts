@@ -1,6 +1,8 @@
 import { getAccessToken } from '../auth/keycloak';
 import type {
   AgentInstaller,
+  AssetCustomFieldDefinition,
+  AssetCustomFieldSchema,
   AssetDetail,
   AssetListItem,
   AssetOwnerDetail,
@@ -277,6 +279,7 @@ export async function updateAsset(
     linkedDeviceId?: string;
     purchasePrice?: number;
     warrantyEndAt?: string;
+    customFields?: Record<string, unknown>;
   },
 ): Promise<AssetDetail> {
   const response = await request<ResourceEnvelope<AssetDetail>>(
@@ -284,6 +287,32 @@ export async function updateAsset(
     {
       method: 'PATCH',
       ...jsonRequest(input, { 'If-Match': eTag }),
+    },
+  );
+  return response.data;
+}
+
+
+
+export async function getAssetCustomFields(): Promise<AssetCustomFieldSchema> {
+  const response = await request<ResourceEnvelope<AssetCustomFieldSchema>>(
+    '/assets/custom-fields',
+  );
+  return response.data;
+}
+
+export async function updateAssetCustomFields(
+  eTag: string,
+  fields: Array<Pick<
+    AssetCustomFieldDefinition,
+    'fieldKey' | 'label' | 'fieldType' | 'isRequired' | 'showInAgent' | 'status' | 'options'
+  >>,
+): Promise<AssetCustomFieldSchema> {
+  const response = await request<ResourceEnvelope<AssetCustomFieldSchema>>(
+    '/assets/custom-fields',
+    {
+      method: 'PUT',
+      ...jsonRequest({ fields }, { 'If-Match': eTag }),
     },
   );
   return response.data;

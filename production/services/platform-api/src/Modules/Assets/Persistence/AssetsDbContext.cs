@@ -10,6 +10,8 @@ public sealed class AssetsDbContext(DbContextOptions<AssetsDbContext> options) :
     public DbSet<Asset> Assets => Set<Asset>();
     public DbSet<AssetOwnershipHistory> AssetOwnershipHistory => Set<AssetOwnershipHistory>();
     public DbSet<OwnershipSubmission> OwnershipSubmissions => Set<OwnershipSubmission>();
+    public DbSet<AssetCustomFieldDefinition> CustomFieldDefinitions => Set<AssetCustomFieldDefinition>();
+    public DbSet<AssetCustomFieldValue> CustomFieldValues => Set<AssetCustomFieldValue>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -61,6 +63,34 @@ public sealed class AssetsDbContext(DbContextOptions<AssetsDbContext> options) :
             entity.HasOne<Asset>()
                 .WithMany()
                 .HasForeignKey(x => x.AssetId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<AssetCustomFieldDefinition>(entity =>
+        {
+            entity.ToTable("custom_field_definitions");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => x.FieldKey).IsUnique();
+            entity.Property(x => x.FieldKey).HasMaxLength(80);
+            entity.Property(x => x.Label).HasMaxLength(160);
+            entity.Property(x => x.FieldType).HasMaxLength(32);
+            entity.Property(x => x.Status).HasMaxLength(24);
+            entity.Property(x => x.OptionsJson).HasColumnType("jsonb");
+            entity.Property(x => x.Version).IsConcurrencyToken();
+        });
+
+        modelBuilder.Entity<AssetCustomFieldValue>(entity =>
+        {
+            entity.ToTable("custom_field_values");
+            entity.HasKey(x => new { x.AssetId, x.FieldId });
+            entity.Property(x => x.ValueJson).HasColumnType("jsonb");
+            entity.HasOne<Asset>()
+                .WithMany()
+                .HasForeignKey(x => x.AssetId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<AssetCustomFieldDefinition>()
+                .WithMany()
+                .HasForeignKey(x => x.FieldId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 

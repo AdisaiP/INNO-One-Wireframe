@@ -464,6 +464,34 @@ export interface AssetOwnershipHistoryItem {
   effectiveAt: string;
 }
 
+export interface AssetCustomFieldValue {
+  fieldKey: string;
+  label: string;
+  fieldType: 'text' | 'number' | 'date' | 'boolean' | 'select';
+  isRequired: boolean;
+  showInAgent: boolean;
+  options: string[];
+  value: unknown;
+}
+
+export interface AssetCustomFieldDefinition {
+  id: string;
+  fieldKey: string;
+  label: string;
+  fieldType: 'text' | 'number' | 'date' | 'boolean' | 'select';
+  isRequired: boolean;
+  showInAgent: boolean;
+  status: 'active' | 'draft';
+  options: string[];
+  displayOrder: number;
+  updatedAt: string;
+}
+
+export interface AssetCustomFieldSchema {
+  fields: AssetCustomFieldDefinition[];
+  eTag: string;
+}
+
 export interface AssetDetail {
   id: string;
   assetTag: string;
@@ -482,6 +510,7 @@ export interface AssetDetail {
   warrantyEndAt?: string | null;
   source: string;
   ownershipHistory: AssetOwnershipHistoryItem[];
+  customFields: AssetCustomFieldValue[];
   updatedAt: string;
   eTag: string;
 }

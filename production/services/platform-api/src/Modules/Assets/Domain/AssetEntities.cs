@@ -51,3 +51,28 @@ public sealed class OwnershipSubmission
     public string? DecisionNote { get; set; }
     public long Version { get; set; } = 1;
 }
+
+
+public sealed class AssetCustomFieldDefinition
+{
+    public Guid Id { get; set; }
+    public required string FieldKey { get; set; }
+    public required string Label { get; set; }
+    public required string FieldType { get; set; }
+    public bool IsRequired { get; set; }
+    public bool ShowInAgent { get; set; }
+    public required string Status { get; set; }
+    public required string OptionsJson { get; set; }
+    public int DisplayOrder { get; set; }
+    public long Version { get; set; } = 1;
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
+}
+
+public sealed class AssetCustomFieldValue
+{
+    public Guid AssetId { get; set; }
+    public Guid FieldId { get; set; }
+    public required string ValueJson { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
+}

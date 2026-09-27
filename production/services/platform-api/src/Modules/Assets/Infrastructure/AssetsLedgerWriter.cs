@@ -14,7 +14,8 @@ public sealed class AssetsLedgerWriter(AssetsDbContext db)
         string correlationId,
         string? traceId,
         object metadata,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        string classification = "restricted")
     {
         var auditId = Guid.NewGuid();
         var occurredAt = DateTimeOffset.UtcNow;
@@ -28,7 +29,7 @@ public sealed class AssetsLedgerWriter(AssetsDbContext db)
             VALUES
                 ({auditId}, {action}, 'assets', {targetType}, {targetId},
                  'user', {actorId}, {occurredAt}, {correlationId}, {traceId},
-                 'restricted', CAST({metadataJson} AS jsonb))
+                 {classification}, CAST({metadataJson} AS jsonb))
             """, cancellationToken);
     }
 

@@ -15,6 +15,7 @@ public static class AssetsModule
             .UseSnakeCaseNamingConvention());
 
         services.AddScoped<AssetsLedgerWriter>();
+        services.AddScoped<AssetCustomFieldValueService>();
         return services;
     }
 }

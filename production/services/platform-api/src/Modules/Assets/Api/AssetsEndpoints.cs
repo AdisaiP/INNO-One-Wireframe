@@ -174,6 +174,7 @@ public static class AssetsEndpoints
         IAccessEvaluator accessEvaluator,
         IPlatformDirectoryReader platformReader,
         IDeviceDirectoryReader deviceReader,
+        AssetCustomFieldValueService customFieldService,
         CancellationToken cancellationToken)
     {
         if (!OpaqueId.TryParse(assetId, "asset", out var id))
@@ -231,10 +232,19 @@ public static class AssetsEndpoints
             Array.Empty<Guid>(),
             Array.Empty<Guid>(),
             cancellationToken);
+        var customFields = await customFieldService.ReadForAssetAsync(
+            asset.Id,
+            cancellationToken);
 
         httpContext.Response.Headers.ETag = Etag(asset.Version);
         return Results.Ok(new ResourceResponse<AssetDetailResponse>(
-            ToDetail(asset, directory, linkedDevice, history, historyDirectory)));
+            ToDetail(
+                asset,
+                directory,
+                linkedDevice,
+                history,
+                historyDirectory,
+                customFields)));
     }
 
     private static async Task<IResult> UpdateAssetAsync(
@@ -246,6 +256,7 @@ public static class AssetsEndpoints
         IPlatformDirectoryReader platformReader,
         IDeviceDirectoryReader deviceReader,
         AssetsLedgerWriter ledger,
+        AssetCustomFieldValueService customFieldService,
         CancellationToken cancellationToken)
     {
         if (!OpaqueId.TryParse(assetId, "asset", out var id))
@@ -343,6 +354,22 @@ public static class AssetsEndpoints
             asset.WarrantyEndAt = request.WarrantyEndAt.Value.ToUniversalTime();
         }
 
+        IReadOnlyList<string> changedCustomFields = Array.Empty<string>();
+        if (request.CustomFields is not null)
+        {
+            var customFieldResult = await customFieldService.ApplyAsync(
+                asset.Id,
+                request.CustomFields,
+                cancellationToken);
+            if (!customFieldResult.IsValid)
+            {
+                return Results.ValidationProblem(
+                    customFieldResult.Errors,
+                    title: "Validation failed");
+            }
+            changedCustomFields = customFieldResult.ChangedKeys;
+        }
+
         asset.Version++;
         asset.UpdatedAt = DateTimeOffset.UtcNow;
 
@@ -368,9 +395,11 @@ public static class AssetsEndpoints
                 status = asset.LifecycleStatus,
                 linkedDeviceId = asset.LinkedDeviceId.HasValue
                     ? OpaqueId.Format("dev", asset.LinkedDeviceId.Value)
-                    : null
+                    : null,
+                customFieldKeys = changedCustomFields
             },
-            cancellationToken);
+            cancellationToken,
+            classification: "internal");
         await ledger.AppendOutboxAsync(
             "asset.changed",
             "asset",
@@ -395,6 +424,9 @@ public static class AssetsEndpoints
             asset,
             deviceReader,
             cancellationToken);
+        var customFields = await customFieldService.ReadForAssetAsync(
+            asset.Id,
+            cancellationToken);
 
         httpContext.Response.Headers.ETag = Etag(asset.Version);
         return Results.Ok(new ResourceResponse<AssetDetailResponse>(
@@ -406,7 +438,8 @@ public static class AssetsEndpoints
                 new PlatformDirectorySnapshot(
                     new Dictionary<Guid, string>(),
                     new Dictionary<Guid, string>(),
-                    new Dictionary<Guid, string>()))));
+                    new Dictionary<Guid, string>()),
+                customFields)));
     }
 
     private static async Task<IResult> GetOwnershipAsync(
@@ -1150,7 +1183,8 @@ public static class AssetsEndpoints
         PlatformDirectorySnapshot directory,
         DeviceDirectoryEntry? linkedDevice,
         IReadOnlyCollection<AssetOwnershipHistory> history,
-        PlatformDirectorySnapshot historyDirectory) =>
+        PlatformDirectorySnapshot historyDirectory,
+        IReadOnlyList<AssetCustomFieldSnapshot> customFields) =>
         new(
             OpaqueId.Format("asset", asset.Id),
             asset.AssetTag,
@@ -1203,6 +1237,14 @@ public static class AssetsEndpoints
                 x.ReasonCode,
                 x.Note,
                 x.EffectiveAt)).ToArray(),
+            customFields.Select(x => new AssetCustomFieldResponse(
+                x.FieldKey,
+                x.Label,
+                x.FieldType,
+                x.IsRequired,
+                x.ShowInAgent,
+                x.Options,
+                x.Value)).ToArray(),
             asset.UpdatedAt,
             Etag(asset.Version));
 
@@ -1372,7 +1414,8 @@ public static class AssetsEndpoints
         string? LifecycleStatus,
         string? LinkedDeviceId,
         decimal? PurchasePrice,
-        DateTimeOffset? WarrantyEndAt);
+        DateTimeOffset? WarrantyEndAt,
+        IReadOnlyDictionary<string, JsonElement>? CustomFields);
 
     public sealed record ChangeOwnershipRequest(
         string? OwnerUserId,
@@ -1430,6 +1473,15 @@ public static class AssetsEndpoints
         string? Note,
         DateTimeOffset EffectiveAt);
 
+    private sealed record AssetCustomFieldResponse(
+        string FieldKey,
+        string Label,
+        string FieldType,
+        bool IsRequired,
+        bool ShowInAgent,
+        IReadOnlyList<string> Options,
+        JsonElement? Value);
+
     private sealed record AssetDetailResponse(
         string Id,
         string AssetTag,
@@ -1448,6 +1500,7 @@ public static class AssetsEndpoints
         DateTimeOffset? WarrantyEndAt,
         string Source,
         IReadOnlyList<OwnershipHistoryResponse> OwnershipHistory,
+        IReadOnlyList<AssetCustomFieldResponse> CustomFields,
         DateTimeOffset UpdatedAt,
         string ETag);
 

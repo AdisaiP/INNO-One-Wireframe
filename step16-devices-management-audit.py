@@ -24,8 +24,8 @@ expected_ops=[
 
 if manifest.get('contractVersion')!='0.7.0':
     issues.append('Step 16 manifest must be version 0.7.0')
-if impl.get('contractVersion')!='0.10.0':
-    issues.append('current Implementation Contract must be 0.10.0')
+if impl.get('contractVersion')!='0.11.0':
+    issues.append('current Implementation Contract must be 0.11.0')
 ref=impl.get('devicesManagementSlice',{})
 if ref.get('version')!='0.7.0':
     issues.append('implementation contract does not reference Step 16 0.7.0')

@@ -789,3 +789,63 @@ Source of truth:
 **Step 16 fresh re-validation remains deferred by explicit user request and must be rerun before merge/release.**
 
 **Do not merge `main` without explicit user instruction. No Step 20 work has been started.**
+
+# Step 20 — Asset Custom Fields ✅ COMPLETED 2026-09-27
+
+Branch: `implementation/step20-asset-custom-fields`
+
+Implementation Contract: **0.11.0**.
+
+Implemented:
+
+- Asset-owned custom-field schema editor at `/assets/custom-fields`.
+- `GET /assets/custom-fields` and `PUT /assets/custom-fields`.
+- Field types: Text, Number, Date, Boolean and Select.
+- Immutable field keys, labels, required flag, Endpoint Agent exposure flag, Active/Draft status, select options and display order.
+- Existing fields cannot be deleted in this slice; set unused fields to Draft.
+- `assets.custom_field_definitions` and `assets.custom_field_values`.
+- Asset Detail reads active custom-field schema and values.
+- Existing `PATCH /assets/{assetId}` saves standard Asset data and custom values in one version-checked transaction.
+- Required/type/select validation is server-authoritative.
+- Custom-field schema saves use ETag / If-Match.
+- Schema changes audit as `assets.custom_fields.updated` with internal classification.
+- Per-asset custom-value changes flow through existing `assets.asset.updated` / `asset.changed`.
+- Platform user profiles remain Platform-owned; stale “User Profile Fields” semantics were not carried into production.
+- Endpoint Agent rendering remains a separate surface and is not embedded in Web.
+- No cross-module database foreign key.
+
+Remote development DB:
+
+- `Step20AssetCustomFields` migration applied to PostgreSQL on `172.10.1.58`.
+- Seeded 4 custom-field definitions and 13 example values.
+- Runtime DB check: cross-module FK = 0.
+
+Final QA:
+
+- Step 20 runtime smoke: **PASS**.
+- Step 20 audit: **0 issues**.
+- Web typecheck/build: **PASS**.
+- .NET build: **0 warnings / 0 errors**.
+- EF pending-model checks for Assets / Platform / Devices / Helpdesk: **PASS**.
+- contract/static audit chains: **0 issues**.
+- production visual QA: **6 / 6 screens**, failures 0.
+- frozen browser regression: **124 / 124**, failures 0.
+- `git diff --check`: **PASS**.
+
+Deferred to later Assets slices:
+
+- QR labels / QR resolve and Android scanning.
+- Software baselines and licenses.
+- Contracts / Warranty.
+- Endpoint Agent custom-field rendering.
+
+Source of truth:
+
+- `INNO-One-Step20-Asset-Custom-Fields.md`
+- `inno-step20-asset-custom-fields.json`
+- `step20-asset-custom-fields-audit.py`
+- `production/scripts/step20-local-smoke.py`
+
+**Step 16 fresh re-validation remains deferred by explicit user request and must be rerun before merge/release.**
+
+**Do not merge `main` without explicit user instruction. No Step 21 work has been started.**

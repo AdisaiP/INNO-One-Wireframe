@@ -26,6 +26,7 @@ public static class AssetsDevelopmentSeed
     {
         if (await db.Assets.AnyAsync(cancellationToken))
         {
+            await EnsureCustomFieldsAsync(db, cancellationToken);
             return;
         }
 
@@ -105,7 +106,112 @@ public static class AssetsDevelopmentSeed
             });
 
         await db.SaveChangesAsync(cancellationToken);
+        await EnsureCustomFieldsAsync(db, cancellationToken);
     }
+
+    private static async Task EnsureCustomFieldsAsync(
+        AssetsDbContext db,
+        CancellationToken cancellationToken)
+    {
+        if (await db.CustomFieldDefinitions.AnyAsync(cancellationToken))
+        {
+            return;
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        var costCenterId = Guid.Parse("92000000-0000-0000-0000-000000000001");
+        var officeZoneId = Guid.Parse("92000000-0000-0000-0000-000000000002");
+        var criticalityId = Guid.Parse("92000000-0000-0000-0000-000000000003");
+        var noteId = Guid.Parse("92000000-0000-0000-0000-000000000004");
+
+        db.CustomFieldDefinitions.AddRange(
+            new AssetCustomFieldDefinition
+            {
+                Id = costCenterId,
+                FieldKey = "cost_center",
+                Label = "Cost Center",
+                FieldType = "text",
+                IsRequired = true,
+                ShowInAgent = true,
+                Status = "active",
+                OptionsJson = "[]",
+                DisplayOrder = 0,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new AssetCustomFieldDefinition
+            {
+                Id = officeZoneId,
+                FieldKey = "office_zone",
+                Label = "Office Zone",
+                FieldType = "select",
+                IsRequired = false,
+                ShowInAgent = true,
+                Status = "active",
+                OptionsJson = """["Floor 2","Floor 3","Warehouse"]""",
+                DisplayOrder = 1,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new AssetCustomFieldDefinition
+            {
+                Id = criticalityId,
+                FieldKey = "asset_criticality",
+                Label = "Asset Criticality",
+                FieldType = "select",
+                IsRequired = true,
+                ShowInAgent = false,
+                Status = "active",
+                OptionsJson = """["Low","Standard","High","Critical"]""",
+                DisplayOrder = 2,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new AssetCustomFieldDefinition
+            {
+                Id = noteId,
+                FieldKey = "maintenance_note",
+                Label = "Maintenance Note",
+                FieldType = "text",
+                IsRequired = false,
+                ShowInAgent = false,
+                Status = "draft",
+                OptionsJson = "[]",
+                DisplayOrder = 3,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+        db.CustomFieldValues.AddRange(
+            Value(AssetHrDesktopId, costCenterId, "\"HR-OPS\"", now),
+            Value(AssetHrDesktopId, officeZoneId, "\"Floor 3\"", now),
+            Value(AssetHrDesktopId, criticalityId, "\"Standard\"", now),
+            Value(AssetItNotebookId, costCenterId, "\"DT-ENG\"", now),
+            Value(AssetItNotebookId, officeZoneId, "\"Floor 3\"", now),
+            Value(AssetItNotebookId, criticalityId, "\"High\"", now),
+            Value(AssetMonitorId, costCenterId, "\"DT-STOCK\"", now),
+            Value(AssetMonitorId, criticalityId, "\"Low\"", now),
+            Value(AssetFinanceDesktopId, costCenterId, "\"FIN-OPS\"", now),
+            Value(AssetFinanceDesktopId, criticalityId, "\"High\"", now),
+            Value(AssetPrinterId, costCenterId, "\"FIN-OPS\"", now),
+            Value(AssetPrinterId, officeZoneId, "\"Floor 2\"", now),
+            Value(AssetPrinterId, criticalityId, "\"Standard\"", now));
+
+        await db.SaveChangesAsync(cancellationToken);
+    }
+
+    private static AssetCustomFieldValue Value(
+        Guid assetId,
+        Guid fieldId,
+        string json,
+        DateTimeOffset now) =>
+        new()
+        {
+            AssetId = assetId,
+            FieldId = fieldId,
+            ValueJson = json,
+            UpdatedAt = now
+        };
 
     private static Asset Asset(
         Guid id,

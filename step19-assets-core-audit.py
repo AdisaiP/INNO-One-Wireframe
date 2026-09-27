@@ -39,8 +39,8 @@ tables = [
 
 if manifest.get("contractVersion") != "0.10.0":
     issues.append("Step 19 manifest must be version 0.10.0")
-if implementation.get("contractVersion") != "0.10.0":
-    issues.append("Implementation Contract must be version 0.10.0")
+if implementation.get("contractVersion") != "0.11.0":
+    issues.append("Implementation Contract must be version 0.11.0")
 if manifest.get("operations") != operations:
     issues.append("Step 19 operation catalog mismatch")
 if manifest.get("webRoutes") != routes:
@@ -54,7 +54,7 @@ if manifest.get("deferredStep16Revalidation") is not True:
 
 slice_ref = implementation.get("assetsCoreSlice", {})
 if slice_ref.get("version") != "0.10.0":
-    issues.append("Implementation Contract missing Step 19 version")
+    issues.append("Implementation Contract missing Step 19 version 0.10.0")
 if slice_ref.get("implementedOperations") != operations:
     issues.append("Implementation Contract Step 19 operations mismatch")
 if slice_ref.get("webRoutes") != routes:

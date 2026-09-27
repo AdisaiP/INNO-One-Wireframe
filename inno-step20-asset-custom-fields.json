@@ -1,0 +1,94 @@
+{
+  "contractVersion": "0.11.0",
+  "status": "completed",
+  "name": "Asset Custom Fields Slice",
+  "documentation": "INNO-One-Step20-Asset-Custom-Fields.md",
+  "audit": "step20-asset-custom-fields-audit.py",
+  "operations": [
+    "assets.custom_fields.list",
+    "assets.custom_fields.update"
+  ],
+  "existingOperationsExtended": [
+    "assets.get",
+    "assets.update"
+  ],
+  "webRoutes": [
+    "/assets/custom-fields"
+  ],
+  "persistence": {
+    "newTables": [
+      "assets.custom_field_definitions",
+      "assets.custom_field_values"
+    ],
+    "crossModuleForeignKeys": false
+  },
+  "supportedTypes": [
+    "text",
+    "number",
+    "date",
+    "boolean",
+    "select"
+  ],
+  "deferred": [
+    "endpoint-agent-custom-field-rendering",
+    "android-assets-mobile",
+    "qr",
+    "software-baselines",
+    "software-licenses",
+    "contracts-warranty"
+  ],
+  "deferredStep16Revalidation": true,
+  "qa": {
+    "runtimeSmoke": "PASS",
+    "runtimeDatabaseGuards": {
+      "schemaAuditRecords": 2,
+      "assetAuditRecordsObserved": 8,
+      "assetChangedEventsObserved": 8,
+      "crossModuleForeignKeys": 0,
+      "seedDefinitions": 4,
+      "seedValues": 13
+    },
+    "webTypecheck": "PASS",
+    "webBuild": "PASS",
+    "dotnetBuild": {
+      "status": "PASS",
+      "warnings": 0,
+      "errors": 0
+    },
+    "efPendingModelChanges": {
+      "assets": "PASS",
+      "platform": "PASS",
+      "devices": "PASS",
+      "helpdesk": "PASS"
+    },
+    "visualQa": {
+      "status": "PASS",
+      "routes": 2,
+      "viewports": [
+        1366,
+        1024,
+        768
+      ],
+      "screens": 6,
+      "failures": 0
+    },
+    "frozenBrowserRegression": {
+      "status": "PASS",
+      "checks": 124,
+      "failures": 0
+    },
+    "frozenStaticAuditChain": {
+      "status": "PASS",
+      "issues": 0
+    },
+    "contractAuditChain": {
+      "status": "PASS",
+      "issues": 0
+    },
+    "step20Audit": {
+      "status": "PASS",
+      "issues": 0
+    },
+    "gitDiffCheck": "PASS"
+  }
+}

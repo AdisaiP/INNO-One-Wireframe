@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
 import { INNOButton } from '@inno/ui';
 import { changeAssetOwnership, getAsset, getAssetOwners, updateAsset } from '../api/client';
+import type { AssetCustomFieldValue } from '../api/types';
 import { usePermission } from '../app/ProfileContext';
 import { ErrorState, LoadingState } from '../components/Feedback';
 
@@ -10,6 +11,73 @@ function money(value?: number | null) {
   return value == null ? '—' : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'THB', maximumFractionDigits: 0 }).format(value);
 }
 function statusLabel(value: string) { return value.replaceAll('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase()); }
+
+function customValueLabel(field: AssetCustomFieldValue) {
+  if (field.value == null || field.value === '') return '—';
+  if (field.fieldType === 'boolean') return field.value ? 'Yes' : 'No';
+  return String(field.value);
+}
+
+function CustomFieldInput({
+  field,
+  value,
+  error,
+  onChange,
+}: {
+  field: AssetCustomFieldValue;
+  value: unknown;
+  error?: string;
+  onChange: (value: unknown) => void;
+}) {
+  const label = field.label + (field.isRequired ? ' *' : '');
+
+  if (field.fieldType === 'boolean') {
+    return (
+      <div className="field-block">
+        <span>{label}</span>
+        <label className="check-row">
+          <input
+            type="checkbox"
+            checked={Boolean(value)}
+            onChange={(event) => onChange(event.target.checked)}
+          />
+          <span>{Boolean(value) ? 'Yes' : 'No'}</span>
+        </label>
+        {error ? <span className="field-error" role="alert">{error}</span> : null}
+      </div>
+    );
+  }
+
+  if (field.fieldType === 'select') {
+    return (
+      <label className="field-block">
+        <span>{label}</span>
+        <select
+          value={typeof value === 'string' ? value : ''}
+          aria-invalid={Boolean(error)}
+          onChange={(event) => onChange(event.target.value)}
+        >
+          <option value="">Select…</option>
+          {field.options.map((option) => <option key={option} value={option}>{option}</option>)}
+        </select>
+        {error ? <span className="field-error" role="alert">{error}</span> : null}
+      </label>
+    );
+  }
+
+  return (
+    <label className="field-block">
+      <span>{label}</span>
+      <input
+        type={field.fieldType === 'number' ? 'number' : field.fieldType === 'date' ? 'date' : 'text'}
+        value={value == null ? '' : String(value)}
+        aria-invalid={Boolean(error)}
+        onChange={(event) => onChange(event.target.value)}
+      />
+      {error ? <span className="field-error" role="alert">{error}</span> : null}
+    </label>
+  );
+}
 
 export function AssetDetailPage() {
   const { assetId = '' } = useParams();
@@ -19,7 +87,10 @@ export function AssetDetailPage() {
   const owners = useQuery({ queryKey: ['assets', 'owners', 'picker'], queryFn: () => getAssetOwners({ pageSize: 100 }), enabled: canManage });
   const [form, setForm] = useState({ name: '', category: '', lifecycleStatus: '', purchasePrice: '' });
   const [ownerId, setOwnerId] = useState('');
+  const [customValues, setCustomValues] = useState<Record<string, unknown>>({});
+  const [customErrors, setCustomErrors] = useState<Record<string, string>>({});
   const [saveError, setSaveError] = useState('');
+  const [savedMessage, setSavedMessage] = useState('');
 
   useEffect(() => {
     if (!query.data) return;
@@ -30,7 +101,27 @@ export function AssetDetailPage() {
       purchasePrice: query.data.purchasePrice?.toString() ?? '',
     });
     setOwnerId(query.data.owner?.id ?? '');
+    setCustomValues(Object.fromEntries(
+      query.data.customFields.map((field) => [
+        field.fieldKey,
+        field.value ?? (field.fieldType === 'boolean' ? false : ''),
+      ]),
+    ));
+    setCustomErrors({});
   }, [query.data]);
+
+  const customPayload = () => Object.fromEntries(
+    (query.data?.customFields ?? []).map((field) => {
+      const value = customValues[field.fieldKey];
+      if (field.fieldType === 'number') {
+        return [field.fieldKey, value === '' || value == null ? null : Number(value)];
+      }
+      if (field.fieldType === 'boolean') {
+        return [field.fieldKey, Boolean(value)];
+      }
+      return [field.fieldKey, value === '' ? null : value];
+    }),
+  );
 
   const saveMutation = useMutation({
     mutationFn: () => updateAsset(assetId, query.data?.eTag ?? '', {
@@ -38,10 +129,41 @@ export function AssetDetailPage() {
       category: form.category,
       lifecycleStatus: form.lifecycleStatus,
       purchasePrice: form.purchasePrice ? Number(form.purchasePrice) : 0,
+      customFields: customPayload(),
     }),
-    onSuccess: async () => { setSaveError(''); await queryClient.invalidateQueries({ queryKey: ['assets'] }); },
-    onError: (error: Error) => setSaveError(error.message),
+    onSuccess: async () => {
+      setSaveError('');
+      setCustomErrors({});
+      setSavedMessage('Asset saved.');
+      await queryClient.invalidateQueries({ queryKey: ['assets'] });
+      window.setTimeout(() => setSavedMessage(''), 2500);
+    },
+    onError: (error: Error) => {
+      setSavedMessage('');
+      setSaveError(error.message);
+    },
   });
+
+  function saveAsset() {
+    const errors: Record<string, string> = {};
+    for (const field of query.data?.customFields ?? []) {
+      const value = customValues[field.fieldKey];
+      const empty = value == null || value === '';
+      if (field.isRequired && empty) {
+        errors[field.fieldKey] = 'This field is required.';
+      }
+      if (field.fieldType === 'number' && !empty && Number.isNaN(Number(value))) {
+        errors[field.fieldKey] = 'Enter a valid number.';
+      }
+    }
+    setCustomErrors(errors);
+    if (Object.keys(errors).length > 0) {
+      setSaveError('Review the highlighted custom fields before saving.');
+      return;
+    }
+    setSaveError('');
+    saveMutation.mutate();
+  }
 
   const ownerMutation = useMutation({
     mutationFn: () => changeAssetOwnership(assetId, query.data?.eTag ?? '', {
@@ -75,6 +197,7 @@ export function AssetDetailPage() {
       </div>
 
       {saveError ? <div className="form-error" role="alert">{saveError}</div> : null}
+      {savedMessage ? <div className="form-success" role="status">{savedMessage}</div> : null}
       <div className="device-overview-grid">
         <section className="prod-panel">
           <div className="prod-panel-head"><div><h3>Asset information</h3><p>Canonical inventory record owned by Assets.</p></div></div>
@@ -86,7 +209,6 @@ export function AssetDetailPage() {
                 <label className="field-block"><span>Status</span><select value={form.lifecycleStatus} onChange={(e) => setForm((v) => ({ ...v, lifecycleStatus: e.target.value }))}><option value="in_use">In use</option><option value="stock">Stock</option><option value="repair">Repair</option><option value="retired">Retired</option></select></label>
                 <label className="field-block"><span>Purchase price · THB</span><input type="number" min="0" value={form.purchasePrice} onChange={(e) => setForm((v) => ({ ...v, purchasePrice: e.target.value }))} /></label>
               </div>
-              <div className="editor-footer standalone-editor-footer"><span className="editor-footer-note">Changes are audited and version checked.</span><INNOButton disabled={saveMutation.isPending || !form.name.trim()} onClick={() => saveMutation.mutate()}>{saveMutation.isPending ? 'Saving…' : 'Save Asset'}</INNOButton></div>
             </div>
           ) : (
             <div className="kv-grid production-kv-grid">
@@ -109,6 +231,63 @@ export function AssetDetailPage() {
           </section>
         </div>
       </div>
+
+      <section className="prod-panel asset-custom-values-panel">
+        <div className="prod-panel-head">
+          <div>
+            <h3>Custom fields</h3>
+            <p>Organization-defined Asset attributes. Schema is managed separately.</p>
+          </div>
+          <Link className="open-resource" to="/assets/custom-fields">Manage schema</Link>
+        </div>
+
+        {asset.customFields.length === 0 ? (
+          <div className="compact-empty">No active custom fields are configured.</div>
+        ) : canManage ? (
+          <div className="editor-form">
+            <div className="editor-grid">
+              {asset.customFields.map((field) => (
+                <CustomFieldInput
+                  key={field.fieldKey}
+                  field={field}
+                  value={customValues[field.fieldKey]}
+                  error={customErrors[field.fieldKey]}
+                  onChange={(value) => {
+                    setSavedMessage('');
+                    setCustomErrors((current) => {
+                      const next = { ...current };
+                      delete next[field.fieldKey];
+                      return next;
+                    });
+                    setCustomValues((current) => ({ ...current, [field.fieldKey]: value }));
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="kv-grid production-kv-grid">
+            {asset.customFields.map((field) => (
+              <div className="kv-row" key={field.fieldKey}>
+                <span>{field.label}</span>
+                <b>{customValueLabel(field)}</b>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {canManage ? (
+        <div className="editor-footer standalone-editor-footer">
+          <span className="editor-footer-note">Asset and custom-field changes are audited and version checked.</span>
+          <INNOButton
+            disabled={saveMutation.isPending || !form.name.trim()}
+            onClick={saveAsset}
+          >
+            {saveMutation.isPending ? 'Saving…' : 'Save Asset'}
+          </INNOButton>
+        </div>
+      ) : null}
 
       <section className="collection-card">
         <div className="collection-head"><div><h2>Ownership history</h2><p>Immutable ownership changes for this asset.</p></div></div>
