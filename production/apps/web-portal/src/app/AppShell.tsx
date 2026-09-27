@@ -142,7 +142,7 @@ export function AppShell() {
 
         <aside
           className={`prod-side${sideOpen ? ' open' : ''}`}
-          aria-label={inProfile ? 'Account navigation' : inAssets ? 'Assets navigation' : inHelpdesk ? 'Helpdesk navigation' : 'Devices navigation'}
+          aria-label={inProfile ? 'Account navigation' : inAssets ? 'Assets navigation' : inHelpdesk ? 'Helpdesk navigation' : inDevices ? 'Devices navigation' : 'Workspace context'}
         >
           {inProfile ? (
             <>
@@ -180,7 +180,7 @@ export function AppShell() {
               {canManageSla ? <NavLink to="/helpdesk/calendar">Business Calendar</NavLink> : null}
               {canViewAutomation ? <NavLink to="/helpdesk/automation">Automation</NavLink> : null}
             </>
-          ) : (
+          ) : inDevices ? (
             <>
               <div className="prod-side-title">Devices</div>
               <div className="prod-side-section">Workspace</div>
@@ -188,6 +188,12 @@ export function AppShell() {
               <NavLink to="/devices/discovery">Discovery</NavLink>
               <NavLink to="/devices/groups">Device Groups</NavLink>
               {canDeployDevices ? <NavLink to="/devices/add">Agent Deployment</NavLink> : null}
+            </>
+          ) : (
+            <>
+              <div className="prod-side-title">INNO.One</div>
+              <div className="prod-side-section">Workspace</div>
+              <div className="prod-side-note">This route is outside the currently enabled production modules.</div>
             </>
           )}
         </aside>
