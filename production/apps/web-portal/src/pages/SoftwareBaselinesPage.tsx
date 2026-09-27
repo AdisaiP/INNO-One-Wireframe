@@ -1,6 +1,6 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { INNOButton, INNOPage } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOPage, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { createSoftwareBaseline, evaluateSoftwareBaseline, getSoftwareBaselineResults, getSoftwareBaselines, updateSoftwareBaseline } from '../api/client';
 import type { SoftwareBaselineItem, SoftwareBaselineRequest } from '../api/types';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -119,58 +119,58 @@ export function SoftwareBaselinesPage() {
   const editing = creating || selected !== null;
 
   return (
-    <INNOPage eyebrow="Assets · Management" title="Software Baselines">
-      <div className="page-intro-row">
-        <p className="page-helper">Define required software and review evidence-backed compliance for linked Assets.</p>
-        {canManage ? <INNOButton onClick={startCreate}>New Baseline</INNOButton> : null}
-      </div>
+    <INNOPage
+      eyebrow="Assets · Management"
+      title="Software Baselines"
+      description="Define required software and review evidence-backed compliance for linked Assets."
+      actions={canManage ? <INNOButton onClick={startCreate}>New Baseline</INNOButton> : undefined}
+    >
       <div className="baseline-info" role="status">
         Evaluation uses Devices observations from the last 24 hours. Missing, stale or partial inventory remains Unknown.
       </div>
       {feedback ? <div className="form-success" role="status">{feedback}</div> : null}
       {error ? <div className="form-error" role="alert">{error}</div> : null}
 
-      <section className="collection-card">
-        <div className="collection-head">
-          <div><h2>Baseline definitions</h2><p>{items.length} matching definitions</p></div>
-        </div>
-        <div className="collection-toolbar">
-          <label className="search-field"><span className="sr-only">Search baselines</span>
-            <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search code or name" />
-          </label>
-          <label ><span className="sr-only">Status filter</span>
-            <select value={status} onChange={(event) => setStatus(event.target.value)}>
-              <option value="all">All statuses</option>
-              <option value="draft">Draft</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </label>
-        </div>
+      <INNOCollection>
+        <INNOCollectionHeader
+          title="Baseline definitions"
+          description={items.length + ' matching definitions'}
+          meta={<INNOStatus>{items.length} baselines</INNOStatus>}
+        />
+        <INNOCollectionToolbar>
+          <INNOSearchField label="Search baselines" value={search} onChange={setSearch} placeholder="Search code or name" />
+          <INNOSelectField label="Status filter" value={status} onChange={setStatus}>
+            <option value="all">All statuses</option>
+            <option value="draft">Draft</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </INNOSelectField>
+        </INNOCollectionToolbar>
         {items.length ? (
-          <div className="production-table-wrap"><table className="production-table">
+          <INNOTableWrap width="wide"><table>
             <thead><tr><th>Baseline</th><th>Target category</th><th>Required software</th><th>Status</th><th>Evaluation</th><th className="action-column">Action</th></tr></thead>
             <tbody>{items.map((item) => <tr key={item.id} aria-selected={item.id === selectedId}>
               <td><b>{item.name}</b><div className="table-meta">{item.code}</div></td>
               <td>{item.targetCategory || 'All Asset categories'}</td>
               <td>{item.requiredPackages.length}</td>
-              <td>{item.status}</td>
-              <td>{item.evaluationStatus.replaceAll('_', ' ')}</td>
-              <td className="action-column"><INNOButton variant="secondary" onClick={() => { setCreating(false); setSelectedId(item.id); }}>Open</INNOButton></td>
+              <td><INNOStatus tone={item.status === 'active' ? 'success' : 'neutral'}>{item.status}</INNOStatus></td>
+              <td><INNOStatus tone={item.evaluationStatus === 'current' ? 'success' : item.evaluationStatus === 'stale' ? 'warning' : 'neutral'}>{item.evaluationStatus.replaceAll('_', ' ')}</INNOStatus></td>
+              <td className="action-column"><button type="button" className="device-row-action" aria-label={'Open ' + item.name} onClick={() => { setCreating(false); setSelectedId(item.id); }}><span aria-hidden="true">›</span></button></td>
             </tr>)}</tbody>
-          </table></div>
-        ) : <div className="compact-empty">{search || status !== 'all' ? 'No matching baselines.' : 'No software baselines yet.'}</div>}
-      </section>
+          </table></INNOTableWrap>
+        ) : (
+          <div className="collection-state"><INNOState kind={search || status !== 'all' ? 'no-results' : 'empty'} title={search || status !== 'all' ? 'No matching baselines' : 'No software baselines yet'} description={search || status !== 'all' ? 'Try another search or status.' : 'Create the first baseline when required software policy is ready.'} /></div>
+        )}
+      </INNOCollection>
 
-      {selected && !creating ? <section className="collection-card baseline-results-card">
-        <div className="collection-head">
-          <div><h2>Evaluation results</h2><p>Latest result for Assets in this baseline scope.</p></div>
-          {canManage && selected.status === 'active' ? (
-            <INNOButton disabled={evaluate.isPending} onClick={() => void evaluate.mutate()}>
-              {evaluate.isPending ? 'Evaluating…' : 'Evaluate Now'}
-            </INNOButton>
-          ) : null}
-        </div>
+      {selected && !creating ? <INNOCollection className="baseline-results-card">
+        <INNOCollectionHeader
+          title="Evaluation results"
+          description="Latest result for Assets in this baseline scope."
+          meta={canManage && selected.status === 'active' ? (
+            <INNOButton busy={evaluate.isPending} onClick={() => void evaluate.mutate()}>Evaluate Now</INNOButton>
+          ) : undefined}
+        />
         {resultsQuery.isPending ? (
           <div className="collection-state"><LoadingState label="Loading baseline results…" /></div>
         ) : resultsQuery.isError ? (
@@ -183,26 +183,28 @@ export function SoftwareBaselinesPage() {
               <div><span>Unknown</span><b>{resultsQuery.data.unknownCount}</b></div>
             </div>
             {resultsQuery.data.items.length ? (
-              <div className="production-table-wrap"><table className="production-table">
+              <INNOTableWrap width="xwide"><table>
                 <thead><tr><th>Asset</th><th>Category</th><th>Result</th><th>Evidence</th><th>Missing software</th></tr></thead>
                 <tbody>{resultsQuery.data.items.map((item) => (
                   <tr key={item.id}>
                     <td><b>{item.assetTag}</b><div className="table-meta">{item.assetName}</div></td>
                     <td>{item.category}</td>
-                    <td><span className={'prod-tag ' + (item.status === 'compliant' ? 'success' : '')}>{item.status}</span></td>
+                    <td><INNOStatus tone={item.status === 'compliant' ? 'success' : item.status === 'missing' ? 'danger' : 'warning'}>{item.status}</INNOStatus></td>
                     <td>{item.reasonCode.replaceAll('_', ' ')}</td>
                     <td>{item.missingPackages.length ? item.missingPackages.join(', ') : '—'}</td>
                   </tr>
                 ))}</tbody>
-              </table></div>
-            ) : <div className="compact-empty">No results yet. Activate the baseline and run evaluation.</div>}
+              </table></INNOTableWrap>
+            ) : <div className="collection-state"><INNOState kind="empty" title="No evaluation results yet" description="Activate the baseline and run evaluation when evidence is available." /></div>}
           </>
         )}
-      </section> : null}
+      </INNOCollection> : null}
 
-      {editing ? <section className="collection-card">
-        <div className="collection-head"><div><h2>{creating ? 'New baseline' : 'Edit baseline'}</h2>
-          <p>One software package per line. The code is fixed after creation.</p></div></div>
+      {editing ? <INNOCollection>
+        <INNOCollectionHeader
+          title={creating ? 'New baseline' : 'Edit baseline'}
+          description="One software package per line. The code is fixed after creation."
+        />
         <div className="baseline-editor-body">
           <div className="editor-grid">
             <label className="field-block"><span>Code</span>
@@ -230,13 +232,11 @@ export function SoftwareBaselinesPage() {
               placeholder="Microsoft 365 Apps&#10;Endpoint Protection" />
           </label>
         </div>
-        {canManage ? <div className="baseline-editor-footer">
+        {canManage ? <INNOEditorFooter>
           <INNOButton variant="secondary" onClick={() => { setCreating(false); setSelectedId(''); }}>Cancel</INNOButton>
-          <INNOButton disabled={save.isPending} onClick={() => void save.mutate()}>
-            {save.isPending ? 'Saving…' : 'Save Baseline'}
-          </INNOButton>
-        </div> : null}
-      </section> : null}
+          <INNOButton busy={save.isPending} onClick={() => void save.mutate()}>Save Baseline</INNOButton>
+        </INNOEditorFooter> : null}
+      </INNOCollection> : null}
     </INNOPage>
   );
 }
