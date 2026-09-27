@@ -1,0 +1,45 @@
+name: Step29 Helpdesk QA
+
+on:
+  push:
+    branches:
+      - qa/step29-helpdesk-final
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.0
+          run_install: false
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.103'
+      - name: Step 29 static parity audit
+        run: python3 step29-react-ui-parity-audit.py
+      - name: Step 15-28 regression audits
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in             step15-vertical-slice-audit.py             step16-devices-management-audit.py             step17-helpdesk-core-audit.py             step18-helpdesk-sla-automation-audit.py             step19-assets-core-audit.py             step20-asset-custom-fields-audit.py             step21-asset-qr-audit.py             step22-software-licenses-audit.py             step23-contracts-warranty-audit.py             step24-assets-mobile-audit.py             step25-assets-integration-audit.py             step26-software-baselines-audit.py             step27-devices-software-inventory-audit.py             step28-software-baseline-evaluation-audit.py
+          do
+            python3 "$f"
+          done
+      - name: Install web dependencies
+        working-directory: production
+        run: pnpm install --frozen-lockfile
+      - name: Web typecheck
+        working-directory: production
+        run: pnpm typecheck
+      - name: Web build
+        working-directory: production
+        run: pnpm build
+      - name: .NET build
+        working-directory: production
+        run: dotnet build INNO.One.sln --nologo
