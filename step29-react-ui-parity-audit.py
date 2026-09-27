@@ -100,6 +100,8 @@ for marker in ['icon={<span aria-hidden="true">▣</span>}','INNOCollection clas
     if marker not in device_detail: issues.append('device detail parity '+marker)
 for marker in ['inDeviceDetail','isActive || inDeviceDetail']:
     if marker not in shell: issues.append('device detail navigation '+marker)
+for marker in ['inAssetDetail','isActive || inAssetDetail']:
+    if marker not in shell: issues.append('asset detail navigation '+marker)
 
 
 expected_asset_routes = [
