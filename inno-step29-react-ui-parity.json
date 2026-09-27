@@ -110,5 +110,20 @@
     "browserQaFailures": 0,
     "browserQaRunId": 36345408540,
     "buildQaRunId": 36342574582
-  }
+  },
+  "inProgressPhase": "helpdesk",
+  "helpdeskImplementationStatus": "implemented_pending_qa",
+  "helpdeskParityRoutes": [
+    "/helpdesk",
+    "/helpdesk/tickets",
+    "/helpdesk/assigned",
+    "/helpdesk/team",
+    "/helpdesk/tickets/new",
+    "/helpdesk/tickets/:ticketId",
+    "/helpdesk/sla",
+    "/helpdesk/calendar",
+    "/helpdesk/automation",
+    "/helpdesk/automation/new",
+    "/helpdesk/automation/:ruleId"
+  ]
 }
