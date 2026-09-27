@@ -17,8 +17,8 @@ tables = ["assets.software_licenses", "assets.license_allocations"]
 
 if manifest.get("contractVersion") != "0.13.0":
     issues.append("Step 22 manifest must be version 0.13.0")
-if implementation.get("contractVersion") != "0.13.0":
-    issues.append("Implementation Contract must be version 0.13.0")
+if implementation.get("contractVersion") != "0.14.0":
+    issues.append("Implementation Contract must be version 0.14.0")
 if manifest.get("operations") != operations:
     issues.append("Step 22 operation catalog mismatch")
 if manifest.get("webRoutes") != routes:
@@ -128,7 +128,7 @@ platform_seed = (
 for marker in (
     '("assets.license.manage", "assets"',
     "Step22Permissions",
-    "EnsureStep16To22Async",
+    "EnsureStep16To23Async",
 ):
     if marker not in platform_seed:
         issues.append(f"Platform permission seed missing: {marker}")

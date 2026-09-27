@@ -16,6 +16,7 @@ import { SoftwareLicensesPage } from '../pages/SoftwareLicensesPage';
 import { AutomationRulePage } from '../pages/AutomationRulePage';
 import { AutomationRulesPage } from '../pages/AutomationRulesPage';
 import { BusinessCalendarPage } from '../pages/BusinessCalendarPage';
+import { ContractsWarrantyPage } from '../pages/ContractsWarrantyPage';
 import { DeviceDetailPage } from '../pages/DeviceDetailPage';
 import { DeviceGroupDetailPage } from '../pages/DeviceGroupDetailPage';
 import { DeviceGroupsPage } from '../pages/DeviceGroupsPage';
@@ -82,6 +83,7 @@ export function AppRoot() {
           <Route path="assets/custom-fields" element={canViewAssets ? <AssetCustomFieldsPage /> : <DeferredPage name="Custom Fields" />} />
           <Route path="assets/qr-labels" element={canViewAssets && canPrintAssetQr ? <AssetQrLabelsPage /> : <DeferredPage name="QR Labels" />} />
           <Route path="assets/software-licenses" element={canViewAssets && canManageAssetLicenses ? <SoftwareLicensesPage /> : <DeferredPage name="Software Licenses" />} />
+          <Route path="assets/contracts" element={canViewAssets ? <ContractsWarrantyPage /> : <DeferredPage name="Contracts & Warranty" />} />
           <Route path="assets/:assetId" element={canViewAssets ? <AssetDetailPage /> : <DeferredPage name="Asset" />} />
 
           <Route path="helpdesk" element={canViewHelpdesk ? <HelpdeskOverviewPage /> : <DeferredPage name="Helpdesk" />} />

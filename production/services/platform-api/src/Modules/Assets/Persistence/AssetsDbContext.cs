@@ -16,6 +16,8 @@ public sealed class AssetsDbContext(DbContextOptions<AssetsDbContext> options) :
     public DbSet<AssetQrScan> QrScans => Set<AssetQrScan>();
     public DbSet<SoftwareLicense> SoftwareLicenses => Set<SoftwareLicense>();
     public DbSet<LicenseAllocation> LicenseAllocations => Set<LicenseAllocation>();
+    public DbSet<AssetContract> Contracts => Set<AssetContract>();
+    public DbSet<AssetContractLink> AssetContractLinks => Set<AssetContractLink>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -162,6 +164,41 @@ public sealed class AssetsDbContext(DbContextOptions<AssetsDbContext> options) :
                 .WithMany()
                 .HasForeignKey(x => x.AssetId)
                 .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<AssetContract>(entity =>
+        {
+            entity.ToTable("contracts");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => x.ContractNumber).IsUnique();
+            entity.HasIndex(x => new { x.EndAt, x.RecordStatus });
+            entity.Property(x => x.ContractNumber).HasMaxLength(80);
+            entity.Property(x => x.FiscalYear).HasMaxLength(20);
+            entity.Property(x => x.Vendor).HasMaxLength(180);
+            entity.Property(x => x.ServiceType).HasMaxLength(180);
+            entity.Property(x => x.ServiceCondition).HasMaxLength(500);
+            entity.Property(x => x.WarrantyTerms).HasMaxLength(500);
+            entity.Property(x => x.ContactName).HasMaxLength(160);
+            entity.Property(x => x.ContactPhone).HasMaxLength(80);
+            entity.Property(x => x.ContactEmail).HasMaxLength(180);
+            entity.Property(x => x.RecordStatus).HasMaxLength(24);
+            entity.Property(x => x.Version).IsConcurrencyToken();
+        });
+
+        modelBuilder.Entity<AssetContractLink>(entity =>
+        {
+            entity.ToTable("asset_contract_links");
+            entity.HasKey(x => new { x.AssetId, x.ContractId });
+            entity.HasIndex(x => x.ContractId);
+            entity.Property(x => x.CoverageStatus).HasMaxLength(24);
+            entity.HasOne<Asset>()
+                .WithMany()
+                .HasForeignKey(x => x.AssetId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<AssetContract>()
+                .WithMany()
+                .HasForeignKey(x => x.ContractId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         base.OnModelCreating(modelBuilder);

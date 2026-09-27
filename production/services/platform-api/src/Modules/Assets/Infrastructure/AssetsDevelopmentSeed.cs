@@ -28,6 +28,7 @@ public static class AssetsDevelopmentSeed
         {
             await EnsureCustomFieldsAsync(db, cancellationToken);
             await EnsureSoftwareLicensesAsync(db, cancellationToken);
+            await EnsureContractsAsync(db, cancellationToken);
             return;
         }
 
@@ -109,6 +110,7 @@ public static class AssetsDevelopmentSeed
         await db.SaveChangesAsync(cancellationToken);
         await EnsureCustomFieldsAsync(db, cancellationToken);
         await EnsureSoftwareLicensesAsync(db, cancellationToken);
+        await EnsureContractsAsync(db, cancellationToken);
     }
 
     private static async Task EnsureCustomFieldsAsync(
@@ -301,6 +303,99 @@ public static class AssetsDevelopmentSeed
 
         await db.SaveChangesAsync(cancellationToken);
     }
+
+
+    private static async Task EnsureContractsAsync(
+        AssetsDbContext db,
+        CancellationToken cancellationToken)
+    {
+        if (await db.Contracts.AnyAsync(cancellationToken))
+        {
+            return;
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        var activeId = Guid.Parse("94000000-0000-0000-0000-000000000001");
+        var expiringId = Guid.Parse("94000000-0000-0000-0000-000000000002");
+        var expiredId = Guid.Parse("94000000-0000-0000-0000-000000000003");
+
+        db.Contracts.AddRange(
+            new AssetContract
+            {
+                Id = activeId,
+                ContractNumber = "CTR-2568-IT-014",
+                FiscalYear = "2568",
+                Vendor = "ABC Technology Co., Ltd.",
+                StartAt = now.AddMonths(-8),
+                EndAt = now.AddMonths(15),
+                ServiceType = "3 years onsite NBD",
+                ServiceCondition = "Onsite within next business day",
+                WarrantyTerms = "Parts and labor included during contract period.",
+                ContactName = "Enterprise Support",
+                ContactPhone = "02-555-9088",
+                ContactEmail = "support@vendor.local",
+                RecordStatus = "active",
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new AssetContract
+            {
+                Id = expiringId,
+                ContractNumber = "CTR-2567-NB-006",
+                FiscalYear = "2567",
+                Vendor = "Notebook Solutions Ltd.",
+                StartAt = now.AddYears(-2),
+                EndAt = now.AddDays(60),
+                ServiceType = "2 years carry-in",
+                ServiceCondition = "Carry-in repair with 5 business-day target.",
+                WarrantyTerms = "Mainboard, storage and display hardware coverage.",
+                ContactName = "Notebook Support",
+                ContactPhone = "02-555-7711",
+                ContactEmail = "service@notebook.local",
+                RecordStatus = "active",
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new AssetContract
+            {
+                Id = expiredId,
+                ContractNumber = "CTR-2566-PRN-002",
+                FiscalYear = "2566",
+                Vendor = "Office Print Co.",
+                StartAt = now.AddYears(-3),
+                EndAt = now.AddDays(-120),
+                ServiceType = "Maintenance",
+                ServiceCondition = "Quarterly preventive maintenance.",
+                WarrantyTerms = "Consumables excluded.",
+                ContactName = "Printer Service",
+                ContactPhone = "02-555-2266",
+                ContactEmail = "support@print.local",
+                RecordStatus = "active",
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+        db.AssetContractLinks.AddRange(
+            ContractLink(AssetHrDesktopId, activeId, now),
+            ContractLink(AssetItNotebookId, activeId, now),
+            ContractLink(AssetFinanceDesktopId, expiringId, now),
+            ContractLink(AssetPrinterId, expiringId, now),
+            ContractLink(AssetPrinterId, expiredId, now));
+
+        await db.SaveChangesAsync(cancellationToken);
+    }
+
+    private static AssetContractLink ContractLink(
+        Guid assetId,
+        Guid contractId,
+        DateTimeOffset now) =>
+        new()
+        {
+            AssetId = assetId,
+            ContractId = contractId,
+            CoverageStatus = "covered",
+            LinkedAt = now
+        };
 
     private static LicenseAllocation Allocation(
         Guid licenseId,

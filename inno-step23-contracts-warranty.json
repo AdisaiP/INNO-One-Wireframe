@@ -1,0 +1,86 @@
+{
+  "contractVersion": "0.14.0",
+  "status": "completed",
+  "name": "Contracts & Warranty Slice",
+  "documentation": "INNO-One-Step23-Contracts-Warranty.md",
+  "audit": "step23-contracts-warranty-audit.py",
+  "operations": [
+    "assets.contracts.list",
+    "assets.contracts.update"
+  ],
+  "webRoutes": [
+    "/assets/contracts"
+  ],
+  "persistence": {
+    "newTables": [
+      "assets.contracts",
+      "assets.asset_contract_links"
+    ],
+    "crossModuleForeignKeys": false
+  },
+  "activeEvents": [
+    "contract.expiring"
+  ],
+  "auditActions": [
+    "assets.contract.updated"
+  ],
+  "deferred": [
+    "software-baselines",
+    "android-scanner-runtime"
+  ],
+  "deferredStep16Revalidation": true,
+  "qa": {
+    "runtimeSmoke": "PASS",
+    "runtimeDatabaseGuards": {
+      "contracts": 3,
+      "assetContractLinks": 5,
+      "contractPermission": 1,
+      "contractAuditRecordsObserved": 2,
+      "contractExpiringEventsObserved": 2,
+      "crossModuleForeignKeys": 0,
+      "activeContractRestoredDaysRemaining": 456
+    },
+    "webTypecheck": "PASS",
+    "webBuild": "PASS",
+    "dotnetBuild": {
+      "status": "PASS",
+      "warnings": 0,
+      "errors": 0
+    },
+    "efPendingModelChanges": {
+      "assets": "PASS",
+      "platform": "PASS",
+      "devices": "PASS",
+      "helpdesk": "PASS"
+    },
+    "visualQa": {
+      "status": "PASS",
+      "route": "/assets/contracts",
+      "viewports": [
+        1366,
+        1024,
+        768
+      ],
+      "screens": 3,
+      "failures": 0
+    },
+    "frozenBrowserRegression": {
+      "status": "PASS",
+      "checks": 124,
+      "failures": 0
+    },
+    "frozenStaticAuditChain": {
+      "status": "PASS",
+      "issues": 0
+    },
+    "contractAuditChain": {
+      "status": "PASS",
+      "issues": 0
+    },
+    "step23Audit": {
+      "status": "PASS",
+      "issues": 0
+    },
+    "gitDiffCheck": "PASS"
+  }
+}

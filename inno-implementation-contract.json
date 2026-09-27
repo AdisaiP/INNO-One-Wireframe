@@ -1,5 +1,5 @@
 {
-  "contractVersion": "0.13.0",
+  "contractVersion": "0.14.0",
   "status": "implementation-in-progress",
   "generatedFrom": {
     "designSystem": "V1.26",
@@ -455,6 +455,28 @@
     ],
     "activeEvents": [
       "license.overused"
+    ],
+    "featureImplementationStarted": true
+  },
+  "assetContractsWarrantySlice": {
+    "version": "0.14.0",
+    "name": "Contracts & Warranty Slice",
+    "documentation": "INNO-One-Step23-Contracts-Warranty.md",
+    "manifest": "inno-step23-contracts-warranty.json",
+    "audit": "step23-contracts-warranty-audit.py",
+    "implementedOperations": [
+      "assets.contracts.list",
+      "assets.contracts.update"
+    ],
+    "webRoutes": [
+      "/assets/contracts"
+    ],
+    "persistence": [
+      "contracts",
+      "asset_contract_links"
+    ],
+    "activeEvents": [
+      "contract.expiring"
     ],
     "featureImplementationStarted": true
   }

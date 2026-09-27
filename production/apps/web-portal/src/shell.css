@@ -2036,3 +2036,84 @@
   }
   .license-record-footer .editor-footer-note { margin-right: 0; }
 }
+
+
+/* Step 23 · Contracts & Warranty */
+.prod-tag.warning-tag {
+  background: #fff5dc;
+  color: #8a6400;
+}
+.contract-stat-strip { margin-bottom: 14px; }
+.contract-collection { margin-bottom: 14px; }
+.contract-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(320px, .75fr);
+  gap: 14px;
+  align-items: start;
+  margin-bottom: 14px;
+}
+.contract-detail-card,
+.contract-record-panel { min-width: 0; }
+.contract-kv-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0 16px 14px;
+  border: 1px solid var(--ds-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.contract-kv-grid > div {
+  min-width: 0;
+  padding: 10px 11px;
+  border-right: 1px solid #eef1f4;
+  border-bottom: 1px solid #eef1f4;
+}
+.contract-kv-grid > div:nth-child(even) { border-right: 0; }
+.contract-kv-grid > div:nth-last-child(-n+2) { border-bottom: 0; }
+.contract-kv-grid > .contract-kv-wide {
+  grid-column: 1 / -1;
+  border-right: 0;
+  border-bottom: 1px solid #eef1f4;
+}
+.contract-kv-grid > .contract-kv-wide:last-child { border-bottom: 0; }
+.contract-kv-grid span {
+  display: block;
+  color: var(--ds-muted);
+  font-size: 9px;
+}
+.contract-kv-grid b {
+  display: block;
+  margin-top: 3px;
+  color: #334055;
+  font-size: 10px;
+  line-height: 1.45;
+}
+.covered-assets-head {
+  margin-top: 2px;
+  border-top: 1px solid #eef1f4;
+}
+.contract-record-footer {
+  align-items: center;
+  margin-top: 12px;
+}
+.contract-record-footer .editor-footer-note { margin-right: auto; }
+
+@media (max-width: 1024px) {
+  .contract-detail-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .contract-kv-grid { grid-template-columns: 1fr; }
+  .contract-kv-grid > div,
+  .contract-kv-grid > div:nth-child(even),
+  .contract-kv-grid > div:nth-last-child(-n+2) {
+    border-right: 0;
+    border-bottom: 1px solid #eef1f4;
+  }
+  .contract-kv-grid > div:last-child { border-bottom: 0; }
+  .contract-record-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .contract-record-footer .editor-footer-note { margin-right: 0; }
+}

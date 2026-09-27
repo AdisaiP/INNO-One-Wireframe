@@ -97,6 +97,7 @@ api.MapAssetsEndpoints();
 api.MapAssetsCustomFieldEndpoints();
 api.MapAssetsQrEndpoints();
 api.MapSoftwareLicenseEndpoints();
+api.MapContractsWarrantyEndpoints();
 api.MapHelpdeskEndpoints();
 api.MapHelpdeskSlaAutomationEndpoints();
 

@@ -132,3 +132,32 @@ public sealed class LicenseAllocation
     public required string Source { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
 }
+
+
+public sealed class AssetContract
+{
+    public Guid Id { get; set; }
+    public required string ContractNumber { get; set; }
+    public required string FiscalYear { get; set; }
+    public required string Vendor { get; set; }
+    public DateTimeOffset StartAt { get; set; }
+    public DateTimeOffset EndAt { get; set; }
+    public required string ServiceType { get; set; }
+    public string? ServiceCondition { get; set; }
+    public string? WarrantyTerms { get; set; }
+    public string? ContactName { get; set; }
+    public string? ContactPhone { get; set; }
+    public string? ContactEmail { get; set; }
+    public required string RecordStatus { get; set; }
+    public int Version { get; set; } = 1;
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
+}
+
+public sealed class AssetContractLink
+{
+    public Guid AssetId { get; set; }
+    public Guid ContractId { get; set; }
+    public required string CoverageStatus { get; set; }
+    public DateTimeOffset LinkedAt { get; set; }
+}

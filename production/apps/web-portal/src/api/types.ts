@@ -602,6 +602,52 @@ export interface SoftwareLicenseListResponse {
   vendors: string[];
 }
 
+export interface CoveredAssetContractItem {
+  id: string;
+  assetTag: string;
+  name: string;
+  brandModel: string;
+  owner?: string | null;
+  coverageStatus: string;
+}
+
+export interface AssetContractItem {
+  id: string;
+  contractNumber: string;
+  fiscalYear: string;
+  vendor: string;
+  startAt: string;
+  endAt: string;
+  serviceType: string;
+  serviceCondition?: string | null;
+  warrantyTerms?: string | null;
+  contactName?: string | null;
+  contactPhone?: string | null;
+  contactEmail?: string | null;
+  status: 'active' | 'expiring' | 'expired';
+  daysRemaining: number;
+  coveredAssets: CoveredAssetContractItem[];
+  updatedAt: string;
+  eTag: string;
+}
+
+export interface AssetContractSummary {
+  activeContracts: number;
+  expiringWithin90Days: number;
+  coveredAssets: number;
+  uncoveredAssets: number;
+}
+
+export interface AssetContractListResponse {
+  items: AssetContractItem[];
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+  summary: AssetContractSummary;
+  fiscalYears: string[];
+}
+
 export interface AssetOwnershipChange {
   assetId: string;
   assetTag: string;

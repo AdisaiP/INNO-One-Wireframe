@@ -13,6 +13,8 @@ import type {
   AssetQrResolvedAsset,
   SoftwareLicenseItem,
   SoftwareLicenseListResponse,
+  AssetContractItem,
+  AssetContractListResponse,
   OwnershipDecision,
   OwnershipSubmission,
   AutomationRuleDetail,
@@ -381,6 +383,57 @@ export async function updateSoftwareLicense(
 ): Promise<SoftwareLicenseItem> {
   const response = await request<ResourceEnvelope<SoftwareLicenseItem>>(
     '/assets/software-licenses/' + encodeURIComponent(licenseId),
+    {
+      method: 'PATCH',
+      ...jsonRequest(input, { 'If-Match': eTag }),
+    },
+  );
+  return response.data;
+}
+
+
+
+export interface AssetContractQuery {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  status?: string;
+  fiscalYear?: string;
+}
+
+export async function getAssetContracts(
+  query: AssetContractQuery = {},
+): Promise<AssetContractListResponse> {
+  const params = new URLSearchParams({
+    page: String(query.page ?? 1),
+    pageSize: String(query.pageSize ?? 25),
+  });
+  if (query.search?.trim()) params.set('search', query.search.trim());
+  if (query.status && query.status !== 'all') params.set('status', query.status);
+  if (query.fiscalYear && query.fiscalYear !== 'all') params.set('fiscalYear', query.fiscalYear);
+  return request<AssetContractListResponse>(
+    '/assets/contracts?' + params.toString(),
+  );
+}
+
+export async function updateAssetContract(
+  contractId: string,
+  eTag: string,
+  input: {
+    fiscalYear: string;
+    vendor: string;
+    startAt: string;
+    endAt: string;
+    serviceType: string;
+    serviceCondition?: string | null;
+    warrantyTerms?: string | null;
+    contactName?: string | null;
+    contactPhone?: string | null;
+    contactEmail?: string | null;
+  },
+): Promise<AssetContractItem> {
+  const response = await request<ResourceEnvelope<AssetContractItem>>(
+    '/assets/contracts/' + encodeURIComponent(contractId),
     {
       method: 'PATCH',
       ...jsonRequest(input, { 'If-Match': eTag }),

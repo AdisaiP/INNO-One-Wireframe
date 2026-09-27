@@ -960,3 +960,66 @@ Remote completion on 2026-09-27:
 **Step 16 fresh re-validation remains deferred by explicit user request and must be rerun before merge/release.**
 
 **Do not merge `main` without explicit user instruction.**
+
+
+# Step 23 — Contracts & Warranty ✅ COMPLETED 2026-09-27
+
+Branch: `implementation/step23-contracts-warranty`
+
+Implementation Contract: **0.14.0**.
+
+Implemented:
+
+- Web route `/assets/contracts`.
+- `GET /assets/contracts` using `assets.view` with effective Assets scope.
+- `PATCH /assets/contracts/{contractId}` using `assets.contract.manage`.
+- Assets-owned `contracts` and `asset_contract_links` persistence.
+- Server-authoritative contract status:
+  - active when > 90 days remain;
+  - expiring when ≤ 90 days remain;
+  - expired after the end date.
+- KPI summary for active contracts, 90-day expirations, covered Assets and uncovered Assets.
+- Search, status and fiscal-year filters.
+- Master-detail contract workspace with covered Asset links.
+- Editable vendor, fiscal year, period, service/warranty and support contact fields.
+- ETag / If-Match concurrency.
+- `assets.contract.updated` internal audit.
+- Entering the 90-day window emits one `contract.expiring` event per covered Asset.
+- No cross-module database foreign key.
+
+Remote development DB:
+
+- Migration `20260927094430_Step23ContractsWarranty` applied to PostgreSQL on `172.10.1.58`.
+- Seeded 3 contracts and 5 Asset-contract links.
+- `assets.contract.manage` permission seeded.
+- Runtime smoke: **STEP23_RUNTIME_SMOKE_PASS**.
+- Database verification observed 2 contract update audits and 2 expiration events.
+- Cross-module DB foreign keys for Step 23 tables: **0**.
+- Smoke restored the active contract to its original >90-day state.
+
+Final QA:
+
+- Step 23 audit: **0 issues**.
+- Full contract/static audit chain: **0 issues**.
+- Web typecheck/build: **PASS**.
+- .NET build: **0 warnings / 0 errors**.
+- EF pending-model checks for Assets / Platform / Devices / Helpdesk: **PASS**.
+- production visual QA: **3 / 3 screens**, failures 0.
+- frozen browser regression: **124 / 124**, failures 0.
+- `git diff --check`: **PASS**.
+
+Source of truth:
+
+- `INNO-One-Step23-Contracts-Warranty.md`
+- `inno-step23-contracts-warranty.json`
+- `step23-contracts-warranty-audit.py`
+- `production/scripts/step23-local-smoke.py`
+
+Remaining Assets work:
+
+- Android Assets Mobile scanner runtime / scan-history UI.
+- Software Baselines remain deferred until a standalone frozen API/route contract exists.
+- Final Assets integration pass across Devices ↔ Assets ↔ Helpdesk ↔ QR ↔ Licenses ↔ Contracts.
+- Step 16 fresh re-validation before merge/release.
+
+**Do not merge `main` without explicit user instruction. No Step 24 work has been started.**

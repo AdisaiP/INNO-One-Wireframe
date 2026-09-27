@@ -83,6 +83,7 @@ export function AppShell() {
               <NavLink to="/assets/inventory">Asset Inventory</NavLink>
               <div className="prod-side-section">Management</div>
               {canManageAssetLicenses ? <NavLink to="/assets/software-licenses">Software Licenses</NavLink> : null}
+              <NavLink to="/assets/contracts">Contracts & Warranty</NavLink>
               <NavLink to="/assets/custom-fields">Custom Fields</NavLink>
               {canPrintAssetQr ? <NavLink to="/assets/qr-labels">QR Labels</NavLink> : null}
               <div className="prod-side-section">Ownership</div>
