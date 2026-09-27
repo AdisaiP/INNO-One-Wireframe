@@ -2,9 +2,9 @@
 
 **Date:** 2026-09-26
 **Status:** Implementation planning contract
-**Data Model Contract:** 0.5.0
-**Event & Audit Contract:** 0.4.0
-**API Contract:** 0.4.0
+**Data Model Contract:** 0.6.0
+**Event & Audit Contract:** 0.5.0
+**API Contract:** 0.5.0
 **UX/UI baseline:** Design System V1.26 / UI Contract 1.20.0
 **Scope:** Step 13 — Data Ownership / Database Model
 **Backend implementation:** Not started by this document
@@ -1018,3 +1018,8 @@ Machine-readable source: 'inno-data-model-contract.json'.
 ## Step 27 additive model — installed software evidence
 
 Devices owns immutable `software_inventory_snapshots` and child `installed_software` rows. Snapshot metadata carries `observed_at`, `received_at`, `completeness`, `source`, `source_instance` and package count. Assets reads the latest snapshot through `IDeviceSoftwareInventoryReader`; no cross-module foreign key or direct table read is allowed.
+
+
+## Step 28 implemented read model — baseline results
+
+Assets owns `baseline_results` as the latest result per baseline + Asset. It stores result/reason, missing packages, opaque inventory snapshot reference, observation time, baseline version and evaluation time. The snapshot reference has no database foreign key to Devices.

@@ -11,14 +11,14 @@ registry=(ROOT/'platform-registry.js').read_text()
 
 issues=[]
 
-if contract.get('contractVersion')!='0.4.0':
-    issues.append(f"expected Event/Audit Contract 0.4.0, found {contract.get('contractVersion')}")
-if impl.get('contractVersion')!='0.18.0':
-    issues.append(f"expected current Implementation Contract 0.18.0, found {impl.get('contractVersion')}")
+if contract.get('contractVersion')!='0.5.0':
+    issues.append(f"expected Event/Audit Contract 0.5.0, found {contract.get('contractVersion')}")
+if impl.get('contractVersion')!='0.19.0':
+    issues.append(f"expected current Implementation Contract 0.19.0, found {impl.get('contractVersion')}")
 
 ref=impl.get('eventAuditContract',{})
-if ref.get('version')!='0.4.0':
-    issues.append('implementation contract must reference Event/Audit Contract 0.4.0')
+if ref.get('version')!='0.5.0':
+    issues.append('implementation contract must reference Event/Audit Contract 0.5.0')
 for key in ('source','documentation','audit'):
     value=ref.get(key)
     if not value or not (ROOT/value).exists():

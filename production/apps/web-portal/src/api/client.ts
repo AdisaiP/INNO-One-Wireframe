@@ -15,6 +15,7 @@ import type {
   SoftwareBaselineItem,
   SoftwareBaselineRequest,
   SoftwareBaselineListResponse,
+  SoftwareBaselineResults,
   SoftwareLicenseListResponse,
   AssetContractItem,
   AssetContractListResponse,
@@ -790,4 +791,17 @@ export async function updateSoftwareBaseline(id: string, eTag: string, body: Sof
     { method: 'PATCH', ...jsonRequest(body, { 'If-Match': eTag }) },
   );
   return result.data;
+}
+
+
+export async function getSoftwareBaselineResults(id: string): Promise<SoftwareBaselineResults> {
+  return request<SoftwareBaselineResults>(
+    '/assets/software-baselines/' + encodeURIComponent(id) + '/results',
+  );
+}
+export async function evaluateSoftwareBaseline(id: string): Promise<SoftwareBaselineResults> {
+  return request<SoftwareBaselineResults>(
+    '/assets/software-baselines/' + encodeURIComponent(id) + '/evaluate',
+    { method: 'POST' },
+  );
 }

@@ -175,3 +175,19 @@ public sealed class SoftwareBaseline
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
 }
+
+
+public sealed class SoftwareBaselineResult
+{
+    public Guid Id { get; set; }
+    public Guid BaselineId { get; set; }
+    public Guid AssetId { get; set; }
+    public required string ResultStatus { get; set; }
+    public required string ReasonCode { get; set; }
+    public required string MissingPackagesJson { get; set; }
+    public string? InventorySnapshotReference { get; set; }
+    public DateTimeOffset? InventoryObservedAt { get; set; }
+    public int BaselineVersion { get; set; }
+    public DateTimeOffset EvaluatedAt { get; set; }
+    public int Version { get; set; } = 1;
+}

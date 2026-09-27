@@ -14,8 +14,8 @@ realm = json.loads((PROD / "infrastructure/docker/keycloak/realm-inno-one.json")
 
 if manifest.get("contractVersion") != "0.15.0":
     issues.append("Step 24 manifest must be version 0.15.0")
-if implementation.get("contractVersion") != "0.18.0":
-    issues.append("Implementation Contract must be version 0.18.0")
+if implementation.get("contractVersion") != "0.19.0":
+    issues.append("Implementation Contract must be version 0.19.0")
 if manifest.get("surface") != "android-mobile":
     issues.append("Step 24 surface must be android-mobile")
 if manifest.get("reusedOperations") != ["assets.qr_resolve"]:

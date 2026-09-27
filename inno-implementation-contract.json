@@ -1,5 +1,5 @@
 {
-  "contractVersion": "0.18.0",
+  "contractVersion": "0.19.0",
   "status": "implementation-in-progress",
   "generatedFrom": {
     "designSystem": "V1.26",
@@ -187,13 +187,13 @@
     ]
   },
   "apiContract": {
-    "version": "0.4.0",
+    "version": "0.5.0",
     "basePath": "/api/v1",
     "source": "inno-api-contract.json",
     "openApi": "openapi-inno-one-v1.json"
   },
   "eventAuditContract": {
-    "version": "0.4.0",
+    "version": "0.5.0",
     "source": "inno-event-audit-contract.json",
     "documentation": "INNO-One-Event-Audit-Contract.md",
     "audit": "event-audit-contract-audit.py",
@@ -203,7 +203,7 @@
     "crossModuleDurability": "transactional-outbox"
   },
   "dataModelContract": {
-    "version": "0.5.0",
+    "version": "0.6.0",
     "documentation": "INNO-One-Data-Ownership-Database-Contract.md",
     "source": "inno-data-model-contract.json",
     "audit": "data-model-contract-audit.py",
@@ -573,6 +573,34 @@
       "partial"
     ],
     "staleOverwriteRejected": true,
+    "featureImplementationStarted": true
+  },
+  "softwareBaselineEvaluationSlice": {
+    "version": "0.19.0",
+    "name": "Software Baseline Evaluation",
+    "documentation": "INNO-One-Step28-Software-Baseline-Evaluation.md",
+    "manifest": "inno-step28-software-baseline-evaluation.json",
+    "audit": "step28-software-baseline-evaluation-audit.py",
+    "implementedOperations": [
+      "assets.baseline_results.list",
+      "assets.baselines.evaluate"
+    ],
+    "webRoutes": [
+      "/assets/software-baselines"
+    ],
+    "persistence": [
+      "baseline_results"
+    ],
+    "freshnessHours": 24,
+    "resultStates": [
+      "compliant",
+      "missing",
+      "unknown"
+    ],
+    "partialAbsenceIsUnknown": true,
+    "activeEvents": [
+      "baseline.drift"
+    ],
     "featureImplementationStarted": true
   }
 }

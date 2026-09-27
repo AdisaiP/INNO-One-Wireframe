@@ -1,0 +1,14 @@
+{
+  "contractVersion": "0.19.0",
+  "status": "complete; runtime, database and visual QA passed",
+  "operations": ["assets.baseline_results.list", "assets.baselines.evaluate"],
+  "webRoutes": ["/assets/software-baselines"],
+  "persistence": {"implementedTable": "assets.baseline_results", "projection": "latest per baseline and Asset", "crossModuleForeignKeys": false},
+  "permissions": {"read": "assets.view", "evaluate": "assets.baseline.manage"},
+  "inventoryContract": "IDeviceSoftwareInventoryReader",
+  "freshnessHours": 24,
+  "resultStates": ["compliant", "missing", "unknown"],
+  "unknownReasons": ["no_linked_device", "no_inventory", "stale_inventory", "partial_inventory"],
+  "driftEvent": "baseline.drift",
+  "driftRequiresPreviousEvidenceBackedState": true
+}

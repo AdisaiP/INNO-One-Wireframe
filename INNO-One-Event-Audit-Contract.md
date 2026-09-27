@@ -2,8 +2,8 @@
 
 **Date:** 2026-09-26
 **Status:** Implementation planning contract
-**Event & Audit Contract:** 0.4.0
-**API Contract:** 0.4.0
+**Event & Audit Contract:** 0.5.0
+**API Contract:** 0.5.0
 **UX/UI baseline:** Design System V1.26 / UI Contract 1.20.0
 **Scope:** Step 12 — Event & Audit Contract
 **Backend implementation:** Not started by this document
@@ -965,3 +965,8 @@ Machine-readable source: `inno-event-audit-contract.json`.
 ## Step 27 additive event — software inventory observed
 
 `device.software_inventory.observed` carries only Device ID, snapshot ID, observation time, completeness, source and package count. The complete package list stays in Devices persistence and is retrieved through the owning module contract. `devices.software_inventory.observed` records the privileged ingest action in the same transaction.
+
+
+## Step 28 implemented drift policy
+
+`baseline.drift` is emitted only when an existing evidence-backed result changes between Compliant and Missing. Initial evaluation and transitions involving Unknown do not emit drift. `assets.baseline.evaluated` records the evaluation summary in the same transaction.

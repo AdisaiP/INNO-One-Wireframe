@@ -10,18 +10,18 @@ events=json.loads((ROOT/'inno-event-audit-contract.json').read_text())
 
 issues=[]
 
-if impl.get('contractVersion')!='0.18.0':
-    issues.append(f"expected current Implementation Contract 0.18.0, found {impl.get('contractVersion')}")
+if impl.get('contractVersion')!='0.19.0':
+    issues.append(f"expected current Implementation Contract 0.19.0, found {impl.get('contractVersion')}")
 data_ref=impl.get('dataModelContract',{})
-if data_ref.get('version')!='0.5.0':
-    issues.append('implementation contract must reference Data Model Contract 0.5.0')
+if data_ref.get('version')!='0.6.0':
+    issues.append('implementation contract must reference Data Model Contract 0.6.0')
 for key in ('documentation','source','audit'):
     value=data_ref.get(key)
     if not value or not (ROOT/value).exists():
         issues.append(f"missing Data Model contract reference: {key}={value}")
 
-if data.get('contractVersion')!='0.5.0':
-    issues.append(f"expected Data Model Contract 0.5.0, found {data.get('contractVersion')}")
+if data.get('contractVersion')!='0.6.0':
+    issues.append(f"expected Data Model Contract 0.6.0, found {data.get('contractVersion')}")
 if data.get('databaseEngine',{}).get('product')!='PostgreSQL':
     issues.append('production relational engine must be PostgreSQL')
 

@@ -745,7 +745,7 @@ export interface SoftwareBaselineItem {
   targetCategory: string | null;
   requiredPackages: string[];
   status: 'draft' | 'active' | 'inactive';
-  evaluationStatus: 'awaiting_inventory';
+  evaluationStatus: 'not_evaluated' | 'current' | 'stale';
   updatedAt: string;
   eTag: string;
 }
@@ -754,4 +754,29 @@ export type SoftwareBaselineRequest = Pick<SoftwareBaselineItem,
 export interface SoftwareBaselineListResponse {
   items: SoftwareBaselineItem[];
   totalItems: number;
+}
+
+
+export interface SoftwareBaselineResultItem {
+  id: string;
+  assetId: string;
+  assetTag: string;
+  assetName: string;
+  category: string;
+  status: 'compliant' | 'missing' | 'unknown';
+  reasonCode: string;
+  missingPackages: string[];
+  inventorySnapshotId?: string | null;
+  inventoryObservedAt?: string | null;
+  evaluatedAt: string;
+}
+export interface SoftwareBaselineResults {
+  baselineId: string;
+  baselineName: string;
+  baselineVersion: number;
+  compliantCount: number;
+  missingCount: number;
+  unknownCount: number;
+  evaluatedAt?: string | null;
+  items: SoftwareBaselineResultItem[];
 }

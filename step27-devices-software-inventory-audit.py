@@ -13,8 +13,8 @@ reader=(r/'production/services/platform-api/src/Modules/Devices/Application/Devi
 ui=(r/'production/apps/web-portal/src/pages/DeviceDetailPage.tsx').read_text()
 issues=[]
 ops=m['operations']
-if imp.get('contractVersion')!='0.18.0':issues.append('implementation version')
-if api.get('contractVersion')!='0.4.0':issues.append('API version')
+if imp.get('contractVersion')!='0.19.0':issues.append('implementation version')
+if api.get('contractVersion')!='0.5.0':issues.append('API version')
 if [e['id'] for e in api['endpoints'] if e['id'].startswith('devices.software_inventory.')]!=ops:issues.append('API operations')
 if imp.get('devicesSoftwareInventorySlice',{}).get('implementedOperations')!=ops:issues.append('implementation operations')
 for op in ops:

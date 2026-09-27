@@ -30,10 +30,13 @@ public static class SoftwareBaselineEndpoints
         var access = await evaluator.EvaluateAsync(http.User, "assets.view", cancellationToken);
         if (!access.Allowed) return Forbidden(access.Reason);
         var rows = await db.SoftwareBaselines.AsNoTracking().OrderBy(x => x.Name).ToListAsync(cancellationToken);
+        var results = await db.SoftwareBaselineResults.AsNoTracking().ToListAsync(cancellationToken);
         var filtered = rows.Where(x =>
             (string.IsNullOrWhiteSpace(search) || x.Name.Contains(search.Trim(), StringComparison.OrdinalIgnoreCase)
                 || x.Code.Contains(search.Trim(), StringComparison.OrdinalIgnoreCase))
-            && (string.IsNullOrWhiteSpace(status) || status == "all" || x.Status == status)).Select(ToResponse).ToArray();
+            && (string.IsNullOrWhiteSpace(status) || status == "all" || x.Status == status))
+            .Select(x => ToResponse(x, EvaluationStatus(x, results.Where(r => r.BaselineId == x.Id))))
+            .ToArray();
         return Results.Ok(new { items = filtered, totalItems = filtered.Length });
     }
 
@@ -45,7 +48,9 @@ public static class SoftwareBaselineEndpoints
         if (!access.Allowed) return Forbidden(access.Reason);
         var row = await db.SoftwareBaselines.AsNoTracking().SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
         if (row is null) return NotFound();
-        var response = ToResponse(row);
+        var hasResults = await db.SoftwareBaselineResults.AsNoTracking()
+            .AnyAsync(x => x.BaselineId == id, cancellationToken);
+        var response = ToResponse(row, hasResults ? "stale" : "not_evaluated");
         http.Response.Headers.ETag = response.ETag;
         return Results.Ok(new ResourceResponse<BaselineResponse>(response));
     }
@@ -73,7 +78,7 @@ public static class SoftwareBaselineEndpoints
         await db.SaveChangesAsync(cancellationToken);
         await AuditAsync("assets.baseline.created", row, http, access.UserId, ledger, cancellationToken);
         await transaction.CommitAsync(cancellationToken);
-        var response = ToResponse(row);
+        var response = ToResponse(row, "not_evaluated");
         http.Response.Headers.ETag = response.ETag;
         return Results.Created("/api/v1/assets/software-baselines/" + response.Id,
             new ResourceResponse<BaselineResponse>(response));
@@ -104,7 +109,9 @@ public static class SoftwareBaselineEndpoints
         await db.SaveChangesAsync(cancellationToken);
         await AuditAsync("assets.baseline.updated", row, http, access.UserId, ledger, cancellationToken);
         await transaction.CommitAsync(cancellationToken);
-        var response = ToResponse(row);
+        var hasResults = await db.SoftwareBaselineResults.AsNoTracking()
+            .AnyAsync(x => x.BaselineId == id, cancellationToken);
+        var response = ToResponse(row, hasResults ? "stale" : "not_evaluated");
         http.Response.Headers.ETag = response.ETag;
         return Results.Ok(new ResourceResponse<BaselineResponse>(response));
     }
@@ -140,10 +147,19 @@ public static class SoftwareBaselineEndpoints
     private static string? Normalize(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     private static string[] NormalizePackages(string[]? values) =>
         (values ?? []).Select(x => x.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
-    private static BaselineResponse ToResponse(SoftwareBaseline row) =>
+    private static string EvaluationStatus(
+        SoftwareBaseline row,
+        IEnumerable<SoftwareBaselineResult> results)
+    {
+        var array = results.ToArray();
+        if (array.Length == 0) return "not_evaluated";
+        return array.Any(x => x.BaselineVersion != row.Version) ? "stale" : "current";
+    }
+
+    private static BaselineResponse ToResponse(SoftwareBaseline row, string evaluationStatus) =>
         new(OpaqueId.Format("baseline", row.Id), row.Code, row.Name, row.TargetCategory,
             JsonSerializer.Deserialize<string[]>(row.RequiredPackagesJson) ?? [], row.Status,
-            "awaiting_inventory", row.UpdatedAt, "W/\"" + row.Version + "\"");
+            evaluationStatus, row.UpdatedAt, "W/\"" + row.Version + "\"");
     private static IResult Forbidden(string reason) => Results.Problem(
         statusCode: 403, title: "Access denied", detail: reason);
     private static IResult NotFound() => Results.Problem(

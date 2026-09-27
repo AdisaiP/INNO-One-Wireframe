@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-26  
 **Status:** Implementation planning contract  
-**API Contract:** 0.4.0
+**API Contract:** 0.5.0
 **UX/UI baseline:** Design System V1.26 / UI Contract 1.20.0  
 **Architecture Contract:** 0.2.0  
 **Scope:** Step 11 — API Contract  
@@ -1254,3 +1254,8 @@ Reading requires assets.view; writing requires assets.baseline.manage. Updates r
 ## Step 27 additive boundary — Devices installed software
 
 `GET /devices/{deviceId}/software-inventory` returns the latest Devices-owned observation. `PUT` records a newer immutable snapshot with completeness and provenance. Read uses `devices.view`; ingest uses `devices.manage`; both enforce effective Device scope. Partial observations never prove absence. Assets consumes `IDeviceSoftwareInventoryReader`; package rows are not exposed through direct database access.
+
+
+## Step 28 additive boundary — software baseline evaluation
+
+`GET /assets/software-baselines/{baselineId}/results` returns the latest scoped result projection. `POST /assets/software-baselines/{baselineId}/evaluate` evaluates an active definition using the Devices software-inventory reader. Read uses `assets.view`; evaluation uses `assets.baseline.manage`. Missing, stale or partial evidence returns Unknown.

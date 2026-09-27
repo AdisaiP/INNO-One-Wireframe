@@ -14,8 +14,8 @@ endpoints=api.get('endpoints',[])
 ids=[e.get('id') for e in endpoints]
 pairs=[(e.get('method'),e.get('path')) for e in endpoints]
 
-if api.get('contractVersion')!='0.4.0':
-    issues.append(f"expected API contract 0.4.0, found {api.get('contractVersion')}")
+if api.get('contractVersion')!='0.5.0':
+    issues.append(f"expected API contract 0.5.0, found {api.get('contractVersion')}")
 if api.get('basePath')!='/api/v1':
     issues.append(f"expected basePath /api/v1, found {api.get('basePath')}")
 if len(ids)!=len(set(ids)):
@@ -80,8 +80,8 @@ openapi_operations=sum(
 )
 if openapi.get('openapi')!='3.1.0':
     issues.append('OpenAPI skeleton must use 3.1.0')
-if openapi.get('info',{}).get('version')!='0.4.0':
-    issues.append('OpenAPI version must match API contract 0.4.0')
+if openapi.get('info',{}).get('version')!='0.5.0':
+    issues.append('OpenAPI version must match API contract 0.5.0')
 if openapi_operations!=len(endpoints):
     issues.append(f"OpenAPI operation count {openapi_operations} != contract {len(endpoints)}")
 if openapi.get('servers',[{}])[0].get('url')!='/api/v1':

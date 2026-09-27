@@ -1,11 +1,11 @@
 {
-  "contractVersion": "0.4.0",
+  "contractVersion": "0.5.0",
   "status": "implementation-planning",
   "generatedFrom": {
     "designSystem": "V1.26",
     "uiContract": "1.20.0",
-    "implementationContract": "0.18.0",
-    "apiContract": "0.4.0",
+    "implementationContract": "0.19.0",
+    "apiContract": "0.5.0",
     "frozenAt": "2026-09-26"
   },
   "eventModel": {
@@ -1229,6 +1229,13 @@
       "action": "devices.software_inventory.observed",
       "module": "devices",
       "targetType": "device",
+      "retentionClass": "operational_standard",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "assets.baseline.evaluated",
+      "module": "assets",
+      "targetType": "software_baseline",
       "retentionClass": "operational_standard",
       "sensitivity": "internal"
     }
