@@ -34,8 +34,10 @@ issues=[]
 if manifest.get('step') != 29: issues.append('step number')
 if manifest.get('frozenDesignSystem') != 'V1.26': issues.append('design system baseline')
 if manifest.get('frozenUiContract') != '1.20.0': issues.append('ui contract baseline')
-if manifest.get('completedPhases') != ['shell', 'shared_primitives', 'devices', 'assets']: issues.append('completed phases')
-if manifest.get('nextPhase') != 'helpdesk': issues.append('next phase')
+if manifest.get('completedPhases') != ['shell', 'shared_primitives', 'devices']: issues.append('completed phases')
+if manifest.get('inProgressPhase') != 'assets': issues.append('in-progress phase')
+if manifest.get('assetsImplementationStatus') != 'implemented_pending_local_qa': issues.append('assets implementation status')
+if manifest.get('nextPhase') != 'assets': issues.append('next phase')
 
 for marker in ['ShellIcon','prod-global-search','prod-context-toggle','prod-side-backdrop']:
     if marker not in shell: issues.append('shell marker '+marker)
