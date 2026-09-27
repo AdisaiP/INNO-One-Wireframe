@@ -2510,3 +2510,14 @@
   }
   .helpdesk-operational-queue .helpdesk-queue-copy > span { display: none; }
 }
+
+.prod-side-note {
+  margin: 8px 12px 0;
+  padding: 10px 11px;
+  border: 1px solid #e5e8ed;
+  border-radius: 8px;
+  background: #f7f8fa;
+  color: #6f7a8c;
+  font-size: 10px;
+  line-height: 1.5;
+}
