@@ -248,3 +248,22 @@ Before any merge to `main`, release, or production handoff, resume here and reru
 - `git diff --check`.
 
 This deferred verification is a **release gate**, not a request to undo the implemented Step 16 code.
+
+
+## 14. Fresh re-validation — 2026-09-27
+
+The deferred Step 16 release gate was rerun against the current Step 25 integration branch and the relocated development PostgreSQL, Keycloak, and MeshCentral stack.
+
+- Runtime smoke: **STEP16_RUNTIME_SMOKE_PASS**. Device Group scope/create/update, stale ETag, enrollment, bounded discovery, live MeshCentral synchronization, durable operation/audit and vendor-ID boundary passed.
+- Step 16 audit: **0 issues**.
+- Web typecheck and production build: **PASS**.
+- .NET solution build: **0 warnings / 0 errors**.
+- Frozen browser regression: **124 / 124**, failures 0.
+- Live React visual QA: **4 routes × 3 widths = 12 / 12**, failures 0 at 1366, 1024 and 768. Signed in through the live Keycloak client and checked against the current API; representative screenshots were visually inspected.
+- `git diff --check`: **PASS** before checkpoint.
+
+The smoke script's local Docker command was redirected by a temporary QA-only command shim to the relocated development container. No production source or committed secret was changed for this. The smoke harness leaves QA Device Groups and an agentless synthetic sync node in the development environment, as documented in its original boundary.
+
+The frozen browser harness now keeps its CDP page visible so animation-frame-driven UI updates execute, and waits for asynchronous UI states instead of fixed timing. The historical deferred note above remains as a record of the earlier decision; this fresh validation closes that gate.
+
+**Do not merge `main` without explicit user instruction.**

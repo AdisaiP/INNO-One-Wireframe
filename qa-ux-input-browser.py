@@ -24,6 +24,8 @@ class CDP:
         p=next(x for x in targets if x.get("type")=="page")
         self.ws=websocket.create_connection(p["webSocketDebuggerUrl"],timeout=8,origin="http://127.0.0.1");self.n=0
         self.call("Page.enable");self.call("Runtime.enable")
+        self.call("Page.bringToFront")
+        self.call("Emulation.setFocusEmulationEnabled",{"enabled":True})
     def call(self,m,p=None):
         self.n+=1;i=self.n;self.ws.send(json.dumps({"id":i,"method":m,"params":p or {}}))
         while True:
@@ -47,6 +49,12 @@ class CDP:
             time.sleep(.04)
         time.sleep(.1)
 c=CDP()
+def wait_eval(expression, timeout=5):
+    deadline=time.time()+timeout
+    while time.time()<deadline:
+        if c.eval(expression):return True
+        time.sleep(.1)
+    return bool(c.eval(expression))
 # System-wide route pass at all required Web breakpoints.
 for w in (1366,1024,768):
     c.viewport(w)
@@ -101,8 +109,13 @@ c.nav("report-builder.html")
 check("Report Builder uses filter-builder rows",c.eval("document.querySelectorAll('.ux-filter-row').length===2"))
 c.eval("document.getElementById('dataset').nextElementSibling.querySelector('.inno-select-trigger').click()");time.sleep(.03)
 check("Dataset uses resource-style picker",c.eval("!!document.querySelector('.inno-picker-popover.resource')"))
-c.eval("""(()=>{const d=document.getElementById('dataset');d.value='Helpdesk · Tickets';d.dispatchEvent(new Event('change',{bubbles:true}));refreshPreview()})()""");time.sleep(.8)
-check("Report preview still reacts to selected dataset",c.eval("document.getElementById('previewMeta').textContent.includes('Helpdesk')"))
+c.eval("""(()=>{const d=document.getElementById('dataset');d.value='Helpdesk · Tickets';d.dispatchEvent(new Event('change',{bubbles:true}));refreshPreview()})()""")
+preview_ready=False
+for _ in range(50):
+    preview_ready=c.eval("document.getElementById('previewMeta')?.textContent.includes('Helpdesk') ?? false")
+    if preview_ready:break
+    time.sleep(.1)
+check("Report preview still reacts to selected dataset",preview_ready)
 
 # Asset QR: workflow is reduced to core task and supporting info is collapsed.
 c.nav("asset-qr.html")
@@ -235,7 +248,7 @@ check("Endpoint Policies Compliance is a separate view",c.eval("document.querySe
 c.viewport(768);c.nav("endpoint-policies.html")
 check("Clean editor footer does not cover tablet content",c.eval("""(()=>{const f=document.querySelector('.inno-editor-footer');return !f.classList.contains('is-docked')&&getComputedStyle(f).position==='static'})()"""))
 c.eval("""(()=>{const r=[...document.querySelectorAll('input[name="usb"]')].find(x=>!x.checked);r.click()})()""");time.sleep(.06)
-check("Dirty editor footer docks to owning pane at tablet width",c.eval("""(()=>{const f=document.querySelector('.inno-editor-footer'),r=f.getBoundingClientRect(),owner=f.parentElement.getBoundingClientRect();return f.classList.contains('is-docked')&&getComputedStyle(f).position==='fixed'&&r.top>=0&&r.bottom<=innerHeight+2&&Math.abs(r.left-owner.left)<=2&&Math.abs(r.width-owner.width)<=2})()"""))
+check("Dirty editor footer docks to owning pane at tablet width",wait_eval("""(()=>{const f=document.querySelector('.inno-editor-footer'),r=f.getBoundingClientRect(),owner=f.parentElement.getBoundingClientRect();return f.classList.contains('is-docked')&&getComputedStyle(f).position==='fixed'&&r.top>=0&&r.bottom<=innerHeight+2&&Math.abs(r.left-owner.left)<=2&&Math.abs(r.width-owner.width)<=2})()"""))
 
 c.viewport(1366);c.nav("device-query.html")
 check("Inventory Query actions belong to builder, not page header",c.eval("document.querySelector('.page-head .actions')===null && document.querySelector('.query-workspace > .inno-builder-footer #saveQuery')!==null && document.querySelector('.query-workspace > .inno-builder-footer #runQuery')!==null"))
@@ -275,7 +288,7 @@ c.eval("document.querySelector('input').dispatchEvent(new Event('input',{bubbles
 time.sleep(.08)
 check("Save enters busy disabled state",c.eval("(()=>{const b=document.querySelector('[data-inno-save]');return b.disabled&&b.getAttribute('aria-busy')==='true'&&b.textContent.includes('Saving')})()"))
 time.sleep(.75)
-check("Save completes and clears busy state",c.eval("(()=>{const b=document.querySelector('[data-inno-save]');return !b.disabled&&!b.hasAttribute('aria-busy')&&document.querySelector('.inno-toast.success')!==null})()"))
+check("Save completes and clears busy state",wait_eval("(()=>{const b=document.querySelector('[data-inno-save]');return !b.disabled&&!b.hasAttribute('aria-busy')&&document.querySelector('.inno-toast.success')!==null})()"))
 
 c.nav("design-system.html")
 c.eval("document.querySelector('[data-inno-title=\"Delete this item?\"]').click()");time.sleep(.03)
@@ -295,7 +308,7 @@ check("Validation associates error message with first invalid field",c.eval("(()
 c.viewport(1366);c.nav("asset-users.html")
 check("Asset Users uses compact collection table and action column",c.eval("document.querySelector('table[data-density=\"compact\"]')!==null && document.querySelector('th.table-action')!==null && document.querySelectorAll('td.table-action').length===2"))
 c.eval("(()=>{const i=document.querySelector('[data-inno-search-target=\"#assetUserRows\"]');i.value='no-such-user';i.dispatchEvent(new Event('input',{bubbles:true}))})()");time.sleep(.04)
-check("Collection search uses shared no-results state",c.eval("document.querySelector('#assetUserRows .inno-search-empty')!==null"))
+check("Collection search uses shared no-results state",wait_eval("document.querySelector('#assetUserRows .inno-search-empty')!==null"))
 c.viewport(768)
 check("Collection toolbar stacks search cleanly at tablet width",c.eval("(()=>{const t=document.querySelector('.data-toolbar'),s=t.querySelector('.ds-search');return s.getBoundingClientRect().width>=t.getBoundingClientRect().width-4})()"))
 
@@ -317,13 +330,13 @@ check("Error state provides recoverable Try again action",c.eval("(()=>{const b=
 
 c.nav("devices.html")
 c.eval("(()=>{const i=document.getElementById('deviceSearch');i.value='__STATE_QA_NO_RESULT__';i.dispatchEvent(new Event('input',{bubbles:true}))})()");time.sleep(.04)
-check("No-results updates collection footer truthfully",c.eval("(()=>{const f=document.querySelector('.ds-pagination'),count=f?.querySelector(':scope > span')?.textContent.trim(),pages=f?.querySelector('.ds-pages');return count==='0 matching results'&&!!pages&&(pages.hidden||getComputedStyle(pages).display==='none')})()"))
+check("No-results updates collection footer truthfully",wait_eval("(()=>{const f=document.querySelector('.ds-pagination'),count=f?.querySelector(':scope > span')?.textContent.trim(),pages=f?.querySelector('.ds-pages');return count==='0 matching results'&&!!pages&&(pages.hidden||getComputedStyle(pages).display==='none')})()"))
 c.eval("(()=>{const i=document.getElementById('deviceSearch');i.value='';i.dispatchEvent(new Event('input',{bubbles:true}))})()");time.sleep(.04)
 check("Clearing search restores collection pagination",c.eval("(()=>{const f=document.querySelector('.ds-pagination'),pages=f?.querySelector('.ds-pages');return f?.querySelector(':scope > span')?.textContent.includes('128 devices')&&!!pages&&!pages.hidden&&getComputedStyle(pages).display!=='none'})()"))
 
 c.nav("devices-overview-v2.html","?uiState=partial&succeeded=8&failed=2")
 c.eval("document.querySelector('[data-inno-retry]').click()");time.sleep(.75)
-check("Partial retry resolves banner copy and failed count",c.eval("(()=>{const s=document.querySelector('.inno-partial-state');return s.classList.contains('resolved')&&s.querySelector('b')?.textContent==='Retry completed'&&s.querySelector('[data-inno-partial-failed]')?.textContent==='0'})()"))
+check("Partial retry resolves banner copy and failed count",wait_eval("(()=>{const s=document.querySelector('.inno-partial-state');return s.classList.contains('resolved')&&s.querySelector('b')?.textContent==='Retry completed'&&s.querySelector('[data-inno-partial-failed]')?.textContent==='0'})()"))
 
 # Pre-Step 7 — TOR-required management surfaces, split by primary job.
 c.viewport(1366);c.nav("organization.html")

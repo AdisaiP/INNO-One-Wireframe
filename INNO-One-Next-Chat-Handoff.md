@@ -2056,3 +2056,20 @@ Source of truth:
 - `inno-step25-assets-final-integration.json`
 - `step25-assets-integration-audit.py`
 - `production/scripts/step25-assets-integration-smoke.py`
+
+
+# Step 16 — Fresh Re-validation ✅ COMPLETED 2026-09-27
+
+On `integration/step25-assets-final-integration`, the deferred Step 16 release gate was rerun against the current code and relocated development stack:
+
+- Runtime smoke: **STEP16_RUNTIME_SMOKE_PASS**.
+- Step 16 audit: **0 issues**.
+- Web typecheck/build: **PASS**.
+- .NET build: **0 warnings / 0 errors**.
+- Frozen browser regression: **124 / 124**, failures 0.
+- Live Step 16 React visual QA: **12 / 12**, failures 0 at 1366 / 1024 / 768.
+- `git diff --check`: **PASS** before checkpoint.
+
+The browser harness was updated to keep its CDP tab visible and wait for asynchronous UI state. Step 16 smoke leaves synthetic QA group/node fixtures on the development stack. See `INNO-One-Step16-Devices-Management.md` section 14 for the full evidence and boundary.
+
+Step 16 fresh re-validation is **no longer deferred**. Software Baselines remain deferred pending a standalone frozen API/route contract. **Do not merge `main` without explicit user instruction.**
