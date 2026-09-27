@@ -79,7 +79,7 @@ for width in (1366,1024,768):
     railActive:document.querySelectorAll('.prod-rail a.active').length,
     sideActive:document.querySelectorAll('.prod-side a.active').length,
     sideTitle:document.querySelector('.prod-side-title')?.textContent?.trim()||'',
-    neutral:document.body.innerText.includes('outside the currently enabled production modules'),
+    neutral:(document.querySelector('.prod-side-note')?.textContent||'').includes('outside the currently enabled production modules'),
     overflow:document.documentElement.scrollWidth>innerWidth+2
   }))()""")
   check(f'{width} {name} state',m['state']==state,m)
