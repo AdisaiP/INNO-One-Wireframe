@@ -91,7 +91,7 @@ jobs:
           if not page:
               raise SystemExit('No Chrome page target')
 
-          ws=websocket.create_connection(page['webSocketDebuggerUrl'],timeout=8,origin='http://127.0.0.1:9241')
+          ws=websocket.create_connection(page['webSocketDebuggerUrl'],timeout=8,suppress_origin=True)
           seq=0
           def call(method,params=None):
               global seq
