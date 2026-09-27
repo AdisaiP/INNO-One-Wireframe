@@ -25,7 +25,8 @@ Bring the production React Web Portal back to the approved frozen prototype lang
 2. Shared React primitives: page header, buttons, status, collection toolbar/table, resource header, form/footer and states. **DONE — browser regression 75/75.**
 3. Devices routes. **DONE — browser regression 61/61 + static parity guard.**
 4. Assets routes. **DONE — browser regression 141/141 + static/build regression.**
-5. Helpdesk routes. **NEXT.**
+5. Helpdesk routes. **DONE — browser regression 159/159 + static/build regression.**
+6. Profile and remaining currently implemented production routes. **NEXT.**
 5. Helpdesk routes.
 6. Profile and remaining currently implemented production routes.
 
@@ -108,3 +109,19 @@ QA: `production/scripts/step29-assets-parity-browser-qa.py` passed **141 / 141**
 ### Assets validation status
 
 GitHub Actions validation passed: Step 29 static parity audit, Step 15–28 regression audits, Web typecheck, Web build and .NET build are green. Dedicated ephemeral Postgres/Keycloak/API/Vite/Chrome browser QA also passed **141 / 141** with 0 failures.
+
+
+## Helpdesk parity checkpoint
+
+Phase 5 is complete and validated across the production Helpdesk routes:
+- `/helpdesk`: frozen Service Desk page header/action and shared empty/status treatment.
+- `/helpdesk/tickets`: primary collection table with shared search/filter/pagination.
+- `/helpdesk/assigned` and `/helpdesk/team`: operational queue-list pattern restored from the frozen UX instead of forcing a generic table.
+- `/helpdesk/tickets/new`: canonical create editor/footer and shared priority/requester status.
+- `/helpdesk/tickets/:ticketId`: resource identity, Resolve/Reassign actions, canonical reassignment footer, reply busy state and contextual Tickets navigation.
+- `/helpdesk/sla`: canonical page action, switch semantics, policy editor footer and explicit monitor empty/error states.
+- `/helpdesk/calendar`: canonical page action, contained holiday table and Save Calendar footer.
+- `/helpdesk/automation`: shared collection/search/filter/table/pagination.
+- `/helpdesk/automation/new` and `/helpdesk/automation/:ruleId`: canonical automation editor footer, status treatment and empty execution state.
+
+Browser QA passed **159 / 159**, 0 failures at 1366 / 1024 / 768. Step 29 static audit, Step 15–28 regression, Web typecheck/build and .NET build are also green. No fake Helpdesk actions were introduced and ticket/SLA/automation API behavior remains unchanged.
