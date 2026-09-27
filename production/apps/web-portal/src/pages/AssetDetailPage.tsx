@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
-import { INNOButton } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOEditorFooter, INNOResourceHeader, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { changeAssetOwnership, getAsset, getAssetOwners, updateAsset } from '../api/client';
 import type { AssetCustomFieldValue } from '../api/types';
 import { usePermission } from '../app/ProfileContext';
@@ -181,13 +181,13 @@ export function AssetDetailPage() {
   return (
     <main className="inno-page">
       <div className="resource-breadcrumb"><Link to="/assets/inventory">Asset Inventory</Link><span>›</span><span>{asset.assetTag}</span></div>
-      <div className="resource-head production-resource-head">
-        <div>
-          <div className="resource-title-line"><h1>{asset.assetTag}</h1><span className="prod-tag">{statusLabel(asset.status)}</span></div>
-          <div className="resource-meta-line"><span>{asset.name}</span><span>·</span><span>{[asset.brand, asset.model].filter(Boolean).join(' ') || asset.category}</span><span>·</span><span>{asset.serialNumber ?? 'No serial'}</span></div>
-        </div>
-        {asset.linkedDevice ? <Link className="inno-link-button secondary-link" to={'/devices/' + asset.linkedDevice.id}>Open Device</Link> : null}
-      </div>
+      <INNOResourceHeader
+        icon={<span aria-hidden="true">▧</span>}
+        title={asset.assetTag}
+        status={<INNOStatus tone={asset.status === 'in_use' ? 'success' : asset.status === 'repair' ? 'warning' : 'neutral'}>{statusLabel(asset.status)}</INNOStatus>}
+        meta={<><span>{asset.name}</span><span>·</span><span>{[asset.brand, asset.model].filter(Boolean).join(' ') || asset.category}</span><span>·</span><span>{asset.serialNumber ?? 'No serial'}</span></>}
+        actions={asset.linkedDevice ? <Link className="inno-link-button secondary" to={'/devices/' + asset.linkedDevice.id}>Open Device</Link> : undefined}
+      />
 
       <div className="production-stat-strip">
         <div><span>Purchase price</span><b>{money(asset.purchasePrice)}</b><small>Registered {new Date(asset.registeredAt).toLocaleDateString()}</small></div>
@@ -222,12 +222,12 @@ export function AssetDetailPage() {
             <div className="prod-panel-head"><div><h3>Current owner</h3><p>Ownership is a business relationship, not an identity record.</p></div></div>
             {canManage ? <div className="settings-stack">
               <label className="field-block"><span>Assigned user</span><select value={ownerId} onChange={(e) => setOwnerId(e.target.value)}><option value="">Unassigned</option>{owners.data?.items.map((owner) => <option key={owner.id} value={owner.id}>{owner.fullName} · {owner.employeeId}</option>)}</select></label>
-              <INNOButton variant="secondary" disabled={ownerMutation.isPending || ownerId === (asset.owner?.id ?? '')} onClick={() => ownerMutation.mutate()}>{ownerMutation.isPending ? 'Updating…' : 'Change owner'}</INNOButton>
+              <INNOButton variant="secondary" busy={ownerMutation.isPending} disabled={ownerId === (asset.owner?.id ?? '')} onClick={() => ownerMutation.mutate()}>Change owner</INNOButton>
             </div> : <div className="settings-row"><div><b>{asset.owner?.name ?? 'Unassigned'}</b><span>{asset.organization?.name ?? 'No organization'}</span></div></div>}
           </section>
           <section className="prod-panel">
             <div className="prod-panel-head"><div><h3>Linked managed endpoint</h3><p>Read through the Devices directory contract.</p></div></div>
-            {asset.linkedDevice ? <div className="settings-row"><div><b>{asset.linkedDevice.name}</b><span>{asset.linkedDevice.operatingSystem ?? 'Unknown OS'}</span></div><span className="prod-tag">{asset.linkedDevice.status}</span></div> : <div className="compact-empty">No managed endpoint linked.</div>}
+            {asset.linkedDevice ? <div className="settings-row"><div><b>{asset.linkedDevice.name}</b><span>{asset.linkedDevice.operatingSystem ?? 'Unknown OS'}</span></div><INNOStatus tone={asset.linkedDevice.status === 'online' ? 'success' : 'neutral'} dot>{asset.linkedDevice.status}</INNOStatus></div> : <div className="compact-empty">No managed endpoint linked.</div>}
           </section>
         </div>
       </div>
@@ -278,21 +278,20 @@ export function AssetDetailPage() {
       </section>
 
       {canManage ? (
-        <div className="editor-footer standalone-editor-footer">
+        <INNOEditorFooter className="standalone-editor-footer">
           <span className="editor-footer-note">Asset and custom-field changes are audited and version checked.</span>
-          <INNOButton
-            disabled={saveMutation.isPending || !form.name.trim()}
-            onClick={saveAsset}
-          >
-            {saveMutation.isPending ? 'Saving…' : 'Save Asset'}
-          </INNOButton>
-        </div>
+          <INNOButton busy={saveMutation.isPending} disabled={!form.name.trim()} onClick={saveAsset}>Save Asset</INNOButton>
+        </INNOEditorFooter>
       ) : null}
 
-      <section className="collection-card">
-        <div className="collection-head"><div><h2>Ownership history</h2><p>Immutable ownership changes for this asset.</p></div></div>
-        <div className="production-table-wrap"><table className="production-table"><thead><tr><th>Effective</th><th>Previous owner</th><th>Owner</th><th>Reason</th></tr></thead><tbody>{asset.ownershipHistory.length ? asset.ownershipHistory.map((item) => <tr key={item.id}><td>{new Date(item.effectiveAt).toLocaleString()}</td><td>{item.previousOwner ?? 'Unassigned'}</td><td>{item.owner ?? 'Unassigned'}</td><td>{item.reasonCode.replaceAll('_', ' ')}</td></tr>) : <tr><td colSpan={4}>No ownership history.</td></tr>}</tbody></table></div>
-      </section>
+      <INNOCollection>
+        <INNOCollectionHeader title="Ownership history" description="Immutable ownership changes for this asset." />
+        {asset.ownershipHistory.length === 0 ? (
+          <div className="collection-state"><INNOState kind="empty" title="No ownership history" description="Ownership changes will appear here after the first assignment." /></div>
+        ) : (
+          <INNOTableWrap width="wide"><table><thead><tr><th>Effective</th><th>Previous owner</th><th>Owner</th><th>Reason</th></tr></thead><tbody>{asset.ownershipHistory.map((item) => <tr key={item.id}><td>{new Date(item.effectiveAt).toLocaleString()}</td><td>{item.previousOwner ?? 'Unassigned'}</td><td>{item.owner ?? 'Unassigned'}</td><td>{item.reasonCode.replaceAll('_', ' ')}</td></tr>)}</tbody></table></INNOTableWrap>
+        )}
+      </INNOCollection>
     </main>
   );
 }
