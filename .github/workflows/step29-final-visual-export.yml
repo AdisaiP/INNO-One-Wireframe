@@ -1,0 +1,104 @@
+name: Step29 Final Visual Export
+
+on:
+  push:
+    branches:
+      - qa/step29-final-visual
+    paths-ignore:
+      - 'step29-final-visual/**'
+
+permissions:
+  contents: write
+
+jobs:
+  visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.0
+          run_install: false
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.103'
+
+      - name: Install dependencies
+        run: |
+          cd production
+          pnpm install --frozen-lockfile
+          pnpm run build:packages
+          dotnet build INNO.One.sln --nologo
+          python3 -m pip install --user requests websocket-client pillow
+
+      - name: Start runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker compose -f production/infrastructure/docker/compose.yml up -d postgres keycloak
+
+          for i in {1..60}; do
+            if curl -fsS http://localhost:8080/realms/inno-one/.well-known/openid-configuration >/dev/null 2>&1; then break; fi
+            sleep 2
+          done
+          curl -fsS http://localhost:8080/realms/inno-one/.well-known/openid-configuration >/dev/null
+
+          (
+            cd production
+            ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://localhost:5080 MeshCentral__Enabled=false             dotnet run --no-build --project services/platform-api/src/INNO.One.PlatformApi/INNO.One.PlatformApi.csproj
+          ) >/tmp/inno-api.log 2>&1 &
+
+          for i in {1..60}; do
+            if curl -fsS http://localhost:5080/health/ready >/dev/null 2>&1; then break; fi
+            sleep 2
+          done
+          curl -fsS http://localhost:5080/health/ready >/dev/null
+
+          (cd production && pnpm --filter @inno/web-portal dev --host 0.0.0.0 --port 5180) >/tmp/inno-vite.log 2>&1 &
+          for i in {1..60}; do
+            if curl -fsS http://localhost:5180 >/dev/null 2>&1; then break; fi
+            sleep 1
+          done
+          curl -fsS http://localhost:5180 >/dev/null
+
+          google-chrome --headless=new --no-sandbox --disable-gpu             --remote-debugging-port=9241             --user-data-dir=/tmp/inno-chrome-visual             http://localhost:5180/devices >/tmp/inno-chrome-visual.log 2>&1 &
+
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:9241/json >/dev/null 2>&1; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:9241/json >/dev/null
+          python3 production/scripts/step29-browser-login.py
+
+      - name: Capture contact sheets
+        env:
+          STEP29_SCREENSHOT_DIR: step29-final-visual
+        run: python3 production/scripts/step29-final-visual-capture.py
+
+      - name: Commit contact sheets
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "Step29 QA"
+          git config user.email "actions@users.noreply.github.com"
+          git add step29-final-visual/contact-sheet-1366.png                   step29-final-visual/contact-sheet-1024.png                   step29-final-visual/contact-sheet-768.png
+          git commit -m "qa: store step29 final contact sheets [skip ci]"
+          git push origin HEAD:qa/step29-final-visual
+
+      - name: Diagnostics
+        if: failure()
+        run: |
+          tail -200 /tmp/inno-api.log || true
+          tail -120 /tmp/inno-vite.log || true
+          tail -120 /tmp/inno-chrome-visual.log || true
+
+      - name: Stop runtime
+        if: always()
+        run: docker compose -f production/infrastructure/docker/compose.yml down -v || true
