@@ -27,7 +27,7 @@ Bring the production React Web Portal back to the approved frozen prototype lang
 4. Assets routes. **DONE — browser regression 141/141 + static/build regression.**
 5. Helpdesk routes. **DONE — browser regression 159/159 + static/build regression.**
 6. Profile and remaining currently implemented production routes. **DONE — browser regression 60/60 + static/build regression.**
-7. Final full parity audit. **NEXT.**
+7. Final full parity audit. **DONE — 456/456 browser checks + 33 visual screenshots reviewed.**
 5. Helpdesk routes.
 6. Profile and remaining currently implemented production routes.
 
@@ -138,3 +138,27 @@ Phase 6 is complete:
 - Direct future routes no longer fall through to Devices contextual navigation; they use a neutral INNO.One workspace context.
 
 Browser QA passed **60 / 60**, 0 failures at 1366 / 1024 / 768. Step 29 static audit, Step 15–28 regression, Web typecheck/build and .NET build are green.
+
+
+## Final Step 29 closure
+
+Step 29 is complete.
+
+Final validation:
+- Step 29 static parity audit: PASS
+- Step 15–28 regression audits: PASS
+- Web typecheck: PASS
+- Web build: PASS
+- .NET build: PASS
+- Full browser parity regression: **456 / 456**, 0 failures
+  - Shell: 23 / 23
+  - Devices: 73 / 73
+  - Assets: 141 / 141
+  - Helpdesk: 159 / 159
+  - Profile / remaining route states: 60 / 60
+- Final visual capture: **33 screenshots**, 11 representative routes × 1366 / 1024 / 768
+- Visual review: PASS, 0 observed clipping / page-level overflow / footer overlap / active-navigation defects
+
+The GitHub Actions artifact upload failed only because repository artifact storage quota was full. Screenshot generation itself passed. The three reviewed contact sheets were exported through the temporary QA branch `qa/step29-final-visual` at commit `c233c1408e31dacacb1bf8ea966385db092bfd73`.
+
+No backend contract, database migration, merge to `main`, or deployment was performed by Step 29.
