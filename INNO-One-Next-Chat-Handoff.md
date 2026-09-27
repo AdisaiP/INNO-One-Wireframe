@@ -2073,3 +2073,10 @@ On `integration/step25-assets-final-integration`, the deferred Step 16 release g
 The browser harness was updated to keep its CDP tab visible and wait for asynchronous UI state. Step 16 smoke leaves synthetic QA group/node fixtures on the development stack. See `INNO-One-Step16-Devices-Management.md` section 14 for the full evidence and boundary.
 
 Step 16 fresh re-validation is **no longer deferred**. Software Baselines remain deferred pending a standalone frozen API/route contract. **Do not merge `main` without explicit user instruction.**
+
+
+# Main integration — 2026-09-27
+
+The user explicitly authorized merging after Step 16 fresh re-validation. `integration/step25-assets-final-integration` was fast-forwarded into `main` and pushed to `origin/main` at `3ca1c72`. Working tree was clean after the push. This closes the prior merge gate; historical notes above are retained as records of decisions at those steps.
+
+Next development candidate: define and freeze a standalone Software Baselines API/route/data contract before implementing baseline evaluation. This is a recommendation, not an already frozen Step 26. Main integration does not itself deploy the Web Portal/API as persistent services; release deployment and environment verification remain separate operational work.
