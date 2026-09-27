@@ -24,9 +24,10 @@
     "shell",
     "shared_primitives",
     "devices",
-    "assets"
+    "assets",
+    "helpdesk"
   ],
-  "nextPhase": "helpdesk",
+  "nextPhase": "remaining_routes",
   "sharedPrimitives": [
     "INNOPage",
     "INNOButton",
@@ -111,8 +112,6 @@
     "browserQaRunId": 36345408540,
     "buildQaRunId": 36342574582
   },
-  "inProgressPhase": "helpdesk",
-  "helpdeskImplementationStatus": "implemented_pending_qa",
   "helpdeskParityRoutes": [
     "/helpdesk",
     "/helpdesk/tickets",
@@ -125,5 +124,17 @@
     "/helpdesk/automation",
     "/helpdesk/automation/new",
     "/helpdesk/automation/:ruleId"
-  ]
+  ],
+  "helpdeskValidation": {
+    "step29StaticAudit": "passed",
+    "step15To28Regression": "passed",
+    "webTypecheck": "passed",
+    "webBuild": "passed",
+    "dotnetBuild": "passed",
+    "browserQa": "passed",
+    "browserQaChecks": 159,
+    "browserQaFailures": 0,
+    "browserQaRunId": 36348620829,
+    "buildQaRunId": 36348620757
+  }
 }
