@@ -1,0 +1,182 @@
+name: Step29 Final Full Parity Audit
+
+on:
+  push:
+    branches:
+      - qa/step29-final-full
+
+jobs:
+  final-parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.0
+          run_install: false
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.103'
+
+      - name: Install dependencies
+        run: |
+          cd production
+          pnpm install --frozen-lockfile
+          pnpm run build:packages
+          python3 -m pip install --user requests websocket-client pillow
+
+      - name: Step 29 static parity audit
+        run: python3 step29-react-ui-parity-audit.py
+
+      - name: Step 15-28 regression audits
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in             step15-vertical-slice-audit.py             step16-devices-management-audit.py             step17-helpdesk-core-audit.py             step18-helpdesk-sla-automation-audit.py             step19-assets-core-audit.py             step20-asset-custom-fields-audit.py             step21-asset-qr-audit.py             step22-software-licenses-audit.py             step23-contracts-warranty-audit.py             step24-assets-mobile-audit.py             step25-assets-integration-audit.py             step26-software-baselines-audit.py             step27-devices-software-inventory-audit.py             step28-software-baseline-evaluation-audit.py
+          do
+            python3 "$f"
+          done
+
+      - name: Web typecheck
+        working-directory: production
+        run: pnpm typecheck
+
+      - name: Web build
+        working-directory: production
+        run: pnpm build
+
+      - name: .NET build
+        working-directory: production
+        run: dotnet build INNO.One.sln --nologo
+
+      - name: Start runtime and authenticate
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker compose -f production/infrastructure/docker/compose.yml up -d postgres keycloak
+
+          for i in {1..60}; do
+            if curl -fsS http://localhost:8080/realms/inno-one/.well-known/openid-configuration >/dev/null 2>&1; then break; fi
+            sleep 2
+          done
+          curl -fsS http://localhost:8080/realms/inno-one/.well-known/openid-configuration >/dev/null
+
+          (
+            cd production
+            ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://localhost:5080 MeshCentral__Enabled=false             dotnet run --no-build --project services/platform-api/src/INNO.One.PlatformApi/INNO.One.PlatformApi.csproj
+          ) >/tmp/inno-api.log 2>&1 &
+
+          for i in {1..60}; do
+            if curl -fsS http://localhost:5080/health/ready >/dev/null 2>&1; then break; fi
+            sleep 2
+          done
+          curl -fsS http://localhost:5080/health/ready >/dev/null
+
+          (cd production && pnpm --filter @inno/web-portal dev --host 0.0.0.0 --port 5180) >/tmp/inno-vite.log 2>&1 &
+          for i in {1..60}; do
+            if curl -fsS http://localhost:5180 >/dev/null 2>&1; then break; fi
+            sleep 1
+          done
+          curl -fsS http://localhost:5180 >/dev/null
+
+          google-chrome --headless=new --no-sandbox --disable-gpu --remote-debugging-port=9241 --user-data-dir=/tmp/inno-chrome http://localhost:5180/devices >/tmp/inno-chrome.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:9241/json >/dev/null 2>&1; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:9241/json >/dev/null
+
+          python3 - <<'PY'
+          import json,time,requests,websocket
+          from pathlib import Path
+
+          realm=json.loads(Path('production/infrastructure/docker/keycloak/realm-inno-one.json').read_text())
+          user=next(item for item in realm['users'] if item['username']=='adisai')
+          password=user['credentials'][0]['value']
+
+          targets=requests.get('http://127.0.0.1:9241/json',timeout=2).json()
+          page=next(x for x in targets if x.get('type')=='page')
+          ws=websocket.create_connection(page['webSocketDebuggerUrl'],timeout=8,suppress_origin=True)
+          seq=0
+          def call(method,params=None):
+              global seq
+              seq+=1;i=seq
+              ws.send(json.dumps({'id':i,'method':method,'params':params or {}}))
+              while True:
+                  response=json.loads(ws.recv())
+                  if response.get('id')==i:return response.get('result',{})
+          def ev(expr):
+              return call('Runtime.evaluate',{'expression':expr,'returnByValue':True,'awaitPromise':True}).get('result',{}).get('value')
+
+          call('Runtime.enable')
+          deadline=time.time()+30
+          while time.time()<deadline:
+              if 'realms/inno-one' in (ev('location.href') or '') and ev("!!document.querySelector('#username')"):
+                  break
+              time.sleep(.25)
+
+          script="""(()=>{const u=document.querySelector('#username'),p=document.querySelector('#password'),b=document.querySelector('#kc-login');if(!u||!p||!b)return false;u.value=USERNAME;u.dispatchEvent(new Event('input',{bubbles:true}));p.value=PASSWORD;p.dispatchEvent(new Event('input',{bubbles:true}));b.click();return true})()"""
+          script=script.replace('USERNAME',json.dumps(user['username'])).replace('PASSWORD',json.dumps(password))
+          if not ev(script):
+              raise SystemExit('Keycloak login form not ready')
+
+          deadline=time.time()+30
+          while time.time()<deadline:
+              if 'localhost:5180' in (ev('location.href') or '') and ev("!!document.querySelector('.inno-production-shell')"):
+                  print('QA_BROWSER_LOGIN_READY')
+                  break
+              time.sleep(.25)
+          else:
+              raise SystemExit('Web portal did not return after login')
+          PY
+
+      - name: Full browser parity regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo '=== SHELL ==='
+          python3 production/scripts/step29-react-shell-browser-qa.py
+          echo '=== DEVICES ==='
+          python3 production/scripts/step29-devices-parity-browser-qa.py
+          echo '=== ASSETS ==='
+          python3 production/scripts/step29-assets-parity-browser-qa.py
+          echo '=== HELPDESK ==='
+          python3 production/scripts/step29-helpdesk-parity-browser-qa.py
+          echo '=== REMAINING ==='
+          python3 production/scripts/step29-remaining-routes-browser-qa.py
+
+      - name: Capture final visual baseline
+        env:
+          STEP29_SCREENSHOT_DIR: step29-final-visual
+        run: python3 production/scripts/step29-final-visual-capture.py
+
+      - name: Upload visual baseline
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: step29-final-visual
+          path: step29-final-visual
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Diagnostics
+        if: failure()
+        run: |
+          echo '=== API ==='
+          tail -240 /tmp/inno-api.log || true
+          echo '=== VITE ==='
+          tail -160 /tmp/inno-vite.log || true
+          echo '=== CHROME ==='
+          tail -160 /tmp/inno-chrome.log || true
+          docker compose -f production/infrastructure/docker/compose.yml ps || true
+
+      - name: Stop runtime
+        if: always()
+        run: docker compose -f production/infrastructure/docker/compose.yml down -v || true
