@@ -1,0 +1,144 @@
+name: Step29 Assets Browser QA
+
+on:
+  push:
+    branches:
+      - qa/step29-assets-parity
+
+jobs:
+  browser-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.0
+          run_install: false
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.103'
+
+      - name: Install dependencies
+        run: |
+          cd production
+          pnpm install --frozen-lockfile
+          pnpm run build:packages
+          dotnet build INNO.One.sln --nologo
+          python3 -m pip install --user requests websocket-client
+
+      - name: Run Assets browser QA
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          docker compose -f production/infrastructure/docker/compose.yml up -d postgres keycloak
+
+          for i in {1..60}; do
+            if curl -fsS http://localhost:8080/realms/inno-one/.well-known/openid-configuration >/dev/null 2>&1; then break; fi
+            sleep 2
+          done
+          curl -fsS http://localhost:8080/realms/inno-one/.well-known/openid-configuration >/dev/null
+
+          (
+            cd production
+            ASPNETCORE_ENVIRONMENT=Development             ASPNETCORE_URLS=http://localhost:5080             MeshCentral__Enabled=false             dotnet run --no-build --project services/platform-api/src/INNO.One.PlatformApi/INNO.One.PlatformApi.csproj
+          ) >/tmp/inno-api.log 2>&1 &
+
+          for i in {1..60}; do
+            if curl -fsS http://localhost:5080/health/ready >/dev/null 2>&1; then break; fi
+            sleep 2
+          done
+          curl -fsS http://localhost:5080/health/ready >/dev/null
+
+          (
+            cd production
+            pnpm --filter @inno/web-portal dev --host 0.0.0.0 --port 5180
+          ) >/tmp/inno-vite.log 2>&1 &
+
+          for i in {1..60}; do
+            if curl -fsS http://localhost:5180 >/dev/null 2>&1; then break; fi
+            sleep 1
+          done
+          curl -fsS http://localhost:5180 >/dev/null
+
+          google-chrome --headless=new --no-sandbox --disable-gpu             --remote-debugging-port=9241             --user-data-dir=/tmp/inno-chrome             http://localhost:5180/assets >/tmp/inno-chrome.log 2>&1 &
+
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:9241/json >/dev/null 2>&1; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:9241/json >/dev/null
+
+          python3 - <<'PY'
+          import json,time,requests,websocket
+          deadline=time.time()+20
+          page=None
+          while time.time()<deadline:
+              targets=requests.get('http://127.0.0.1:9241/json',timeout=2).json()
+              page=next((x for x in targets if x.get('type')=='page'),None)
+              if page: break
+              time.sleep(.2)
+          if not page:
+              raise SystemExit('No Chrome page target')
+
+          ws=websocket.create_connection(page['webSocketDebuggerUrl'],timeout=8,origin='http://127.0.0.1')
+          seq=0
+          def call(method,params=None):
+              global seq
+              seq+=1;i=seq
+              ws.send(json.dumps({'id':i,'method':method,'params':params or {}}))
+              while True:
+                  r=json.loads(ws.recv())
+                  if r.get('id')==i:return r.get('result',{})
+          def ev(expr):
+              return call('Runtime.evaluate',{'expression':expr,'returnByValue':True,'awaitPromise':True}).get('result',{}).get('value')
+
+          call('Runtime.enable')
+          deadline=time.time()+30
+          while time.time()<deadline:
+              url=ev('location.href') or ''
+              if 'realms/inno-one' in url and ev("!!document.querySelector('#username')"):
+                  break
+              time.sleep(.25)
+
+          ok=ev("""(()=>{const u=document.querySelector('#username'),p=document.querySelector('#password'),b=document.querySelector('#kc-login');if(!u||!p||!b)return false;u.value='adisai';u.dispatchEvent(new Event('input',{bubbles:true}));p.value='inno_dev_only';p.dispatchEvent(new Event('input',{bubbles:true}));b.click();return true})()""")
+          if not ok:
+              raise SystemExit('Keycloak login form not ready')
+
+          deadline=time.time()+30
+          while time.time()<deadline:
+              url=ev('location.href') or ''
+              if 'localhost:5180' in url and ev("!!document.querySelector('.inno-production-shell')"):
+                  print('QA_BROWSER_LOGIN_READY')
+                  break
+              time.sleep(.25)
+          else:
+              raise SystemExit('Web portal did not return after login')
+          PY
+
+          python3 production/scripts/step29-assets-parity-browser-qa.py
+
+      - name: Diagnostics
+        if: failure()
+        run: |
+          echo '=== API ==='
+          tail -200 /tmp/inno-api.log || true
+          echo '=== VITE ==='
+          tail -120 /tmp/inno-vite.log || true
+          echo '=== CHROME ==='
+          tail -120 /tmp/inno-chrome.log || true
+          docker compose -f production/infrastructure/docker/compose.yml ps || true
+
+      - name: Stop runtime
+        if: always()
+        run: docker compose -f production/infrastructure/docker/compose.yml down -v || true
