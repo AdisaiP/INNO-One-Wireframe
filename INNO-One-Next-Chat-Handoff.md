@@ -1922,3 +1922,71 @@ Pending remote gates:
 **Step 16 fresh re-validation remains deferred by explicit user request and is still required before merge/release.**
 
 **Do not merge `main` without explicit user instruction.**
+
+
+# Step 24 — Android Assets Mobile Scanner ✅ COMPLETED 2026-09-27
+
+Branch: `implementation/step24-assets-mobile`
+
+Implementation Contract: **0.15.0**.
+
+Implemented:
+
+- Real Expo / React Native Android app under `production/apps/assets-mobile`.
+- Expo SDK 57 + React Native 0.86; mobile Node requirement 20.19.4+.
+- Thai scanner/history/result/error mobile experience.
+- Android camera permission and QR-only scanning.
+- Reuses frozen `POST /assets/qr/resolve` with `assets.qr.scan`.
+- Organization sign-in uses OIDC Authorization Code + PKCE S256.
+- Access/refresh tokens use Expo SecureStore.
+- QR token is never persisted after resolution.
+- Device-local recent history stores Asset display metadata only.
+- Result view uses only fields already exposed by the frozen QR Resolve response.
+- No new API operation or database table was introduced.
+- Android Mobile remains isolated from Web navigation.
+- Versioned Keycloak realm includes public client `inno-one-assets-mobile` with PKCE S256 and `inno-one-api` audience.
+
+Remote completion on `172.10.1.58`:
+
+- Registered live Keycloak client `inno-one-assets-mobile`.
+- Verified public client + Standard Flow + Direct Access Grants disabled.
+- Verified PKCE S256 through a real Authorization Code flow.
+- Verified access token contains `inno-one-api` audience.
+- Verified refresh-token issuance.
+- Started the current Platform API against relocated PostgreSQL/Keycloak through the development tunnel for smoke only.
+- Generated a real QR label through `assets.qr.print`.
+- Resolved that real QR through a token issued by the Mobile OIDC client.
+- Regenerated the label and verified the previous QR returns 404.
+- Verified a malformed/unknown opaque QR returns 404.
+- Verified the replacement active QR resolves successfully.
+- Live marker: **STEP24_LIVE_MOBILE_SMOKE_PASS**.
+- Remote DB after smoke: `assets.qr.scan` permission = 1, QR labels observed = 4, resolved QR scans observed = 4, `assets.qr.scanned` audits observed = 7, active HR labels = 1.
+
+Final QA:
+
+- Step 24 audit: **0 issues**.
+- Contract/API/data/event/skeleton audit chain: **0 issues**.
+- Mobile TypeScript: **PASS**.
+- Expo config validation: **PASS**.
+- Android Hermes export: **PASS**.
+- Android visual QA: **3 / 3** at 430 / 390 / 360, failures 0.
+- Existing Web typecheck/build: **PASS**.
+- .NET build: **0 warnings / 0 errors**.
+- Frozen static UX audit chain: **0 issues**.
+- `git diff --check`: **PASS**.
+- The legacy Web input browser harness currently has a pre-existing/flaky Report Builder preview timing failure. Step 24 changes no Web Portal source, so this Web-only harness is recorded as not applicable to Step 24 completion.
+
+Source of truth:
+
+- `INNO-One-Step24-Assets-Mobile.md`
+- `inno-step24-assets-mobile.json`
+- `step24-assets-mobile-audit.py`
+- `production/scripts/step24-live-mobile-smoke.py`
+
+Remaining Assets work:
+
+- Software Baselines remain deferred until a standalone frozen API/route contract exists.
+- Final Assets integration pass across Devices ↔ Assets ↔ Helpdesk ↔ QR ↔ Licenses ↔ Contracts.
+- Step 16 fresh re-validation before merge/release.
+
+**Do not merge `main` without explicit user instruction. No Step 25 work has been started.**

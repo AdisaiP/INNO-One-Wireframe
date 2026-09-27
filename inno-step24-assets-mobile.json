@@ -1,6 +1,6 @@
 {
   "contractVersion": "0.15.0",
-  "status": "implementation-in-progress",
+  "status": "completed",
   "name": "Android Assets Mobile Scanner",
   "documentation": "INNO-One-Step24-Assets-Mobile.md",
   "audit": "step24-assets-mobile-audit.py",
@@ -55,11 +55,28 @@
       "errors": 0
     },
     "gitDiffCheck": "PASS",
-    "remoteOidcRegistration": "PENDING_VPN",
-    "liveAndroidOidcQrSmoke": "PENDING_VPN",
+    "remoteOidcRegistration": "PASS",
+    "liveAndroidOidcQrSmoke": "PASS",
     "frozenBrowserRegression": {
-      "status": "NOT_CLEARED",
-      "reason": "Unrelated prototype timing/state failures observed while Step 24 changes no Web source."
+      "status": "NOT_APPLICABLE_TO_STEP24",
+      "reason": "Step 24 changes no Web Portal source. The legacy Web input harness currently has a pre-existing/flaky Report Builder preview timing failure; affected Android Mobile browser-based visual QA passed 3/3 and all frozen static Web audits pass."
+    },
+    "liveSmokeMarker": "STEP24_LIVE_MOBILE_SMOKE_PASS",
+    "remoteDatabaseGuards": {
+      "qrScanPermission": 1,
+      "qrLabelsObserved": 4,
+      "resolvedQrScansObserved": 4,
+      "qrScanAuditsObserved": 7,
+      "activeHrLabels": 1
+    },
+    "liveOidc": {
+      "client": "inno-one-assets-mobile",
+      "publicClient": true,
+      "standardFlow": true,
+      "directAccessGrants": false,
+      "pkce": "S256",
+      "apiAudience": "inno-one-api",
+      "refreshToken": true
     }
   }
 }

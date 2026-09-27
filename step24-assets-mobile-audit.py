@@ -68,6 +68,9 @@ for rel in (
     if not (APP / rel).exists():
         issues.append(f"Mobile runtime file missing: {rel}")
 
+if not (PROD / "scripts/step24-live-mobile-smoke.py").exists():
+    issues.append("Step 24 live mobile smoke script missing")
+
 package = json.loads((APP / "package.json").read_text())
 if package.get("engines", {}).get("node") != ">=20.19.4":
     issues.append("Mobile Node engine must be >=20.19.4")

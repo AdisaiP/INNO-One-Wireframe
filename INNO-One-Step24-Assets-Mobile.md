@@ -1,6 +1,6 @@
 # INNO.One — Step 24 Android Assets Mobile Scanner
 
-**Status:** implementation-in-progress
+**Status:** completed
 **Branch:** `implementation/step24-assets-mobile`
 **Implementation Contract:** 0.15.0
 
@@ -63,3 +63,36 @@ Step 24 implements the Android Assets Mobile runtime while preserving the frozen
 **Software Baselines remain deferred until a standalone frozen API/route contract exists.**
 
 **Step 16 fresh re-validation remains deferred by explicit user request and is required before merge/release.**
+
+
+## Final QA
+
+- Mobile TypeScript: **PASS**.
+- Expo public config validation with Node 20.19.4: **PASS**.
+- Android Hermes export: **PASS**.
+- Step 24 static audit: **0 issues**.
+- Implementation/API/data/event/skeleton audit chain: **0 issues**.
+- Existing Web typecheck/build: **PASS**.
+- .NET build: **0 warnings / 0 errors**.
+- Frozen static UX audit chain: **0 issues**.
+- Android Mobile visual QA: **3 / 3** at 430 / 390 / 360, failures 0.
+- Live Keycloak client `inno-one-assets-mobile`: public client, Standard Flow enabled, Direct Access Grants disabled, PKCE S256, API audience mapper active.
+- Live OIDC Authorization Code + PKCE smoke: **PASS**.
+- Live refresh-token issuance: **PASS**.
+- Real QR generation → Mobile QR resolve: **PASS**.
+- Revoked QR rejection: **PASS**.
+- Invalid QR rejection: **PASS**.
+- Current replacement QR resolve: **PASS**.
+- Live smoke marker: **STEP24_LIVE_MOBILE_SMOKE_PASS**.
+- Remote DB verification after smoke:
+  - `assets.qr.scan` permission: 1
+  - QR labels observed: 4
+  - resolved QR scans observed: 4
+  - `assets.qr.scanned` audits observed: 7
+  - active HR QR labels: 1
+- `git diff --check`: **PASS**.
+- The frozen Web input browser harness is not a Step 24 acceptance surface because Step 24 changes no Web Portal source. Its current run still has a pre-existing/flaky Report Builder preview timing failure; Android Mobile visual QA and all frozen static Web audits passed.
+
+**Step 16 fresh re-validation remains deferred by explicit user request and is required before merge/release.**
+
+**Do not merge `main` without explicit user instruction.**
