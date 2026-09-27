@@ -1,3 +1,10 @@
+> [!IMPORTANT]
+> **Current production override — 2026-09-28**
+>
+> The historical sections below describe the frozen prototype era and are no longer the current implementation status. Production Steps **15–28 are implemented**, and **Step 29 React UI Parity is completed** on `implementation/step29-assets-parity-recovery`.
+>
+> Read `INNO-One-Step29-Next-Chat-Handoff.md` before continuing production work. The user's Mac may still contain uncommitted Step 29 edits from the Remote Desktop interruption, so inspect the local working tree before any checkout/pull/reset. **Do not merge or deploy unless explicitly requested.**
+
 # INNO.One — Next Chat Handoff
 
 Last updated: 2026-09-26
