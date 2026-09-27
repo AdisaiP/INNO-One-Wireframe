@@ -2,19 +2,101 @@
   "step": 29,
   "name": "React UI Parity / Frozen UI Port Pass",
   "status": "in_progress",
-  "branch": "implementation/step29-react-ui-parity",
+  "branch": "implementation/step29-assets-parity-recovery",
   "frozenDesignSystem": "V1.26",
   "frozenUiContract": "1.20.0",
   "backendContractsChanged": false,
-  "sourceOfTruth": ["inno-design-system.css", "workspace-v2.css", "INNO-One-Final-Visual-QA-Baseline.md", "frozen HTML routes"],
-  "phases": ["shell", "shared_primitives", "devices", "assets", "helpdesk", "remaining_routes"],
-  "completedPhases": ["shell", "shared_primitives", "devices"],
-  "nextPhase": "assets",
-  "sharedPrimitives": ["INNOPage", "INNOButton", "INNOState", "INNOStatus", "INNOCollection", "INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "INNOSelectField", "INNOTableWrap", "INNOPagination", "INNOResourceHeader", "INNOEditorFooter"],
-  "representativeRoutes": ["/devices", "/assets/inventory", "/helpdesk/automation", "/devices/:deviceId", "/helpdesk/tickets/new"],
-  "devicesParityRoutes": ["/devices", "/devices/discovery", "/devices/groups", "/devices/groups/:groupId", "/devices/add", "/devices/:deviceId"],
-  "canonical1366": {"header": 56, "rail": 60, "sidebar": 216},
-  "viewports": [1366, 1024, 768],
-  "preserve": ["API behavior", "permission gates", "runtime states", "database behavior", "surface boundaries"],
-  "forbid": ["fake controls", "backend contract changes", "database migrations", "merge", "deploy"]
+  "sourceOfTruth": [
+    "inno-design-system.css",
+    "workspace-v2.css",
+    "INNO-One-Final-Visual-QA-Baseline.md",
+    "frozen HTML routes"
+  ],
+  "phases": [
+    "shell",
+    "shared_primitives",
+    "devices",
+    "assets",
+    "helpdesk",
+    "remaining_routes"
+  ],
+  "completedPhases": [
+    "shell",
+    "shared_primitives",
+    "devices",
+    "assets"
+  ],
+  "nextPhase": "helpdesk",
+  "sharedPrimitives": [
+    "INNOPage",
+    "INNOButton",
+    "INNOState",
+    "INNOStatus",
+    "INNOCollection",
+    "INNOCollectionHeader",
+    "INNOCollectionToolbar",
+    "INNOSearchField",
+    "INNOSelectField",
+    "INNOTableWrap",
+    "INNOPagination",
+    "INNOResourceHeader",
+    "INNOEditorFooter"
+  ],
+  "representativeRoutes": [
+    "/devices",
+    "/assets/inventory",
+    "/helpdesk/automation",
+    "/devices/:deviceId",
+    "/helpdesk/tickets/new"
+  ],
+  "devicesParityRoutes": [
+    "/devices",
+    "/devices/discovery",
+    "/devices/groups",
+    "/devices/groups/:groupId",
+    "/devices/add",
+    "/devices/:deviceId"
+  ],
+  "canonical1366": {
+    "header": 56,
+    "rail": 60,
+    "sidebar": 216
+  },
+  "viewports": [
+    1366,
+    1024,
+    768
+  ],
+  "preserve": [
+    "API behavior",
+    "permission gates",
+    "runtime states",
+    "database behavior",
+    "surface boundaries"
+  ],
+  "forbid": [
+    "fake controls",
+    "backend contract changes",
+    "database migrations",
+    "merge",
+    "deploy"
+  ],
+  "targetBranch": "implementation/step29-react-ui-parity",
+  "assetsParityRoutes": [
+    "/assets",
+    "/assets/inventory",
+    "/assets/:assetId",
+    "/assets/ownership",
+    "/assets/owners",
+    "/assets/owners/:userId",
+    "/assets/ownership/submissions",
+    "/assets/custom-fields",
+    "/assets/qr-labels",
+    "/assets/software-baselines",
+    "/assets/software-licenses",
+    "/assets/contracts"
+  ],
+  "assetsProductionOnlyMapping": {
+    "/assets/software-baselines": "Frozen Assets collection/master-detail patterns + Step 26–28 evidence contracts"
+  }
 }
