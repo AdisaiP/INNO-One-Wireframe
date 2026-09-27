@@ -64,13 +64,18 @@ public static class PlatformDevelopmentSeed
         ("assets.qr.scan", "assets", "Resolve asset QR labels")
     ];
 
+    private static readonly (string Id, string Module, string Name)[] Step22Permissions =
+    [
+        ("assets.license.manage", "assets", "Manage software license compliance")
+    ];
+
     public static async Task SeedAsync(
         PlatformDbContext db,
         CancellationToken cancellationToken = default)
     {
         if (await db.UserProfiles.AnyAsync(cancellationToken))
         {
-            await EnsureStep16To21Async(db, cancellationToken);
+            await EnsureStep16To22Async(db, cancellationToken);
             return;
         }
 
@@ -237,6 +242,12 @@ public static class PlatformDevelopmentSeed
             Module = x.Module,
             Name = x.Name
         }));
+        db.Permissions.AddRange(Step22Permissions.Select(x => new Permission
+        {
+            PermissionId = x.Id,
+            Module = x.Module,
+            Name = x.Name
+        }));
 
         db.RolePermissions.AddRange(basePermissions.Select(x => new RolePermission
         {
@@ -259,6 +270,11 @@ public static class PlatformDevelopmentSeed
             PermissionId = x.Id
         }));
         db.RolePermissions.AddRange(Step21Permissions.Select(x => new RolePermission
+        {
+            RoleId = PlatformAdminRoleId,
+            PermissionId = x.Id
+        }));
+        db.RolePermissions.AddRange(Step22Permissions.Select(x => new RolePermission
         {
             RoleId = PlatformAdminRoleId,
             PermissionId = x.Id
@@ -367,7 +383,7 @@ public static class PlatformDevelopmentSeed
         await db.SaveChangesAsync(cancellationToken);
     }
 
-    private static async Task EnsureStep16To21Async(
+    private static async Task EnsureStep16To22Async(
         PlatformDbContext db,
         CancellationToken cancellationToken)
     {
@@ -388,7 +404,8 @@ public static class PlatformDevelopmentSeed
         foreach (var (permissionId, module, name) in Step17Permissions
             .Concat(Step18Permissions)
             .Concat(Step19Permissions)
-            .Concat(Step21Permissions))
+            .Concat(Step21Permissions)
+            .Concat(Step22Permissions))
         {
             if (!await db.Permissions.AnyAsync(
                 x => x.PermissionId == permissionId,
@@ -473,7 +490,8 @@ public static class PlatformDevelopmentSeed
         foreach (var (permissionId, _, _) in Step17Permissions
             .Concat(Step18Permissions)
             .Concat(Step19Permissions)
-            .Concat(Step21Permissions))
+            .Concat(Step21Permissions)
+            .Concat(Step22Permissions))
         {
             await EnsureRolePermissionAsync(
                 db,

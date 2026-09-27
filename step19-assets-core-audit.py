@@ -39,8 +39,8 @@ tables = [
 
 if manifest.get("contractVersion") != "0.10.0":
     issues.append("Step 19 manifest must be version 0.10.0")
-if implementation.get("contractVersion") != "0.12.0":
-    issues.append("Implementation Contract must be version 0.12.0")
+if implementation.get("contractVersion") != "0.13.0":
+    issues.append("Implementation Contract must be version 0.13.0")
 if manifest.get("operations") != operations:
     issues.append("Step 19 operation catalog mismatch")
 if manifest.get("webRoutes") != routes:

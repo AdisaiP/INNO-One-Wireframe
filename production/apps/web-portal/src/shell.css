@@ -1910,3 +1910,129 @@
     border-radius: 0;
   }
 }
+
+
+/* Step 22 · Software License Compliance */
+.license-stat-strip { margin-bottom: 14px; }
+.license-collection { margin-bottom: 14px; }
+.numeric-column { text-align: right !important; }
+.selected-row { background: #f7f9ff; }
+.prod-tag.success-tag {
+  background: #eaf7f0;
+  color: #16794b;
+}
+.prod-tag.danger-tag {
+  background: #fceced;
+  color: #a43a44;
+}
+.button-link {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+}
+.license-utilization {
+  display: grid;
+  grid-template-columns: 34px minmax(70px, 1fr);
+  align-items: center;
+  gap: 7px;
+  min-width: 105px;
+}
+.license-utilization > span {
+  color: #47546a;
+  font-size: 9px;
+  font-weight: 700;
+  text-align: right;
+}
+.license-utilization > div {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #edf1f6;
+}
+.license-utilization i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #597fe0;
+}
+.license-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(300px, .6fr);
+  gap: 14px;
+  align-items: start;
+  margin-bottom: 14px;
+}
+.license-allocations { min-width: 0; }
+.license-record-panel { min-width: 0; }
+.license-record-panel .editor-form { padding-bottom: 4px; }
+.license-record-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  margin: 0 16px;
+  border: 1px solid var(--ds-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.license-record-summary > div {
+  min-width: 0;
+  padding: 10px 11px;
+  border-bottom: 1px solid #eef1f4;
+}
+.license-record-summary > div:nth-child(odd) {
+  border-right: 1px solid #eef1f4;
+}
+.license-record-summary > div:nth-last-child(-n+2) {
+  border-bottom: 0;
+}
+.license-record-summary span {
+  display: block;
+  color: var(--ds-muted);
+  font-size: 9px;
+}
+.license-record-summary b {
+  display: block;
+  margin-top: 3px;
+  overflow: hidden;
+  color: #334055;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.license-record-footer {
+  align-items: center;
+  margin-top: 14px;
+}
+.license-record-footer .editor-footer-note {
+  margin-right: auto;
+}
+.supporting-table th,
+.supporting-table td {
+  padding-block: 8px;
+}
+
+@media (max-width: 1024px) {
+  .license-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .license-record-summary {
+    grid-template-columns: 1fr;
+  }
+  .license-record-summary > div,
+  .license-record-summary > div:nth-child(odd),
+  .license-record-summary > div:nth-last-child(-n+2) {
+    border-right: 0;
+    border-bottom: 1px solid #eef1f4;
+  }
+  .license-record-summary > div:last-child { border-bottom: 0; }
+  .license-record-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .license-record-footer .editor-footer-note { margin-right: 0; }
+}

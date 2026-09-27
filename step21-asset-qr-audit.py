@@ -17,8 +17,8 @@ tables = ["assets.qr_labels", "assets.qr_scans"]
 
 if manifest.get("contractVersion") != "0.12.0":
     issues.append("Step 21 manifest must be version 0.12.0")
-if implementation.get("contractVersion") != "0.12.0":
-    issues.append("Implementation Contract must be version 0.12.0")
+if implementation.get("contractVersion") != "0.13.0":
+    issues.append("Implementation Contract must be version 0.13.0")
 if manifest.get("operations") != operations:
     issues.append("Step 21 operation catalog mismatch")
 if manifest.get("webRoutes") != routes:
@@ -108,7 +108,7 @@ for marker in (
     '("assets.qr.print", "assets"',
     '("assets.qr.scan", "assets"',
     "Step21Permissions",
-    "EnsureStep16To21Async",
+    "EnsureStep16To22Async",
 ):
     if marker not in seed:
         issues.append(f"Platform permission seed missing: {marker}")

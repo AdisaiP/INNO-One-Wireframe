@@ -27,6 +27,7 @@ public static class AssetsDevelopmentSeed
         if (await db.Assets.AnyAsync(cancellationToken))
         {
             await EnsureCustomFieldsAsync(db, cancellationToken);
+            await EnsureSoftwareLicensesAsync(db, cancellationToken);
             return;
         }
 
@@ -107,6 +108,7 @@ public static class AssetsDevelopmentSeed
 
         await db.SaveChangesAsync(cancellationToken);
         await EnsureCustomFieldsAsync(db, cancellationToken);
+        await EnsureSoftwareLicensesAsync(db, cancellationToken);
     }
 
     private static async Task EnsureCustomFieldsAsync(
@@ -199,6 +201,129 @@ public static class AssetsDevelopmentSeed
 
         await db.SaveChangesAsync(cancellationToken);
     }
+
+
+    private static async Task EnsureSoftwareLicensesAsync(
+        AssetsDbContext db,
+        CancellationToken cancellationToken)
+    {
+        if (await db.SoftwareLicenses.AnyAsync(cancellationToken))
+        {
+            return;
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        var m365Id = Guid.Parse("93000000-0000-0000-0000-000000000001");
+        var adobeId = Guid.Parse("93000000-0000-0000-0000-000000000002");
+        var autocadId = Guid.Parse("93000000-0000-0000-0000-000000000003");
+        var endpointId = Guid.Parse("93000000-0000-0000-0000-000000000004");
+
+        db.SoftwareLicenses.AddRange(
+            new SoftwareLicense
+            {
+                Id = m365Id,
+                ProductName = "Microsoft 365 Apps",
+                Vendor = "Microsoft",
+                LicenseModel = "Enterprise Agreement",
+                EntitledSeats = 200,
+                UnitPrice = null,
+                Currency = "THB",
+                RenewalAt = now.AddMonths(9),
+                ContractReference = "CTR-2569-SW-001",
+                Status = "active",
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new SoftwareLicense
+            {
+                Id = adobeId,
+                ProductName = "Adobe Acrobat Pro",
+                Vendor = "Adobe",
+                LicenseModel = "Named User",
+                EntitledSeats = 50,
+                UnitPrice = 7800m,
+                Currency = "THB",
+                RenewalAt = new DateTimeOffset(now.Year, 12, 31, 0, 0, 0, TimeSpan.Zero),
+                ContractReference = "CTR-2569-SW-002",
+                Status = "active",
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new SoftwareLicense
+            {
+                Id = autocadId,
+                ProductName = "AutoCAD",
+                Vendor = "Autodesk",
+                LicenseModel = "Annual Subscription",
+                EntitledSeats = 25,
+                UnitPrice = 10000m,
+                Currency = "THB",
+                RenewalAt = now.AddMonths(5),
+                ContractReference = "CTR-2569-SW-003",
+                Status = "active",
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new SoftwareLicense
+            {
+                Id = endpointId,
+                ProductName = "Endpoint Protection",
+                Vendor = "Security Vendor",
+                LicenseModel = "Annual Subscription",
+                EntitledSeats = 500,
+                UnitPrice = 2400m,
+                Currency = "THB",
+                RenewalAt = now.AddMonths(3),
+                ContractReference = "CTR-2569-SW-004",
+                Status = "active",
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+
+        db.LicenseAllocations.AddRange(
+            Allocation(m365Id, AssetHrDesktopId, "DESKTOP-HR-014", "Somchai P.", 1, now.AddMinutes(-20), "active", now),
+            Allocation(m365Id, AssetItNotebookId, "NOTEBOOK-IT-003", "Adisai P.", 1, now.AddHours(-2), "active", now),
+            Allocation(m365Id, null, "Other detected endpoints", "Endpoint inventory", 195, now.AddHours(-4), "active", now),
+
+            Allocation(adobeId, AssetHrDesktopId, "DESKTOP-HR-014", "Somchai P.", 1, now.AddMinutes(-45), "active", now),
+            Allocation(adobeId, AssetItNotebookId, "NOTEBOOK-IT-003", "Adisai P.", 1, now.AddDays(-9), "active", now),
+            Allocation(adobeId, AssetFinanceDesktopId, "PC-FIN-021", "Finance Pool", 1, now.AddDays(-47), "inactive", now),
+            Allocation(adobeId, null, "Other detected endpoints", "Endpoint inventory", 60, now.AddHours(-5), "active", now),
+
+            Allocation(autocadId, AssetItNotebookId, "NOTEBOOK-IT-003", "Adisai P.", 1, now.AddDays(-2), "active", now),
+            Allocation(autocadId, null, "Other detected endpoints", "Endpoint inventory", 31, now.AddHours(-8), "active", now),
+
+            Allocation(endpointId, AssetHrDesktopId, "DESKTOP-HR-014", "Somchai P.", 1, now.AddMinutes(-12), "active", now),
+            Allocation(endpointId, AssetItNotebookId, "NOTEBOOK-IT-003", "Adisai P.", 1, now.AddMinutes(-18), "active", now),
+            Allocation(endpointId, AssetFinanceDesktopId, "PC-FIN-021", "Finance Pool", 1, now.AddHours(-1), "active", now),
+            Allocation(endpointId, AssetPrinterId, "PRINTER-FIN-041", "Finance", 1, now.AddHours(-3), "active", now),
+            Allocation(endpointId, null, "Other detected endpoints", "Endpoint inventory", 502, now.AddMinutes(-30), "active", now));
+
+        await db.SaveChangesAsync(cancellationToken);
+    }
+
+    private static LicenseAllocation Allocation(
+        Guid licenseId,
+        Guid? assetId,
+        string endpointName,
+        string assignedTo,
+        int seatCount,
+        DateTimeOffset? lastUsedAt,
+        string status,
+        DateTimeOffset now) =>
+        new()
+        {
+            Id = Guid.NewGuid(),
+            SoftwareLicenseId = licenseId,
+            AssetId = assetId,
+            EndpointName = endpointName,
+            AssignedTo = assignedTo,
+            SeatCount = seatCount,
+            LastUsedAt = lastUsedAt,
+            UsageStatus = status,
+            Source = "endpoint_inventory",
+            UpdatedAt = now
+        };
 
     private static AssetCustomFieldValue Value(
         Guid assetId,

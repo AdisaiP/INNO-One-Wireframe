@@ -1,5 +1,5 @@
 {
-  "contractVersion": "0.12.0",
+  "contractVersion": "0.13.0",
   "status": "implementation-in-progress",
   "generatedFrom": {
     "designSystem": "V1.26",
@@ -433,6 +433,28 @@
     "persistence": [
       "qr_labels",
       "qr_scans"
+    ],
+    "featureImplementationStarted": true
+  },
+  "assetSoftwareLicensesSlice": {
+    "version": "0.13.0",
+    "name": "Software License Compliance Slice",
+    "documentation": "INNO-One-Step22-Software-Licenses.md",
+    "manifest": "inno-step22-software-licenses.json",
+    "audit": "step22-software-licenses-audit.py",
+    "implementedOperations": [
+      "assets.licenses.list",
+      "assets.licenses.update"
+    ],
+    "webRoutes": [
+      "/assets/software-licenses"
+    ],
+    "persistence": [
+      "software_licenses",
+      "license_allocations"
+    ],
+    "activeEvents": [
+      "license.overused"
     ],
     "featureImplementationStarted": true
   }

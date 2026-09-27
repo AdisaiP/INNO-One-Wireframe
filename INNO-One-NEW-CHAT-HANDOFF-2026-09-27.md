@@ -914,3 +914,54 @@ Source of truth:
 **Step 16 fresh re-validation remains deferred by explicit user request and must be rerun before merge/release.**
 
 **Do not merge `main` without explicit user instruction. No Step 22 work has been started.**
+
+
+# Step 22 — Software License Compliance ⏳ IN PROGRESS 2026-09-27
+
+Branch: `implementation/step22-software-licenses`
+
+Implementation Contract: **0.13.0**.
+
+Local implementation completed:
+
+- Web route `/assets/software-licenses`.
+- `GET /assets/software-licenses` and `PATCH /assets/software-licenses/{licenseId}`.
+- Permission `assets.license.manage`.
+- Assets-owned `software_licenses` and `license_allocations` persistence.
+- Server-authoritative compliant/overused calculation and estimated gap cost.
+- ETag / If-Match concurrency for entitlement updates.
+- `assets.license.updated` audit and `license.overused` outbox transition.
+- Frozen Web layout: KPI summary, search/compliance/vendor filters, compact license table, allocation detail and entitlement editor.
+- Software Baselines remain deferred because the frozen API contract does not yet define a standalone baseline operation/route.
+
+Local QA completed:
+
+- Step 22 audit: **0 issues**.
+- Full contract/static audit chain: **0 issues**.
+- Web typecheck/build: **PASS**.
+- .NET build: **0 warnings / 0 errors**.
+- EF pending-model checks for Assets / Platform / Devices / Helpdesk: **PASS**.
+- production visual QA: **3 / 3 screens** at 1366 / 1024 / 768, failures 0.
+- frozen browser regression: **124 / 124**, failures 0.
+- `git diff --check`: **PASS**.
+- temporary QA authentication bypass was removed; no QA token hook remains in production source.
+
+Remote completion blocker:
+
+- Development host `172.10.1.58` is currently unreachable from the Mac.
+- SSH, PostgreSQL `:5432`, Keycloak `:8080` and MeshCentral `:8444` all time out.
+- The configured FortiClient connection named `VPN` is currently disconnected; an attempted start did not establish a tunnel or a route to `172.10.1.58`.
+- Therefore `Step22SoftwareLicenses` has **not** been applied to the remote PostgreSQL and the real Step 22 runtime smoke has **not** been run yet.
+- Do not mark Step 22 completed until remote migration, runtime smoke, DB audit/event guards and final clean-tree checkpoint pass.
+
+Pending remote gates:
+
+1. restore network/VPN reachability to `172.10.1.58`;
+2. apply `Step22SoftwareLicenses`;
+3. run `production/scripts/step22-local-smoke.py` against real PostgreSQL/Keycloak;
+4. verify `assets.license.updated`, `license.overused`, seed totals, permission seed and zero cross-module FK;
+5. update Step 22 manifest/handoff to completed, commit/push final checkpoint and verify clean working tree.
+
+**Step 16 fresh re-validation remains deferred by explicit user request and must be rerun before merge/release.**
+
+**Do not merge `main` without explicit user instruction.**

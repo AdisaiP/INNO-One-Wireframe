@@ -100,3 +100,35 @@ public sealed class AssetQrScan
     public DateTimeOffset ScannedAt { get; set; }
     public required string Outcome { get; set; }
 }
+
+
+public sealed class SoftwareLicense
+{
+    public Guid Id { get; set; }
+    public required string ProductName { get; set; }
+    public required string Vendor { get; set; }
+    public required string LicenseModel { get; set; }
+    public int EntitledSeats { get; set; }
+    public decimal? UnitPrice { get; set; }
+    public required string Currency { get; set; }
+    public DateTimeOffset? RenewalAt { get; set; }
+    public string? ContractReference { get; set; }
+    public required string Status { get; set; }
+    public int Version { get; set; } = 1;
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
+}
+
+public sealed class LicenseAllocation
+{
+    public Guid Id { get; set; }
+    public Guid SoftwareLicenseId { get; set; }
+    public Guid? AssetId { get; set; }
+    public required string EndpointName { get; set; }
+    public string? AssignedTo { get; set; }
+    public int SeatCount { get; set; } = 1;
+    public DateTimeOffset? LastUsedAt { get; set; }
+    public required string UsageStatus { get; set; }
+    public required string Source { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
+}

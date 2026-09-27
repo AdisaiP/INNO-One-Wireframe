@@ -14,6 +14,8 @@ public sealed class AssetsDbContext(DbContextOptions<AssetsDbContext> options) :
     public DbSet<AssetCustomFieldValue> CustomFieldValues => Set<AssetCustomFieldValue>();
     public DbSet<AssetQrLabel> QrLabels => Set<AssetQrLabel>();
     public DbSet<AssetQrScan> QrScans => Set<AssetQrScan>();
+    public DbSet<SoftwareLicense> SoftwareLicenses => Set<SoftwareLicense>();
+    public DbSet<LicenseAllocation> LicenseAllocations => Set<LicenseAllocation>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -125,6 +127,41 @@ public sealed class AssetsDbContext(DbContextOptions<AssetsDbContext> options) :
                 .WithMany()
                 .HasForeignKey(x => x.LabelId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<SoftwareLicense>(entity =>
+        {
+            entity.ToTable("software_licenses");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => new { x.Vendor, x.ProductName });
+            entity.Property(x => x.ProductName).HasMaxLength(180);
+            entity.Property(x => x.Vendor).HasMaxLength(120);
+            entity.Property(x => x.LicenseModel).HasMaxLength(120);
+            entity.Property(x => x.UnitPrice).HasPrecision(14, 2);
+            entity.Property(x => x.Currency).HasMaxLength(8);
+            entity.Property(x => x.ContractReference).HasMaxLength(120);
+            entity.Property(x => x.Status).HasMaxLength(24);
+            entity.Property(x => x.Version).IsConcurrencyToken();
+        });
+
+        modelBuilder.Entity<LicenseAllocation>(entity =>
+        {
+            entity.ToTable("license_allocations");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => new { x.SoftwareLicenseId, x.UsageStatus });
+            entity.HasIndex(x => x.AssetId);
+            entity.Property(x => x.EndpointName).HasMaxLength(180);
+            entity.Property(x => x.AssignedTo).HasMaxLength(180);
+            entity.Property(x => x.UsageStatus).HasMaxLength(32);
+            entity.Property(x => x.Source).HasMaxLength(64);
+            entity.HasOne<SoftwareLicense>()
+                .WithMany()
+                .HasForeignKey(x => x.SoftwareLicenseId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<Asset>()
+                .WithMany()
+                .HasForeignKey(x => x.AssetId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         base.OnModelCreating(modelBuilder);

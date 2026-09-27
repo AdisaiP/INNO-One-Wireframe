@@ -554,6 +554,54 @@ export interface AssetQrResolvedAsset {
   updatedAt: string;
 }
 
+export interface SoftwareLicenseAllocation {
+  id: string;
+  assetId?: string | null;
+  endpointName: string;
+  assignedTo?: string | null;
+  seatCount: number;
+  lastUsedAt?: string | null;
+  status: string;
+  source: string;
+}
+
+export interface SoftwareLicenseItem {
+  id: string;
+  productName: string;
+  vendor: string;
+  licenseModel: string;
+  entitledSeats: number;
+  usedSeats: number;
+  compliance: 'compliant' | 'overused';
+  seatBalance: number;
+  unitPrice?: number | null;
+  currency: string;
+  estimatedGapCost: number;
+  renewalAt?: string | null;
+  contractReference?: string | null;
+  allocations: SoftwareLicenseAllocation[];
+  updatedAt: string;
+  eTag: string;
+}
+
+export interface SoftwareLicenseSummary {
+  products: number;
+  purchasedSeats: number;
+  installedSeats: number;
+  overusedProducts: number;
+  estimatedGapCost: number;
+}
+
+export interface SoftwareLicenseListResponse {
+  items: SoftwareLicenseItem[];
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+  summary: SoftwareLicenseSummary;
+  vendors: string[];
+}
+
 export interface AssetOwnershipChange {
   assetId: string;
   assetTag: string;

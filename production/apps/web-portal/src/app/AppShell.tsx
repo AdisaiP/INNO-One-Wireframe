@@ -17,6 +17,7 @@ export function AppShell() {
   const canDeployDevices = usePermission('devices.deploy');
   const canViewAssets = usePermission('assets.view');
   const canPrintAssetQr = usePermission('assets.qr.print');
+  const canManageAssetLicenses = usePermission('assets.license.manage');
   const canViewHelpdesk = usePermission('helpdesk.ticket.view');
   const canViewAutomation = usePermission('helpdesk.automation.view');
   const canManageSla = usePermission('helpdesk.sla.manage');
@@ -81,6 +82,7 @@ export function AppShell() {
               <NavLink end to="/assets">Overview</NavLink>
               <NavLink to="/assets/inventory">Asset Inventory</NavLink>
               <div className="prod-side-section">Management</div>
+              {canManageAssetLicenses ? <NavLink to="/assets/software-licenses">Software Licenses</NavLink> : null}
               <NavLink to="/assets/custom-fields">Custom Fields</NavLink>
               {canPrintAssetQr ? <NavLink to="/assets/qr-labels">QR Labels</NavLink> : null}
               <div className="prod-side-section">Ownership</div>

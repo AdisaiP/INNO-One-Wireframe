@@ -11,6 +11,8 @@ import type {
   AssetOverview,
   AssetQrLabel,
   AssetQrResolvedAsset,
+  SoftwareLicenseItem,
+  SoftwareLicenseListResponse,
   OwnershipDecision,
   OwnershipSubmission,
   AutomationRuleDetail,
@@ -336,6 +338,52 @@ export async function resolveAssetQr(token: string): Promise<AssetQrResolvedAsse
     {
       method: 'POST',
       ...jsonRequest({ token }),
+    },
+  );
+  return response.data;
+}
+
+
+
+export interface SoftwareLicenseQuery {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  compliance?: string;
+  vendor?: string;
+}
+
+export async function getSoftwareLicenses(
+  query: SoftwareLicenseQuery = {},
+): Promise<SoftwareLicenseListResponse> {
+  const params = new URLSearchParams({
+    page: String(query.page ?? 1),
+    pageSize: String(query.pageSize ?? 25),
+  });
+  if (query.search?.trim()) params.set('search', query.search.trim());
+  if (query.compliance && query.compliance !== 'all') params.set('compliance', query.compliance);
+  if (query.vendor && query.vendor !== 'all') params.set('vendor', query.vendor);
+  return request<SoftwareLicenseListResponse>(
+    '/assets/software-licenses?' + params.toString(),
+  );
+}
+
+export async function updateSoftwareLicense(
+  licenseId: string,
+  eTag: string,
+  input: {
+    entitledSeats: number;
+    unitPrice?: number | null;
+    renewalAt?: string | null;
+    contractReference?: string | null;
+    licenseModel: string;
+  },
+): Promise<SoftwareLicenseItem> {
+  const response = await request<ResourceEnvelope<SoftwareLicenseItem>>(
+    '/assets/software-licenses/' + encodeURIComponent(licenseId),
+    {
+      method: 'PATCH',
+      ...jsonRequest(input, { 'If-Match': eTag }),
     },
   );
   return response.data;

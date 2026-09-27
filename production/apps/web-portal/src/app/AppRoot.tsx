@@ -12,6 +12,7 @@ import { AssetOwnershipPage } from '../pages/AssetOwnershipPage';
 import { AssetOwnershipSubmissionsPage } from '../pages/AssetOwnershipSubmissionsPage';
 import { AssetQrLabelsPage } from '../pages/AssetQrLabelsPage';
 import { AssetsOverviewPage } from '../pages/AssetsOverviewPage';
+import { SoftwareLicensesPage } from '../pages/SoftwareLicensesPage';
 import { AutomationRulePage } from '../pages/AutomationRulePage';
 import { AutomationRulesPage } from '../pages/AutomationRulesPage';
 import { BusinessCalendarPage } from '../pages/BusinessCalendarPage';
@@ -51,6 +52,7 @@ export function AppRoot() {
   const canViewAssets = profile.permissions.includes('assets.view');
   const canManageAssets = profile.permissions.includes('assets.manage');
   const canPrintAssetQr = profile.permissions.includes('assets.qr.print');
+  const canManageAssetLicenses = profile.permissions.includes('assets.license.manage');
   const canViewHelpdesk = profile.permissions.includes('helpdesk.ticket.view');
   const canCreateTicket = profile.permissions.includes('helpdesk.ticket.create');
   const canViewAutomation = profile.permissions.includes('helpdesk.automation.view');
@@ -79,6 +81,7 @@ export function AppRoot() {
           <Route path="assets/ownership/submissions" element={canViewAssets ? <AssetOwnershipSubmissionsPage /> : <DeferredPage name="Agent Submissions" />} />
           <Route path="assets/custom-fields" element={canViewAssets ? <AssetCustomFieldsPage /> : <DeferredPage name="Custom Fields" />} />
           <Route path="assets/qr-labels" element={canViewAssets && canPrintAssetQr ? <AssetQrLabelsPage /> : <DeferredPage name="QR Labels" />} />
+          <Route path="assets/software-licenses" element={canViewAssets && canManageAssetLicenses ? <SoftwareLicensesPage /> : <DeferredPage name="Software Licenses" />} />
           <Route path="assets/:assetId" element={canViewAssets ? <AssetDetailPage /> : <DeferredPage name="Asset" />} />
 
           <Route path="helpdesk" element={canViewHelpdesk ? <HelpdeskOverviewPage /> : <DeferredPage name="Helpdesk" />} />
