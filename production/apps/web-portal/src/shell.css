@@ -2461,3 +2461,52 @@
   .device-columns-menu { margin-left: 0; }
   .device-columns-popover { left: 0; right: auto; }
 }
+
+
+/* Step 29 · Helpdesk operational queue parity */
+.helpdesk-operational-queue .helpdesk-queue-row {
+  display: grid;
+  grid-template-columns: 104px minmax(220px, 1fr) 74px 96px 112px 34px;
+  align-items: center;
+  gap: 12px;
+}
+.helpdesk-queue-ticket-id {
+  color: #5b6780;
+  font-size: 11px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+.helpdesk-queue-copy { min-width: 0; }
+.helpdesk-queue-copy b { font-size: 12px; }
+.helpdesk-queue-copy > span { display: block; margin-top: 3px; }
+.helpdesk-queue-sla {
+  text-align: right;
+  color: #667286;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.helpdesk-queue-sla.at_risk { color: var(--ds-warning); }
+.helpdesk-queue-sla.breached { color: var(--ds-danger); }
+.helpdesk-operational-queue .device-row-action {
+  justify-self: end;
+}
+
+@media (max-width: 1024px) {
+  .helpdesk-operational-queue .helpdesk-queue-row {
+    grid-template-columns: 92px minmax(180px, 1fr) 68px 90px 34px;
+  }
+  .helpdesk-operational-queue .helpdesk-queue-sla { display: none; }
+}
+@media (max-width: 768px) {
+  .helpdesk-operational-queue .helpdesk-queue-row {
+    grid-template-columns: minmax(0, 1fr) auto auto 30px;
+    gap: 8px;
+    padding: 11px 12px;
+  }
+  .helpdesk-operational-queue .helpdesk-queue-ticket-id {
+    grid-column: 1 / -1;
+    margin-bottom: -2px;
+  }
+  .helpdesk-operational-queue .helpdesk-queue-copy > span { display: none; }
+}
