@@ -136,5 +136,22 @@
     "browserQaFailures": 0,
     "browserQaRunId": 36348620829,
     "buildQaRunId": 36348620757
+  },
+  "inProgressPhase": "remaining_routes",
+  "remainingRoutesImplementationStatus": "implemented_pending_qa",
+  "remainingParityRoutes": [
+    "/profile",
+    "/apps/*",
+    "/assets/manage/*",
+    "/meeting/*",
+    "/reports/*",
+    "/admin/*",
+    "*"
+  ],
+  "remainingRouteStatePolicy": {
+    "profile": "implemented",
+    "futureModuleBoundaries": "disabled",
+    "unauthorizedImplementedRoutes": "permission",
+    "unknownRoutes": "no-results"
   }
 }
