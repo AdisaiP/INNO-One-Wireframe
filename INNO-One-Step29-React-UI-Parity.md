@@ -24,7 +24,8 @@ Bring the production React Web Portal back to the approved frozen prototype lang
 1. Production shell geometry, header, rail, contextual sidebar and responsive behavior. **DONE — browser regression 23/23.**
 2. Shared React primitives: page header, buttons, status, collection toolbar/table, resource header, form/footer and states. **DONE — browser regression 75/75.**
 3. Devices routes. **DONE — browser regression 61/61 + static parity guard.**
-4. Assets routes. **IMPLEMENTED — pending local typecheck/build/browser QA.**
+4. Assets routes. **DONE — browser regression 141/141 + static/build regression.**
+5. Helpdesk routes. **NEXT.**
 5. Helpdesk routes.
 6. Profile and remaining currently implemented production routes.
 
@@ -84,7 +85,7 @@ Frozen Remote/Terminal/Files and bulk Remote/Deploy/Move Group controls were not
 
 ## Assets parity implementation checkpoint
 
-Phase 4 implementation is complete on the recovery branch, but it is intentionally **not marked DONE** until local build and browser QA can run again.
+Phase 4 is complete on the recovery branch and has passed static, build and runtime browser validation.
 
 Implemented mappings:
 - `/assets`: frozen overview header/action and recent-assets collection.
@@ -101,9 +102,9 @@ Implemented mappings:
 
 No fake Assets actions were introduced. API, permission, ETag, QR, ownership, license, contract and baseline evaluation contracts remain unchanged.
 
-Prepared QA: `production/scripts/step29-assets-parity-browser-qa.py` covers 1366 / 1024 / 768, page overflow, legacy wrappers, shared collections, detail resource patterns and baseline evidence copy. Local typecheck/build, .NET build, browser QA and Step 15–28 regression remain required before Phase 4 may move from `implemented_pending_local_qa` to DONE.
+QA: `production/scripts/step29-assets-parity-browser-qa.py` passed **141 / 141**, 0 failures at 1366 / 1024 / 768, covering page overflow, legacy wrappers, shared collections, Asset/Owner detail resource patterns, contextual Asset Inventory navigation and baseline evidence copy.
 
 
 ### Assets validation status
 
-GitHub Actions recovery build validation passed: Step 29 static parity audit, Step 15–28 regression audits, Web typecheck, Web build and .NET build are all green. Runtime browser QA remains pending until the dedicated ephemeral Postgres/Keycloak/API/Vite/Chrome job completes; Phase 4 is therefore not marked DONE yet.
+GitHub Actions validation passed: Step 29 static parity audit, Step 15–28 regression audits, Web typecheck, Web build and .NET build are green. Dedicated ephemeral Postgres/Keycloak/API/Vite/Chrome browser QA also passed **141 / 141** with 0 failures.
