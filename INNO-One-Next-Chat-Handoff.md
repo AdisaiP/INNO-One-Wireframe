@@ -1755,7 +1755,7 @@ Source of truth:
 **Do not merge `main` without explicit user instruction. No Step 22 work has been started.**
 
 
-# Step 22 — Software License Compliance ⏳ IN PROGRESS 2026-09-27
+# Step 22 — Software License Compliance ✅ COMPLETED 2026-09-27
 
 Branch: `implementation/step22-software-licenses`
 
@@ -1785,21 +1785,16 @@ Local QA completed:
 - `git diff --check`: **PASS**.
 - temporary QA authentication bypass was removed; no QA token hook remains in production source.
 
-Remote completion blocker:
+Remote completion on 2026-09-27:
 
-- Development host `172.10.1.58` is currently unreachable from the Mac.
-- SSH, PostgreSQL `:5432`, Keycloak `:8080` and MeshCentral `:8444` all time out.
-- The configured FortiClient connection named `VPN` is currently disconnected; an attempted start did not establish a tunnel or a route to `172.10.1.58`.
-- Therefore `Step22SoftwareLicenses` has **not** been applied to the remote PostgreSQL and the real Step 22 runtime smoke has **not** been run yet.
-- Do not mark Step 22 completed until remote migration, runtime smoke, DB audit/event guards and final clean-tree checkpoint pass.
-
-Pending remote gates:
-
-1. restore network/VPN reachability to `172.10.1.58`;
-2. apply `Step22SoftwareLicenses`;
-3. run `production/scripts/step22-local-smoke.py` against real PostgreSQL/Keycloak;
-4. verify `assets.license.updated`, `license.overused`, seed totals, permission seed and zero cross-module FK;
-5. update Step 22 manifest/handoff to completed, commit/push final checkpoint and verify clean working tree.
+- Network connectivity returned; SSH and PostgreSQL were reachable from the Mac, and Keycloak realm discovery returned HTTP 200.
+- Applied migration `20260927082251_Step22SoftwareLicenses` to the relocated PostgreSQL on `172.10.1.58`.
+- Started current Development API against the remote PostgreSQL/Keycloak through a temporary SSH tunnel with MeshCentral sync disabled for this QA run.
+- Runtime smoke: **STEP22_RUNTIME_SMOKE_PASS**, covering authorization, summary/filtering, validation, compliant-to-overused transition, stale ETag and restoration.
+- Database verification: 4 licenses / 775 entitled seats, 14 allocations / 798 used seats, `assets.license.manage` seeded.
+- Audit/outbox verification: 2 internal `assets.license.updated` records, 1 pending `license.overused` event; Assets cross-module foreign keys = **0**.
+- Earlier local QA remains: Step 22 audit 0 issues; full static chain 0 issues; Web typecheck/build PASS; .NET 0 warnings/0 errors; EF pending-model PASS; visual QA 3/3; browser regression 124/124.
+- Step 22 manifest and documentation record completion.
 
 **Step 16 fresh re-validation remains deferred by explicit user request and must be rerun before merge/release.**
 

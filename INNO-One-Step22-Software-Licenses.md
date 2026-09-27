@@ -1,6 +1,6 @@
 # INNO.One — Step 22 Software License Compliance
 
-**Status:** implementation-in-progress
+**Status:** completed 2026-09-27
 **Branch:** `implementation/step22-software-licenses`
 **Implementation Contract:** 0.13.0
 
@@ -47,6 +47,15 @@ The Software Licenses page preserves the frozen single-screen compliance job:
 ## Boundary
 
 The frozen contract currently exposes no standalone Software Baseline API operation or Web route. Step 22 does not invent one. Existing baseline tables/permission remain reserved for a later contract-backed slice.
+
+## Remote completion
+
+- `Step22SoftwareLicenses` (`20260927082251`) applied to PostgreSQL on `172.10.1.58`.
+- Runtime smoke against remote PostgreSQL and Keycloak: `STEP22_RUNTIME_SMOKE_PASS`.
+- Seed: 4 licenses, 775 purchased seats; 14 allocations, 798 used seats.
+- Permission `assets.license.manage` exists.
+- Two internal `assets.license.updated` audit records and one pending `license.overused` outbox event were verified after the test transition and restore.
+- Cross-module Assets foreign keys: 0.
 
 ## Completion gates
 
