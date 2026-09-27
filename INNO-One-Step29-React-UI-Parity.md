@@ -1,7 +1,8 @@
 # INNO.One — Step 29 React UI Parity / Frozen UI Port Pass
 
 **Status:** in progress
-**Branch:** `implementation/step29-react-ui-parity`
+**Branch:** `implementation/step29-assets-parity-recovery`  
+**Target branch after local QA:** `implementation/step29-react-ui-parity`
 **Frozen source:** Design System V1.26 / UI Contract 1.20.0
 **Backend/API/Data contracts:** unchanged from Step 28
 
@@ -23,7 +24,7 @@ Bring the production React Web Portal back to the approved frozen prototype lang
 1. Production shell geometry, header, rail, contextual sidebar and responsive behavior. **DONE — browser regression 23/23.**
 2. Shared React primitives: page header, buttons, status, collection toolbar/table, resource header, form/footer and states. **DONE — browser regression 75/75.**
 3. Devices routes. **DONE — browser regression 61/61 + static parity guard.**
-4. Assets routes. **NEXT.**
+4. Assets routes. **IMPLEMENTED — pending local typecheck/build/browser QA.**
 5. Helpdesk routes.
 6. Profile and remaining currently implemented production routes.
 
@@ -79,3 +80,25 @@ Phase 3 ports all production Devices routes back onto the frozen Devices pattern
 - `/devices/:deviceId`: resource identity/icon, correct contextual navigation, and searchable/filterable Installed Software collection.
 
 Frozen Remote/Terminal/Files and bulk Remote/Deploy/Move Group controls were not restored because the current production selection/action contracts do not support those interactions yet. Browser QA is **61 / 61** at 1366 / 1024 / 768; Device Group Detail is additionally protected by static parity checks when QA data has no visible groups.
+
+
+## Assets parity implementation checkpoint
+
+Phase 4 implementation is complete on the recovery branch, but it is intentionally **not marked DONE** until local build and browser QA can run again.
+
+Implemented mappings:
+- `/assets`: frozen overview header/action and recent-assets collection.
+- `/assets/inventory`: shared collection/table pattern retained from Phase 2.
+- `/assets/:assetId`: resource identity, real Open Device action, canonical Save footer and ownership-history collection.
+- `/assets/ownership`: ownership overview and recent-change collection.
+- `/assets/owners` + `/assets/owners/:userId`: searchable users and resource-detail ownership context.
+- `/assets/ownership/submissions`: canonical status filter, durable review table and Confirm/Reject actions.
+- `/assets/custom-fields`: Add Field page action, schema collection and canonical Save Schema footer.
+- `/assets/qr-labels`: selection collection, search/filter table and canonical Generate/Print footer.
+- `/assets/software-licenses`: master list, contained allocations table, status treatment, pagination and canonical Save License footer.
+- `/assets/contracts`: master list, covered-assets table, status treatment, pagination and canonical Save Contract footer.
+- `/assets/software-baselines`: production-only capability mapped to frozen Assets collection/master-detail patterns while preserving Step 26–28 evidence semantics. Complete evidence can resolve compliant/missing; missing, stale or partial inventory remains Unknown.
+
+No fake Assets actions were introduced. API, permission, ETag, QR, ownership, license, contract and baseline evaluation contracts remain unchanged.
+
+Prepared QA: `production/scripts/step29-assets-parity-browser-qa.py` covers 1366 / 1024 / 768, page overflow, legacy wrappers, shared collections, detail resource patterns and baseline evidence copy. Local typecheck/build, .NET build, browser QA and Step 15–28 regression remain required before Phase 4 may move from `implemented_pending_local_qa` to DONE.
