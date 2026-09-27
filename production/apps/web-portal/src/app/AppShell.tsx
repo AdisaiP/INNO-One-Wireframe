@@ -45,6 +45,7 @@ export function AppShell() {
   const inAssetDetail = /^\/assets\/[^/]+$/.test(location.pathname)
     && !['/assets/inventory', '/assets/ownership', '/assets/owners', '/assets/custom-fields', '/assets/qr-labels', '/assets/software-baselines', '/assets/software-licenses', '/assets/contracts'].includes(location.pathname);
   const inHelpdesk = location.pathname.startsWith('/helpdesk');
+  const inTicketWorkspace = /^\/helpdesk\/tickets(?:\/new|\/[^/]+)?$/.test(location.pathname);
   const inProfile = location.pathname.startsWith('/profile');
   const homePath = canViewDevices ? '/devices' : canViewHelpdesk ? '/helpdesk' : canViewAssets ? '/assets' : '/profile';
   const searchTargets = useMemo(() => {
@@ -171,7 +172,7 @@ export function AppShell() {
               <div className="prod-side-title">Helpdesk</div>
               <div className="prod-side-section">Workspace</div>
               <NavLink end to="/helpdesk">Overview</NavLink>
-              <NavLink end to="/helpdesk/tickets">Tickets</NavLink>
+              <NavLink end to="/helpdesk/tickets" className={({ isActive }) => isActive || inTicketWorkspace ? 'active' : ''}>Tickets</NavLink>
               <NavLink to="/helpdesk/assigned">Assigned to Me</NavLink>
               <NavLink to="/helpdesk/team">Team Queue</NavLink>
               <div className="prod-side-section">Manage</div>
