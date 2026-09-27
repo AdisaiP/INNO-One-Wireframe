@@ -9,8 +9,8 @@ registry_text = (ROOT / "platform-registry.js").read_text()
 
 issues = []
 
-if contract.get("contractVersion") != "0.11.0":
-    issues.append(f"expected implementation contract 0.11.0, found {contract.get('contractVersion')}")
+if contract.get("contractVersion") != "0.12.0":
+    issues.append(f"expected implementation contract 0.12.0, found {contract.get('contractVersion')}")
 api_contract = contract.get("apiContract", {})
 if api_contract.get("version") != "0.2.0":
     issues.append("implementation contract must reference API Contract 0.2.0")

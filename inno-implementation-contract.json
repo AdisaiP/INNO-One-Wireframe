@@ -1,5 +1,5 @@
 {
-  "contractVersion": "0.11.0",
+  "contractVersion": "0.12.0",
   "status": "implementation-in-progress",
   "generatedFrom": {
     "designSystem": "V1.26",
@@ -414,6 +414,25 @@
     "persistence": [
       "custom_field_definitions",
       "custom_field_values"
+    ],
+    "featureImplementationStarted": true
+  },
+  "assetQrSlice": {
+    "version": "0.12.0",
+    "name": "Asset QR Labels & Resolve Slice",
+    "documentation": "INNO-One-Step21-Asset-QR.md",
+    "manifest": "inno-step21-asset-qr.json",
+    "audit": "step21-asset-qr-audit.py",
+    "implementedOperations": [
+      "assets.qr_label.create",
+      "assets.qr_resolve"
+    ],
+    "webRoutes": [
+      "/assets/qr-labels"
+    ],
+    "persistence": [
+      "qr_labels",
+      "qr_scans"
     ],
     "featureImplementationStarted": true
   }

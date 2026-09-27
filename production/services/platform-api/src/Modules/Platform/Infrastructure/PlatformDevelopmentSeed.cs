@@ -58,13 +58,19 @@ public static class PlatformDevelopmentSeed
         ("assets.manage", "assets", "Manage assets")
     ];
 
+    private static readonly (string Id, string Module, string Name)[] Step21Permissions =
+    [
+        ("assets.qr.print", "assets", "Generate and print asset QR labels"),
+        ("assets.qr.scan", "assets", "Resolve asset QR labels")
+    ];
+
     public static async Task SeedAsync(
         PlatformDbContext db,
         CancellationToken cancellationToken = default)
     {
         if (await db.UserProfiles.AnyAsync(cancellationToken))
         {
-            await EnsureStep16To19Async(db, cancellationToken);
+            await EnsureStep16To21Async(db, cancellationToken);
             return;
         }
 
@@ -225,6 +231,12 @@ public static class PlatformDevelopmentSeed
             Module = x.Module,
             Name = x.Name
         }));
+        db.Permissions.AddRange(Step21Permissions.Select(x => new Permission
+        {
+            PermissionId = x.Id,
+            Module = x.Module,
+            Name = x.Name
+        }));
 
         db.RolePermissions.AddRange(basePermissions.Select(x => new RolePermission
         {
@@ -246,18 +258,25 @@ public static class PlatformDevelopmentSeed
             RoleId = PlatformAdminRoleId,
             PermissionId = x.Id
         }));
+        db.RolePermissions.AddRange(Step21Permissions.Select(x => new RolePermission
+        {
+            RoleId = PlatformAdminRoleId,
+            PermissionId = x.Id
+        }));
 
         db.RolePermissions.AddRange(
             new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "platform.workspace.access" },
             new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "devices.view" },
             new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "helpdesk.ticket.view" },
-            new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "helpdesk.ticket.create" });
+            new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "helpdesk.ticket.create" },
+            new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "assets.qr.scan" });
 
         foreach (var permissionId in new[]
         {
             "platform.workspace.access",
             "devices.view",
             "assets.view",
+            "assets.qr.scan",
             "helpdesk.ticket.view",
             "helpdesk.ticket.create",
             "helpdesk.ticket.reply",
@@ -348,7 +367,7 @@ public static class PlatformDevelopmentSeed
         await db.SaveChangesAsync(cancellationToken);
     }
 
-    private static async Task EnsureStep16To19Async(
+    private static async Task EnsureStep16To21Async(
         PlatformDbContext db,
         CancellationToken cancellationToken)
     {
@@ -368,7 +387,8 @@ public static class PlatformDevelopmentSeed
 
         foreach (var (permissionId, module, name) in Step17Permissions
             .Concat(Step18Permissions)
-            .Concat(Step19Permissions))
+            .Concat(Step19Permissions)
+            .Concat(Step21Permissions))
         {
             if (!await db.Permissions.AnyAsync(
                 x => x.PermissionId == permissionId,
@@ -452,7 +472,8 @@ public static class PlatformDevelopmentSeed
 
         foreach (var (permissionId, _, _) in Step17Permissions
             .Concat(Step18Permissions)
-            .Concat(Step19Permissions))
+            .Concat(Step19Permissions)
+            .Concat(Step21Permissions))
         {
             await EnsureRolePermissionAsync(
                 db,
@@ -464,7 +485,8 @@ public static class PlatformDevelopmentSeed
         foreach (var permissionId in new[]
         {
             "helpdesk.ticket.view",
-            "helpdesk.ticket.create"
+            "helpdesk.ticket.create",
+            "assets.qr.scan"
         })
         {
             await EnsureRolePermissionAsync(
@@ -479,6 +501,7 @@ public static class PlatformDevelopmentSeed
             "platform.workspace.access",
             "devices.view",
             "assets.view",
+            "assets.qr.scan",
             "helpdesk.ticket.view",
             "helpdesk.ticket.create",
             "helpdesk.ticket.reply",

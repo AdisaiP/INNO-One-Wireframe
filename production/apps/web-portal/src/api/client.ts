@@ -9,6 +9,8 @@ import type {
   AssetOwnerSummary,
   AssetOwnershipOverview,
   AssetOverview,
+  AssetQrLabel,
+  AssetQrResolvedAsset,
   OwnershipDecision,
   OwnershipSubmission,
   AutomationRuleDetail,
@@ -313,6 +315,27 @@ export async function updateAssetCustomFields(
     {
       method: 'PUT',
       ...jsonRequest({ fields }, { 'If-Match': eTag }),
+    },
+  );
+  return response.data;
+}
+
+
+
+export async function createAssetQrLabel(assetId: string): Promise<AssetQrLabel> {
+  const response = await request<ResourceEnvelope<AssetQrLabel>>(
+    '/assets/' + encodeURIComponent(assetId) + '/qr-label',
+    { method: 'POST' },
+  );
+  return response.data;
+}
+
+export async function resolveAssetQr(token: string): Promise<AssetQrResolvedAsset> {
+  const response = await request<ResourceEnvelope<AssetQrResolvedAsset>>(
+    '/assets/qr/resolve',
+    {
+      method: 'POST',
+      ...jsonRequest({ token }),
     },
   );
   return response.data;

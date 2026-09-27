@@ -1688,3 +1688,68 @@ Source of truth:
 **Step 16 fresh re-validation remains deferred by explicit user request and must be rerun before merge/release.**
 
 **Do not merge `main` without explicit user instruction. No Step 21 work has been started.**
+
+
+# Step 21 — Asset QR Labels & Resolve ✅ COMPLETED 2026-09-27
+
+Branch: `implementation/step21-asset-qr`
+
+Implementation Contract: **0.12.0**.
+
+Implemented:
+
+- Web QR Labels workspace at `/assets/qr-labels`.
+- Four-step flow: Select assets → Label setup → Preview → Print.
+- Real QR rendering with the Web `qrcode` package.
+- Label sizes 50 × 30, 40 × 25 and 60 × 40 mm.
+- 1–3 copies per Asset and configurable visible label content.
+- Print-media layout outputs physical labels only and hides the INNO.One Web shell.
+- `POST /assets/{assetId}/qr-label` using permission `assets.qr.print`.
+- `POST /assets/qr/resolve` using permission `assets.qr.scan`.
+- QR payload is an opaque 256-bit random value with `inno1_qr_` prefix.
+- Only a SHA-256 fingerprint is persisted; the raw QR token is returned only when generated and is never written to audit metadata.
+- Regenerating a label revokes the previous active label for that Asset.
+- Resolve rejects unknown/revoked/expired values with a generic not-found response.
+- Resolve is permission- and scope-filtered before returning Asset data.
+- Successful resolves create `assets.qr_scans` history and `assets.qr.scanned` audit records.
+- Label generation audits as `assets.qr.generated`.
+- `assets.qr_labels` and `assets.qr_scans` are Assets-owned and introduce no cross-module database foreign key.
+- Android Assets Mobile scanner remains a separate surface; no Android scanner Web route was added.
+
+Remote development DB:
+
+- `Step21AssetQr` migration applied to PostgreSQL on `172.10.1.58`.
+- `assets.qr_labels` and `assets.qr_scans` created.
+- QR permissions `assets.qr.print` / `assets.qr.scan` seeded.
+- Security verification found zero raw tokens in fingerprint storage or QR audit metadata and zero cross-module DB foreign keys.
+- QA QR labels/scans were deleted after testing; audit history was retained.
+
+Final QA:
+
+- Step 21 runtime smoke: **PASS**.
+- Step 21 audit: **0 issues**.
+- Web typecheck/build: **PASS**.
+- .NET build: **0 warnings / 0 errors**.
+- EF pending-model checks for Assets / Platform / Devices / Helpdesk: **PASS**.
+- contract/static audit chains: **0 issues**.
+- production visual QA: **4 / 4 screens**, failures 0.
+- frozen browser regression: **124 / 124**, failures 0.
+- `git diff --check`: **PASS**.
+
+Deferred to later Assets slices:
+
+- Android camera/scanner runtime and mobile scan-history UI.
+- Software Baselines.
+- Software Licenses.
+- Contracts / Warranty.
+
+Source of truth:
+
+- `INNO-One-Step21-Asset-QR.md`
+- `inno-step21-asset-qr.json`
+- `step21-asset-qr-audit.py`
+- `production/scripts/step21-local-smoke.py`
+
+**Step 16 fresh re-validation remains deferred by explicit user request and must be rerun before merge/release.**
+
+**Do not merge `main` without explicit user instruction. No Step 22 work has been started.**

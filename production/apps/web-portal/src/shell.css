@@ -1727,3 +1727,186 @@
     max-width: none;
   }
 }
+
+
+/* Step 21 · Asset QR Labels */
+.qr-flow-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 14px 0 16px;
+}
+.qr-flow-strip > div {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: 9px;
+  align-items: center;
+  min-width: 0;
+  padding: 10px 11px;
+  border: 1px solid var(--ds-border);
+  border-radius: 9px;
+  background: #fff;
+}
+.qr-flow-strip > div > span {
+  grid-row: 1 / 3;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #edf3ff;
+  color: #2858b8;
+  font-size: 10px;
+  font-weight: 800;
+}
+.qr-flow-strip b { color: #334055; font-size: 10px; }
+.qr-flow-strip small { color: var(--ds-muted); font-size: 9px; }
+.qr-select-section,
+.qr-setup-section,
+.qr-preview-section { margin-bottom: 14px; }
+.qr-asset-table .select-column { width: 42px; text-align: center; }
+.qr-asset-table .select-column input { width: 15px; height: 15px; }
+.qr-content-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin: 14px 0 0;
+  padding: 11px 12px;
+  border: 1px solid var(--ds-border);
+  border-radius: 8px;
+}
+.qr-content-options legend {
+  padding: 0 5px;
+  color: #596579;
+  font-size: 10px;
+  font-weight: 700;
+}
+.qr-preview-empty { margin: 0 16px 16px; }
+.asset-qr-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 12px;
+  padding: 4px 16px 16px;
+}
+.asset-qr-print-label {
+  width: var(--qr-label-width);
+  height: var(--qr-label-height);
+  max-width: 100%;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(58px, 38%) minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+  overflow: hidden;
+  padding: 2.2mm;
+  border: 1px solid #cfd6e0;
+  border-radius: 5px;
+  background: #fff;
+  color: #1f2937;
+}
+.asset-qr-code,
+.asset-qr-code-placeholder {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: contain;
+  background: #fff;
+}
+.asset-qr-code-placeholder { border: 1px dashed #cfd6e0; }
+.asset-qr-label-copy {
+  display: grid;
+  gap: 1.5px;
+  min-width: 0;
+  line-height: 1.1;
+}
+.asset-qr-label-copy strong { font-size: 8px; }
+.asset-qr-label-copy b { font-size: 10px; }
+.asset-qr-label-copy span,
+.asset-qr-label-copy small {
+  overflow: hidden;
+  color: #596579;
+  font-size: 7px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.asset-qr-label-copy em {
+  margin-top: 2px;
+  color: #2858b8;
+  font-size: 6px;
+  font-style: normal;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.qr-security-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 0 16px 16px;
+}
+.qr-security-grid > div {
+  padding: 10px 11px;
+  border-radius: 8px;
+  background: #f7f9fc;
+}
+.qr-security-grid b {
+  display: block;
+  margin-bottom: 3px;
+  color: #334055;
+  font-size: 10px;
+}
+.qr-security-grid span {
+  color: var(--ds-muted);
+  font-size: 9px;
+  line-height: 1.45;
+}
+.qr-action-footer { margin-top: 0; }
+.qr-action-footer .editor-footer-note { margin-right: auto; }
+.qr-print-area { display: none; }
+
+@media (max-width: 1024px) {
+  .qr-flow-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .qr-security-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .qr-flow-strip { grid-template-columns: 1fr 1fr; }
+  .asset-qr-preview-grid { grid-template-columns: 1fr; }
+  .qr-action-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .qr-action-footer .editor-footer-note { margin-right: 0; }
+}
+
+@media print {
+  @page { margin: 8mm; }
+  .prod-header,
+  .prod-rail,
+  .prod-side,
+  .prod-main > main > :not(.qr-print-area) {
+    display: none !important;
+  }
+  .inno-production-shell,
+  .prod-shell-body,
+  .prod-main,
+  .prod-main > main {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: auto !important;
+    min-height: 0 !important;
+  }
+  .qr-print-area {
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 3mm;
+  }
+  .asset-qr-print-label {
+    flex: none;
+    break-inside: avoid;
+    border-color: #777;
+    border-radius: 0;
+  }
+}

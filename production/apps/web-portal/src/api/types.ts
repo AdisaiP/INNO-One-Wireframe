@@ -515,6 +515,45 @@ export interface AssetDetail {
   eTag: string;
 }
 
+export interface AssetQrLabel {
+  id: string;
+  assetId: string;
+  assetTag: string;
+  assetName: string;
+  brandModel: string;
+  serialNumber?: string | null;
+  qrValue: string;
+  generatedAt: string;
+  expiresAt?: string | null;
+  replacedPrevious: boolean;
+}
+
+export interface AssetQrResolvedCustomField {
+  fieldKey: string;
+  label: string;
+  fieldType: string;
+  value: unknown;
+}
+
+export interface AssetQrResolvedAsset {
+  id: string;
+  assetTag: string;
+  name: string;
+  category: string;
+  brand?: string | null;
+  model?: string | null;
+  serialNumber?: string | null;
+  status: string;
+  owner?: ReferenceValue | null;
+  organization?: ReferenceValue | null;
+  location?: ReferenceValue | null;
+  linkedDevice?: AssetLinkedDevice | null;
+  warrantyEndAt?: string | null;
+  customFields: AssetQrResolvedCustomField[];
+  scannedAt: string;
+  updatedAt: string;
+}
+
 export interface AssetOwnershipChange {
   assetId: string;
   assetTag: string;

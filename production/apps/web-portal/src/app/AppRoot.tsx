@@ -10,6 +10,7 @@ import { AssetOwnerDetailPage } from '../pages/AssetOwnerDetailPage';
 import { AssetOwnersPage } from '../pages/AssetOwnersPage';
 import { AssetOwnershipPage } from '../pages/AssetOwnershipPage';
 import { AssetOwnershipSubmissionsPage } from '../pages/AssetOwnershipSubmissionsPage';
+import { AssetQrLabelsPage } from '../pages/AssetQrLabelsPage';
 import { AssetsOverviewPage } from '../pages/AssetsOverviewPage';
 import { AutomationRulePage } from '../pages/AutomationRulePage';
 import { AutomationRulesPage } from '../pages/AutomationRulesPage';
@@ -49,6 +50,7 @@ export function AppRoot() {
   const canDeployDevices = profile.permissions.includes('devices.deploy');
   const canViewAssets = profile.permissions.includes('assets.view');
   const canManageAssets = profile.permissions.includes('assets.manage');
+  const canPrintAssetQr = profile.permissions.includes('assets.qr.print');
   const canViewHelpdesk = profile.permissions.includes('helpdesk.ticket.view');
   const canCreateTicket = profile.permissions.includes('helpdesk.ticket.create');
   const canViewAutomation = profile.permissions.includes('helpdesk.automation.view');
@@ -76,6 +78,7 @@ export function AppRoot() {
           <Route path="assets/owners/:userId" element={canViewAssets ? <AssetOwnerDetailPage /> : <DeferredPage name="Asset Owner" />} />
           <Route path="assets/ownership/submissions" element={canViewAssets ? <AssetOwnershipSubmissionsPage /> : <DeferredPage name="Agent Submissions" />} />
           <Route path="assets/custom-fields" element={canViewAssets ? <AssetCustomFieldsPage /> : <DeferredPage name="Custom Fields" />} />
+          <Route path="assets/qr-labels" element={canViewAssets && canPrintAssetQr ? <AssetQrLabelsPage /> : <DeferredPage name="QR Labels" />} />
           <Route path="assets/:assetId" element={canViewAssets ? <AssetDetailPage /> : <DeferredPage name="Asset" />} />
 
           <Route path="helpdesk" element={canViewHelpdesk ? <HelpdeskOverviewPage /> : <DeferredPage name="Helpdesk" />} />

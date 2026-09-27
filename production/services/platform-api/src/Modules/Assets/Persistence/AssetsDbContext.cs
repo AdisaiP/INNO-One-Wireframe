@@ -12,6 +12,8 @@ public sealed class AssetsDbContext(DbContextOptions<AssetsDbContext> options) :
     public DbSet<OwnershipSubmission> OwnershipSubmissions => Set<OwnershipSubmission>();
     public DbSet<AssetCustomFieldDefinition> CustomFieldDefinitions => Set<AssetCustomFieldDefinition>();
     public DbSet<AssetCustomFieldValue> CustomFieldValues => Set<AssetCustomFieldValue>();
+    public DbSet<AssetQrLabel> QrLabels => Set<AssetQrLabel>();
+    public DbSet<AssetQrScan> QrScans => Set<AssetQrScan>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -91,6 +93,37 @@ public sealed class AssetsDbContext(DbContextOptions<AssetsDbContext> options) :
             entity.HasOne<AssetCustomFieldDefinition>()
                 .WithMany()
                 .HasForeignKey(x => x.FieldId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<AssetQrLabel>(entity =>
+        {
+            entity.ToTable("qr_labels");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => x.TokenFingerprint).IsUnique();
+            entity.HasIndex(x => new { x.AssetId, x.Status });
+            entity.Property(x => x.TokenFingerprint).HasMaxLength(64);
+            entity.Property(x => x.Status).HasMaxLength(24);
+            entity.HasOne<Asset>()
+                .WithMany()
+                .HasForeignKey(x => x.AssetId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<AssetQrScan>(entity =>
+        {
+            entity.ToTable("qr_scans");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => new { x.AssetId, x.ScannedAt });
+            entity.HasIndex(x => new { x.ScannerUserId, x.ScannedAt });
+            entity.Property(x => x.Outcome).HasMaxLength(32);
+            entity.HasOne<Asset>()
+                .WithMany()
+                .HasForeignKey(x => x.AssetId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<AssetQrLabel>()
+                .WithMany()
+                .HasForeignKey(x => x.LabelId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 

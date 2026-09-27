@@ -13,8 +13,8 @@ issues=[]
 
 if contract.get('contractVersion')!='0.3.0':
     issues.append(f"expected Event/Audit Contract 0.3.0, found {contract.get('contractVersion')}")
-if impl.get('contractVersion')!='0.11.0':
-    issues.append(f"expected current Implementation Contract 0.11.0, found {impl.get('contractVersion')}")
+if impl.get('contractVersion')!='0.12.0':
+    issues.append(f"expected current Implementation Contract 0.12.0, found {impl.get('contractVersion')}")
 
 ref=impl.get('eventAuditContract',{})
 if ref.get('version')!='0.3.0':

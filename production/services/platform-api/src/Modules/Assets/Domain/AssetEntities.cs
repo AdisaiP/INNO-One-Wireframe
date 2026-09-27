@@ -76,3 +76,27 @@ public sealed class AssetCustomFieldValue
     public required string ValueJson { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
 }
+
+
+public sealed class AssetQrLabel
+{
+    public Guid Id { get; set; }
+    public Guid AssetId { get; set; }
+    public required string TokenFingerprint { get; set; }
+    public required string Status { get; set; }
+    public Guid CreatedByUserId { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset? ExpiresAt { get; set; }
+    public DateTimeOffset? RevokedAt { get; set; }
+    public DateTimeOffset? LastPrintedAt { get; set; }
+}
+
+public sealed class AssetQrScan
+{
+    public Guid Id { get; set; }
+    public Guid AssetId { get; set; }
+    public Guid LabelId { get; set; }
+    public Guid ScannerUserId { get; set; }
+    public DateTimeOffset ScannedAt { get; set; }
+    public required string Outcome { get; set; }
+}

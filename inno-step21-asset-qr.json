@@ -1,0 +1,94 @@
+{
+  "contractVersion": "0.12.0",
+  "status": "completed",
+  "name": "Asset QR Labels & Resolve Slice",
+  "documentation": "INNO-One-Step21-Asset-QR.md",
+  "audit": "step21-asset-qr-audit.py",
+  "operations": [
+    "assets.qr_label.create",
+    "assets.qr_resolve"
+  ],
+  "webRoutes": [
+    "/assets/qr-labels"
+  ],
+  "persistence": {
+    "newTables": [
+      "assets.qr_labels",
+      "assets.qr_scans"
+    ],
+    "crossModuleForeignKeys": false
+  },
+  "security": {
+    "tokenType": "opaque-256-bit",
+    "tokenPrefix": "inno1_qr_",
+    "persistedSecret": "sha256-fingerprint-only",
+    "regenerateRevokesPrevious": true,
+    "rawTokenInAudit": false
+  },
+  "deferred": [
+    "android-scanner-runtime",
+    "mobile-scan-history-ui",
+    "mobile-expanded-inventory",
+    "software-baselines",
+    "software-licenses",
+    "contracts-warranty"
+  ],
+  "deferredStep16Revalidation": true,
+  "qa": {
+    "runtimeSmoke": "PASS",
+    "runtimeDatabaseGuards": {
+      "generatedAuditRecordsObserved": 3,
+      "scannedAuditRecordsObserved": 3,
+      "fingerprintsLength64": 3,
+      "rawTokenInFingerprint": 0,
+      "rawTokenInAudit": 0,
+      "crossModuleForeignKeys": 0,
+      "qrPermissions": 2,
+      "qaRowsCleaned": true
+    },
+    "webTypecheck": "PASS",
+    "webBuild": "PASS",
+    "dotnetBuild": {
+      "status": "PASS",
+      "warnings": 0,
+      "errors": 0
+    },
+    "efPendingModelChanges": {
+      "assets": "PASS",
+      "platform": "PASS",
+      "devices": "PASS",
+      "helpdesk": "PASS"
+    },
+    "visualQa": {
+      "status": "PASS",
+      "routes": 1,
+      "viewports": [
+        1366,
+        1024,
+        768
+      ],
+      "screenMedia": 3,
+      "printMedia": 1,
+      "screens": 4,
+      "failures": 0
+    },
+    "frozenBrowserRegression": {
+      "status": "PASS",
+      "checks": 124,
+      "failures": 0
+    },
+    "frozenStaticAuditChain": {
+      "status": "PASS",
+      "issues": 0
+    },
+    "contractAuditChain": {
+      "status": "PASS",
+      "issues": 0
+    },
+    "step21Audit": {
+      "status": "PASS",
+      "issues": 0
+    },
+    "gitDiffCheck": "PASS"
+  }
+}
