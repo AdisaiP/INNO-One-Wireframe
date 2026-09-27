@@ -67,9 +67,8 @@ def screenshot(name):
     return path
 
 def first_detail(prefix, exclusions):
-    expr = """(()=>{const exclusions=new Set(EXCLUSIONS);return [...document.querySelectorAll('a[href^="PREFIX"]')].map(a=>a.getAttribute('href')).find(h=>h && !exclusions.has(h) && /^REGEX$/.test(h))||null})()"""
-    regex = prefix.rstrip('/') + r'/[^/]+'
-    return ev(expr.replace('EXCLUSIONS', json.dumps(exclusions)).replace('PREFIX', prefix).replace('REGEX', regex.replace('/', r'\/')))
+    expr = """(()=>{const prefix=PREFIX;const exclusions=new Set(EXCLUSIONS);return [...document.querySelectorAll('a[href^="'+prefix+'"]')].map(a=>a.getAttribute('href')).find(h=>h && !exclusions.has(h) && h.startsWith(prefix) && h.slice(prefix.length).length>0 && !h.slice(prefix.length).includes('/'))||null})()"""
+    return ev(expr.replace('EXCLUSIONS', json.dumps(exclusions)).replace('PREFIX', json.dumps(prefix)))
 
 call('Page.enable')
 call('Runtime.enable')
