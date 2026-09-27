@@ -10,6 +10,17 @@ ui=(root/'production/packages/ui/src/index.tsx').read_text()
 ui_css=(root/'production/packages/ui/src/styles.css').read_text()
 devices=(root/'production/apps/web-portal/src/pages/DevicesPage.tsx').read_text()
 assets=(root/'production/apps/web-portal/src/pages/AssetInventoryPage.tsx').read_text()
+assets_overview=(root/'production/apps/web-portal/src/pages/AssetsOverviewPage.tsx').read_text()
+asset_detail=(root/'production/apps/web-portal/src/pages/AssetDetailPage.tsx').read_text()
+asset_ownership=(root/'production/apps/web-portal/src/pages/AssetOwnershipPage.tsx').read_text()
+asset_owners=(root/'production/apps/web-portal/src/pages/AssetOwnersPage.tsx').read_text()
+asset_owner_detail=(root/'production/apps/web-portal/src/pages/AssetOwnerDetailPage.tsx').read_text()
+asset_submissions=(root/'production/apps/web-portal/src/pages/AssetOwnershipSubmissionsPage.tsx').read_text()
+asset_custom_fields=(root/'production/apps/web-portal/src/pages/AssetCustomFieldsPage.tsx').read_text()
+asset_qr=(root/'production/apps/web-portal/src/pages/AssetQrLabelsPage.tsx').read_text()
+software_baselines=(root/'production/apps/web-portal/src/pages/SoftwareBaselinesPage.tsx').read_text()
+software_licenses=(root/'production/apps/web-portal/src/pages/SoftwareLicensesPage.tsx').read_text()
+contracts=(root/'production/apps/web-portal/src/pages/ContractsWarrantyPage.tsx').read_text()
 automation=(root/'production/apps/web-portal/src/pages/AutomationRulesPage.tsx').read_text()
 device_detail=(root/'production/apps/web-portal/src/pages/DeviceDetailPage.tsx').read_text()
 discovery=(root/'production/apps/web-portal/src/pages/DiscoveryPage.tsx').read_text()
@@ -23,8 +34,8 @@ issues=[]
 if manifest.get('step') != 29: issues.append('step number')
 if manifest.get('frozenDesignSystem') != 'V1.26': issues.append('design system baseline')
 if manifest.get('frozenUiContract') != '1.20.0': issues.append('ui contract baseline')
-if manifest.get('completedPhases') != ['shell', 'shared_primitives', 'devices']: issues.append('completed phases')
-if manifest.get('nextPhase') != 'assets': issues.append('next phase')
+if manifest.get('completedPhases') != ['shell', 'shared_primitives', 'devices', 'assets']: issues.append('completed phases')
+if manifest.get('nextPhase') != 'helpdesk': issues.append('next phase')
 
 for marker in ['ShellIcon','prod-global-search','prod-context-toggle','prod-side-backdrop']:
     if marker not in shell: issues.append('shell marker '+marker)
@@ -87,6 +98,61 @@ for marker in ['icon={<span aria-hidden="true">▣</span>}','INNOCollection clas
     if marker not in device_detail: issues.append('device detail parity '+marker)
 for marker in ['inDeviceDetail','isActive || inDeviceDetail']:
     if marker not in shell: issues.append('device detail navigation '+marker)
+
+
+expected_asset_routes = [
+    '/assets','/assets/inventory','/assets/:assetId','/assets/ownership','/assets/owners','/assets/owners/:userId',
+    '/assets/ownership/submissions','/assets/custom-fields','/assets/qr-labels','/assets/software-baselines',
+    '/assets/software-licenses','/assets/contracts'
+]
+if manifest.get('assetsParityRoutes') != expected_asset_routes:
+    issues.append('assets parity routes')
+if '/assets/software-baselines' not in manifest.get('assetsProductionOnlyMapping', {}):
+    issues.append('software baselines production-only mapping')
+
+asset_pages = [
+    ('assets overview', assets_overview),
+    ('asset inventory', assets),
+    ('asset detail', asset_detail),
+    ('asset ownership', asset_ownership),
+    ('asset owners', asset_owners),
+    ('asset owner detail', asset_owner_detail),
+    ('asset submissions', asset_submissions),
+    ('asset custom fields', asset_custom_fields),
+    ('asset qr', asset_qr),
+    ('software baselines', software_baselines),
+    ('software licenses', software_licenses),
+    ('contracts', contracts),
+]
+for name, source in asset_pages:
+    for legacy in ['collection-card','production-table-wrap','page-helper','production-resource-head','resource-title-line']:
+        if legacy in source: issues.append(name+' legacy '+legacy)
+
+for name, source in [
+    ('assets overview', assets_overview), ('asset inventory', assets), ('asset ownership', asset_ownership),
+    ('asset owners', asset_owners), ('asset submissions', asset_submissions), ('asset qr', asset_qr),
+    ('software baselines', software_baselines), ('software licenses', software_licenses), ('contracts', contracts)
+]:
+    if 'INNOCollection' not in source: issues.append(name+' missing INNOCollection')
+
+for name, source in [('asset inventory', assets), ('asset owners', asset_owners), ('asset submissions', asset_submissions),
+                     ('asset qr', asset_qr), ('software baselines', software_baselines),
+                     ('software licenses', software_licenses), ('contracts', contracts)]:
+    if 'INNOCollectionToolbar' not in source: issues.append(name+' missing INNOCollectionToolbar')
+    if 'INNOTableWrap' not in source: issues.append(name+' missing INNOTableWrap')
+
+for name, source in [('asset detail', asset_detail), ('asset owner detail', asset_owner_detail)]:
+    if 'INNOResourceHeader' not in source: issues.append(name+' missing INNOResourceHeader')
+    if 'INNOTableWrap' not in source: issues.append(name+' missing INNOTableWrap')
+
+for name, source in [('asset detail', asset_detail), ('asset custom fields', asset_custom_fields),
+                     ('asset qr', asset_qr), ('software baselines', software_baselines),
+                     ('software licenses', software_licenses), ('contracts', contracts)]:
+    if 'INNOEditorFooter' not in source: issues.append(name+' missing INNOEditorFooter')
+
+for marker in ['Evaluation uses Devices observations from the last 24 hours',
+               "item.status === 'compliant' ? 'success' : item.status === 'missing' ? 'danger' : 'warning'"]:
+    if marker not in software_baselines: issues.append('software baseline evidence ui '+marker)
 
 print('step29_completed_phases='+','.join(manifest.get('completedPhases',[])))
 print('step29_next_phase='+str(manifest.get('nextPhase')))
