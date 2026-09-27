@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOButton, INNOPage, INNOState } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarSpacer } from '@inno/ui';
 import { getTicketStatuses, getTickets } from '../api/client';
 import { usePermission } from '../app/ProfileContext';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -19,6 +19,7 @@ function formatRelative(value: string) {
 
 export function TicketsPage({ mode = 'all' }: { mode?: TicketQueueMode }) {
   const canCreate = usePermission('helpdesk.ticket.create');
+  const canManageSla = usePermission('helpdesk.sla.manage');
   const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search);
   const [status, setStatus] = useState('all');
@@ -52,53 +53,36 @@ export function TicketsPage({ mode = 'all' }: { mode?: TicketQueueMode }) {
       ? 'Scoped operational queue for your support coverage.'
       : 'Search and manage support tickets inside your effective access scope.';
 
+  const pageActions = mode === 'team'
+    ? (canManageSla ? <Link className="inno-link-button secondary" to="/helpdesk/sla">SLA Monitor</Link> : undefined)
+    : (canCreate ? <Link className="inno-link-button" to="/helpdesk/tickets/new">Create Ticket</Link> : undefined);
+
   return (
-    <INNOPage eyebrow="Helpdesk" title={title}>
-      <div className="page-intro-row">
-        <p className="page-helper">{helper}</p>
-        {canCreate ? <Link className="inno-link-button" to="/helpdesk/tickets/new">Create Ticket</Link> : null}
-      </div>
-
-      <section className="collection-card">
-        <div className="collection-head">
-          <div>
-            <h2>{title}</h2>
-            <p>{query.data ? query.data.totalItems + ' tickets in scope' : 'Operational queue'}</p>
-          </div>
-          {query.data ? <span className="prod-tag">{query.data.totalItems} tickets</span> : null}
-        </div>
-
-        <div className="collection-toolbar">
-          <label className="search-field">
-            <span className="sr-only">Search tickets</span>
-            <input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search ticket number or subject…"
-            />
-          </label>
-          <label>
-            <span className="sr-only">Status filter</span>
-            <select value={status} onChange={(event) => setStatus(event.target.value)}>
-              <option value="all">Status: All</option>
-              {(statuses.data ?? []).map((item) => (
-                <option key={item.id} value={item.code}>{item.name}</option>
-              ))}
-            </select>
-          </label>
-          <label>
-            <span className="sr-only">Priority filter</span>
-            <select value={priority} onChange={(event) => setPriority(event.target.value)}>
-              <option value="all">Priority: All</option>
-              <option value="P1">P1 · Critical</option>
-              <option value="P2">P2 · High</option>
-              <option value="P3">P3 · Normal</option>
-              <option value="P4">P4 · Low</option>
-            </select>
-          </label>
-          <span className="toolbar-spacer" />
+    <INNOPage eyebrow="Helpdesk" title={title} description={helper} actions={pageActions}>
+      <INNOCollection>
+        <INNOCollectionHeader
+          title={mode === 'mine' ? 'My queue' : mode === 'team' ? 'Team tickets' : 'Active tickets'}
+          description={query.data ? query.data.totalItems + ' tickets in scope' : 'Operational queue'}
+          meta={query.data ? <INNOStatus>{query.data.totalItems} tickets</INNOStatus> : undefined}
+        />
+        <INNOCollectionToolbar>
+          <INNOSearchField label="Search tickets" value={search} onChange={setSearch} placeholder="Search ticket number or subject…" />
+          <INNOSelectField label="Status filter" value={status} onChange={setStatus}>
+            <option value="all">Status: All</option>
+            {(statuses.data ?? []).map((item) => (
+              <option key={item.id} value={item.code}>{item.name}</option>
+            ))}
+          </INNOSelectField>
+          <INNOSelectField label="Priority filter" value={priority} onChange={setPriority}>
+            <option value="all">Priority: All</option>
+            <option value="P1">P1 · Critical</option>
+            <option value="P2">P2 · High</option>
+            <option value="P3">P3 · Normal</option>
+            <option value="P4">P4 · Low</option>
+          </INNOSelectField>
+          <INNOToolbarSpacer />
           <span className="collection-scope">Authorization filtered server-side</span>
-        </div>
+        </INNOCollectionToolbar>
 
         {query.isPending ? (
           <div className="collection-state"><LoadingState label="Loading tickets…" /></div>
@@ -107,73 +91,78 @@ export function TicketsPage({ mode = 'all' }: { mode?: TicketQueueMode }) {
         ) : query.data.items.length === 0 ? (
           <div className="collection-state">
             <INNOState
+              kind={search || status !== 'all' || priority !== 'all' ? 'no-results' : 'empty'}
               title={search || status !== 'all' || priority !== 'all' ? 'No tickets found' : 'No tickets in this queue'}
               description={search || status !== 'all' || priority !== 'all'
                 ? 'Try another search or clear the filters.'
                 : 'There is no current work in this scoped queue.'}
               action={search || status !== 'all' || priority !== 'all' ? (
-                <div className="state-action">
-                  <INNOButton variant="secondary" onClick={() => { setSearch(''); setStatus('all'); setPriority('all'); }}>
-                    Clear filters
-                  </INNOButton>
-                </div>
+                <INNOButton variant="secondary" onClick={() => { setSearch(''); setStatus('all'); setPriority('all'); }}>
+                  Clear filters
+                </INNOButton>
               ) : undefined}
             />
           </div>
-        ) : (
+        ) : mode === 'all' ? (
           <>
-            <div className="production-table-wrap">
-              <table className="production-table">
+            <INNOTableWrap width="xwide">
+              <table>
                 <thead>
                   <tr>
-                    <th>Ticket</th>
-                    <th>Status</th>
-                    <th>Priority</th>
-                    <th>Requester</th>
-                    <th>Assignee</th>
-                    <th>SLA</th>
-                    <th>Updated</th>
-                    <th className="action-column">Action</th>
+                    <th>Ticket</th><th>Status</th><th>Priority</th><th>Requester</th><th>Assignee</th><th>SLA</th><th>Updated</th><th className="action-column">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {query.data.items.map((ticket) => (
                     <tr key={ticket.id}>
-                      <td>
-                        <b>{ticket.subject}</b>
-                        <div className="table-meta">{ticket.ticketNumber} · {ticket.category ?? 'Uncategorized'} · {ticket.organization ?? '—'}</div>
-                      </td>
-                      <td><span className={'status-dot ' + (ticket.status === 'resolved' ? 'offline' : 'online')}>{ticket.statusName}</span></td>
+                      <td><b>{ticket.subject}</b><div className="table-meta">{ticket.ticketNumber} · {ticket.category ?? 'Uncategorized'} · {ticket.organization ?? '—'}</div></td>
+                      <td><INNOStatus tone={ticket.status === 'resolved' ? 'neutral' : 'success'} dot>{ticket.statusName}</INNOStatus></td>
                       <td><span className={'priority-chip ' + ticket.priority.toLowerCase()}>{ticket.priority}</span></td>
                       <td>{ticket.requester}</td>
                       <td>{ticket.assignee ?? ticket.team ?? 'Unassigned'}</td>
-                      <td>
-                        <span className={'sla-chip ' + (ticket.slaState ?? 'active')}>{ticket.slaState ?? '—'}</span>
-                        {ticket.slaState ? <div className="table-meta">{ticket.slaElapsedPercent}% elapsed</div> : null}
-                      </td>
+                      <td><span className={'sla-chip ' + (ticket.slaState ?? 'active')}>{ticket.slaState ?? '—'}</span>{ticket.slaState ? <div className="table-meta">{ticket.slaElapsedPercent}% elapsed</div> : null}</td>
                       <td>{formatRelative(ticket.updatedAt)}</td>
-                      <td className="action-column">
-                        <Link className="open-resource" to={'/helpdesk/tickets/' + ticket.id}>Open</Link>
-                      </td>
+                      <td className="action-column"><Link className="device-row-action" to={'/helpdesk/tickets/' + ticket.id} aria-label={'Open ' + ticket.ticketNumber}><span aria-hidden="true">›</span></Link></td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+            </INNOTableWrap>
+            <INNOPagination
+              page={query.data.page}
+              totalPages={query.data.totalPages}
+              totalItems={query.data.totalItems}
+              pageSize={query.data.pageSize}
+              onPageChange={setPage}
+            />
+          </>
+        ) : (
+          <>
+            <div className="helpdesk-queue-list helpdesk-operational-queue">
+              {query.data.items.map((ticket) => (
+                <Link className="helpdesk-queue-row" to={'/helpdesk/tickets/' + ticket.id} key={ticket.id}>
+                  <div className="helpdesk-queue-ticket-id">{ticket.ticketNumber}</div>
+                  <div className="helpdesk-queue-copy">
+                    <b>{ticket.subject}</b>
+                    <span>{ticket.team ?? ticket.category ?? 'Uncategorized'} · {ticket.organization ?? ticket.requester}</span>
+                  </div>
+                  <span className={'priority-chip ' + ticket.priority.toLowerCase()}>{ticket.priority}</span>
+                  <INNOStatus tone={ticket.status === 'resolved' ? 'neutral' : 'success'}>{ticket.statusName}</INNOStatus>
+                  <div className={'helpdesk-queue-sla ' + (ticket.slaState ?? 'active')}>{ticket.slaState ? ticket.slaElapsedPercent + '% elapsed' : 'No SLA'}</div>
+                  <span className="device-row-action" aria-hidden="true">›</span>
+                </Link>
+              ))}
             </div>
-            <div className="collection-footer">
-              <span>
-                Showing {(query.data.page - 1) * query.data.pageSize + 1}–
-                {Math.min(query.data.page * query.data.pageSize, query.data.totalItems)} of {query.data.totalItems}
-              </span>
-              <div className="pagination-actions">
-                <INNOButton variant="secondary" disabled={query.data.page <= 1} onClick={() => setPage((value) => Math.max(1, value - 1))}>Previous</INNOButton>
-                <span>Page {query.data.page} of {Math.max(query.data.totalPages, 1)}</span>
-                <INNOButton variant="secondary" disabled={query.data.page >= query.data.totalPages} onClick={() => setPage((value) => value + 1)}>Next</INNOButton>
-              </div>
-            </div>
+            <INNOPagination
+              page={query.data.page}
+              totalPages={query.data.totalPages}
+              totalItems={query.data.totalItems}
+              pageSize={query.data.pageSize}
+              onPageChange={setPage}
+            />
           </>
         )}
-      </section>
+      </INNOCollection>
     </INNOPage>
   );
 }
