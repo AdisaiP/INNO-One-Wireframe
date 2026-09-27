@@ -34,6 +34,9 @@ device_groups=(root/'production/apps/web-portal/src/pages/DeviceGroupsPage.tsx')
 device_group_detail=(root/'production/apps/web-portal/src/pages/DeviceGroupDetailPage.tsx').read_text()
 agent_deployment=(root/'production/apps/web-portal/src/pages/AgentDeploymentPage.tsx').read_text()
 ticket_create=(root/'production/apps/web-portal/src/pages/TicketCreatePage.tsx').read_text()
+profile_page=(root/'production/apps/web-portal/src/pages/ProfilePage.tsx').read_text()
+deferred_page=(root/'production/apps/web-portal/src/pages/DeferredPage.tsx').read_text()
+app_root=(root/'production/apps/web-portal/src/app/AppRoot.tsx').read_text()
 feedback=(root/'production/apps/web-portal/src/components/Feedback.tsx').read_text()
 issues=[]
 
@@ -42,6 +45,8 @@ if manifest.get('frozenDesignSystem') != 'V1.26': issues.append('design system b
 if manifest.get('frozenUiContract') != '1.20.0': issues.append('ui contract baseline')
 if manifest.get('completedPhases') != ['shell', 'shared_primitives', 'devices', 'assets', 'helpdesk']: issues.append('completed phases')
 if manifest.get('nextPhase') != 'remaining_routes': issues.append('next phase')
+if manifest.get('inProgressPhase') != 'remaining_routes': issues.append('remaining routes in-progress phase')
+if manifest.get('remainingRoutesImplementationStatus') != 'implemented_pending_qa': issues.append('remaining routes implementation status')
 helpdesk_validation = manifest.get('helpdeskValidation', {})
 if helpdesk_validation.get('browserQa') != 'passed' or helpdesk_validation.get('browserQaFailures') != 0:
     issues.append('helpdesk browser qa status')
@@ -211,6 +216,40 @@ for marker in ['INNOEditorFooter','INNOStatus','INNOState compact kind="empty"']
     if marker not in automation_rule: issues.append('automation rule missing '+marker)
 for marker in ['inTicketWorkspace','isActive || inTicketWorkspace']:
     if marker not in shell: issues.append('ticket workspace navigation '+marker)
+
+
+expected_remaining_routes = ['/profile','/apps/*','/assets/manage/*','/meeting/*','/reports/*','/admin/*','*']
+if manifest.get('remainingParityRoutes') != expected_remaining_routes:
+    issues.append('remaining parity routes')
+state_policy = manifest.get('remainingRouteStatePolicy', {})
+if state_policy.get('profile') != 'implemented':
+    issues.append('profile route policy')
+if state_policy.get('futureModuleBoundaries') != 'disabled':
+    issues.append('future module state policy')
+if state_policy.get('unauthorizedImplementedRoutes') != 'permission':
+    issues.append('permission route state policy')
+if state_policy.get('unknownRoutes') != 'no-results':
+    issues.append('unknown route state policy')
+
+for legacy in ['page-helper','prod-tag','collection-card','production-table-wrap','className="editor-footer"']:
+    if legacy in profile_page: issues.append('profile legacy '+legacy)
+for marker in ['description="Your workspace profile and organization-managed sign-in."','INNOStatus tone="success"','Personal preferences are not exposed']:
+    if marker not in profile_page: issues.append('profile parity '+marker)
+
+for marker in ["kind = 'disabled'","kind?: Extract<INNOStateKind, 'permission' | 'disabled' | 'no-results'>",
+               "kind={kind}",'Permission denied','Module not available yet','Page not found']:
+    if marker not in deferred_page: issues.append('deferred state '+marker)
+
+if app_root.count('kind="permission"') < 20:
+    issues.append('permission fallbacks incomplete')
+for marker in [
+    '<Route path="apps/*" element={<DeferredPage name="Apps" />} />',
+    '<Route path="meeting/*" element={<DeferredPage name="Meeting" />} />',
+    '<Route path="reports/*" element={<DeferredPage name="Reports" />} />',
+    '<Route path="admin/*" element={<DeferredPage name="Admin Center" />} />',
+    '<Route path="*" element={<DeferredPage name="Not Found" kind="no-results" />} />'
+]:
+    if marker not in app_root: issues.append('remaining route mapping '+marker)
 
 print('step29_completed_phases='+','.join(manifest.get('completedPhases',[])))
 print('step29_next_phase='+str(manifest.get('nextPhase')))
