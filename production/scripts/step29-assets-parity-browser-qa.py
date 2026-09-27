@@ -101,11 +101,14 @@ for width in (1366,1024,768):
     icon:!!document.querySelector('.inno-resource-icon'),
     collection:!!document.querySelector('.inno-collection'),
     footer:!!document.querySelector('.inno-editor-footer'),
+    sideActive:document.querySelectorAll('.prod-side a.active').length,
+    inventoryActive:[...document.querySelectorAll('.prod-side a.active')].some(a=>a.getAttribute('href')==='/assets/inventory'),
     legacy:document.querySelectorAll('.collection-card,.production-table-wrap,.production-resource-head,.resource-title-line').length,
     overflow:document.documentElement.scrollWidth>innerWidth+2
   }))()""")
   check(f'{width} asset detail resource pattern',m['resource'] and m['icon'],m)
   check(f'{width} asset detail shared history',m['collection'],m)
+  check(f'{width} asset detail inventory navigation',m['sideActive']==1 and m['inventoryActive'],m)
   check(f'{width} asset detail no legacy wrappers',m['legacy']==0,m)
   check(f'{width} asset detail no overflow',not m['overflow'],m)
 
