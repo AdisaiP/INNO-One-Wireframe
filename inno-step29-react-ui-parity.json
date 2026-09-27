@@ -23,10 +23,9 @@
   "completedPhases": [
     "shell",
     "shared_primitives",
-    "devices",
-    "assets"
+    "devices"
   ],
-  "nextPhase": "helpdesk",
+  "nextPhase": "assets",
   "sharedPrimitives": [
     "INNOPage",
     "INNOButton",
@@ -98,5 +97,7 @@
   ],
   "assetsProductionOnlyMapping": {
     "/assets/software-baselines": "Frozen Assets collection/master-detail patterns + Step 26–28 evidence contracts"
-  }
+  },
+  "inProgressPhase": "assets",
+  "assetsImplementationStatus": "implemented_pending_local_qa"
 }
