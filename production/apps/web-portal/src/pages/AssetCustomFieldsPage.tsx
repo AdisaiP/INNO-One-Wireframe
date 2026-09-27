@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { INNOButton, INNOPage } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOEditorFooter, INNOPage, INNOStatus } from '@inno/ui';
 import { getAssetCustomFields, updateAssetCustomFields } from '../api/client';
 import type { AssetCustomFieldDefinition } from '../api/types';
 import { usePermission } from '../app/ProfileContext';
@@ -154,25 +154,22 @@ export function AssetCustomFieldsPage() {
   }
 
   return (
-    <INNOPage eyebrow="Assets · Management" title="Custom Fields">
-      <div className="page-intro-row">
-        <p className="page-helper">
-          Define organization-specific fields for Asset records. User identity remains owned by Platform.
-        </p>
-        {canManage ? <INNOButton onClick={addField}>Add Field</INNOButton> : null}
-      </div>
+    <INNOPage
+      eyebrow="Assets · Management"
+      title="Custom Fields"
+      description="Define organization-specific fields for Asset records. User identity remains owned by Platform."
+      actions={canManage ? <INNOButton onClick={addField}>Add Field</INNOButton> : undefined}
+    >
 
       {saveError ? <div className="form-error" role="alert">{saveError}</div> : null}
       {savedMessage ? <div className="form-success" role="status">{savedMessage}</div> : null}
 
-      <section className="collection-card">
-        <div className="collection-head">
-          <div>
-            <h2>Asset field schema</h2>
-            <p>{fields.length} organization-defined fields · Active fields appear on Asset Detail.</p>
-          </div>
-          <span className="prod-tag">{fields.filter((field) => field.status === 'active').length} active</span>
-        </div>
+      <INNOCollection>
+        <INNOCollectionHeader
+          title="Asset field schema"
+          description={fields.length + ' organization-defined fields · Active fields appear on Asset Detail.'}
+          meta={<INNOStatus tone="success">{fields.filter((field) => field.status === 'active').length} active</INNOStatus>}
+        />
 
         <div className="settings-stack">
           {fields.map((field, index) => (
@@ -286,19 +283,20 @@ export function AssetCustomFieldsPage() {
         </div>
 
         {canManage ? (
-          <div className="editor-footer standalone-editor-footer">
+          <INNOEditorFooter className="standalone-editor-footer">
             <span className="editor-footer-note">
               Existing field keys cannot be removed or renamed. Set unused fields to Draft.
             </span>
             <INNOButton
-              disabled={!dirty || validationErrors.size > 0 || saveMutation.isPending}
+              busy={saveMutation.isPending}
+              disabled={!dirty || validationErrors.size > 0}
               onClick={() => saveMutation.mutate()}
             >
-              {saveMutation.isPending ? 'Saving…' : 'Save Schema'}
+              Save Schema
             </INNOButton>
-          </div>
+          </INNOEditorFooter>
         ) : null}
-      </section>
+      </INNOCollection>
     </INNOPage>
   );
 }
