@@ -14,7 +14,7 @@ if page is None:
  time.sleep(.8)
  page=next(x for x in targets() if x.get('type')=='page' and 'localhost:5180' in x.get('url',''))
 
-ws=websocket.create_connection(page['webSocketDebuggerUrl'],timeout=12,origin='http://127.0.0.1')
+ws=websocket.create_connection(page['webSocketDebuggerUrl'],timeout=12,origin='http://127.0.0.1:9241')
 seq=0;checks=0;fails=[]
 
 def call(method,params=None):
