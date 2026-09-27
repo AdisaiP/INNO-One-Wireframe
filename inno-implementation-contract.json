@@ -1,5 +1,5 @@
 {
-  "contractVersion": "0.16.0",
+  "contractVersion": "0.17.0",
   "status": "implementation-in-progress",
   "generatedFrom": {
     "designSystem": "V1.26",
@@ -187,7 +187,7 @@
     ]
   },
   "apiContract": {
-    "version": "0.2.0",
+    "version": "0.3.0",
     "basePath": "/api/v1",
     "source": "inno-api-contract.json",
     "openApi": "openapi-inno-one-v1.json"
@@ -524,5 +524,27 @@
     "newApiOperations": [],
     "newDatabaseTables": [],
     "featureImplementationStarted": true
+  },
+  "softwareBaselineDefinitionsSlice": {
+    "version": "0.17.0",
+    "featureImplementationStarted": true,
+    "documentation": "INNO-One-Step26-Software-Baselines.md",
+    "manifest": "inno-step26-software-baselines.json",
+    "audit": "step26-software-baselines-audit.py",
+    "implementedOperations": [
+      "assets.baselines.list",
+      "assets.baselines.create",
+      "assets.baselines.get",
+      "assets.baselines.update"
+    ],
+    "webRoutes": [
+      "/assets/software-baselines"
+    ],
+    "persistence": [
+      "software_baselines"
+    ],
+    "evaluationStatus": "awaiting_inventory",
+    "installedSoftwareSource": "Devices contract required; no feed implemented",
+    "activeEvents": []
   }
 }

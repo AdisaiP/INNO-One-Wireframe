@@ -2080,3 +2080,16 @@ Step 16 fresh re-validation is **no longer deferred**. Software Baselines remain
 The user explicitly authorized merging after Step 16 fresh re-validation. `integration/step25-assets-final-integration` was fast-forwarded into `main` and pushed to `origin/main` at `3ca1c72`. Working tree was clean after the push. This closes the prior merge gate; historical notes above are retained as records of decisions at those steps.
 
 Next development candidate: define and freeze a standalone Software Baselines API/route/data contract before implementing baseline evaluation. This is a recommendation, not an already frozen Step 26. Main integration does not itself deploy the Web Portal/API as persistent services; release deployment and environment verification remain separate operational work.
+
+
+# Step 26 — Software Baseline Definitions ✅ COMPLETED 2026-09-27
+
+Branch: `implementation/step26-software-baselines`, branched from `main` at `37eb754`. Implementation Contract **0.17.0**, API Contract **0.3.0**.
+
+Assets now manages baseline definitions through `/assets/software-baselines` and GET/POST/GET-by-id/PATCH APIs, with `assets.view` for read, `assets.baseline.manage` for writes, ETag preconditions, unique code and package validation, Assets-owned migration, and same-transaction create/update audit. The production Web page offers search/filter and single-definition editing.
+
+**Boundary:** Devices has no authoritative installed-software inventory/read contract. The API returns `evaluationStatus=awaiting_inventory`. `baseline_results` remains reserved and `baseline.drift` is not emitted. License allocations cannot prove a package is installed or absent. Do not mark any device compliant/missing from absent or stale observations.
+
+QA: .NET 0 warnings/0 errors; Web typecheck/build PASS; Step 26/API/Implementation/historical audit chain 0 issues; live `STEP26_DEFINITIONS_SMOKE_PASS`; dev DB guards migration 1, permission 1, audit rows 3, drift events 0, cross-module FKs 0, temporary QA definitions cleaned; React visual QA list 1366/1024/768 and create editor 1366/768, 5 screens with 0 overflow/errors. `git diff --check` PASS. See `INNO-One-Step26-Software-Baselines.md` and `inno-step26-software-baselines.json`.
+
+**Next dependency:** define/freeze and implement a Devices-owned installed-software observation contract/feed (device ID, normalized product identity, observed timestamp, completeness and provenance). Then implement Assets baseline evaluation/result projection with unknown handling for incomplete/stale evidence and drift events only on evidence-backed transitions. This Step 26 branch is not merged. User explicitly requested **no deployment**; temporary local API/Vite QA sessions are not a release.

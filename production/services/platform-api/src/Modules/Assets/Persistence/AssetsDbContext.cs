@@ -14,6 +14,7 @@ public sealed class AssetsDbContext(DbContextOptions<AssetsDbContext> options) :
     public DbSet<AssetCustomFieldValue> CustomFieldValues => Set<AssetCustomFieldValue>();
     public DbSet<AssetQrLabel> QrLabels => Set<AssetQrLabel>();
     public DbSet<AssetQrScan> QrScans => Set<AssetQrScan>();
+    public DbSet<SoftwareBaseline> SoftwareBaselines => Set<SoftwareBaseline>();
     public DbSet<SoftwareLicense> SoftwareLicenses => Set<SoftwareLicense>();
     public DbSet<LicenseAllocation> LicenseAllocations => Set<LicenseAllocation>();
     public DbSet<AssetContract> Contracts => Set<AssetContract>();
@@ -129,6 +130,19 @@ public sealed class AssetsDbContext(DbContextOptions<AssetsDbContext> options) :
                 .WithMany()
                 .HasForeignKey(x => x.LabelId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<SoftwareBaseline>(entity =>
+        {
+            entity.ToTable("software_baselines");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => x.Code).IsUnique();
+            entity.Property(x => x.Code).HasMaxLength(64);
+            entity.Property(x => x.Name).HasMaxLength(180);
+            entity.Property(x => x.TargetCategory).HasMaxLength(80);
+            entity.Property(x => x.RequiredPackagesJson).HasColumnType("jsonb");
+            entity.Property(x => x.Status).HasMaxLength(24);
+            entity.Property(x => x.Version).IsConcurrencyToken();
         });
 
         modelBuilder.Entity<SoftwareLicense>(entity =>

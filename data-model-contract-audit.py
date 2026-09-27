@@ -10,8 +10,8 @@ events=json.loads((ROOT/'inno-event-audit-contract.json').read_text())
 
 issues=[]
 
-if impl.get('contractVersion')!='0.16.0':
-    issues.append(f"expected current Implementation Contract 0.16.0, found {impl.get('contractVersion')}")
+if impl.get('contractVersion')!='0.17.0':
+    issues.append(f"expected current Implementation Contract 0.17.0, found {impl.get('contractVersion')}")
 data_ref=impl.get('dataModelContract',{})
 if data_ref.get('version')!='0.4.0':
     issues.append('implementation contract must reference Data Model Contract 0.4.0')

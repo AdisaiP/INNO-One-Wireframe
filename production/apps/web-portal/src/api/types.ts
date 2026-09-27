@@ -715,3 +715,22 @@ export interface OwnershipDecision {
   reviewedAt?: string | null;
   eTag: string;
 }
+
+
+export interface SoftwareBaselineItem {
+  id: string;
+  code: string;
+  name: string;
+  targetCategory: string | null;
+  requiredPackages: string[];
+  status: 'draft' | 'active' | 'inactive';
+  evaluationStatus: 'awaiting_inventory';
+  updatedAt: string;
+  eTag: string;
+}
+export type SoftwareBaselineRequest = Pick<SoftwareBaselineItem,
+  'code' | 'name' | 'targetCategory' | 'requiredPackages' | 'status'>;
+export interface SoftwareBaselineListResponse {
+  items: SoftwareBaselineItem[];
+  totalItems: number;
+}

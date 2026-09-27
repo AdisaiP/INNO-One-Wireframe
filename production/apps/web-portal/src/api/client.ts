@@ -12,6 +12,9 @@ import type {
   AssetQrLabel,
   AssetQrResolvedAsset,
   SoftwareLicenseItem,
+  SoftwareBaselineItem,
+  SoftwareBaselineRequest,
+  SoftwareBaselineListResponse,
   SoftwareLicenseListResponse,
   AssetContractItem,
   AssetContractListResponse,
@@ -758,4 +761,24 @@ export async function updateAutomationRule(
     },
   );
   return response.data;
+}
+
+export async function getSoftwareBaselines(query: { search?: string; status?: string }): Promise<SoftwareBaselineListResponse> {
+  const params = new URLSearchParams();
+  if (query.search?.trim()) params.set('search', query.search.trim());
+  if (query.status && query.status !== 'all') params.set('status', query.status);
+  return request<SoftwareBaselineListResponse>('/assets/software-baselines?' + params.toString());
+}
+export async function createSoftwareBaseline(body: SoftwareBaselineRequest): Promise<SoftwareBaselineItem> {
+  const result = await request<ResourceEnvelope<SoftwareBaselineItem>>(
+    '/assets/software-baselines', { method: 'POST', ...jsonRequest(body) },
+  );
+  return result.data;
+}
+export async function updateSoftwareBaseline(id: string, eTag: string, body: SoftwareBaselineRequest): Promise<SoftwareBaselineItem> {
+  const result = await request<ResourceEnvelope<SoftwareBaselineItem>>(
+    '/assets/software-baselines/' + encodeURIComponent(id),
+    { method: 'PATCH', ...jsonRequest(body, { 'If-Match': eTag }) },
+  );
+  return result.data;
 }

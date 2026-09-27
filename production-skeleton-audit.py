@@ -14,8 +14,8 @@ issues = []
 
 if manifest.get("contractVersion") != "0.5.0":
     issues.append(f"expected skeleton contract 0.5.0, found {manifest.get('contractVersion')}")
-if impl.get("contractVersion") != "0.16.0":
-    issues.append(f"expected current Implementation Contract 0.16.0, found {impl.get('contractVersion')}")
+if impl.get("contractVersion") != "0.17.0":
+    issues.append(f"expected current Implementation Contract 0.17.0, found {impl.get('contractVersion')}")
 ref = impl.get("productionSkeleton", {})
 if ref.get("version") != "0.5.0":
     issues.append("implementation contract must reference Production Skeleton 0.5.0")
@@ -112,7 +112,7 @@ if manifest_contexts != expected_contexts:
 
 # Contract bridge.
 contracts_source = (PROD / "services/platform-api/src/INNO.One.Contracts/ContractVersions.cs").read_text()
-for version in ("V1.26", "1.20.0", "0.2.0", "0.3.0", "0.4.0", "0.16.0"):
+for version in ("V1.26", "1.20.0", "0.3.0", "0.4.0", "0.17.0"):
     if version not in contracts_source:
         issues.append(f"ContractVersions.cs missing {version}")
 

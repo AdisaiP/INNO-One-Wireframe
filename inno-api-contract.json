@@ -1,5 +1,5 @@
 {
-  "contractVersion": "0.2.0",
+  "contractVersion": "0.3.0",
   "status": "implementation-planning",
   "generatedFrom": {
     "designSystem": "V1.26",
@@ -2269,6 +2269,54 @@
       "screens": [
         "helpdesk-automation.html",
         "helpdesk-automation-rule.html"
+      ]
+    },
+    {
+      "id": "assets.baselines.list",
+      "method": "GET",
+      "path": "/assets/software-baselines",
+      "module": "assets",
+      "permission": "assets.view",
+      "scope": "all",
+      "response": "collection",
+      "screens": [
+        "/assets/software-baselines"
+      ]
+    },
+    {
+      "id": "assets.baselines.create",
+      "method": "POST",
+      "path": "/assets/software-baselines",
+      "module": "assets",
+      "permission": "assets.baseline.manage",
+      "scope": "all",
+      "response": "resource",
+      "screens": [
+        "/assets/software-baselines"
+      ]
+    },
+    {
+      "id": "assets.baselines.get",
+      "method": "GET",
+      "path": "/assets/software-baselines/{baselineId}",
+      "module": "assets",
+      "permission": "assets.view",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "/assets/software-baselines"
+      ]
+    },
+    {
+      "id": "assets.baselines.update",
+      "method": "PATCH",
+      "path": "/assets/software-baselines/{baselineId}",
+      "module": "assets",
+      "permission": "assets.baseline.manage",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "/assets/software-baselines"
       ]
     }
   ],
