@@ -6,7 +6,7 @@ OUT=Path(__file__).resolve().parents[1]/"qa-step29-react-shell"
 OUT.mkdir(exist_ok=True)
 targets=requests.get(f"http://127.0.0.1:{PORT}/json",timeout=2).json()
 page=next(x for x in targets if x.get("type")=="page" and "localhost:5180" in x.get("url",""))
-ws=websocket.create_connection(page["webSocketDebuggerUrl"],timeout=15,origin="http://127.0.0.1")
+ws=websocket.create_connection(page["webSocketDebuggerUrl"],timeout=15,suppress_origin=True)
 seq=0;fails=[];checks=0
 def call(method,params=None):
  global seq
