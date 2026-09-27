@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using INNO.One.Modules.Assets.Infrastructure;
 using INNO.One.Modules.Assets.Persistence;
 
 namespace INNO.One.Modules.Assets;
@@ -13,6 +14,7 @@ public static class AssetsModule
                 npgsql.MigrationsHistoryTable("__ef_migrations_history", AssetsDbContext.Schema))
             .UseSnakeCaseNamingConvention());
 
+        services.AddScoped<AssetsLedgerWriter>();
         return services;
     }
 }

@@ -15,14 +15,16 @@ export function AppShell() {
   const profile = useProfile();
   const canViewDevices = usePermission('devices.view');
   const canDeployDevices = usePermission('devices.deploy');
+  const canViewAssets = usePermission('assets.view');
   const canViewHelpdesk = usePermission('helpdesk.ticket.view');
   const canViewAutomation = usePermission('helpdesk.automation.view');
   const canManageSla = usePermission('helpdesk.sla.manage');
   const location = useLocation();
   const inDevices = location.pathname.startsWith('/devices');
+  const inAssets = location.pathname.startsWith('/assets');
   const inHelpdesk = location.pathname.startsWith('/helpdesk');
   const inProfile = location.pathname.startsWith('/profile');
-  const homePath = canViewDevices ? '/devices' : canViewHelpdesk ? '/helpdesk' : '/profile';
+  const homePath = canViewDevices ? '/devices' : canViewHelpdesk ? '/helpdesk' : canViewAssets ? '/assets' : '/profile';
 
   return (
     <div className="inno-production-shell">
@@ -51,6 +53,9 @@ export function AppShell() {
           {canViewDevices ? (
             <NavLink className={inDevices ? 'active' : ''} to="/devices" aria-label="Devices">D</NavLink>
           ) : null}
+          {canViewAssets ? (
+            <NavLink className={inAssets ? 'active' : ''} to="/assets" aria-label="Assets">A</NavLink>
+          ) : null}
           {canViewHelpdesk ? (
             <NavLink className={inHelpdesk ? 'active' : ''} to="/helpdesk" aria-label="Helpdesk">H</NavLink>
           ) : null}
@@ -60,13 +65,24 @@ export function AppShell() {
 
         <aside
           className="prod-side"
-          aria-label={inProfile ? 'Account navigation' : inHelpdesk ? 'Helpdesk navigation' : 'Devices navigation'}
+          aria-label={inProfile ? 'Account navigation' : inAssets ? 'Assets navigation' : inHelpdesk ? 'Helpdesk navigation' : 'Devices navigation'}
         >
           {inProfile ? (
             <>
               <div className="prod-side-title">Account</div>
               <div className="prod-side-section">Workspace</div>
               <NavLink to="/profile">Profile & Settings</NavLink>
+            </>
+          ) : inAssets ? (
+            <>
+              <div className="prod-side-title">Assets</div>
+              <div className="prod-side-section">Inventory</div>
+              <NavLink end to="/assets">Overview</NavLink>
+              <NavLink to="/assets/inventory">Asset Inventory</NavLink>
+              <div className="prod-side-section">Ownership</div>
+              <NavLink end to="/assets/ownership">Ownership & Users</NavLink>
+              <NavLink to="/assets/owners">User Profiles</NavLink>
+              <NavLink to="/assets/ownership/submissions">Agent Submissions</NavLink>
             </>
           ) : inHelpdesk ? (
             <>

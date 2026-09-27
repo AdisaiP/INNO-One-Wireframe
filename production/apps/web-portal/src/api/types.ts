@@ -412,3 +412,144 @@ export interface ProblemDetails {
   instance?: string;
   errors?: Record<string, string[]>;
 }
+
+
+export interface AssetOverviewRecent {
+  id: string;
+  assetTag: string;
+  name: string;
+  category: string;
+  status: string;
+  updatedAt: string;
+}
+
+export interface AssetOverview {
+  totalAssets: number;
+  inUse: number;
+  inStock: number;
+  repair: number;
+  unassigned: number;
+  warrantyExpiring: number;
+  recentAssets: AssetOverviewRecent[];
+}
+
+export interface AssetListItem {
+  id: string;
+  assetTag: string;
+  name: string;
+  category: string;
+  brandModel: string;
+  serialNumber?: string | null;
+  owner?: string | null;
+  organization?: string | null;
+  location?: string | null;
+  status: string;
+  registeredAt: string;
+  updatedAt: string;
+}
+
+export interface AssetLinkedDevice {
+  id: string;
+  name: string;
+  status: string;
+  operatingSystem?: string | null;
+}
+
+export interface AssetOwnershipHistoryItem {
+  id: string;
+  previousOwner?: string | null;
+  owner?: string | null;
+  reasonCode: string;
+  note?: string | null;
+  effectiveAt: string;
+}
+
+export interface AssetDetail {
+  id: string;
+  assetTag: string;
+  name: string;
+  category: string;
+  brand?: string | null;
+  model?: string | null;
+  serialNumber?: string | null;
+  status: string;
+  owner?: ReferenceValue | null;
+  organization?: ReferenceValue | null;
+  location?: ReferenceValue | null;
+  linkedDevice?: AssetLinkedDevice | null;
+  purchasePrice?: number | null;
+  registeredAt: string;
+  warrantyEndAt?: string | null;
+  source: string;
+  ownershipHistory: AssetOwnershipHistoryItem[];
+  updatedAt: string;
+  eTag: string;
+}
+
+export interface AssetOwnershipChange {
+  assetId: string;
+  assetTag: string;
+  previousOwner?: string | null;
+  owner?: string | null;
+  reasonCode: string;
+  effectiveAt: string;
+}
+
+export interface AssetOwnershipOverview {
+  assignedAssets: number;
+  confirmedOwnership: number;
+  pendingSubmissions: number;
+  unassignedAssets: number;
+  recentChanges: AssetOwnershipChange[];
+}
+
+export interface AssetOwnerSummary {
+  id: string;
+  fullName: string;
+  employeeId: string;
+  email: string;
+  organization?: string | null;
+  assetCount: number;
+  lastOwnershipAt?: string | null;
+}
+
+export interface AssetOwnerAsset {
+  id: string;
+  assetTag: string;
+  name: string;
+  brandModel: string;
+  status: string;
+  assignedAt: string;
+}
+
+export interface AssetOwnerDetail {
+  id: string;
+  fullName: string;
+  employeeId: string;
+  email: string;
+  organization?: string | null;
+  location?: string | null;
+  assets: AssetOwnerAsset[];
+}
+
+export interface OwnershipSubmission {
+  id: string;
+  assetId: string;
+  assetTag: string;
+  userId: string;
+  userName: string;
+  deviceName: string;
+  possession: string;
+  submittedLocation?: string | null;
+  changes: string[];
+  status: string;
+  submittedAt: string;
+  eTag: string;
+}
+
+export interface OwnershipDecision {
+  id: string;
+  status: string;
+  reviewedAt?: string | null;
+  eTag: string;
+}

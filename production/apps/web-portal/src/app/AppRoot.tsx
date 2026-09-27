@@ -3,6 +3,13 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { getCurrentProfile } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import { AgentDeploymentPage } from '../pages/AgentDeploymentPage';
+import { AssetDetailPage } from '../pages/AssetDetailPage';
+import { AssetInventoryPage } from '../pages/AssetInventoryPage';
+import { AssetOwnerDetailPage } from '../pages/AssetOwnerDetailPage';
+import { AssetOwnersPage } from '../pages/AssetOwnersPage';
+import { AssetOwnershipPage } from '../pages/AssetOwnershipPage';
+import { AssetOwnershipSubmissionsPage } from '../pages/AssetOwnershipSubmissionsPage';
+import { AssetsOverviewPage } from '../pages/AssetsOverviewPage';
 import { AutomationRulePage } from '../pages/AutomationRulePage';
 import { AutomationRulesPage } from '../pages/AutomationRulesPage';
 import { BusinessCalendarPage } from '../pages/BusinessCalendarPage';
@@ -39,11 +46,13 @@ export function AppRoot() {
   const profile = profileQuery.data;
   const canViewDevices = profile.permissions.includes('devices.view');
   const canDeployDevices = profile.permissions.includes('devices.deploy');
+  const canViewAssets = profile.permissions.includes('assets.view');
+  const canManageAssets = profile.permissions.includes('assets.manage');
   const canViewHelpdesk = profile.permissions.includes('helpdesk.ticket.view');
   const canCreateTicket = profile.permissions.includes('helpdesk.ticket.create');
   const canViewAutomation = profile.permissions.includes('helpdesk.automation.view');
   const canManageSla = profile.permissions.includes('helpdesk.sla.manage');
-  const landingPath = canViewDevices ? '/devices' : canViewHelpdesk ? '/helpdesk' : '/profile';
+  const landingPath = canViewDevices ? '/devices' : canViewHelpdesk ? '/helpdesk' : canViewAssets ? '/assets' : '/profile';
 
   return (
     <ProfileProvider profile={profile}>
@@ -59,6 +68,14 @@ export function AppRoot() {
           <Route path="devices/add" element={canDeployDevices ? <AgentDeploymentPage /> : <DeferredPage name="Agent Deployment" />} />
           <Route path="devices/:deviceId" element={canViewDevices ? <DeviceDetailPage /> : <DeferredPage name="Device" />} />
 
+          <Route path="assets" element={canViewAssets ? <AssetsOverviewPage /> : <DeferredPage name="Assets" />} />
+          <Route path="assets/inventory" element={canViewAssets ? <AssetInventoryPage /> : <DeferredPage name="Asset Inventory" />} />
+          <Route path="assets/ownership" element={canViewAssets ? <AssetOwnershipPage /> : <DeferredPage name="Ownership & Users" />} />
+          <Route path="assets/owners" element={canViewAssets ? <AssetOwnersPage /> : <DeferredPage name="Asset Owners" />} />
+          <Route path="assets/owners/:userId" element={canViewAssets ? <AssetOwnerDetailPage /> : <DeferredPage name="Asset Owner" />} />
+          <Route path="assets/ownership/submissions" element={canViewAssets ? <AssetOwnershipSubmissionsPage /> : <DeferredPage name="Agent Submissions" />} />
+          <Route path="assets/:assetId" element={canViewAssets ? <AssetDetailPage /> : <DeferredPage name="Asset" />} />
+
           <Route path="helpdesk" element={canViewHelpdesk ? <HelpdeskOverviewPage /> : <DeferredPage name="Helpdesk" />} />
           <Route path="helpdesk/tickets" element={canViewHelpdesk ? <TicketsPage /> : <DeferredPage name="Helpdesk Tickets" />} />
           <Route path="helpdesk/assigned" element={canViewHelpdesk ? <TicketsPage mode="mine" /> : <DeferredPage name="Assigned Tickets" />} />
@@ -72,7 +89,7 @@ export function AppRoot() {
           <Route path="helpdesk/automation/:ruleId" element={canViewAutomation ? <AutomationRulePage /> : <DeferredPage name="Automation Rule" />} />
 
           <Route path="apps/*" element={<DeferredPage name="Apps" />} />
-          <Route path="assets/*" element={<DeferredPage name="Assets" />} />
+          <Route path="assets/manage/*" element={canManageAssets ? <DeferredPage name="Assets Management" /> : <DeferredPage name="Assets" />} />
           <Route path="meeting/*" element={<DeferredPage name="Meeting" />} />
           <Route path="reports/*" element={<DeferredPage name="Reports" />} />
           <Route path="admin/*" element={<DeferredPage name="Admin Center" />} />

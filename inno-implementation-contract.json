@@ -1,5 +1,5 @@
 {
-  "contractVersion": "0.9.0",
+  "contractVersion": "0.10.0",
   "status": "implementation-in-progress",
   "generatedFrom": {
     "designSystem": "V1.26",
@@ -353,6 +353,44 @@
     "activeEvents": [
       "sla.at_risk",
       "sla.escalated"
+    ],
+    "featureImplementationStarted": true
+  },
+  "assetsCoreSlice": {
+    "version": "0.10.0",
+    "name": "Assets Core Slice",
+    "documentation": "INNO-One-Step19-Assets-Core.md",
+    "manifest": "inno-step19-assets-core.json",
+    "audit": "step19-assets-core-audit.py",
+    "implementedOperations": [
+      "assets.overview.get",
+      "assets.list",
+      "assets.get",
+      "assets.update",
+      "assets.ownership.list",
+      "assets.ownership.change",
+      "assets.owners.list",
+      "assets.owners.get",
+      "assets.ownership_submissions.list",
+      "assets.ownership_submissions.decide"
+    ],
+    "webRoutes": [
+      "/assets",
+      "/assets/inventory",
+      "/assets/:assetId",
+      "/assets/ownership",
+      "/assets/owners",
+      "/assets/owners/:userId",
+      "/assets/ownership/submissions"
+    ],
+    "persistence": [
+      "assets",
+      "asset_ownership_history",
+      "ownership_submissions"
+    ],
+    "activeEvents": [
+      "asset.changed",
+      "ownership.changed"
     ],
     "featureImplementationStarted": true
   }

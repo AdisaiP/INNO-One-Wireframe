@@ -1,0 +1,97 @@
+{
+  "contractVersion": "0.10.0",
+  "status": "completed",
+  "name": "Assets Core Slice",
+  "documentation": "INNO-One-Step19-Assets-Core.md",
+  "audit": "step19-assets-core-audit.py",
+  "operations": [
+    "assets.overview.get",
+    "assets.list",
+    "assets.get",
+    "assets.update",
+    "assets.ownership.list",
+    "assets.ownership.change",
+    "assets.owners.list",
+    "assets.owners.get",
+    "assets.ownership_submissions.list",
+    "assets.ownership_submissions.decide"
+  ],
+  "webRoutes": [
+    "/assets",
+    "/assets/inventory",
+    "/assets/:assetId",
+    "/assets/ownership",
+    "/assets/owners",
+    "/assets/owners/:userId",
+    "/assets/ownership/submissions"
+  ],
+  "persistence": {
+    "newTables": [
+      "assets.assets",
+      "assets.asset_ownership_history",
+      "assets.ownership_submissions"
+    ],
+    "crossModuleForeignKeys": false
+  },
+  "crossModuleReads": [
+    "IPlatformDirectoryReader",
+    "IDeviceDirectoryReader"
+  ],
+  "activeEvents": [
+    "asset.changed",
+    "ownership.changed"
+  ],
+  "auditActions": [
+    "assets.asset.updated",
+    "assets.ownership.changed"
+  ],
+  "deferred": [
+    "custom-fields",
+    "qr",
+    "software-baselines",
+    "software-licenses",
+    "contracts-warranty",
+    "android-assets-mobile"
+  ],
+  "deferredStep16Revalidation": true,
+  "qa": {
+    "runtimeSmoke": "PASS",
+    "webTypecheck": "PASS",
+    "webBuild": "PASS",
+    "dotnetBuild": {
+      "status": "PASS",
+      "warnings": 0,
+      "errors": 0
+    },
+    "efPendingModelChanges": "PASS",
+    "visualQa": {
+      "status": "PASS",
+      "routes": 7,
+      "viewports": [
+        1366,
+        1024,
+        768
+      ],
+      "screens": 21,
+      "failures": 0
+    },
+    "frozenBrowserRegression": {
+      "status": "PASS",
+      "checks": 124,
+      "failures": 0
+    },
+    "frozenStaticAuditChain": {
+      "status": "PASS",
+      "issues": 0
+    },
+    "contractAuditChain": {
+      "status": "PASS",
+      "issues": 0
+    },
+    "step19Audit": {
+      "status": "PASS",
+      "issues": 0
+    },
+    "gitDiffCheck": "PASS"
+  }
+}

@@ -1575,3 +1575,56 @@ Remote Compose project: `inno-one-step18`
 - Mac-to-server connectivity checks passed for PostgreSQL `:5432`, Keycloak `:8080` and MeshCentral `:8444`.
 
 The remote snapshot was taken before the final local Step 18 QA smoke. The Mac has one additional QA-only ticket and automation rule from that final smoke; these test artifacts were intentionally not re-synced to the server.
+
+# Step 19 — Assets Core ✅ COMPLETED 2026-09-27
+
+Branch: `implementation/step19-assets-core`
+
+Implementation Contract: **0.10.0**.
+
+Implemented:
+
+- Assets Overview with scoped inventory / ownership metrics.
+- Asset Inventory with search, category/status filtering and server-authoritative scope filtering.
+- Asset Detail with canonical inventory fields, linked Device context and ownership history.
+- Asset update with ETag / If-Match concurrency.
+- Ownership overview, owner list and owner detail.
+- Manual ownership change with immutable ownership history.
+- Endpoint Agent ownership-submission review queue and decision endpoint.
+- Assets-owned persistence for `assets`, `asset_ownership_history`, `ownership_submissions`.
+- Platform and Devices reads only through `IPlatformDirectoryReader` / `IDeviceDirectoryReader`.
+- No Assets → Platform / Devices / Helpdesk database foreign key.
+- `asset.changed` / `ownership.changed` outbox facts and Assets audit actions.
+- Step 19 migration applied to remote development PostgreSQL on `172.10.1.58`.
+
+Deferred to later Assets slices:
+
+- Custom Fields
+- QR
+- Software baselines
+- Software licenses
+- Contracts / Warranty
+- Android Assets Mobile scanner runtime
+
+Final QA:
+
+- Step 19 runtime smoke: **PASS**.
+- Step 19 audit: **0 issues**.
+- Web typecheck/build: **PASS**.
+- .NET build: **0 warnings / 0 errors**.
+- EF pending-model checks: **PASS**.
+- contract/static audit chains: **0 issues**.
+- Assets production visual QA: **21 / 21 screens**, failures 0.
+- frozen browser regression: **124 / 124**, failures 0.
+- `git diff --check`: **PASS**.
+
+Source of truth:
+
+- `INNO-One-Step19-Assets-Core.md`
+- `inno-step19-assets-core.json`
+- `step19-assets-core-audit.py`
+- `production/scripts/step19-local-smoke.py`
+
+**Step 16 fresh re-validation remains deferred by explicit user request and must be rerun before merge/release.**
+
+**Do not merge `main` without explicit user instruction. No Step 20 work has been started.**

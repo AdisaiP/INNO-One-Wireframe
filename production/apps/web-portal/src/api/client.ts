@@ -1,6 +1,14 @@
 import { getAccessToken } from '../auth/keycloak';
 import type {
   AgentInstaller,
+  AssetDetail,
+  AssetListItem,
+  AssetOwnerDetail,
+  AssetOwnerSummary,
+  AssetOwnershipOverview,
+  AssetOverview,
+  OwnershipDecision,
+  OwnershipSubmission,
   AutomationRuleDetail,
   AutomationRuleSummary,
   BusinessCalendar,
@@ -225,6 +233,127 @@ export async function createAgentInstaller(input: {
     method: 'POST',
     ...jsonRequest(input),
   });
+  return response.data;
+}
+
+export interface AssetQuery {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  category?: string;
+  status?: string;
+}
+
+export async function getAssetOverview(): Promise<AssetOverview> {
+  const response = await request<ResourceEnvelope<AssetOverview>>('/assets/overview');
+  return response.data;
+}
+
+export async function getAssets(query: AssetQuery = {}): Promise<PagedResponse<AssetListItem>> {
+  const params = new URLSearchParams({
+    page: String(query.page ?? 1),
+    pageSize: String(query.pageSize ?? 25),
+  });
+  if (query.search?.trim()) params.set('search', query.search.trim());
+  if (query.category && query.category !== 'all') params.set('category', query.category);
+  if (query.status && query.status !== 'all') params.set('status', query.status);
+  return request<PagedResponse<AssetListItem>>('/assets?' + params.toString());
+}
+
+export async function getAsset(assetId: string): Promise<AssetDetail> {
+  const response = await request<ResourceEnvelope<AssetDetail>>(
+    '/assets/' + encodeURIComponent(assetId),
+  );
+  return response.data;
+}
+
+export async function updateAsset(
+  assetId: string,
+  eTag: string,
+  input: {
+    name?: string;
+    category?: string;
+    lifecycleStatus?: string;
+    linkedDeviceId?: string;
+    purchasePrice?: number;
+    warrantyEndAt?: string;
+  },
+): Promise<AssetDetail> {
+  const response = await request<ResourceEnvelope<AssetDetail>>(
+    '/assets/' + encodeURIComponent(assetId),
+    {
+      method: 'PATCH',
+      ...jsonRequest(input, { 'If-Match': eTag }),
+    },
+  );
+  return response.data;
+}
+
+export async function getAssetOwnership(): Promise<AssetOwnershipOverview> {
+  const response = await request<ResourceEnvelope<AssetOwnershipOverview>>('/assets/ownership');
+  return response.data;
+}
+
+export async function changeAssetOwnership(
+  assetId: string,
+  eTag: string,
+  input: { ownerUserId?: string; reasonCode?: string; note?: string },
+): Promise<{ assetId: string; ownerUserId?: string | null; effectiveAt: string; eTag: string }> {
+  const response = await request<ResourceEnvelope<{
+    assetId: string;
+    ownerUserId?: string | null;
+    effectiveAt: string;
+    eTag: string;
+  }>>('/assets/' + encodeURIComponent(assetId) + '/ownership', {
+    method: 'POST',
+    ...jsonRequest(input, { 'If-Match': eTag }),
+  });
+  return response.data;
+}
+
+export async function getAssetOwners(
+  query: { page?: number; pageSize?: number; search?: string } = {},
+): Promise<PagedResponse<AssetOwnerSummary>> {
+  const params = new URLSearchParams({
+    page: String(query.page ?? 1),
+    pageSize: String(query.pageSize ?? 25),
+  });
+  if (query.search?.trim()) params.set('search', query.search.trim());
+  return request<PagedResponse<AssetOwnerSummary>>('/assets/owners?' + params.toString());
+}
+
+export async function getAssetOwner(userId: string): Promise<AssetOwnerDetail> {
+  const response = await request<ResourceEnvelope<AssetOwnerDetail>>(
+    '/assets/owners/' + encodeURIComponent(userId),
+  );
+  return response.data;
+}
+
+export async function getOwnershipSubmissions(
+  query: { page?: number; pageSize?: number; status?: string } = {},
+): Promise<PagedResponse<OwnershipSubmission>> {
+  const params = new URLSearchParams({
+    page: String(query.page ?? 1),
+    pageSize: String(query.pageSize ?? 25),
+  });
+  if (query.status && query.status !== 'all') params.set('status', query.status);
+  return request<PagedResponse<OwnershipSubmission>>(
+    '/assets/ownership-submissions?' + params.toString(),
+  );
+}
+
+export async function decideOwnershipSubmission(
+  submissionId: string,
+  eTag: string,
+  input: { decision: 'confirmed' | 'rejected'; note?: string },
+): Promise<OwnershipDecision> {
+  const response = await request<ResourceEnvelope<OwnershipDecision>>(
+    '/assets/ownership-submissions/' + encodeURIComponent(submissionId) + '/decision',
+    {
+      method: 'POST',
+      ...jsonRequest(input, { 'If-Match': eTag }),
+    },
+  );
   return response.data;
 }
 

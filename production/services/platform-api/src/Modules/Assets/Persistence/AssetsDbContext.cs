@@ -1,3 +1,4 @@
+using INNO.One.Modules.Assets.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace INNO.One.Modules.Assets.Persistence;
@@ -6,9 +7,63 @@ public sealed class AssetsDbContext(DbContextOptions<AssetsDbContext> options) :
 {
     public const string Schema = "assets";
 
+    public DbSet<Asset> Assets => Set<Asset>();
+    public DbSet<AssetOwnershipHistory> AssetOwnershipHistory => Set<AssetOwnershipHistory>();
+    public DbSet<OwnershipSubmission> OwnershipSubmissions => Set<OwnershipSubmission>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(Schema);
+
+        modelBuilder.Entity<Asset>(entity =>
+        {
+            entity.ToTable("assets");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => x.AssetTag).IsUnique();
+            entity.HasIndex(x => new { x.OwnerUserId, x.LifecycleStatus });
+            entity.Property(x => x.AssetTag).HasMaxLength(64);
+            entity.Property(x => x.Name).HasMaxLength(200);
+            entity.Property(x => x.Category).HasMaxLength(80);
+            entity.Property(x => x.Brand).HasMaxLength(120);
+            entity.Property(x => x.Model).HasMaxLength(160);
+            entity.Property(x => x.SerialNumber).HasMaxLength(120);
+            entity.Property(x => x.LifecycleStatus).HasMaxLength(40);
+            entity.Property(x => x.PurchasePrice).HasPrecision(14, 2);
+            entity.Property(x => x.Source).HasMaxLength(80);
+            entity.Property(x => x.Version).IsConcurrencyToken();
+        });
+
+        modelBuilder.Entity<AssetOwnershipHistory>(entity =>
+        {
+            entity.ToTable("asset_ownership_history");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => new { x.AssetId, x.EffectiveAt });
+            entity.Property(x => x.ReasonCode).HasMaxLength(80);
+            entity.Property(x => x.Note).HasMaxLength(500);
+            entity.HasOne<Asset>()
+                .WithMany()
+                .HasForeignKey(x => x.AssetId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<OwnershipSubmission>(entity =>
+        {
+            entity.ToTable("ownership_submissions");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => new { x.Status, x.SubmittedAt });
+            entity.Property(x => x.DeviceName).HasMaxLength(160);
+            entity.Property(x => x.Possession).HasMaxLength(40);
+            entity.Property(x => x.SubmittedLocation).HasMaxLength(200);
+            entity.Property(x => x.ChangesJson).HasColumnType("jsonb");
+            entity.Property(x => x.Status).HasMaxLength(40);
+            entity.Property(x => x.DecisionNote).HasMaxLength(500);
+            entity.Property(x => x.Version).IsConcurrencyToken();
+            entity.HasOne<Asset>()
+                .WithMany()
+                .HasForeignKey(x => x.AssetId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
         base.OnModelCreating(modelBuilder);
     }
 }

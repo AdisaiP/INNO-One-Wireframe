@@ -3,6 +3,9 @@ using INNO.One.Infrastructure;
 using INNO.One.Infrastructure.Persistence;
 using INNO.One.Integrations.MeshCentral;
 using INNO.One.Modules.Assets;
+using INNO.One.Modules.Assets.Api;
+using INNO.One.Modules.Assets.Infrastructure;
+using INNO.One.Modules.Assets.Persistence;
 using INNO.One.Modules.Devices;
 using INNO.One.Modules.Devices.Api;
 using INNO.One.Modules.Devices.Infrastructure;
@@ -55,17 +58,20 @@ if (app.Environment.IsDevelopment()
     var infrastructureDb = scope.ServiceProvider.GetRequiredService<InfrastructureDbContext>();
     var platformDb = scope.ServiceProvider.GetRequiredService<PlatformDbContext>();
     var devicesDb = scope.ServiceProvider.GetRequiredService<DevicesDbContext>();
+    var assetsDb = scope.ServiceProvider.GetRequiredService<AssetsDbContext>();
     var helpdeskDb = scope.ServiceProvider.GetRequiredService<HelpdeskDbContext>();
 
     await infrastructureDb.Database.MigrateAsync();
     await platformDb.Database.MigrateAsync();
     await devicesDb.Database.MigrateAsync();
+    await assetsDb.Database.MigrateAsync();
     await helpdeskDb.Database.MigrateAsync();
 
     if (builder.Configuration.GetValue("DevelopmentSeed:Enabled", false))
     {
         await PlatformDevelopmentSeed.SeedAsync(platformDb);
         await DevicesDevelopmentSeed.SeedAsync(devicesDb);
+        await AssetsDevelopmentSeed.SeedAsync(assetsDb);
         await HelpdeskDevelopmentSeed.SeedAsync(helpdeskDb);
     }
 }
@@ -87,6 +93,7 @@ var api = app.MapGroup(ContractVersions.ApiBasePath)
 api.MapPlatformEndpoints();
 api.MapDevicesEndpoints();
 api.MapDeviceManagementEndpoints();
+api.MapAssetsEndpoints();
 api.MapHelpdeskEndpoints();
 api.MapHelpdeskSlaAutomationEndpoints();
 

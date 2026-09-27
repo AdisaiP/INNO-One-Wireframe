@@ -52,13 +52,19 @@ public static class PlatformDevelopmentSeed
         ("helpdesk.automation.manage", "helpdesk", "Manage helpdesk automation")
     ];
 
+    private static readonly (string Id, string Module, string Name)[] Step19Permissions =
+    [
+        ("assets.view", "assets", "View assets"),
+        ("assets.manage", "assets", "Manage assets")
+    ];
+
     public static async Task SeedAsync(
         PlatformDbContext db,
         CancellationToken cancellationToken = default)
     {
         if (await db.UserProfiles.AnyAsync(cancellationToken))
         {
-            await EnsureStep16To18Async(db, cancellationToken);
+            await EnsureStep16To19Async(db, cancellationToken);
             return;
         }
 
@@ -213,6 +219,12 @@ public static class PlatformDevelopmentSeed
             Module = x.Module,
             Name = x.Name
         }));
+        db.Permissions.AddRange(Step19Permissions.Select(x => new Permission
+        {
+            PermissionId = x.Id,
+            Module = x.Module,
+            Name = x.Name
+        }));
 
         db.RolePermissions.AddRange(basePermissions.Select(x => new RolePermission
         {
@@ -229,6 +241,11 @@ public static class PlatformDevelopmentSeed
             RoleId = PlatformAdminRoleId,
             PermissionId = x.Id
         }));
+        db.RolePermissions.AddRange(Step19Permissions.Select(x => new RolePermission
+        {
+            RoleId = PlatformAdminRoleId,
+            PermissionId = x.Id
+        }));
 
         db.RolePermissions.AddRange(
             new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "platform.workspace.access" },
@@ -240,6 +257,7 @@ public static class PlatformDevelopmentSeed
         {
             "platform.workspace.access",
             "devices.view",
+            "assets.view",
             "helpdesk.ticket.view",
             "helpdesk.ticket.create",
             "helpdesk.ticket.reply",
@@ -317,12 +335,20 @@ public static class PlatformDevelopmentSeed
                 Installed = true,
                 Enabled = true,
                 UpdatedAt = now
+            },
+            new AppModule
+            {
+                Id = Guid.Parse("70000000-0000-0000-0000-000000000003"),
+                AppId = "assets",
+                Installed = true,
+                Enabled = true,
+                UpdatedAt = now
             });
 
         await db.SaveChangesAsync(cancellationToken);
     }
 
-    private static async Task EnsureStep16To18Async(
+    private static async Task EnsureStep16To19Async(
         PlatformDbContext db,
         CancellationToken cancellationToken)
     {
@@ -340,7 +366,9 @@ public static class PlatformDevelopmentSeed
             });
         }
 
-        foreach (var (permissionId, module, name) in Step17Permissions.Concat(Step18Permissions))
+        foreach (var (permissionId, module, name) in Step17Permissions
+            .Concat(Step18Permissions)
+            .Concat(Step19Permissions))
         {
             if (!await db.Permissions.AnyAsync(
                 x => x.PermissionId == permissionId,
@@ -422,7 +450,9 @@ public static class PlatformDevelopmentSeed
             "devices.deploy",
             cancellationToken);
 
-        foreach (var (permissionId, _, _) in Step17Permissions.Concat(Step18Permissions))
+        foreach (var (permissionId, _, _) in Step17Permissions
+            .Concat(Step18Permissions)
+            .Concat(Step19Permissions))
         {
             await EnsureRolePermissionAsync(
                 db,
@@ -448,6 +478,7 @@ public static class PlatformDevelopmentSeed
         {
             "platform.workspace.access",
             "devices.view",
+            "assets.view",
             "helpdesk.ticket.view",
             "helpdesk.ticket.create",
             "helpdesk.ticket.reply",
@@ -512,6 +543,20 @@ public static class PlatformDevelopmentSeed
             {
                 Id = Guid.Parse("70000000-0000-0000-0000-000000000002"),
                 AppId = "helpdesk",
+                Installed = true,
+                Enabled = true,
+                UpdatedAt = now
+            });
+        }
+
+        if (!await db.AppModules.AnyAsync(
+            x => x.AppId == "assets",
+            cancellationToken))
+        {
+            db.AppModules.Add(new AppModule
+            {
+                Id = Guid.Parse("70000000-0000-0000-0000-000000000003"),
+                AppId = "assets",
                 Installed = true,
                 Enabled = true,
                 UpdatedAt = now
