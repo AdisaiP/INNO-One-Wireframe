@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOButton, INNOPage, INNOState } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { getAssetContracts, updateAssetContract } from '../api/client';
 import { usePermission } from '../app/ProfileContext';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -136,10 +136,11 @@ export function ContractsWarrantyPage() {
 
   const summary = query.data?.summary;
   return (
-    <INNOPage eyebrow="Assets · Management" title="Contracts & Warranty">
-      <p className="page-helper">
-        Track vendors, service terms, warranty coverage and upcoming expirations.
-      </p>
+    <INNOPage
+      eyebrow="Assets · Management"
+      title="Contracts & Warranty"
+      description="Track vendors, service terms, warranty coverage and upcoming expirations."
+    >
 
       <div className="production-stat-strip contract-stat-strip">
         <div><span>Active contracts</span><b>{summary?.activeContracts ?? '—'}</b><small>More than 90 days remaining</small></div>
@@ -151,34 +152,25 @@ export function ContractsWarrantyPage() {
       {saveError ? <div className="form-error" role="alert">{saveError}</div> : null}
       {message ? <div className="form-success" role="status">{message}</div> : null}
 
-      <section className="collection-card contract-collection">
-        <div className="collection-head">
-          <div><h2>Contracts</h2><p>Service and warranty agreements in the current Assets scope.</p></div>
-          {query.data ? <span className="prod-tag">{query.data.totalItems} contracts</span> : null}
-        </div>
-
-        <div className="collection-toolbar">
-          <label className="search-field">
-            <span className="sr-only">Search contracts</span>
-            <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search contract, vendor or service…" />
-          </label>
-          <label>
-            <span className="sr-only">Status filter</span>
-            <select value={status} onChange={(event) => setStatus(event.target.value)}>
-              <option value="all">Status: All</option>
-              <option value="active">Active</option>
-              <option value="expiring">Expiring</option>
-              <option value="expired">Expired</option>
-            </select>
-          </label>
-          <label>
-            <span className="sr-only">Fiscal year filter</span>
-            <select value={fiscalYear} onChange={(event) => setFiscalYear(event.target.value)}>
-              <option value="all">Fiscal year: All</option>
-              {query.data?.fiscalYears.map((value) => <option key={value} value={value}>{value}</option>)}
-            </select>
-          </label>
-        </div>
+      <INNOCollection className="contract-collection">
+        <INNOCollectionHeader
+          title="Contracts"
+          description="Service and warranty agreements in the current Assets scope."
+          meta={query.data ? <INNOStatus>{query.data.totalItems} contracts</INNOStatus> : undefined}
+        />
+        <INNOCollectionToolbar>
+          <INNOSearchField label="Search contracts" value={search} onChange={setSearch} placeholder="Search contract, vendor or service…" />
+          <INNOSelectField label="Status filter" value={status} onChange={setStatus}>
+            <option value="all">Status: All</option>
+            <option value="active">Active</option>
+            <option value="expiring">Expiring</option>
+            <option value="expired">Expired</option>
+          </INNOSelectField>
+          <INNOSelectField label="Fiscal year filter" value={fiscalYear} onChange={setFiscalYear}>
+            <option value="all">Fiscal year: All</option>
+            {query.data?.fiscalYears.map((value) => <option key={value} value={value}>{value}</option>)}
+          </INNOSelectField>
+        </INNOCollectionToolbar>
 
         {query.isPending ? (
           <div className="collection-state"><LoadingState label="Loading contracts…" /></div>
@@ -194,8 +186,8 @@ export function ContractsWarrantyPage() {
           </div>
         ) : (
           <>
-            <div className="production-table-wrap">
-              <table className="production-table contract-table">
+            <INNOTableWrap width="xwide">
+              <table className="contract-table">
                 <thead>
                   <tr>
                     <th>Contract</th><th>Fiscal Year</th><th>Vendor</th><th>Period</th><th>Service</th>
@@ -211,31 +203,31 @@ export function ContractsWarrantyPage() {
                       <td>{displayDate(item.startAt)} – {displayDate(item.endAt)}</td>
                       <td>{item.serviceType}</td>
                       <td className="numeric-column">{item.coveredAssets.length}</td>
-                      <td><span className={'prod-tag ' + (item.status === 'expired' ? 'danger-tag' : item.status === 'expiring' ? 'warning-tag' : 'success-tag')}>{statusLabel(item.status)}</span></td>
-                      <td className="action-column"><button type="button" className="open-resource button-link" onClick={() => setSelectedId(item.id)}>Open</button></td>
+                      <td><INNOStatus tone={item.status === 'expired' ? 'danger' : item.status === 'expiring' ? 'warning' : 'success'}>{statusLabel(item.status)}</INNOStatus></td>
+                      <td className="action-column"><button type="button" className="device-row-action" aria-label={'Open ' + item.contractNumber} onClick={() => setSelectedId(item.id)}><span aria-hidden="true">›</span></button></td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-            </div>
-            <div className="collection-footer">
-              <span>Showing {(query.data.page - 1) * query.data.pageSize + 1}–{Math.min(query.data.page * query.data.pageSize, query.data.totalItems)} of {query.data.totalItems}</span>
-              <div className="pagination-actions">
-                <INNOButton variant="secondary" disabled={query.data.page <= 1} onClick={() => setPage((value) => Math.max(1, value - 1))}>Previous</INNOButton>
-                <span>Page {query.data.page} of {Math.max(query.data.totalPages, 1)}</span>
-                <INNOButton variant="secondary" disabled={query.data.page >= query.data.totalPages} onClick={() => setPage((value) => value + 1)}>Next</INNOButton>
-              </div>
-            </div>
+            </INNOTableWrap>
+            <INNOPagination
+              page={query.data.page}
+              totalPages={query.data.totalPages}
+              totalItems={query.data.totalItems}
+              pageSize={query.data.pageSize}
+              onPageChange={setPage}
+            />
           </>
         )}
-      </section>
+      </INNOCollection>
       {selected ? (
         <section className="contract-detail-grid">
-          <div className="collection-card contract-detail-card">
-            <div className="collection-head">
-              <div><h2>{selected.contractNumber}</h2><p>{selected.vendor}</p></div>
-              <span className={'prod-tag ' + (selected.status === 'expired' ? 'danger-tag' : selected.status === 'expiring' ? 'warning-tag' : 'success-tag')}>{statusLabel(selected.status)}</span>
-            </div>
+          <INNOCollection className="contract-detail-card">
+            <INNOCollectionHeader
+              title={selected.contractNumber}
+              description={selected.vendor}
+              meta={<INNOStatus tone={selected.status === 'expired' ? 'danger' : selected.status === 'expiring' ? 'warning' : 'success'}>{statusLabel(selected.status)}</INNOStatus>}
+            />
 
             <div className="contract-kv-grid">
               <div><span>Fiscal year</span><b>{selected.fiscalYear}</b></div>
@@ -247,14 +239,15 @@ export function ContractsWarrantyPage() {
               <div className="contract-kv-wide"><span>Contact</span><b>{[selected.contactName, selected.contactPhone, selected.contactEmail].filter(Boolean).join(' · ') || '—'}</b></div>
             </div>
 
-            <div className="collection-head covered-assets-head">
-              <div><h2>Covered assets</h2><p>{selected.coveredAssets.length} assets in selected contract.</p></div>
-            </div>
+            <INNOCollectionHeader
+              title="Covered assets"
+              description={selected.coveredAssets.length + ' assets in selected contract.'}
+            />
             {selected.coveredAssets.length === 0 ? (
               <div className="collection-state"><INNOState title="No covered assets" description="This contract does not currently cover any visible Asset." /></div>
             ) : (
-              <div className="production-table-wrap">
-                <table className="production-table supporting-table">
+              <INNOTableWrap width="wide">
+                <table className="supporting-table">
                   <thead><tr><th>Asset</th><th>Model</th><th>Owner</th><th>Status</th><th className="action-column">Action</th></tr></thead>
                   <tbody>
                     {selected.coveredAssets.map((asset) => (
@@ -262,15 +255,15 @@ export function ContractsWarrantyPage() {
                         <td><b>{asset.assetTag}</b><div className="table-meta">{asset.name}</div></td>
                         <td>{asset.brandModel || '—'}</td>
                         <td>{asset.owner ?? 'Unassigned'}</td>
-                        <td><span className="prod-tag success-tag">{statusLabel(asset.coverageStatus)}</span></td>
+                        <td><INNOStatus tone="success">{statusLabel(asset.coverageStatus)}</INNOStatus></td>
                         <td className="action-column"><Link className="open-resource" to={'/assets/' + asset.id}>Open</Link></td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-              </div>
+              </INNOTableWrap>
             )}
-          </div>
+          </INNOCollection>
 
           {canManage ? (
             <div className="prod-panel contract-record-panel">
@@ -292,10 +285,10 @@ export function ContractsWarrantyPage() {
                   <label className="field-block field-wide"><span>Contact email</span><input type="email" value={form.contactEmail} onChange={(event) => setForm((c) => ({ ...c, contactEmail: event.target.value }))} /></label>
                 </div>
               </div>
-              <div className="editor-footer contract-record-footer">
+              <INNOEditorFooter className="contract-record-footer">
                 <span className="editor-footer-note">Saving is audited. Entering the 90-day window emits expiration events for covered Assets.</span>
-                <INNOButton disabled={saveMutation.isPending} onClick={save}>{saveMutation.isPending ? 'Saving…' : 'Save Contract'}</INNOButton>
-              </div>
+                <INNOButton busy={saveMutation.isPending} onClick={save}>Save Contract</INNOButton>
+              </INNOEditorFooter>
             </div>
           ) : null}
         </section>
