@@ -1,0 +1,65 @@
+{
+  "contractVersion": "0.15.0",
+  "status": "implementation-in-progress",
+  "name": "Android Assets Mobile Scanner",
+  "documentation": "INNO-One-Step24-Assets-Mobile.md",
+  "audit": "step24-assets-mobile-audit.py",
+  "surface": "android-mobile",
+  "appPath": "production/apps/assets-mobile",
+  "reusedOperations": [
+    "assets.qr_resolve"
+  ],
+  "permissions": [
+    "assets.qr.scan"
+  ],
+  "oidcClient": "inno-one-assets-mobile",
+  "localOnlyPersistence": [
+    "recent_scan_history"
+  ],
+  "persistedQrTokens": false,
+  "newApiOperations": [],
+  "newDatabaseTables": [],
+  "deferred": [
+    "software-baselines"
+  ],
+  "deferredStep16Revalidation": true,
+  "qa": {
+    "mobileTypecheck": "PASS",
+    "expoConfigValidation": {
+      "status": "PASS",
+      "node": "20.19.4"
+    },
+    "androidExport": {
+      "status": "PASS",
+      "sdk": "57",
+      "bundle": "Hermes"
+    },
+    "mobileVisualQa": {
+      "status": "PASS",
+      "viewports": [
+        430,
+        390,
+        360
+      ],
+      "screens": 3,
+      "failures": 0
+    },
+    "contractStaticAudit": {
+      "status": "PASS",
+      "issues": 0
+    },
+    "webTypecheckBuild": "PASS",
+    "dotnetBuild": {
+      "status": "PASS",
+      "warnings": 0,
+      "errors": 0
+    },
+    "gitDiffCheck": "PASS",
+    "remoteOidcRegistration": "PENDING_VPN",
+    "liveAndroidOidcQrSmoke": "PENDING_VPN",
+    "frozenBrowserRegression": {
+      "status": "NOT_CLEARED",
+      "reason": "Unrelated prototype timing/state failures observed while Step 24 changes no Web source."
+    }
+  }
+}

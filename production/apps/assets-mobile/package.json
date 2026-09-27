@@ -1,0 +1,30 @@
+{
+  "name": "@inno/assets-mobile",
+  "version": "0.0.0",
+  "private": true,
+  "main": "node_modules/expo/AppEntry.js",
+  "engines": {
+    "node": ">=20.19.4"
+  },
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "typecheck": "tsc --noEmit",
+    "export": "expo export --platform android --output-dir dist-android"
+  },
+  "dependencies": {
+    "expo": "57.0.25",
+    "expo-auth-session": "57.0.13",
+    "expo-camera": "57.0.5",
+    "expo-secure-store": "57.0.4",
+    "expo-web-browser": "57.0.3",
+    "react": "19.2.3",
+    "react-native": "0.86.3"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.14",
+    "react-dom": "19.2.3",
+    "react-native-web": "0.21.0",
+    "typescript": "5.9.3"
+  }
+}

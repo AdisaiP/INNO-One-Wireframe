@@ -11,6 +11,8 @@
     "typecheck": "pnpm run build:packages && pnpm --filter @inno/web-portal typecheck",
     "build": "pnpm run build:packages && pnpm --filter @inno/web-portal build",
     "dev:web": "pnpm run build:packages && pnpm --filter @inno/web-portal dev",
+    "typecheck:mobile": "pnpm --filter @inno/assets-mobile typecheck",
+    "export:mobile": "pnpm --filter @inno/assets-mobile export",
     "build:dotnet": "dotnet build INNO.One.sln",
     "check": "pnpm typecheck && pnpm build && dotnet build INNO.One.sln"
   },

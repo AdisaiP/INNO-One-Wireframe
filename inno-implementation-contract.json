@@ -1,5 +1,5 @@
 {
-  "contractVersion": "0.14.0",
+  "contractVersion": "0.15.0",
   "status": "implementation-in-progress",
   "generatedFrom": {
     "designSystem": "V1.26",
@@ -478,6 +478,27 @@
     "activeEvents": [
       "contract.expiring"
     ],
+    "featureImplementationStarted": true
+  },
+  "assetsMobileSlice": {
+    "version": "0.15.0",
+    "name": "Android Assets Mobile Scanner",
+    "documentation": "INNO-One-Step24-Assets-Mobile.md",
+    "manifest": "inno-step24-assets-mobile.json",
+    "audit": "step24-assets-mobile-audit.py",
+    "runtimeSurface": "android-mobile",
+    "appPath": "production/apps/assets-mobile",
+    "reusedOperations": [
+      "assets.qr_resolve"
+    ],
+    "permissions": [
+      "assets.qr.scan"
+    ],
+    "oidcClient": "inno-one-assets-mobile",
+    "localOnlyPersistence": [
+      "recent_scan_history"
+    ],
+    "persistedQrTokens": false,
     "featureImplementationStarted": true
   }
 }

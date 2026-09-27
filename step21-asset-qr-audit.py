@@ -17,8 +17,8 @@ tables = ["assets.qr_labels", "assets.qr_scans"]
 
 if manifest.get("contractVersion") != "0.12.0":
     issues.append("Step 21 manifest must be version 0.12.0")
-if implementation.get("contractVersion") != "0.14.0":
-    issues.append("Implementation Contract must be version 0.14.0")
+if implementation.get("contractVersion") != "0.15.0":
+    issues.append("Implementation Contract must be version 0.15.0")
 if manifest.get("operations") != operations:
     issues.append("Step 21 operation catalog mismatch")
 if manifest.get("webRoutes") != routes:

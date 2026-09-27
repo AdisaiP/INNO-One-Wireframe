@@ -38,8 +38,8 @@ extended_tables = ["helpdesk.sla_policies", "helpdesk.ticket_sla"]
 
 if manifest.get("contractVersion") != "0.9.0":
     issues.append("Step 18 manifest must be version 0.9.0")
-if impl.get("contractVersion") != "0.14.0":
-    issues.append("current Implementation Contract must be 0.14.0")
+if impl.get("contractVersion") != "0.15.0":
+    issues.append("current Implementation Contract must be 0.15.0")
 if manifest.get("operations") != expected_operations:
     issues.append("Step 18 operation catalog mismatch")
 if manifest.get("webRoutes") != expected_routes:

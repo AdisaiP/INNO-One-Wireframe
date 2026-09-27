@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "INNO.One Assets",
+    "slug": "inno-one-assets",
+    "scheme": "innoone-assets",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "android": {
+      "package": "com.innovations.innoone.assets",
+      "permissions": [
+        "CAMERA"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "innoone-assets",
+              "host": "oauth"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "อนุญาตให้ INNO.One Assets ใช้กล้องเพื่อสแกน QR Code ของทรัพย์สิน",
+          "recordAudioAndroid": false
+        }
+      ],
+      "expo-secure-store"
+    ]
+  }
+}

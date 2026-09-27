@@ -1862,3 +1862,63 @@ Remaining Assets work:
 - Step 16 fresh re-validation before merge/release.
 
 **Do not merge `main` without explicit user instruction. No Step 24 work has been started.**
+
+
+# Step 24 — Android Assets Mobile Scanner ⏳ IN PROGRESS 2026-09-27
+
+Branch: `implementation/step24-assets-mobile`
+
+Implementation Contract: **0.15.0**.
+
+Implemented locally:
+
+- Real Expo / React Native Android app under `production/apps/assets-mobile`.
+- Expo SDK 57 + React Native 0.86; mobile toolchain requires Node **20.19.4+**.
+- Thai Android mobile UI with separate scanner/history/result/error states.
+- Camera permission through `expo-camera`.
+- QR scanner accepts QR only and calls the frozen `POST /assets/qr/resolve` operation.
+- Organization sign-in uses OIDC Authorization Code + PKCE S256.
+- Access/refresh tokens use Expo SecureStore.
+- QR payloads are never persisted after resolution.
+- Device-local recent history stores only Asset display metadata and does not invent a scan-history API.
+- Result view uses only data available from the frozen QR Resolve response: Asset identity, owner/org/location, linked endpoint summary, warranty end date and custom fields.
+- Android Mobile remains isolated from Web navigation.
+- Added Keycloak realm definition for public client `inno-one-assets-mobile` with PKCE S256 and API audience.
+- Added the mobile app to the pnpm workspace.
+- Software Baselines remain deferred; no new API operation/database table was invented for Step 24.
+
+Local QA completed:
+
+- Step 24 audit: **0 issues**.
+- Implementation/API/data/event/skeleton contract audit chain: **0 issues**.
+- Mobile TypeScript: **PASS**.
+- Expo public config validation under Node 20.19.4: **PASS**.
+- Android Expo/Hermes export: **PASS**.
+- Production mobile visual QA: **3 / 3** at 430 / 390 / 360, failures 0; 390px screenshot visually reviewed.
+- Existing Web typecheck/build: **PASS**.
+- .NET build: **0 warnings / 0 errors**.
+- frozen static UX audit chain: **0 issues**.
+- `git diff --check`: **PASS**.
+- Temporary mobile visual-QA auth/data hooks were removed from production source after screenshot generation.
+- Web browser regression was re-run, but the legacy prototype harness produced unrelated timing/state failures outside Step 24. Step 24 changes no Web Portal source; this gate is not being marked cleared from that run.
+
+Current blocker:
+
+- FortiClient connection `VPN` is currently **Disconnected**.
+- SSH to `172.10.1.58` times out while the VPN route is absent.
+- Therefore the new `inno-one-assets-mobile` client is present in the versioned Keycloak realm definition but has **not yet been registered in the already-running remote Keycloak realm**.
+- Real Android OIDC + QR resolve smoke against the remote development environment is still pending.
+- Do not mark Step 24 completed until remote Keycloak client registration and live mobile auth/resolve verification pass.
+
+Pending remote gates:
+
+1. restore VPN route to `172.10.1.58`;
+2. register/update `inno-one-assets-mobile` in live Keycloak;
+3. verify the redirect URI + PKCE login path;
+4. verify an `assets.qr.scan` user can resolve a real generated QR token through the live API;
+5. verify revoked/invalid QR returns the expected recovery state;
+6. close manifest/docs, final commit/push and verify clean working tree.
+
+**Step 16 fresh re-validation remains deferred by explicit user request and is still required before merge/release.**
+
+**Do not merge `main` without explicit user instruction.**
