@@ -90,7 +90,7 @@ for width in (1366,1024,768):
    evidence=ev("document.body.innerText.includes('last 24 hours') && document.body.innerText.includes('Unknown')")
    check(f'{width} baselines evidence scope copy',evidence,{'evidence':evidence})
   if name=='inventory' and asset_href is None:
-   asset_href=ev("""(()=>[...document.querySelectorAll('a[href^="/assets/"]')].map(a=>a.getAttribute('href')).find(h=>h && /^\/assets\/[^/]+$/.test(h))||null)()""")
+   asset_href=ev("""(()=>{const reserved=new Set(['/assets/inventory','/assets/ownership','/assets/owners','/assets/custom-fields','/assets/qr-labels','/assets/software-baselines','/assets/software-licenses','/assets/contracts']);return [...document.querySelectorAll('a[href^="/assets/"]')].map(a=>a.getAttribute('href')).find(h=>h && /^\/assets\/[^/]+$/.test(h) && !reserved.has(h))||null})()""")
   if name=='owners' and owner_href is None:
    owner_href=ev("""(()=>[...document.querySelectorAll('a[href^="/assets/owners/"]')].map(a=>a.getAttribute('href'))[0]||null)()""")
 
