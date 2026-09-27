@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
-import { INNOButton, INNOPage, INNOState } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOResourceHeader, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { getDeviceGroup, getDeviceGroupMembers, updateDeviceGroup } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
@@ -76,25 +76,18 @@ export function DeviceGroupDetailPage() {
   const data = group.data;
 
   return (
-    <INNOPage eyebrow="Devices" title={data.name}>
+    <main className="inno-page">
       <div className="resource-breadcrumb">
         <Link to="/devices/groups">Device Groups</Link><span>›</span><span>{data.name}</span>
       </div>
 
-      <div className="resource-head production-resource-head resource-head-actions">
-        <div>
-          <div className="resource-title-line">
-            <h2>{data.name}</h2>
-            <span className={'status-dot ' + (data.status === 'active' ? 'online' : 'offline')}>{data.status}</span>
-            <span className={'prod-tag ' + (data.syncStatus === 'synced' ? 'success' : '')}>{data.syncStatus}</span>
-          </div>
-          <div className="resource-meta-line">
-            <span>{data.code}</span><span>·</span><span>{data.groupType}</span>
-            {data.description ? <><span>·</span><span>{data.description}</span></> : null}
-          </div>
-        </div>
-        {canManage ? <INNOButton variant="secondary" onClick={() => setEditing((value) => !value)}>{editing ? 'Cancel' : 'Edit Group'}</INNOButton> : null}
-      </div>
+      <INNOResourceHeader
+        icon={<span aria-hidden="true">▦</span>}
+        title={data.name}
+        status={<><INNOStatus tone={data.status === 'active' ? 'success' : 'neutral'} dot>{data.status}</INNOStatus><INNOStatus tone={data.syncStatus === 'synced' ? 'success' : 'neutral'}>{data.syncStatus}</INNOStatus></>}
+        meta={<><span>{data.code}</span><span>·</span><span>{data.groupType}</span>{data.description ? <><span>·</span><span>{data.description}</span></> : null}</>}
+        actions={canManage ? <INNOButton variant="secondary" onClick={() => setEditing((value) => !value)}>{editing ? 'Cancel' : 'Edit Group'}</INNOButton> : undefined}
+      />
 
       <div className="production-stat-strip">
         <div><span>Members</span><b>{data.members}</b><small>Managed endpoints</small></div>
@@ -113,30 +106,35 @@ export function DeviceGroupDetailPage() {
               <label className="field-block field-wide"><span>Description</span><textarea rows={3} value={description} onChange={(event) => setDescription(event.target.value)} /></label>
             </div>
             {update.isError ? <ErrorState error={update.error} /> : null}
-            <div className="editor-footer"><INNOButton type="submit" disabled={!name.trim() || update.isPending}>{update.isPending ? 'Saving…' : 'Save Changes'}</INNOButton></div>
+            <INNOEditorFooter><INNOButton type="submit" busy={update.isPending} disabled={!name.trim()}>Save Changes</INNOButton></INNOEditorFooter>
           </form>
         </section>
       ) : null}
 
-      <section className="collection-card">
-        <div className="collection-head">
-          <div><h2>Group members</h2><p>Devices currently resolved into this static group.</p></div>
-          <span className="prod-tag">{members.data?.totalItems ?? data.members} devices</span>
-        </div>
-        <div className="collection-toolbar">
-          <label className="search-field"><span className="sr-only">Search group members</span><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search device or owner…" /></label>
-          <label><span className="sr-only">Member status</span><select value={memberStatus} onChange={(event) => setMemberStatus(event.target.value)}><option value="all">Status: All</option><option value="online">Online</option><option value="offline">Offline</option></select></label>
-        </div>
+      <INNOCollection>
+        <INNOCollectionHeader
+          title="Group members"
+          description="Devices currently resolved into this static group."
+          meta={<INNOStatus>{members.data?.totalItems ?? data.members} devices</INNOStatus>}
+        />
+        <INNOCollectionToolbar>
+          <INNOSearchField label="Search group members" value={search} onChange={setSearch} placeholder="Search device or owner…" />
+          <INNOSelectField label="Member status" value={memberStatus} onChange={setMemberStatus}>
+            <option value="all">Status: All</option>
+            <option value="online">Online</option>
+            <option value="offline">Offline</option>
+          </INNOSelectField>
+        </INNOCollectionToolbar>
 
         {members.isPending ? (
           <div className="collection-state"><LoadingState label="Loading group members…" /></div>
         ) : members.isError ? (
           <div className="collection-state"><ErrorState error={members.error} retry={() => void members.refetch()} /></div>
         ) : members.data.items.length === 0 ? (
-          <div className="collection-state"><INNOState title={search || memberStatus !== 'all' ? 'No group members found' : 'No members yet'} description="Membership updates as managed endpoints synchronize into this group." /></div>
+          <div className="collection-state"><INNOState kind={search || memberStatus !== 'all' ? 'no-results' : 'empty'} title={search || memberStatus !== 'all' ? 'No group members found' : 'No members yet'} description="Membership updates as managed endpoints synchronize into this group." /></div>
         ) : (
-          <div className="production-table-wrap">
-            <table className="production-table">
+          <INNOTableWrap width="wide">
+            <table>
               <thead><tr><th>Device</th><th>Type</th><th>User</th><th>Organization</th><th>Status</th><th>Last Seen</th><th className="action-column">Action</th></tr></thead>
               <tbody>
                 {members.data.items.map((device) => (
@@ -145,16 +143,16 @@ export function DeviceGroupDetailPage() {
                     <td>{device.type}</td>
                     <td>{device.user ?? '—'}</td>
                     <td>{device.organization ?? '—'}</td>
-                    <td><span className={'status-dot ' + device.status}>{device.status}</span></td>
+                    <td><INNOStatus tone={device.status === 'online' ? 'success' : 'neutral'} dot>{device.status}</INNOStatus></td>
                     <td>{formatLastSeen(device.lastSeenAt)}</td>
-                    <td className="action-column"><Link className="open-resource" to={'/devices/' + device.id}>Open</Link></td>
+                    <td className="action-column"><Link className="device-row-action" to={'/devices/' + device.id} aria-label={'Open ' + device.name}><span aria-hidden="true">›</span></Link></td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          </div>
+          </INNOTableWrap>
         )}
-      </section>
-    </INNOPage>
+      </INNOCollection>
+    </main>
   );
 }

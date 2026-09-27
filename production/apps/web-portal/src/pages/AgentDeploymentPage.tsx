@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { INNOButton, INNOPage, INNOState } from '@inno/ui';
+import { INNOButton, INNOEditorFooter, INNOPage, INNOState, INNOStatus } from '@inno/ui';
 import { createAgentInstaller, getDeviceGroups } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 
@@ -24,10 +24,11 @@ export function AgentDeploymentPage() {
   });
 
   return (
-    <INNOPage eyebrow="Devices" title="Agent Deployment">
-      <p className="page-helper">
-        Generate a time-limited enrollment link for installing the managed endpoint agent into a Device Group.
-      </p>
+    <INNOPage
+      eyebrow="Devices"
+      title="Agent Deployment"
+      description="Generate a time-limited enrollment link for installing the managed endpoint agent into a Device Group."
+    >
 
       <div className="deployment-layout">
         <section className="prod-panel">
@@ -75,11 +76,9 @@ export function AgentDeploymentPage() {
                 </label>
               </div>
               {generate.isError ? <ErrorState error={generate.error} /> : null}
-              <div className="editor-footer">
-                <INNOButton type="submit" disabled={!groupId || generate.isPending}>
-                  {generate.isPending ? 'Generating…' : 'Generate Enrollment'}
-                </INNOButton>
-              </div>
+              <INNOEditorFooter>
+                <INNOButton type="submit" busy={generate.isPending} disabled={!groupId}>Generate Enrollment</INNOButton>
+              </INNOEditorFooter>
             </form>
           )}
         </section>
@@ -99,7 +98,7 @@ export function AgentDeploymentPage() {
         <section className="prod-panel enrollment-result">
           <div className="prod-panel-head">
             <div><h3>Enrollment ready</h3><p>{generate.data.groupName} · {generate.data.operatingSystem} · expires {generate.data.expiresAt ? new Date(generate.data.expiresAt).toLocaleString() : 'according to provider policy'}</p></div>
-            <span className="prod-tag success">{generate.data.status}</span>
+            <INNOStatus tone="success">{generate.data.status}</INNOStatus>
           </div>
           <div className="enrollment-link-row">
             <div>

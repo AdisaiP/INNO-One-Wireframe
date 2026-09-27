@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { INNOButton, INNOPage, INNOState } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOPage, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import {
   createDiscoveryScan,
   getDiscoveryResults,
@@ -56,18 +56,27 @@ export function DiscoveryPage() {
   const progress = current?.progress ?? (create.isPending ? 1 : 0);
 
   return (
-    <INNOPage eyebrow="Devices" title="Network Discovery">
-      <div className="page-intro-row">
-        <p className="page-helper">
-          Scan approved private IPv4 ranges to find reachable endpoints that are not yet managed by INNO.One.
-        </p>
-      </div>
+    <INNOPage
+      eyebrow="Devices"
+      title="Network Discovery"
+      description="Scan approved private IPv4 ranges to find reachable endpoints that are not yet managed by INNO.One."
+      actions={canManage ? (
+        <INNOButton
+          type="button"
+          busy={create.isPending}
+          disabled={ranges.length === 0 || current?.status === 'running'}
+          onClick={() => create.mutate()}
+        >
+          {current?.status === 'running' ? 'Scanning…' : 'Run Scan'}
+        </INNOButton>
+      ) : undefined}
+    >
 
       <div className="discovery-layout">
         <section className="prod-panel">
           <div className="prod-panel-head">
             <div><h3>Run scan</h3><p>Private/loopback IPv4 only · maximum 512 addresses per scan.</p></div>
-            {current ? <span className={'prod-tag ' + (current.status === 'succeeded' ? 'success' : '')}>{current.status}</span> : null}
+            {current ? <INNOStatus tone={current.status === 'succeeded' ? 'success' : current.status === 'failed' ? 'danger' : 'info'}>{current.status}</INNOStatus> : null}
           </div>
           <div className="editor-form">
             <label className="field-block field-wide">
@@ -82,17 +91,6 @@ export function DiscoveryPage() {
               <small>Public ranges are rejected server-side.</small>
             </label>
             {create.isError ? <ErrorState error={create.error} /> : null}
-            <div className="editor-footer">
-              {canManage ? (
-                <INNOButton
-                  type="button"
-                  disabled={ranges.length === 0 || create.isPending || current?.status === 'running'}
-                  onClick={() => create.mutate()}
-                >
-                  {current?.status === 'running' ? 'Scanning…' : create.isPending ? 'Starting…' : 'Run Scan'}
-                </INNOButton>
-              ) : null}
-            </div>
           </div>
         </section>
 
@@ -116,33 +114,38 @@ export function DiscoveryPage() {
         </section>
       </div>
 
-      <section className="collection-card">
-        <div className="collection-head">
-          <div><h2>Discovery results</h2><p>Reachable endpoints from the current completed scan.</p></div>
-          {results.data ? <span className="prod-tag">{results.data.totalItems} results</span> : null}
-        </div>
-        <div className="collection-toolbar">
-          <label className="search-field"><span className="sr-only">Search discovery results</span><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search IP, hostname or OS…" /></label>
-          <label><span className="sr-only">Management status</span><select value={resultStatus} onChange={(event) => setResultStatus(event.target.value)}><option value="all">Status: All</option><option value="unmanaged">Unmanaged</option><option value="managed">Managed</option></select></label>
-        </div>
+      <INNOCollection>
+        <INNOCollectionHeader
+          title="Discovery results"
+          description="Reachable endpoints from the current completed scan."
+          meta={results.data ? <INNOStatus>{results.data.totalItems} results</INNOStatus> : undefined}
+        />
+        <INNOCollectionToolbar>
+          <INNOSearchField label="Search discovery results" value={search} onChange={setSearch} placeholder="Search IP, hostname or OS…" />
+          <INNOSelectField label="Management status" value={resultStatus} onChange={setResultStatus}>
+            <option value="all">Status: All</option>
+            <option value="unmanaged">Unmanaged</option>
+            <option value="managed">Managed</option>
+          </INNOSelectField>
+        </INNOCollectionToolbar>
 
         {!scanId ? (
-          <div className="collection-state"><INNOState title="Run discovery to see results" description="Start a scan above using one or more approved private CIDR ranges." /></div>
+          <div className="collection-state"><INNOState kind="empty" title="Run discovery to see results" description="Start a scan above using one or more approved private CIDR ranges." /></div>
         ) : scan.isPending || current?.status === 'queued' || current?.status === 'running' ? (
           <div className="collection-state"><LoadingState label="Discovery scan in progress…" /></div>
         ) : scan.isError ? (
           <div className="collection-state"><ErrorState error={scan.error} retry={() => void scan.refetch()} /></div>
         ) : current?.status === 'failed' ? (
-          <div className="collection-state"><INNOState title="Discovery scan failed" description={current.errorCode ?? 'The scan could not be completed.'} /></div>
+          <div className="collection-state"><INNOState kind="error" title="Discovery scan failed" description={current.errorCode ?? 'The scan could not be completed.'} /></div>
         ) : results.isPending ? (
           <div className="collection-state"><LoadingState label="Loading discovery results…" /></div>
         ) : results.isError ? (
           <div className="collection-state"><ErrorState error={results.error} retry={() => void results.refetch()} /></div>
         ) : results.data.items.length === 0 ? (
-          <div className="collection-state"><INNOState title={search ? 'No discovery results found' : 'No endpoints matched'} description="No reachable endpoints match the current result filter." /></div>
+          <div className="collection-state"><INNOState kind={search || resultStatus !== 'all' ? 'no-results' : 'empty'} title={search ? 'No discovery results found' : 'No endpoints matched'} description="No reachable endpoints match the current result filter." /></div>
         ) : (
-          <div className="production-table-wrap">
-            <table className="production-table">
+          <INNOTableWrap width="wide">
+            <table>
               <thead><tr><th>IP Address</th><th>Hostname</th><th>Detected OS</th><th>Vendor</th><th>Discovery</th><th>Status</th></tr></thead>
               <tbody>
                 {results.data.items.map((row) => (
@@ -152,14 +155,14 @@ export function DiscoveryPage() {
                     <td>{row.detectedOperatingSystem ?? '—'}</td>
                     <td>{row.vendor ?? '—'}</td>
                     <td>{row.discoveryMethod}</td>
-                    <td><span className={'prod-tag ' + (row.managementStatus === 'managed' ? 'success' : '')}>{row.managementStatus}</span></td>
+                    <td><INNOStatus tone={row.managementStatus === 'managed' ? 'success' : 'neutral'}>{row.managementStatus}</INNOStatus></td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          </div>
+          </INNOTableWrap>
         )}
-      </section>
+      </INNOCollection>
     </INNOPage>
   );
 }

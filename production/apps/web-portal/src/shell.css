@@ -2385,3 +2385,79 @@
   .inno-production-shell { --prod-rail-w: 50px; }
   .prod-header-center { padding: 0 4px; gap: 4px; }
 }
+
+/* Step 29 · Devices parity */
+.inno-link-button.secondary {
+  border: 1px solid var(--ds-border-strong);
+  background: #fff;
+  color: var(--ds-text-2);
+}
+.inno-link-button.secondary:hover,
+.inno-link-button.secondary:focus-visible {
+  border-color: #b9c3d1;
+  background: #f7f8fa;
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(39,95,215,.12);
+}
+.device-columns-menu { position: relative; }
+.device-columns-menu > summary { list-style: none; cursor: pointer; }
+.device-columns-menu > summary::-webkit-details-marker { display: none; }
+.device-columns-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 25;
+  width: 180px;
+  padding: 8px;
+  border: 1px solid var(--ds-border);
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(16,24,40,.12);
+}
+.device-columns-popover label {
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 8px;
+  border-radius: 7px;
+  color: #4c586c;
+  font-size: 11px;
+  cursor: pointer;
+}
+.device-columns-popover label:hover { background: #f4f6f8; }
+.device-columns-popover input { width: 15px; height: 15px; accent-color: var(--ds-primary); }
+.device-type-cell { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+.device-type-glyph {
+  width: 20px;
+  height: 20px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 6px;
+  background: #eef3fc;
+  color: #4068b1;
+  font-size: 12px;
+}
+.device-row-action {
+  width: 30px;
+  height: 30px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: #667286;
+  text-decoration: none;
+  font-size: 20px;
+  line-height: 1;
+}
+.device-row-action:hover,
+.device-row-action:focus-visible {
+  border-color: var(--ds-border);
+  background: #f4f6f8;
+  color: var(--ds-primary);
+  outline: 0;
+}
+@media (max-width: 850px) {
+  .device-columns-menu { margin-left: 0; }
+  .device-columns-popover { left: 0; right: auto; }
+}

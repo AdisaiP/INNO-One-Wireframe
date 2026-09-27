@@ -12,6 +12,10 @@ devices=(root/'production/apps/web-portal/src/pages/DevicesPage.tsx').read_text(
 assets=(root/'production/apps/web-portal/src/pages/AssetInventoryPage.tsx').read_text()
 automation=(root/'production/apps/web-portal/src/pages/AutomationRulesPage.tsx').read_text()
 device_detail=(root/'production/apps/web-portal/src/pages/DeviceDetailPage.tsx').read_text()
+discovery=(root/'production/apps/web-portal/src/pages/DiscoveryPage.tsx').read_text()
+device_groups=(root/'production/apps/web-portal/src/pages/DeviceGroupsPage.tsx').read_text()
+device_group_detail=(root/'production/apps/web-portal/src/pages/DeviceGroupDetailPage.tsx').read_text()
+agent_deployment=(root/'production/apps/web-portal/src/pages/AgentDeploymentPage.tsx').read_text()
 ticket_create=(root/'production/apps/web-portal/src/pages/TicketCreatePage.tsx').read_text()
 feedback=(root/'production/apps/web-portal/src/components/Feedback.tsx').read_text()
 issues=[]
@@ -19,8 +23,8 @@ issues=[]
 if manifest.get('step') != 29: issues.append('step number')
 if manifest.get('frozenDesignSystem') != 'V1.26': issues.append('design system baseline')
 if manifest.get('frozenUiContract') != '1.20.0': issues.append('ui contract baseline')
-if manifest.get('completedPhases') != ['shell', 'shared_primitives']: issues.append('completed phases')
-if manifest.get('nextPhase') != 'devices': issues.append('next phase')
+if manifest.get('completedPhases') != ['shell', 'shared_primitives', 'devices']: issues.append('completed phases')
+if manifest.get('nextPhase') != 'assets': issues.append('next phase')
 
 for marker in ['ShellIcon','prod-global-search','prod-context-toggle','prod-side-backdrop']:
     if marker not in shell: issues.append('shell marker '+marker)
@@ -57,6 +61,32 @@ if 'className="editor-footer"' in ticket_create: issues.append('ticket create le
 if 'busy={mutation.isPending}' not in ticket_create: issues.append('ticket create busy state')
 if 'kind="loading"' not in feedback: issues.append('loading state kind')
 if "'permission'" not in feedback or "'error'" not in feedback: issues.append('error state kinds')
+
+if manifest.get('devicesParityRoutes') != ['/devices','/devices/discovery','/devices/groups','/devices/groups/:groupId','/devices/add','/devices/:deviceId']:
+    issues.append('devices parity routes')
+for marker in ['to="/devices/discovery"','to="/devices/add"','device-columns-menu','DeviceTypeGlyph','device-row-action']:
+    if marker not in devices: issues.append('devices parity '+marker)
+for marker in ['actions={canManage','INNOCollection','INNOCollectionToolbar','INNOTableWrap']:
+    if marker not in discovery: issues.append('discovery parity '+marker)
+for legacy in ['collection-card','collection-toolbar','production-table-wrap','page-intro-row','page-helper','className="editor-footer"']:
+    if legacy in discovery: issues.append('discovery legacy '+legacy)
+for marker in ['actions={canManage','INNOEditorFooter','INNOCollection','INNOPagination','INNOTableWrap']:
+    if marker not in device_groups: issues.append('device groups parity '+marker)
+for legacy in ['collection-card','collection-toolbar','production-table-wrap','page-intro-row','page-helper','className="editor-footer"']:
+    if legacy in device_groups: issues.append('device groups legacy '+legacy)
+for marker in ['<main className="inno-page">','INNOResourceHeader','INNOEditorFooter','INNOCollection','INNOTableWrap']:
+    if marker not in device_group_detail: issues.append('group detail parity '+marker)
+if '<INNOPage' in device_group_detail: issues.append('group detail duplicate page header')
+for legacy in ['production-resource-head','resource-title-line','resource-meta-line','collection-card','collection-toolbar','production-table-wrap','className="editor-footer"']:
+    if legacy in device_group_detail: issues.append('group detail legacy '+legacy)
+for marker in ['description="Generate a time-limited enrollment link','INNOEditorFooter','busy={generate.isPending}','INNOStatus']:
+    if marker not in agent_deployment: issues.append('agent deployment parity '+marker)
+for legacy in ['page-helper','className="editor-footer"']:
+    if legacy in agent_deployment: issues.append('agent deployment legacy '+legacy)
+for marker in ['icon={<span aria-hidden="true">▣</span>}','INNOCollection className="device-software-card"','INNOSearchField','INNOSelectField','INNOTableWrap']:
+    if marker not in device_detail: issues.append('device detail parity '+marker)
+for marker in ['inDeviceDetail','isActive || inDeviceDetail']:
+    if marker not in shell: issues.append('device detail navigation '+marker)
 
 print('step29_completed_phases='+','.join(manifest.get('completedPhases',[])))
 print('step29_next_phase='+str(manifest.get('nextPhase')))

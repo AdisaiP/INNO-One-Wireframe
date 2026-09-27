@@ -39,6 +39,8 @@ export function AppShell() {
   const [sideOpen, setSideOpen] = useState(false);
   const [shellSearch, setShellSearch] = useState('');
   const inDevices = location.pathname.startsWith('/devices');
+  const inDeviceDetail = /^\/devices\/[^/]+$/.test(location.pathname)
+    && !['/devices/discovery', '/devices/groups', '/devices/add'].includes(location.pathname);
   const inAssets = location.pathname.startsWith('/assets');
   const inHelpdesk = location.pathname.startsWith('/helpdesk');
   const inProfile = location.pathname.startsWith('/profile');
@@ -179,7 +181,7 @@ export function AppShell() {
             <>
               <div className="prod-side-title">Devices</div>
               <div className="prod-side-section">Workspace</div>
-              <NavLink end to="/devices">Devices</NavLink>
+              <NavLink end to="/devices" className={({ isActive }) => isActive || inDeviceDetail ? 'active' : ''}>Devices</NavLink>
               <NavLink to="/devices/discovery">Discovery</NavLink>
               <NavLink to="/devices/groups">Device Groups</NavLink>
               {canDeployDevices ? <NavLink to="/devices/add">Agent Deployment</NavLink> : null}

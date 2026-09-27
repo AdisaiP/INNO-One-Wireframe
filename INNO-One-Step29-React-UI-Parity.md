@@ -22,8 +22,8 @@ Bring the production React Web Portal back to the approved frozen prototype lang
 
 1. Production shell geometry, header, rail, contextual sidebar and responsive behavior. **DONE — browser regression 23/23.**
 2. Shared React primitives: page header, buttons, status, collection toolbar/table, resource header, form/footer and states. **DONE — browser regression 75/75.**
-3. Devices routes. **NEXT.**
-4. Assets routes.
+3. Devices routes. **DONE — browser regression 61/61 + static parity guard.**
+4. Assets routes. **NEXT.**
 5. Helpdesk routes.
 6. Profile and remaining currently implemented production routes.
 
@@ -67,3 +67,15 @@ Representative migrations prove reuse across module boundaries:
 - Feedback: loading/error/permission states now use the shared state primitive.
 
 Browser QA: **75 / 75**, 0 failures at 1366 / 1024 / 768. Primary table density remains 40px headers / 48px rows; x-wide tables scroll inside their own wrapper on narrow Web viewports; page-level overflow remains 0.
+
+## Devices parity checkpoint
+
+Phase 3 ports all production Devices routes back onto the frozen Devices patterns without exposing future/fake controls:
+- `/devices`: real Discover/Add Device page actions, working Columns chooser, compact type/status/action treatment.
+- `/devices/discovery`: real Run Scan page action and shared results collection.
+- `/devices/groups`: static-group create action/editor and shared group collection; dynamic groups remain hidden until the rule engine exists.
+- `/devices/groups/:groupId`: resource-detail hierarchy, canonical editor footer and shared member collection.
+- `/devices/add`: frozen Agent Deployment layout with canonical editor footer and real enrollment generation.
+- `/devices/:deviceId`: resource identity/icon, correct contextual navigation, and searchable/filterable Installed Software collection.
+
+Frozen Remote/Terminal/Files and bulk Remote/Deploy/Move Group controls were not restored because the current production selection/action contracts do not support those interactions yet. Browser QA is **61 / 61** at 1366 / 1024 / 768; Device Group Detail is additionally protected by static parity checks when QA data has no visible groups.

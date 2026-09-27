@@ -1,6 +1,7 @@
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
-import { INNOResourceHeader, INNOStatus } from '@inno/ui';
+import { INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOResourceHeader, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { getDevice, getDeviceSoftwareInventory } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 
@@ -20,6 +21,8 @@ function lastSeen(value?: string | null) {
 
 export function DeviceDetailPage() {
   const { deviceId = '' } = useParams();
+  const [softwareSearch, setSoftwareSearch] = useState('');
+  const [publisher, setPublisher] = useState('all');
   const query = useQuery({
     queryKey: ['device', deviceId],
     queryFn: () => getDevice(deviceId),
@@ -30,6 +33,20 @@ export function DeviceDetailPage() {
     queryFn: () => getDeviceSoftwareInventory(deviceId),
     enabled: Boolean(deviceId),
   });
+  const publishers = useMemo(
+    () => Array.from(new Set((softwareQuery.data?.packages ?? []).map((item) => item.publisher).filter((value): value is string => Boolean(value)))).sort(),
+    [softwareQuery.data?.packages],
+  );
+  const visibleSoftware = useMemo(() => {
+    const needle = softwareSearch.trim().toLowerCase();
+    return (softwareQuery.data?.packages ?? []).filter((item) => {
+      if (publisher !== 'all' && item.publisher !== publisher) return false;
+      if (!needle) return true;
+      return [item.displayName, item.productKey, item.publisher, item.version]
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(needle));
+    });
+  }, [publisher, softwareQuery.data?.packages, softwareSearch]);
 
   if (query.isPending) {
     return <div className="page-loading-wrap"><LoadingState label="Loading device…" /></div>;
@@ -50,6 +67,7 @@ export function DeviceDetailPage() {
       </div>
 
       <INNOResourceHeader
+        icon={<span aria-hidden="true">▣</span>}
         title={device.name}
         status={<INNOStatus tone={device.status === 'online' ? 'success' : 'neutral'} dot>{device.status}</INNOStatus>}
         meta={<><span>{model}</span><span>·</span><span>{device.operatingSystem ?? 'Unknown OS'}</span><span>·</span><span>{group}</span></>}
@@ -133,39 +151,45 @@ export function DeviceDetailPage() {
         </div>
       </div>
 
-      <section className="collection-card device-software-card">
-        <div className="collection-head">
-          <div>
-            <h2>Installed software</h2>
-            <p>Latest Devices-owned observation used as evidence for software baselines.</p>
-          </div>
-          {softwareQuery.data ? (
-            <span className={'prod-tag ' + (softwareQuery.data.inventoryStatus === 'complete' ? 'success' : '')}>
-              {softwareQuery.data.inventoryStatus === 'not_reported'
-                ? 'Not reported'
-                : softwareQuery.data.inventoryStatus}
-            </span>
-          ) : null}
-        </div>
+      <INNOCollection className="device-software-card">
+        <INNOCollectionHeader
+          title="Installed software"
+          description="Latest Devices-owned observation used as evidence for software baselines."
+          meta={softwareQuery.data ? (
+            <INNOStatus tone={softwareQuery.data.inventoryStatus === 'complete' ? 'success' : softwareQuery.data.inventoryStatus === 'partial' ? 'warning' : 'neutral'}>
+              {softwareQuery.data.inventoryStatus === 'not_reported' ? 'Not reported' : softwareQuery.data.inventoryStatus}
+            </INNOStatus>
+          ) : undefined}
+        />
+        {softwareQuery.data && softwareQuery.data.inventoryStatus !== 'not_reported' ? (
+          <INNOCollectionToolbar>
+            <INNOSearchField label="Search installed software" value={softwareSearch} onChange={setSoftwareSearch} placeholder="Search installed software…" />
+            <INNOSelectField label="Publisher filter" value={publisher} onChange={setPublisher}>
+              <option value="all">All publishers</option>
+              {publishers.map((item) => <option key={item} value={item}>{item}</option>)}
+            </INNOSelectField>
+            <span className="toolbar-spacer" />
+            <span className="collection-scope">Observed {lastSeen(softwareQuery.data.observedAt)}</span>
+          </INNOCollectionToolbar>
+        ) : null}
         {softwareQuery.isPending ? (
           <div className="collection-state"><LoadingState label="Loading installed software…" /></div>
         ) : softwareQuery.isError ? (
           <div className="collection-state"><ErrorState error={softwareQuery.error} retry={() => void softwareQuery.refetch()} /></div>
         ) : softwareQuery.data.inventoryStatus === 'not_reported' ? (
-          <div className="compact-empty">
-            No software observation has been reported. Baseline evaluation remains unknown.
-          </div>
+          <div className="collection-state"><INNOState kind="empty" title="Software inventory not reported" description="No software observation has been reported. Baseline evaluation remains unknown." /></div>
+        ) : visibleSoftware.length === 0 ? (
+          <div className="collection-state"><INNOState kind="no-results" title="No installed software found" description="Try another software name or publisher." /></div>
         ) : (
           <>
             <div className="software-evidence-bar">
-              <span><b>Observed</b> {lastSeen(softwareQuery.data.observedAt)}</span>
               <span><b>Source</b> {(softwareQuery.data.source ?? 'unknown').replaceAll('_', ' ')}</span>
               <span><b>Evidence</b> {softwareQuery.data.inventoryStatus === 'complete' ? 'Complete snapshot' : 'Partial snapshot · absence is unknown'}</span>
             </div>
-            <div className="production-table-wrap">
-              <table className="production-table">
+            <INNOTableWrap width="wide">
+              <table>
                 <thead><tr><th>Software</th><th>Publisher</th><th>Version</th><th>Architecture</th></tr></thead>
-                <tbody>{softwareQuery.data.packages.map((item) => (
+                <tbody>{visibleSoftware.map((item) => (
                   <tr key={item.productKey}>
                     <td><b>{item.displayName}</b><div className="table-meta">{item.productKey}</div></td>
                     <td>{item.publisher ?? '—'}</td>
@@ -174,10 +198,10 @@ export function DeviceDetailPage() {
                   </tr>
                 ))}</tbody>
               </table>
-            </div>
+            </INNOTableWrap>
           </>
         )}
-      </section>
+      </INNOCollection>
     </main>
   );
 }
