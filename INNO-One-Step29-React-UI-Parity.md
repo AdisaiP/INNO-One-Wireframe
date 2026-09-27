@@ -102,3 +102,8 @@ Implemented mappings:
 No fake Assets actions were introduced. API, permission, ETag, QR, ownership, license, contract and baseline evaluation contracts remain unchanged.
 
 Prepared QA: `production/scripts/step29-assets-parity-browser-qa.py` covers 1366 / 1024 / 768, page overflow, legacy wrappers, shared collections, detail resource patterns and baseline evidence copy. Local typecheck/build, .NET build, browser QA and Step 15–28 regression remain required before Phase 4 may move from `implemented_pending_local_qa` to DONE.
+
+
+### Assets validation status
+
+GitHub Actions recovery build validation passed: Step 29 static parity audit, Step 15–28 regression audits, Web typecheck, Web build and .NET build are all green. Runtime browser QA remains pending until the dedicated ephemeral Postgres/Keycloak/API/Vite/Chrome job completes; Phase 4 is therefore not marked DONE yet.
