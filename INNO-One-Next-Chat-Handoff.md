@@ -1990,3 +1990,69 @@ Remaining Assets work:
 - Step 16 fresh re-validation before merge/release.
 
 **Do not merge `main` without explicit user instruction. No Step 25 work has been started.**
+
+
+# Step 25 — Assets Final Integration Pass ✅ COMPLETED 2026-09-27
+
+Branch: `integration/step25-assets-final-integration`
+
+Implementation Contract: **0.16.0**.
+
+Validated the full canonical chain without adding APIs or database tables:
+
+`Devices → Assets → Helpdesk related Device → QR → Software Licenses → Contracts`
+
+Live fixture:
+
+- Device `DESKTOP-HR-014`
+- Asset `AST-PC-000142`
+- Helpdesk ticket `HD-2026-001048`
+- Microsoft 365 Apps allocation
+- Contract `CTR-2568-IT-014`
+- Live-generated QR label
+
+Live integration results:
+
+- Device `assetReference` = Asset tag: **PASS**
+- Asset `linkedDevice.id` = Device opaque ID: **PASS**
+- Asset owner/custom fields/warranty remain available: **PASS**
+- Helpdesk `relatedDevice.id` = same Device opaque ID: **PASS**
+- Live QR resolve = same Asset + Device identity: **PASS**
+- Microsoft 365 allocation = same Asset + endpoint: **PASS**
+- Contract coverage = same Asset: **PASS**
+- Ownership summary: **PASS**
+- Marker: **STEP25_ASSETS_INTEGRATION_SMOKE_PASS**
+
+Remote DB guards on `172.10.1.58`:
+
+- cross-module DB FKs across Assets / Devices / Helpdesk: **0**
+- Asset → Device links: 3
+- Helpdesk → Device links: 4
+- Software License → Asset links: 10
+- Contract → Asset links: 5
+- QR scan rows observed: 5
+
+Final QA:
+
+- Step 25 audit: **0 issues**
+- contract/API/data/event/skeleton audit chain: **0 issues**
+- frozen static UX audit chain: **0 issues**
+- final visual frozen hash checks: **111 / 111**, issues 0
+- Web typecheck/build: **PASS**
+- .NET build: **0 warnings / 0 errors**
+- EF pending-model checks for Assets / Platform / Devices / Helpdesk: **PASS**
+- `git diff --check`: **PASS**
+- No Web UI source changed in Step 25; the legacy Web input harness is not a Step 25 acceptance surface.
+
+Remaining work before merge/release:
+
+1. **Step 16 fresh re-validation** — explicitly deferred until now; this is the next required gate.
+2. Software Baselines remain deferred because no standalone frozen API/route contract exists.
+3. Do not merge `main` without explicit user instruction.
+
+Source of truth:
+
+- `INNO-One-Step25-Assets-Final-Integration.md`
+- `inno-step25-assets-final-integration.json`
+- `step25-assets-integration-audit.py`
+- `production/scripts/step25-assets-integration-smoke.py`

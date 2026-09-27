@@ -17,8 +17,8 @@ tables = ["assets.software_licenses", "assets.license_allocations"]
 
 if manifest.get("contractVersion") != "0.13.0":
     issues.append("Step 22 manifest must be version 0.13.0")
-if implementation.get("contractVersion") != "0.15.0":
-    issues.append("Implementation Contract must be version 0.15.0")
+if implementation.get("contractVersion") != "0.16.0":
+    issues.append("Implementation Contract must be version 0.16.0")
 if manifest.get("operations") != operations:
     issues.append("Step 22 operation catalog mismatch")
 if manifest.get("webRoutes") != routes:

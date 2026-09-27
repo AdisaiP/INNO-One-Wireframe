@@ -41,8 +41,8 @@ expected_tables = [
 
 if manifest.get("contractVersion") != "0.8.0":
     issues.append("Step 17 manifest must be version 0.8.0")
-if impl.get("contractVersion") != "0.15.0":
-    issues.append("current Implementation Contract must be 0.15.0")
+if impl.get("contractVersion") != "0.16.0":
+    issues.append("current Implementation Contract must be 0.16.0")
 if manifest.get("operations") != expected_operations:
     issues.append("Step 17 operation catalog mismatch")
 if manifest.get("webRoutes") != expected_routes:

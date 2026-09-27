@@ -1,5 +1,5 @@
 {
-  "contractVersion": "0.15.0",
+  "contractVersion": "0.16.0",
   "status": "implementation-in-progress",
   "generatedFrom": {
     "designSystem": "V1.26",
@@ -499,6 +499,30 @@
       "recent_scan_history"
     ],
     "persistedQrTokens": false,
+    "featureImplementationStarted": true
+  },
+  "assetsFinalIntegrationPass": {
+    "version": "0.16.0",
+    "name": "Assets Final Integration Pass",
+    "documentation": "INNO-One-Step25-Assets-Final-Integration.md",
+    "manifest": "inno-step25-assets-final-integration.json",
+    "audit": "step25-assets-integration-audit.py",
+    "liveSmoke": "production/scripts/step25-assets-integration-smoke.py",
+    "modules": [
+      "devices",
+      "assets",
+      "helpdesk"
+    ],
+    "assetsCapabilities": [
+      "core",
+      "ownership",
+      "custom-fields",
+      "qr",
+      "software-licenses",
+      "contracts"
+    ],
+    "newApiOperations": [],
+    "newDatabaseTables": [],
     "featureImplementationStarted": true
   }
 }

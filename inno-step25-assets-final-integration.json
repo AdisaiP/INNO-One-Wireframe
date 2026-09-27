@@ -1,0 +1,75 @@
+{
+  "contractVersion": "0.16.0",
+  "status": "completed",
+  "name": "Assets Final Integration Pass",
+  "documentation": "INNO-One-Step25-Assets-Final-Integration.md",
+  "audit": "step25-assets-integration-audit.py",
+  "liveSmoke": "production/scripts/step25-assets-integration-smoke.py",
+  "modules": [
+    "devices",
+    "assets",
+    "helpdesk"
+  ],
+  "assetsCapabilities": [
+    "core",
+    "ownership",
+    "custom-fields",
+    "qr",
+    "software-licenses",
+    "contracts"
+  ],
+  "canonicalFixture": {
+    "device": "DESKTOP-HR-014",
+    "asset": "AST-PC-000142",
+    "ticket": "HD-2026-001048",
+    "license": "Microsoft 365 Apps",
+    "contract": "CTR-2568-IT-014"
+  },
+  "newApiOperations": [],
+  "newDatabaseTables": [],
+  "crossModuleForeignKeys": false,
+  "deferred": [
+    "software-baselines"
+  ],
+  "deferredStep16Revalidation": true,
+  "qa": {
+    "liveIntegrationSmoke": "STEP25_ASSETS_INTEGRATION_SMOKE_PASS",
+    "step25Audit": {
+      "status": "PASS",
+      "issues": 0
+    },
+    "contractAuditChain": {
+      "status": "PASS",
+      "issues": 0
+    },
+    "staticUxAuditChain": {
+      "status": "PASS",
+      "issues": 0
+    },
+    "webTypecheckBuild": "PASS",
+    "dotnetBuild": {
+      "status": "PASS",
+      "warnings": 0,
+      "errors": 0
+    },
+    "efPendingModelChanges": {
+      "assets": "PASS",
+      "platform": "PASS",
+      "devices": "PASS",
+      "helpdesk": "PASS"
+    },
+    "remoteDatabaseGuards": {
+      "crossModuleForeignKeys": 0,
+      "assetDeviceLinks": 3,
+      "helpdeskDeviceLinks": 4,
+      "licenseAssetLinks": 10,
+      "contractAssetLinks": 5,
+      "qrScanRowsObserved": 5
+    },
+    "browserRegression": {
+      "status": "NOT_APPLICABLE_NO_UI_DELTA",
+      "evidence": "final-visual hash audit 111/111 and frozen static UX audits passed; Step 25 adds integration QA only."
+    },
+    "gitDiffCheck": "PASS"
+  }
+}
