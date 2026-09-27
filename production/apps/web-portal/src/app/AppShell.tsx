@@ -42,6 +42,8 @@ export function AppShell() {
   const inDeviceDetail = /^\/devices\/[^/]+$/.test(location.pathname)
     && !['/devices/discovery', '/devices/groups', '/devices/add'].includes(location.pathname);
   const inAssets = location.pathname.startsWith('/assets');
+  const inAssetDetail = /^\/assets\/[^/]+$/.test(location.pathname)
+    && !['/assets/inventory', '/assets/ownership', '/assets/owners', '/assets/custom-fields', '/assets/qr-labels', '/assets/software-baselines', '/assets/software-licenses', '/assets/contracts'].includes(location.pathname);
   const inHelpdesk = location.pathname.startsWith('/helpdesk');
   const inProfile = location.pathname.startsWith('/profile');
   const homePath = canViewDevices ? '/devices' : canViewHelpdesk ? '/helpdesk' : canViewAssets ? '/assets' : '/profile';
@@ -152,7 +154,7 @@ export function AppShell() {
               <div className="prod-side-title">Assets</div>
               <div className="prod-side-section">Inventory</div>
               <NavLink end to="/assets">Overview</NavLink>
-              <NavLink to="/assets/inventory">Asset Inventory</NavLink>
+              <NavLink to="/assets/inventory" className={({ isActive }) => isActive || inAssetDetail ? 'active' : ''}>Asset Inventory</NavLink>
               <div className="prod-side-section">Management</div>
               <NavLink to="/assets/software-baselines">Software Baselines</NavLink>
               {canManageAssetLicenses ? <NavLink to="/assets/software-licenses">Software Licenses</NavLink> : null}
