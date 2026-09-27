@@ -2142,3 +2142,17 @@
   border-top: 1px solid var(--ds-border);
   background: #fafbfc;
 }
+
+/* Step 27 · Devices software inventory evidence */
+.device-software-card { margin-top: 16px; }
+.software-evidence-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 24px;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--ds-border);
+  background: #f8fafc;
+  color: #586579;
+  font-size: 11px;
+}
+.software-evidence-bar b { color: #273449; margin-right: 4px; }

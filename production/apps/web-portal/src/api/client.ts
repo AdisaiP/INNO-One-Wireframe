@@ -25,6 +25,7 @@ import type {
   BusinessCalendar,
   CreatedTicket,
   DeviceDetail,
+  DeviceSoftwareInventory,
   DeviceGroupDetail,
   DeviceGroupListItem,
   DeviceGroupMember,
@@ -127,6 +128,14 @@ export async function getDevices(query: DeviceQuery): Promise<PagedResponse<Devi
 export async function getDevice(deviceId: string): Promise<DeviceDetail> {
   const response = await request<ResourceEnvelope<DeviceDetail>>(
     '/devices/' + encodeURIComponent(deviceId),
+  );
+  return response.data;
+}
+
+
+export async function getDeviceSoftwareInventory(deviceId: string): Promise<DeviceSoftwareInventory> {
+  const response = await request<ResourceEnvelope<DeviceSoftwareInventory>>(
+    '/devices/' + encodeURIComponent(deviceId) + '/software-inventory',
   );
   return response.data;
 }

@@ -1,10 +1,10 @@
 {
-  "contractVersion": "0.3.0",
+  "contractVersion": "0.4.0",
   "status": "implementation-planning",
   "generatedFrom": {
     "designSystem": "V1.26",
     "uiContract": "1.20.0",
-    "implementationContract": "0.2.0",
+    "implementationContract": "0.18.0",
     "frozenAt": "2026-09-26"
   },
   "basePath": "/api/v1",
@@ -2317,6 +2317,30 @@
       "response": "resource",
       "screens": [
         "/assets/software-baselines"
+      ]
+    },
+    {
+      "id": "devices.software_inventory.get",
+      "method": "GET",
+      "path": "/devices/{deviceId}/software-inventory",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "device-detail-v2.html"
+      ]
+    },
+    {
+      "id": "devices.software_inventory.put",
+      "method": "PUT",
+      "path": "/devices/{deviceId}/software-inventory",
+      "module": "devices",
+      "permission": "devices.manage",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "device-detail-v2.html"
       ]
     }
   ],

@@ -1,11 +1,11 @@
 {
-  "contractVersion": "0.3.0",
+  "contractVersion": "0.4.0",
   "status": "implementation-planning",
   "generatedFrom": {
     "designSystem": "V1.26",
     "uiContract": "1.20.0",
-    "implementationContract": "0.3.0",
-    "apiContract": "0.2.0",
+    "implementationContract": "0.18.0",
+    "apiContract": "0.4.0",
     "frozenAt": "2026-09-26"
   },
   "eventModel": {
@@ -156,6 +156,24 @@
         "offlineAt",
         "lastSeenAt",
         "source"
+      ],
+      "delivery": "at-least-once",
+      "classification": "internal"
+    },
+    {
+      "type": "device.software_inventory.observed",
+      "version": 1,
+      "producer": "devices",
+      "phase": "active",
+      "kind": "integration",
+      "subjectType": "device",
+      "payloadFields": [
+        "deviceId",
+        "snapshotId",
+        "observedAt",
+        "completeness",
+        "source",
+        "packageCount"
       ],
       "delivery": "at-least-once",
       "classification": "internal"
@@ -1206,6 +1224,13 @@
       "targetType": "authorization_decision",
       "retentionClass": "security_long",
       "sensitivity": "restricted"
+    },
+    {
+      "action": "devices.software_inventory.observed",
+      "module": "devices",
+      "targetType": "device",
+      "retentionClass": "operational_standard",
+      "sensitivity": "internal"
     }
   ],
   "privacy": {
@@ -1228,7 +1253,8 @@
       "meeting audio, transcript text and summary body are referenced by IDs, not copied into integration events or generic audit metadata",
       "remote chat message body is not copied into integration event; use messageId",
       "file contents are never embedded; use fileId and safe metadata",
-      "QR scan events never persist the raw QR token; use assetId/scanId/token fingerprint if needed"
+      "QR scan events never persist the raw QR token; use assetId/scanId/token fingerprint if needed",
+      "whole device software inventory is referenced by snapshotId, not copied into integration events or generic audit metadata"
     ],
     "piiRule": "store only identifiers and minimum context needed for business/security purpose"
   },

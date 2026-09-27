@@ -93,6 +93,7 @@ var api = app.MapGroup(ContractVersions.ApiBasePath)
 api.MapPlatformEndpoints();
 api.MapDevicesEndpoints();
 api.MapDeviceManagementEndpoints();
+api.MapDeviceSoftwareInventoryEndpoints();
 api.MapAssetsEndpoints();
 api.MapAssetsCustomFieldEndpoints();
 api.MapAssetsQrEndpoints();

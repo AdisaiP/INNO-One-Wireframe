@@ -77,6 +77,27 @@ export interface DeviceDetail {
   managementEngine?: string | null;
 }
 
+
+export interface DeviceSoftwarePackage {
+  productKey: string;
+  displayName: string;
+  version?: string | null;
+  publisher?: string | null;
+  architecture?: string | null;
+}
+
+export interface DeviceSoftwareInventory {
+  deviceId: string;
+  inventoryStatus: 'not_reported' | 'complete' | 'partial';
+  snapshotId?: string | null;
+  observedAt?: string | null;
+  receivedAt?: string | null;
+  source?: string | null;
+  sourceInstance?: string | null;
+  packageCount: number;
+  packages: DeviceSoftwarePackage[];
+}
+
 export interface DeviceGroupListItem {
   id: string;
   code: string;

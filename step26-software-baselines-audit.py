@@ -8,8 +8,8 @@ imp=json.loads((r/'inno-implementation-contract.json').read_text())
 source=(r/'production/services/platform-api/src/Modules/Assets/Api/SoftwareBaselineEndpoints.cs').read_text()
 issues=[]
 ops=m['operations']
-if imp.get('contractVersion')!='0.17.0':issues.append('implementation version')
-if api.get('contractVersion')!='0.3.0':issues.append('API version')
+if imp.get('contractVersion')!='0.18.0':issues.append('implementation version')
+if api.get('contractVersion')!='0.4.0':issues.append('API version')
 if [e['id'] for e in api['endpoints'] if e['id'].startswith('assets.baselines.')]!=ops:issues.append('API operation catalog')
 if imp.get('softwareBaselineDefinitionsSlice',{}).get('implementedOperations')!=ops:issues.append('implementation operation catalog')
 for op in ops:

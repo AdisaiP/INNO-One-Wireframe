@@ -17,6 +17,7 @@ public static class DevicesModule
             .UseSnakeCaseNamingConvention());
 
         services.AddScoped<IDeviceDirectoryReader, DeviceDirectoryReader>();
+        services.AddScoped<IDeviceSoftwareInventoryReader, DeviceSoftwareInventoryReader>();
         services.AddScoped<DeviceLedgerWriter>();
         services.AddHostedService<DiscoveryScanWorker>();
         services.AddHostedService<MeshCentralSyncWorker>();

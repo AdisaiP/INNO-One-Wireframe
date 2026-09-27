@@ -1,5 +1,5 @@
 {
-  "contractVersion": "0.17.0",
+  "contractVersion": "0.18.0",
   "status": "implementation-in-progress",
   "generatedFrom": {
     "designSystem": "V1.26",
@@ -187,13 +187,13 @@
     ]
   },
   "apiContract": {
-    "version": "0.3.0",
+    "version": "0.4.0",
     "basePath": "/api/v1",
     "source": "inno-api-contract.json",
     "openApi": "openapi-inno-one-v1.json"
   },
   "eventAuditContract": {
-    "version": "0.3.0",
+    "version": "0.4.0",
     "source": "inno-event-audit-contract.json",
     "documentation": "INNO-One-Event-Audit-Contract.md",
     "audit": "event-audit-contract-audit.py",
@@ -203,7 +203,7 @@
     "crossModuleDurability": "transactional-outbox"
   },
   "dataModelContract": {
-    "version": "0.4.0",
+    "version": "0.5.0",
     "documentation": "INNO-One-Data-Ownership-Database-Contract.md",
     "source": "inno-data-model-contract.json",
     "audit": "data-model-contract-audit.py",
@@ -544,7 +544,35 @@
       "software_baselines"
     ],
     "evaluationStatus": "awaiting_inventory",
-    "installedSoftwareSource": "Devices contract required; no feed implemented",
+    "installedSoftwareSource": "IDeviceSoftwareInventoryReader from Step 27; evaluator remains pending",
     "activeEvents": []
+  },
+  "devicesSoftwareInventorySlice": {
+    "version": "0.18.0",
+    "name": "Devices Installed Software Inventory",
+    "documentation": "INNO-One-Step27-Devices-Software-Inventory.md",
+    "manifest": "inno-step27-devices-software-inventory.json",
+    "audit": "step27-devices-software-inventory-audit.py",
+    "implementedOperations": [
+      "devices.software_inventory.get",
+      "devices.software_inventory.put"
+    ],
+    "webRoutes": [
+      "/devices/:deviceId"
+    ],
+    "persistence": [
+      "software_inventory_snapshots",
+      "installed_software"
+    ],
+    "crossModuleReadContract": "IDeviceSoftwareInventoryReader",
+    "activeEvents": [
+      "device.software_inventory.observed"
+    ],
+    "completenessStates": [
+      "complete",
+      "partial"
+    ],
+    "staleOverwriteRejected": true,
+    "featureImplementationStarted": true
   }
 }

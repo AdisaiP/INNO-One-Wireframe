@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
-import { getDevice } from '../api/client';
+import { getDevice, getDeviceSoftwareInventory } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 
 function metric(value?: number | null, suffix = '') {
@@ -22,6 +22,11 @@ export function DeviceDetailPage() {
   const query = useQuery({
     queryKey: ['device', deviceId],
     queryFn: () => getDevice(deviceId),
+    enabled: Boolean(deviceId),
+  });
+  const softwareQuery = useQuery({
+    queryKey: ['device', deviceId, 'software-inventory'],
+    queryFn: () => getDeviceSoftwareInventory(deviceId),
     enabled: Boolean(deviceId),
   });
 
@@ -132,6 +137,52 @@ export function DeviceDetailPage() {
           </section>
         </div>
       </div>
+
+      <section className="collection-card device-software-card">
+        <div className="collection-head">
+          <div>
+            <h2>Installed software</h2>
+            <p>Latest Devices-owned observation used as evidence for software baselines.</p>
+          </div>
+          {softwareQuery.data ? (
+            <span className={'prod-tag ' + (softwareQuery.data.inventoryStatus === 'complete' ? 'success' : '')}>
+              {softwareQuery.data.inventoryStatus === 'not_reported'
+                ? 'Not reported'
+                : softwareQuery.data.inventoryStatus}
+            </span>
+          ) : null}
+        </div>
+        {softwareQuery.isPending ? (
+          <div className="collection-state"><LoadingState label="Loading installed software…" /></div>
+        ) : softwareQuery.isError ? (
+          <div className="collection-state"><ErrorState error={softwareQuery.error} retry={() => void softwareQuery.refetch()} /></div>
+        ) : softwareQuery.data.inventoryStatus === 'not_reported' ? (
+          <div className="compact-empty">
+            No software observation has been reported. Baseline evaluation remains unknown.
+          </div>
+        ) : (
+          <>
+            <div className="software-evidence-bar">
+              <span><b>Observed</b> {lastSeen(softwareQuery.data.observedAt)}</span>
+              <span><b>Source</b> {(softwareQuery.data.source ?? 'unknown').replaceAll('_', ' ')}</span>
+              <span><b>Evidence</b> {softwareQuery.data.inventoryStatus === 'complete' ? 'Complete snapshot' : 'Partial snapshot · absence is unknown'}</span>
+            </div>
+            <div className="production-table-wrap">
+              <table className="production-table">
+                <thead><tr><th>Software</th><th>Publisher</th><th>Version</th><th>Architecture</th></tr></thead>
+                <tbody>{softwareQuery.data.packages.map((item) => (
+                  <tr key={item.productKey}>
+                    <td><b>{item.displayName}</b><div className="table-meta">{item.productKey}</div></td>
+                    <td>{item.publisher ?? '—'}</td>
+                    <td>{item.version ?? '—'}</td>
+                    <td>{item.architecture ?? '—'}</td>
+                  </tr>
+                ))}</tbody>
+              </table>
+            </div>
+          </>
+        )}
+      </section>
     </main>
   );
 }

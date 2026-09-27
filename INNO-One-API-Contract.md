@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-26  
 **Status:** Implementation planning contract  
-**API Contract:** 0.3.0
+**API Contract:** 0.4.0
 **UX/UI baseline:** Design System V1.26 / UI Contract 1.20.0  
 **Architecture Contract:** 0.2.0  
 **Scope:** Step 11 — API Contract  
@@ -1249,3 +1249,8 @@ The remaining API catalog is still planning-only until later vertical slices imp
 
 Software baseline definitions add GET/POST /assets/software-baselines and GET/PATCH /assets/software-baselines/{baselineId}.
 Reading requires assets.view; writing requires assets.baseline.manage. Updates require If-Match and return 412 on stale or missing ETag. The list is global configuration, not an Asset compliance count. Each response reports evaluationStatus=awaiting_inventory until a trustworthy Devices software-inventory contract exists.
+
+
+## Step 27 additive boundary — Devices installed software
+
+`GET /devices/{deviceId}/software-inventory` returns the latest Devices-owned observation. `PUT` records a newer immutable snapshot with completeness and provenance. Read uses `devices.view`; ingest uses `devices.manage`; both enforce effective Device scope. Partial observations never prove absence. Assets consumes `IDeviceSoftwareInventoryReader`; package rows are not exposed through direct database access.

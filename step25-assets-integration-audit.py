@@ -15,8 +15,8 @@ implementation = json.loads(
 
 if manifest.get("contractVersion") != "0.16.0":
     issues.append("Step 25 manifest must be version 0.16.0")
-if implementation.get("contractVersion") != "0.17.0":
-    issues.append("Implementation Contract must be version 0.17.0")
+if implementation.get("contractVersion") != "0.18.0":
+    issues.append("Implementation Contract must be version 0.18.0")
 if manifest.get("newApiOperations") != []:
     issues.append("Step 25 must not invent API operations")
 if manifest.get("newDatabaseTables") != []:

@@ -46,6 +46,7 @@ public static class DevicesDevelopmentSeed
                 await db.SaveChangesAsync(cancellationToken);
             }
 
+            await SeedSoftwareInventoryAsync(db, cancellationToken);
             return;
         }
 
@@ -148,5 +149,65 @@ public static class DevicesDevelopmentSeed
         }));
 
         await db.SaveChangesAsync(cancellationToken);
+        await SeedSoftwareInventoryAsync(db, cancellationToken);
+    }
+
+    private static async Task SeedSoftwareInventoryAsync(
+        DevicesDbContext db,
+        CancellationToken cancellationToken)
+    {
+        if (await db.SoftwareInventorySnapshots.AnyAsync(cancellationToken))
+        {
+            return;
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        var snapshots = new[]
+        {
+            Snapshot("83000000-0000-0000-0000-000000000001", "80000000-0000-0000-0000-000000000001", now.AddMinutes(-8), "complete", 4),
+            Snapshot("83000000-0000-0000-0000-000000000002", "80000000-0000-0000-0000-000000000002", now.AddMinutes(-12), "complete", 4),
+            Snapshot("83000000-0000-0000-0000-000000000003", "80000000-0000-0000-0000-000000000003", now.AddHours(-2), "partial", 2)
+        };
+        db.SoftwareInventorySnapshots.AddRange(snapshots);
+        db.InstalledSoftware.AddRange(
+            Package("83100000-0000-0000-0000-000000000001", snapshots[0].Id, "microsoft:365-apps", "Microsoft 365 Apps", "2408", "Microsoft Corporation", "x64"),
+            Package("83100000-0000-0000-0000-000000000002", snapshots[0].Id, "google:chrome", "Google Chrome", "129.0.6668.71", "Google LLC", "x64"),
+            Package("83100000-0000-0000-0000-000000000003", snapshots[0].Id, "7zip:7-zip", "7-Zip", "24.08", "Igor Pavlov", "x64"),
+            Package("83100000-0000-0000-0000-000000000004", snapshots[0].Id, "inno:endpoint-agent", "INNO.One Endpoint Agent", "1.8.4", "Innovations Solutions and Service", "x64"),
+            Package("83100000-0000-0000-0000-000000000005", snapshots[1].Id, "microsoft:visual-studio-code", "Visual Studio Code", "1.94.0", "Microsoft Corporation", "universal"),
+            Package("83100000-0000-0000-0000-000000000006", snapshots[1].Id, "docker:desktop", "Docker Desktop", "4.34.3", "Docker Inc.", "x64"),
+            Package("83100000-0000-0000-0000-000000000007", snapshots[1].Id, "git:git", "Git", "2.46.2", "Git Project", "x64"),
+            Package("83100000-0000-0000-0000-000000000008", snapshots[1].Id, "inno:endpoint-agent", "INNO.One Endpoint Agent", "1.8.4", "Innovations Solutions and Service", "x64"),
+            Package("83100000-0000-0000-0000-000000000009", snapshots[2].Id, "microsoft:dotnet-runtime", ".NET Runtime", "10.0.0", "Microsoft Corporation", "x64"),
+            Package("83100000-0000-0000-0000-000000000010", snapshots[2].Id, "inno:endpoint-agent", "INNO.One Endpoint Agent", "1.8.4", "Innovations Solutions and Service", "x64"));
+        await db.SaveChangesAsync(cancellationToken);
+
+        static DeviceSoftwareInventorySnapshot Snapshot(
+            string id, string deviceId, DateTimeOffset observedAt, string completeness, int packageCount) =>
+            new()
+            {
+                Id = Guid.Parse(id),
+                DeviceId = Guid.Parse(deviceId),
+                ObservedAt = observedAt,
+                ReceivedAt = observedAt.AddSeconds(4),
+                Completeness = completeness,
+                Source = "endpoint_agent",
+                SourceInstance = "development-seed",
+                PackageCount = packageCount
+            };
+
+        static DeviceInstalledSoftware Package(
+            string id, Guid snapshotId, string key, string name, string version,
+            string publisher, string architecture) =>
+            new()
+            {
+                Id = Guid.Parse(id),
+                SnapshotId = snapshotId,
+                ProductKey = key,
+                DisplayName = name,
+                Version = version,
+                Publisher = publisher,
+                Architecture = architecture
+            };
     }
 }

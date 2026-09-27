@@ -1,0 +1,68 @@
+{
+  "contractVersion": "0.18.0",
+  "status": "implemented-verified",
+  "operations": [
+    "devices.software_inventory.get",
+    "devices.software_inventory.put"
+  ],
+  "webRoutes": [
+    "/devices/:deviceId"
+  ],
+  "persistence": {
+    "newTables": [
+      "devices.software_inventory_snapshots",
+      "devices.installed_software"
+    ],
+    "immutableSnapshots": true,
+    "crossModuleForeignKeys": false
+  },
+  "permissions": {
+    "read": "devices.view",
+    "write": "devices.manage"
+  },
+  "readContract": "IDeviceSoftwareInventoryReader",
+  "completeness": [
+    "complete",
+    "partial"
+  ],
+  "provenance": [
+    "endpoint_agent",
+    "meshcentral",
+    "manual_import"
+  ],
+  "activeEvents": [
+    "device.software_inventory.observed"
+  ],
+  "auditActions": [
+    "devices.software_inventory.observed"
+  ],
+  "staleOverwriteRejected": true,
+  "baselineEvaluationImplemented": false,
+  "qa": {
+    "staticAudits": "PASS",
+    "runtimeSmoke": "PASS",
+    "dotnetBuild": {
+      "status": "PASS",
+      "warnings": 0,
+      "errors": 0
+    },
+    "webTypecheckBuild": "PASS",
+    "visualQa": {
+      "status": "PASS",
+      "screens": 6,
+      "viewports": [
+        1366,
+        1024,
+        768
+      ],
+      "failures": 0
+    },
+    "databaseGuards": {
+      "migration": 1,
+      "audit": 1,
+      "event": 1,
+      "crossModuleForeignKeys": 0,
+      "qaRemaining": 0
+    }
+  }
+}
