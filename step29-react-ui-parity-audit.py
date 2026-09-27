@@ -21,7 +21,13 @@ asset_qr=(root/'production/apps/web-portal/src/pages/AssetQrLabelsPage.tsx').rea
 software_baselines=(root/'production/apps/web-portal/src/pages/SoftwareBaselinesPage.tsx').read_text()
 software_licenses=(root/'production/apps/web-portal/src/pages/SoftwareLicensesPage.tsx').read_text()
 contracts=(root/'production/apps/web-portal/src/pages/ContractsWarrantyPage.tsx').read_text()
+helpdesk_overview=(root/'production/apps/web-portal/src/pages/HelpdeskOverviewPage.tsx').read_text()
+tickets=(root/'production/apps/web-portal/src/pages/TicketsPage.tsx').read_text()
+ticket_detail=(root/'production/apps/web-portal/src/pages/TicketDetailPage.tsx').read_text()
+helpdesk_sla=(root/'production/apps/web-portal/src/pages/HelpdeskSlaPage.tsx').read_text()
+business_calendar=(root/'production/apps/web-portal/src/pages/BusinessCalendarPage.tsx').read_text()
 automation=(root/'production/apps/web-portal/src/pages/AutomationRulesPage.tsx').read_text()
+automation_rule=(root/'production/apps/web-portal/src/pages/AutomationRulePage.tsx').read_text()
 device_detail=(root/'production/apps/web-portal/src/pages/DeviceDetailPage.tsx').read_text()
 discovery=(root/'production/apps/web-portal/src/pages/DiscoveryPage.tsx').read_text()
 device_groups=(root/'production/apps/web-portal/src/pages/DeviceGroupsPage.tsx').read_text()
@@ -36,6 +42,8 @@ if manifest.get('frozenDesignSystem') != 'V1.26': issues.append('design system b
 if manifest.get('frozenUiContract') != '1.20.0': issues.append('ui contract baseline')
 if manifest.get('completedPhases') != ['shell', 'shared_primitives', 'devices', 'assets']: issues.append('completed phases')
 if manifest.get('nextPhase') != 'helpdesk': issues.append('next phase')
+if manifest.get('inProgressPhase') != 'helpdesk': issues.append('helpdesk in-progress phase')
+if manifest.get('helpdeskImplementationStatus') != 'implemented_pending_qa': issues.append('helpdesk implementation status')
 assets_validation = manifest.get('assetsValidation', {})
 if assets_validation.get('browserQa') != 'passed' or assets_validation.get('browserQaFailures') != 0:
     issues.append('assets browser qa status')
@@ -160,6 +168,46 @@ for name, source in [('asset detail', asset_detail), ('asset custom fields', ass
 for marker in ['Evaluation uses Devices observations from the last 24 hours',
                "item.status === 'compliant' ? 'success' : item.status === 'missing' ? 'danger' : 'warning'"]:
     if marker not in software_baselines: issues.append('software baseline evidence ui '+marker)
+
+
+expected_helpdesk_routes = [
+    '/helpdesk','/helpdesk/tickets','/helpdesk/assigned','/helpdesk/team',
+    '/helpdesk/tickets/new','/helpdesk/tickets/:ticketId','/helpdesk/sla',
+    '/helpdesk/calendar','/helpdesk/automation','/helpdesk/automation/new',
+    '/helpdesk/automation/:ruleId'
+]
+if manifest.get('helpdeskParityRoutes') != expected_helpdesk_routes:
+    issues.append('helpdesk parity routes')
+
+helpdesk_pages = [
+    ('helpdesk overview', helpdesk_overview), ('tickets', tickets), ('ticket create', ticket_create),
+    ('ticket detail', ticket_detail), ('sla', helpdesk_sla), ('business calendar', business_calendar),
+    ('automation', automation), ('automation rule', automation_rule)
+]
+for name, source in helpdesk_pages:
+    for legacy in ['collection-card','production-table-wrap','page-helper','production-resource-head',
+                   'resource-title-line','className="editor-footer"','compact-empty']:
+        if legacy in source: issues.append(name+' legacy '+legacy)
+
+for marker in ['INNOCollection','INNOCollectionToolbar','INNOPagination']:
+    if marker not in tickets: issues.append('tickets missing '+marker)
+if 'helpdesk-operational-queue' not in tickets: issues.append('tickets missing operational queue')
+for marker in ['INNOResourceHeader','INNOEditorFooter','busy={resolveMutation.isPending}',
+               'busy={assignMutation.isPending}','busy={replyMutation.isPending}']:
+    if marker not in ticket_detail: issues.append('ticket detail missing '+marker)
+if '<INNOPage' in ticket_detail: issues.append('ticket detail duplicate page header')
+for marker in ['INNOEditorFooter','busy={mutation.isPending}']:
+    if marker not in ticket_create: issues.append('ticket create missing '+marker)
+for marker in ['INNOEditorFooter','Business Calendar','INNOState compact kind="error"']:
+    if marker not in helpdesk_sla: issues.append('sla missing '+marker)
+for marker in ['INNOEditorFooter','INNOTableWrap','INNOStatus']:
+    if marker not in business_calendar: issues.append('calendar missing '+marker)
+for marker in ['INNOCollection','INNOCollectionToolbar','INNOTableWrap','INNOPagination']:
+    if marker not in automation: issues.append('automation missing '+marker)
+for marker in ['INNOEditorFooter','INNOStatus','INNOState compact kind="empty"']:
+    if marker not in automation_rule: issues.append('automation rule missing '+marker)
+for marker in ['inTicketWorkspace','isActive || inTicketWorkspace']:
+    if marker not in shell: issues.append('ticket workspace navigation '+marker)
 
 print('step29_completed_phases='+','.join(manifest.get('completedPhases',[])))
 print('step29_next_phase='+str(manifest.get('nextPhase')))
