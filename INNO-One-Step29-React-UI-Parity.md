@@ -26,7 +26,8 @@ Bring the production React Web Portal back to the approved frozen prototype lang
 3. Devices routes. **DONE — browser regression 61/61 + static parity guard.**
 4. Assets routes. **DONE — browser regression 141/141 + static/build regression.**
 5. Helpdesk routes. **DONE — browser regression 159/159 + static/build regression.**
-6. Profile and remaining currently implemented production routes. **NEXT.**
+6. Profile and remaining currently implemented production routes. **DONE — browser regression 60/60 + static/build regression.**
+7. Final full parity audit. **NEXT.**
 5. Helpdesk routes.
 6. Profile and remaining currently implemented production routes.
 
@@ -125,3 +126,15 @@ Phase 5 is complete and validated across the production Helpdesk routes:
 - `/helpdesk/automation/new` and `/helpdesk/automation/:ruleId`: canonical automation editor footer, status treatment and empty execution state.
 
 Browser QA passed **159 / 159**, 0 failures at 1366 / 1024 / 768. Step 29 static audit, Step 15–28 regression, Web typecheck/build and .NET build are also green. No fake Helpdesk actions were introduced and ticket/SLA/automation API behavior remains unchanged.
+
+
+## Profile and remaining routes checkpoint
+
+Phase 6 is complete:
+- `/profile` now uses the frozen Profile & Settings hierarchy with shared status treatment and an explicit availability note for preferences that do not yet have persistence contracts.
+- Unauthorized implemented routes use the canonical `permission` state.
+- Future module boundaries use the canonical `disabled` state and remain out of normal navigation.
+- Unknown routes use the canonical `no-results` state.
+- Direct future routes no longer fall through to Devices contextual navigation; they use a neutral INNO.One workspace context.
+
+Browser QA passed **60 / 60**, 0 failures at 1366 / 1024 / 768. Step 29 static audit, Step 15–28 regression, Web typecheck/build and .NET build are green.
