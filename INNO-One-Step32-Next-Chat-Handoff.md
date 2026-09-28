@@ -3,7 +3,7 @@
 Last updated: 2026-09-28
 Step: **32 — Admin Integrations Center**
 Branch: `implementation/step32-admin-integrations-center`
-Status: **IMPLEMENTED / STATIC GREEN — runtime + browser QA pending VPN reconnect**
+Status: **COMPLETE — static/build/runtime/browser QA passed**
 
 ## Scope
 
@@ -89,28 +89,45 @@ Build:
 - .NET errors: 0
 - `git diff --check`: PASS
 
-Prepared:
-- `step32-runtime-qa.py`
-- `step32-browser-qa.py`
-- both Python scripts compile successfully
-## Pending
+Runtime:
+- VPN-connected server: `172.10.1.58`
+- PostgreSQL 17 reachable
+- Keycloak 26.4.0 reachable
+- MeshCentral reachable over TLS
+- `step32-runtime-qa.py`: **50 / 50 PASS**
+- Core Database health: connected
+- Keycloak health: connected
+- MeshCentral health: connected
+- real connection-test endpoints passed for all three providers
+- viewer authorization denied correctly
+- secret-leak checks passed
 
-VPN to `172.10.1.58` dropped during Step 32.
+Browser / visual:
+- real Keycloak login
+- 1366 / 1024 / 768 responsive checks
+- `step32-browser-qa.py`: **37 / 37 PASS**
+- all three providers rendered as Connected
+- no page-level horizontal overflow
+- one active Admin rail entry
+- no password fields or fake integration create/edit/save actions
+- Refresh Health and real Test actions visible
+- representative screenshots visually reviewed at 1366 / 1024 / 768
 
-Current Windows state showed:
-- Fortinet SSL VPN adapter still Up
-- stale route `172.10.1.0/24 -> 10.212.134.202`
-- VPN gateway not reachable
-- Keycloak/PostgreSQL/MeshCentral runtime therefore unreachable
+Final regression:
+- Steps 15–32 static audits: PASS
+- TypeScript typecheck: PASS
+- Vite production build: PASS
+- .NET build: 0 warnings / 0 errors
+- `git diff --check`: PASS
+- final marker: `STEP32_FINAL_CHAIN=PASS`
 
-After VPN reconnect:
-1. start current API against PostgreSQL + Keycloak + MeshCentral on `172.10.1.58`
-2. run `step32-runtime-qa.py`
-3. run browser QA at 1366 / 1024 / 768
-4. visually inspect representative screenshots
-5. rerun final regression
-6. update this handoff to COMPLETE
-7. commit/push completion checkpoint
+## Next action
+
+Step 32 is closed.
+
+Meeting remains intentionally deferred.
+
+The next planned platform area is **Step 33 — Audit Center**. Define/confirm the exact Step 33 scope before implementation.
 
 Do not merge `main`.
 Do not deploy.
