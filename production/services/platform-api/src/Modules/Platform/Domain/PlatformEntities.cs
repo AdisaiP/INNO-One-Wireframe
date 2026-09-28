@@ -127,3 +127,16 @@ public sealed class PlatformNotification
     public DateTimeOffset? ReadAt { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
 }
+
+public sealed class PlatformActivityItem
+{
+    public Guid Id { get; set; }
+    public Guid UserId { get; set; }
+    public required string SourceModule { get; set; }
+    public required string ResourceType { get; set; }
+    public required string ResourceId { get; set; }
+    public required string Title { get; set; }
+    public required string Activity { get; set; }
+    public required string DestinationPath { get; set; }
+    public DateTimeOffset OccurredAt { get; set; }
+}

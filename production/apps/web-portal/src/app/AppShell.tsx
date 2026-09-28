@@ -13,10 +13,11 @@ function initials(name: string): string {
     .join('');
 }
 
-type ShellIconName = 'apps' | 'devices' | 'assets' | 'helpdesk' | 'admin' | 'profile' | 'search' | 'menu' | 'bell';
+type ShellIconName = 'home' | 'apps' | 'devices' | 'assets' | 'helpdesk' | 'admin' | 'profile' | 'search' | 'menu' | 'bell';
 
 function ShellIcon({ name }: { name: ShellIconName }) {
   const common = { width: 18, height: 18, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.9 } as const;
+  if (name === 'home') return <svg {...common} aria-hidden="true"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10M9 20v-6h6v6"/></svg>;
   if (name === 'apps') return <svg {...common} aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg>;
   if (name === 'devices') return <svg {...common} aria-hidden="true"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 22h8M12 18v4"/></svg>;
   if (name === 'assets') return <svg {...common} aria-hidden="true"><path d="m12 3 8 4.5-8 4.5-8-4.5L12 3Z"/><path d="m4 12 8 4.5 8-4.5M4 16.5 12 21l8-4.5"/></svg>;
@@ -30,6 +31,7 @@ function ShellIcon({ name }: { name: ShellIconName }) {
 
 export function AppShell() {
   const profile = useProfile();
+  const canWorkspace = usePermission('platform.workspace.access');
   const canViewApps = usePermission('platform.apps.view');
   const canViewNotifications = usePermission('platform.notifications.view');
   const canUseSearch = usePermission('platform.search.use');
@@ -72,8 +74,9 @@ export function AppShell() {
   const inProfile = location.pathname.startsWith('/profile');
   const inNotifications = location.pathname.startsWith('/notifications');
   const inSearch = location.pathname.startsWith('/search');
+  const inWorkspace = location.pathname === '/' || location.pathname.startsWith('/workspace/');
   const inAccount = inProfile || inNotifications;
-  const homePath = canViewDevices ? '/devices' : canViewHelpdesk ? '/helpdesk' : canViewAssets ? '/assets' : '/profile';
+  const homePath = canWorkspace ? '/' : canViewDevices ? '/devices' : canViewHelpdesk ? '/helpdesk' : canViewAssets ? '/assets' : '/profile';
   useEffect(() => setSideOpen(false), [location.pathname]);
 
   useEffect(() => {
@@ -139,6 +142,9 @@ export function AppShell() {
 
       <div className="prod-shell-body">
         <aside className="prod-rail" aria-label="App navigation">
+          {canWorkspace ? (
+            <NavLink className={inWorkspace ? 'active' : ''} to="/" aria-label="Workspace Home" title="Workspace Home"><ShellIcon name="home" /></NavLink>
+          ) : null}
           {canViewApps ? (
             <NavLink className={inApps ? 'active' : ''} to="/apps" aria-label="Apps" title="Apps"><ShellIcon name="apps" /></NavLink>
           ) : null}
@@ -162,9 +168,24 @@ export function AppShell() {
 
         <aside
           className={`prod-side${sideOpen ? ' open' : ''}`}
-          aria-label={inSearch ? 'Search navigation' : inAccount ? 'Account navigation' : inAdmin ? 'Admin navigation' : inApps ? 'Apps navigation' : inAssets ? 'Assets navigation' : inHelpdesk ? 'Helpdesk navigation' : inDevices ? 'Devices navigation' : 'Workspace context'}
+          aria-label={inWorkspace ? 'Workspace navigation' : inSearch ? 'Search navigation' : inAccount ? 'Account navigation' : inAdmin ? 'Admin navigation' : inApps ? 'Apps navigation' : inAssets ? 'Assets navigation' : inHelpdesk ? 'Helpdesk navigation' : inDevices ? 'Devices navigation' : 'Workspace context'}
         >
-          {inSearch ? (
+          {inWorkspace ? (
+            <>
+              <div className="prod-side-title">Workspace</div>
+              <div className="prod-side-section">Start</div>
+              <NavLink end to="/">Home</NavLink>
+              {canViewApps ? <NavLink to="/apps">Apps</NavLink> : null}
+              {canUseSearch ? <NavLink to="/search">Search</NavLink> : null}
+              <div className="prod-side-section">My Workspace</div>
+              <NavLink to="/workspace/continue">Continue Working</NavLink>
+              <NavLink to="/workspace/attention">Needs Attention</NavLink>
+              <NavLink to="/workspace/recent">Recent</NavLink>
+              <div className="prod-side-section">Account</div>
+              {canViewNotifications ? <NavLink to="/notifications">Notifications</NavLink> : null}
+              <NavLink to="/profile">Profile & Settings</NavLink>
+            </>
+          ) : inSearch ? (
             <>
               <div className="prod-side-title">Workspace</div>
               <div className="prod-side-section">Discover</div>

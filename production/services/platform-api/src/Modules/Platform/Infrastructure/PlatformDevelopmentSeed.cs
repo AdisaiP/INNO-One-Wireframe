@@ -585,6 +585,7 @@ public static class PlatformDevelopmentSeed
             });
 
         db.Notifications.AddRange(Step37Notifications(now));
+        db.ActivityItems.AddRange(Step39ActivityItems(now));
 
         await db.SaveChangesAsync(cancellationToken);
     }
@@ -842,6 +843,7 @@ public static class PlatformDevelopmentSeed
         }
 
         await EnsureStep37NotificationsAsync(db, now, cancellationToken);
+        await EnsureStep39ActivityAsync(db, now, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
     }
 
@@ -941,6 +943,131 @@ public static class PlatformDevelopmentSeed
             }
         ];
     }
+
+    private static async Task EnsureStep39ActivityAsync(
+        PlatformDbContext db,
+        DateTimeOffset now,
+        CancellationToken cancellationToken)
+    {
+        var seeded = Step39ActivityItems(now).ToArray();
+        var ids = seeded.Select(x => x.Id).ToArray();
+        var existing = await db.ActivityItems.AsNoTracking()
+            .Where(x => ids.Contains(x.Id))
+            .Select(x => x.Id)
+            .ToHashSetAsync(cancellationToken);
+
+        db.ActivityItems.AddRange(seeded.Where(x => !existing.Contains(x.Id)));
+    }
+
+    private static IEnumerable<PlatformActivityItem> Step39ActivityItems(DateTimeOffset now)
+    {
+        return
+        [
+            Activity(
+                "a1000000-0000-0000-0000-000000000001",
+                UserId,
+                "devices",
+                "device",
+                "dev_80000000000000000000000000000002",
+                "NOTEBOOK-IT-003",
+                "Viewed device details",
+                "/devices/dev_80000000000000000000000000000002",
+                now.AddMinutes(-12)),
+            Activity(
+                "a1000000-0000-0000-0000-000000000002",
+                UserId,
+                "helpdesk",
+                "ticket",
+                "ticket_93000000000000000000000000000003",
+                "HD-2026-001050 · Spreadsheet application crashes",
+                "Reviewed assigned ticket",
+                "/helpdesk/tickets/ticket_93000000000000000000000000000003",
+                now.AddMinutes(-38)),
+            Activity(
+                "a1000000-0000-0000-0000-000000000003",
+                UserId,
+                "assets",
+                "asset",
+                "asset_90000000000000000000000000000002",
+                "AST-NB-000003 · Developer Notebook",
+                "Viewed asset details",
+                "/assets/asset_90000000000000000000000000000002",
+                now.AddHours(-1)),
+            Activity(
+                "a1000000-0000-0000-0000-000000000004",
+                UserId,
+                "helpdesk",
+                "ticket",
+                "ticket_93000000000000000000000000000002",
+                "HD-2026-001049 · Payroll portal access denied",
+                "Opened requester ticket",
+                "/helpdesk/tickets/ticket_93000000000000000000000000000002",
+                now.AddHours(-3)),
+            Activity(
+                "a1000000-0000-0000-0000-000000000005",
+                HrViewerUserId,
+                "devices",
+                "device",
+                "dev_80000000000000000000000000000001",
+                "DESKTOP-HR-014",
+                "Viewed device details",
+                "/devices/dev_80000000000000000000000000000001",
+                now.AddMinutes(-18)),
+            Activity(
+                "a1000000-0000-0000-0000-000000000006",
+                HrViewerUserId,
+                "helpdesk",
+                "ticket",
+                "ticket_93000000000000000000000000000001",
+                "HD-2026-001048 · Cannot connect VPN",
+                "Reviewed HR support ticket",
+                "/helpdesk/tickets/ticket_93000000000000000000000000000001",
+                now.AddHours(-1)),
+            Activity(
+                "a1000000-0000-0000-0000-000000000007",
+                SupportAgentUserId,
+                "helpdesk",
+                "ticket",
+                "ticket_93000000000000000000000000000001",
+                "HD-2026-001048 · Cannot connect VPN",
+                "Replied to requester",
+                "/helpdesk/tickets/ticket_93000000000000000000000000000001",
+                now.AddMinutes(-22)),
+            Activity(
+                "a1000000-0000-0000-0000-000000000008",
+                SomchaiUserId,
+                "helpdesk",
+                "ticket",
+                "ticket_93000000000000000000000000000001",
+                "HD-2026-001048 · Cannot connect VPN",
+                "Opened your support ticket",
+                "/helpdesk/tickets/ticket_93000000000000000000000000000001",
+                now.AddMinutes(-26))
+        ];
+    }
+
+    private static PlatformActivityItem Activity(
+        string id,
+        Guid userId,
+        string sourceModule,
+        string resourceType,
+        string resourceId,
+        string title,
+        string activity,
+        string destinationPath,
+        DateTimeOffset occurredAt) =>
+        new()
+        {
+            Id = Guid.Parse(id),
+            UserId = userId,
+            SourceModule = sourceModule,
+            ResourceType = resourceType,
+            ResourceId = resourceId,
+            Title = title,
+            Activity = activity,
+            DestinationPath = destinationPath,
+            OccurredAt = occurredAt
+        };
 
     private static async Task EnsureRolePermissionAsync(
         PlatformDbContext db,

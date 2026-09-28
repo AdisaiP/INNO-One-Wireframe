@@ -43,6 +43,12 @@ import { HelpdeskSlaPage } from '../pages/HelpdeskSlaPage';
 import { NotificationsPage } from '../pages/NotificationsPage';
 import { ProfilePage } from '../pages/ProfilePage';
 import { SearchPage } from '../pages/SearchPage';
+import {
+  WorkspaceAttentionPage,
+  WorkspaceContinuePage,
+  WorkspaceHomePage,
+  WorkspaceRecentPage,
+} from '../pages/WorkspacePages';
 import { TicketCreatePage } from '../pages/TicketCreatePage';
 import { TicketDetailPage } from '../pages/TicketDetailPage';
 import { TicketsPage } from '../pages/TicketsPage';
@@ -65,6 +71,7 @@ export function AppRoot() {
   }
 
   const profile = profileQuery.data;
+  const canWorkspace = profile.permissions.includes('platform.workspace.access');
   const canViewApps = profile.permissions.includes('platform.apps.view');
   const canViewNotifications = profile.permissions.includes('platform.notifications.view');
   const canUseSearch = profile.permissions.includes('platform.search.use');
@@ -91,13 +98,15 @@ export function AppRoot() {
   const canCreateTicket = profile.permissions.includes('helpdesk.ticket.create');
   const canViewAutomation = profile.permissions.includes('helpdesk.automation.view');
   const canManageSla = profile.permissions.includes('helpdesk.sla.manage');
-  const landingPath = canViewDevices ? '/devices' : canViewHelpdesk ? '/helpdesk' : canViewAssets ? '/assets' : '/profile';
 
   return (
     <ProfileProvider profile={profile}>
       <Routes>
         <Route element={<AppShell />}>
-          <Route index element={<Navigate to={landingPath} replace />} />
+          <Route index element={canWorkspace ? <WorkspaceHomePage /> : <Navigate to="/profile" replace />} />
+          <Route path="workspace/continue" element={canWorkspace ? <WorkspaceContinuePage /> : <DeferredPage name="Continue Working" kind="permission" />} />
+          <Route path="workspace/attention" element={canWorkspace ? <WorkspaceAttentionPage /> : <DeferredPage name="Needs Attention" kind="permission" />} />
+          <Route path="workspace/recent" element={canWorkspace ? <WorkspaceRecentPage /> : <DeferredPage name="Recent Activity" kind="permission" />} />
           <Route path="profile" element={<ProfilePage />} />
           <Route path="notifications" element={canViewNotifications ? <NotificationsPage /> : <DeferredPage name="Notifications" kind="permission" />} />
           <Route path="search" element={canUseSearch ? <SearchPage /> : <DeferredPage name="Search" kind="permission" />} />

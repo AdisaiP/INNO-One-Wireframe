@@ -53,6 +53,10 @@ import type {
   DiscoveryResult,
   DiscoveryScan,
   GlobalSearchResponse,
+  WorkspaceActivityResponse,
+  WorkspaceAttentionResponse,
+  WorkspaceContinueResponse,
+  WorkspaceHomeResponse,
   HelpdeskOverview,
   OperationAccepted,
   PlatformNotificationItem,
@@ -124,6 +128,22 @@ function jsonRequest(body: unknown, headers?: HeadersInit): RequestInit {
 export async function getCurrentProfile(): Promise<Profile> {
   const response = await request<ResourceEnvelope<Profile>>('/platform/me');
   return response.data;
+}
+
+export async function getWorkspaceHome(): Promise<WorkspaceHomeResponse> {
+  return request<WorkspaceHomeResponse>('/platform/workspace');
+}
+
+export async function getWorkspaceContinue(): Promise<WorkspaceContinueResponse> {
+  return request<WorkspaceContinueResponse>('/platform/workspace/continue');
+}
+
+export async function getWorkspaceAttention(): Promise<WorkspaceAttentionResponse> {
+  return request<WorkspaceAttentionResponse>('/platform/workspace/attention');
+}
+
+export async function getWorkspaceActivity(limit = 50): Promise<WorkspaceActivityResponse> {
+  return request<WorkspaceActivityResponse>('/platform/activity?limit=' + String(limit));
 }
 
 export async function getPlatformApps(): Promise<AppLauncherResponse> {

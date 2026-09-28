@@ -1,9 +1,10 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using INNO.One.Contracts.Search;
+using INNO.One.Contracts.Workspace;
 using INNO.One.Modules.Assets.Application;
 using INNO.One.Modules.Assets.Infrastructure;
 using INNO.One.Modules.Assets.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace INNO.One.Modules.Assets;
 
@@ -19,6 +20,8 @@ public static class AssetsModule
         services.AddScoped<AssetsLedgerWriter>();
         services.AddScoped<AssetCustomFieldValueService>();
         services.AddScoped<IGlobalSearchProvider, AssetsGlobalSearchProvider>();
+        services.AddScoped<IWorkspaceAttentionProvider, AssetsWorkspaceAttentionProvider>();
+        services.AddScoped<IWorkspaceResourceVisibilityProvider, AssetsWorkspaceAttentionProvider>();
         return services;
     }
 }

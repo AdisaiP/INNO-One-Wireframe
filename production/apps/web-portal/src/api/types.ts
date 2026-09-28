@@ -1070,3 +1070,55 @@ export interface GlobalSearchResponse {
   totalItems: number;
   providerCount: number;
 }
+
+export interface WorkspaceAppItem {
+  id: string;
+  name: string;
+  icon: string;
+  route: string;
+}
+
+export interface WorkspaceActivityItem {
+  sourceModule: string;
+  resourceType: string;
+  resourceId: string;
+  title: string;
+  activity: string;
+  destinationPath: string;
+  occurredAt: string;
+}
+
+export interface WorkspaceAttentionItem {
+  id: string;
+  module: string;
+  title: string;
+  detail: string;
+  count: number;
+  severity: 'neutral' | 'info' | 'warning' | 'danger';
+  route: string;
+}
+
+export interface WorkspaceHomeResponse {
+  fullName: string;
+  apps: WorkspaceAppItem[];
+  continueItems: WorkspaceActivityItem[];
+  attentionItems: WorkspaceAttentionItem[];
+  recentItems: WorkspaceActivityItem[];
+  attentionTotal: number;
+  partialFailures: string[];
+  generatedAt: string;
+}
+
+export interface WorkspaceContinueResponse {
+  items: WorkspaceActivityItem[];
+}
+
+export interface WorkspaceAttentionResponse {
+  items: WorkspaceAttentionItem[];
+  totalCount: number;
+  partialFailures: string[];
+}
+
+export interface WorkspaceActivityResponse {
+  items: WorkspaceActivityItem[];
+}

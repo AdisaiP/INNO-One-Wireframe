@@ -93,6 +93,7 @@ var api = app.MapGroup(ContractVersions.ApiBasePath)
     .RequireAuthorization();
 
 api.MapPlatformEndpoints();
+api.MapWorkspaceEndpoints();
 api.MapPlatformNotificationEndpoints();
 api.MapGlobalSearchEndpoints();
 api.MapAppRegistryEndpoints();
