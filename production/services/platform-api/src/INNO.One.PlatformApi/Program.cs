@@ -99,6 +99,7 @@ api.MapAdminAccessEndpoints();
 api.MapAdminIntegrationsEndpoints();
 api.MapAdminAuditEndpoints();
 api.MapAdminSecurityEndpoints();
+api.MapAdminSettingsEndpoints();
 api.MapDevicesEndpoints();
 api.MapDeviceManagementEndpoints();
 api.MapDeviceSoftwareInventoryEndpoints();

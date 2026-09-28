@@ -3149,3 +3149,25 @@
     margin: 0 12px 12px;
   }
 }
+
+/* Step 36 · Platform Settings foundation */
+.platform-setting-value {
+  display: inline-block;
+  max-width: 320px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  font-size: 10px;
+  line-height: 1.4;
+}
+.platform-setting-stat-value {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px !important;
+}
+@media (max-width: 768px) {
+  .platform-setting-value {
+    max-width: 220px;
+  }
+}

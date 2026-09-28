@@ -41,6 +41,7 @@ export function AppShell() {
   const canAdminSecurity = usePermission('admin.security.view');
   const canAdminAudit = usePermission('admin.audit.view');
   const canAdminBranding = usePermission('admin.branding.manage');
+  const canAdminSettings = usePermission('admin.settings.manage');
   const canAdminApps = usePermission('admin.apps.view');
   const canViewDevices = usePermission('devices.view');
   const canDeployDevices = usePermission('devices.deploy');
@@ -81,6 +82,7 @@ export function AppShell() {
     if (canAdminSecurity) items.push({ label: 'Security', path: '/admin/security' });
     if (canAdminAudit) items.push({ label: 'Audit Log', path: '/admin/audit' });
     if (canAdminBranding) items.push({ label: 'Branding', path: '/admin/branding' });
+    if (canAdminSettings) items.push({ label: 'Platform Settings', path: '/admin/settings' });
     if (canAdminApps) items.push({ label: 'Apps & Modules', path: '/admin/apps' });
     if (canViewDevices) items.unshift(
       { label: 'Devices', path: '/devices' },
@@ -104,7 +106,7 @@ export function AppShell() {
     );
     if (canViewAutomation) items.push({ label: 'Automation', path: '/helpdesk/automation' });
     return items;
-  }, [canAdmin, canAdminApps, canAdminAudit, canAdminBranding, canAdminIntegrations, canAdminLocations, canAdminOrganization, canAdminPositions, canAdminRoles, canAdminScopes, canAdminSecurity, canAdminUsers, canDeployDevices, canManageAssetLicenses, canViewApps, canViewAssets, canViewAutomation, canViewDevices, canViewHelpdesk]);
+  }, [canAdmin, canAdminApps, canAdminAudit, canAdminBranding, canAdminIntegrations, canAdminLocations, canAdminOrganization, canAdminPositions, canAdminRoles, canAdminScopes, canAdminSecurity, canAdminSettings, canAdminUsers, canDeployDevices, canManageAssetLicenses, canViewApps, canViewAssets, canViewAutomation, canViewDevices, canViewHelpdesk]);
 
   useEffect(() => setSideOpen(false), [location.pathname]);
 
@@ -201,11 +203,12 @@ export function AppShell() {
               {(canAdminRoles || canAdminScopes) ? <div className="prod-side-section">Access</div> : null}
               {canAdminRoles ? <NavLink to="/admin/roles">Roles & Permissions</NavLink> : null}
               {canAdminScopes ? <NavLink to="/admin/access-scopes">Access Scopes</NavLink> : null}
-              {(canAdminIntegrations || canAdminSecurity || canAdminAudit || canAdminBranding || canAdminApps) ? <div className="prod-side-section">Platform</div> : null}
+              {(canAdminIntegrations || canAdminSecurity || canAdminAudit || canAdminBranding || canAdminSettings || canAdminApps) ? <div className="prod-side-section">Platform</div> : null}
               {canAdminIntegrations ? <NavLink to="/admin/integrations">Integrations</NavLink> : null}
               {canAdminSecurity ? <NavLink to="/admin/security">Security</NavLink> : null}
               {canAdminAudit ? <NavLink to="/admin/audit">Audit Log</NavLink> : null}
               {canAdminBranding ? <NavLink to="/admin/branding">Branding</NavLink> : null}
+              {canAdminSettings ? <NavLink to="/admin/settings">Platform Settings</NavLink> : null}
               {canAdminApps ? <NavLink to="/admin/apps">Apps & Modules</NavLink> : null}
             </>
           ) : inApps ? (

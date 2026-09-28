@@ -10,6 +10,7 @@ export function AdminOverviewPage() {
   const canViewSecurity = usePermission('admin.security.view');
   const canViewAudit = usePermission('admin.audit.view');
   const canManageBranding = usePermission('admin.branding.manage');
+  const canManageSettings = usePermission('admin.settings.manage');
   const canViewApps = usePermission('admin.apps.view');
   const query = useQuery({
     queryKey: ['admin', 'overview'],
@@ -49,6 +50,7 @@ export function AdminOverviewPage() {
               {canViewSecurity ? <Link className="admin-overview-card" to="/admin/security"><b>Security</b><span>Inspect identity, transport, authorization, and audit posture.</span></Link> : null}
               {canViewAudit ? <Link className="admin-overview-card" to="/admin/audit"><b>Audit Log</b><span>Search immutable privileged and operational history.</span></Link> : null}
               {canManageBranding ? <Link className="admin-overview-card" to="/admin/branding"><b>Branding</b><span>Inspect the effective product identity and frozen brand tokens.</span></Link> : null}
+              {canManageSettings ? <Link className="admin-overview-card" to="/admin/settings"><b>Platform Settings</b><span>Inspect effective global platform conventions and deployment-managed values.</span></Link> : null}
               {canViewApps ? <Link className="admin-overview-card" to="/admin/apps"><b>Apps & Modules</b><span>Manage installed module availability.</span></Link> : null}
             </div>
           </INNOCollection>

@@ -160,6 +160,25 @@ export interface AdminSecurityResponse {
   items: AdminSecurityPostureItem[];
 }
 
+export interface AdminPlatformSetting {
+  id: string;
+  group: string;
+  name: string;
+  value: string;
+  source: string;
+  status: 'frozen' | 'effective';
+  detail: string;
+}
+
+export interface AdminPlatformSettingsResponse {
+  configurationMode: string;
+  mutableSettings: boolean;
+  environment: string;
+  checkedAt: string;
+  groups: string[];
+  items: AdminPlatformSetting[];
+}
+
 export interface AdminOverview {
   organizations: number;
   locations: number;

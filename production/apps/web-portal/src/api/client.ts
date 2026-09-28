@@ -6,6 +6,7 @@ import type {
   AdminAuditFacets,
   AdminAuditListItem,
   AdminSecurityResponse,
+  AdminPlatformSettingsResponse,
   AdminAppModule,
   AdminAppModulesResponse,
   AdminIntegrationStatus,
@@ -166,6 +167,10 @@ export async function getAdminAuditFacets(): Promise<AdminAuditFacets> {
 
 export async function getAdminSecurity(): Promise<AdminSecurityResponse> {
   return request<AdminSecurityResponse>('/admin/security');
+}
+
+export async function getAdminPlatformSettings(): Promise<AdminPlatformSettingsResponse> {
+  return request<AdminPlatformSettingsResponse>('/admin/settings');
 }
 
 export async function getAdminAuditDetail(auditId: string): Promise<AdminAuditDetail> {
