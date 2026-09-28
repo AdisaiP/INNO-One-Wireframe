@@ -162,7 +162,10 @@ for marker in [
     if marker not in styles:
         issues.append("style " + marker)
 
-if 'ImplementationContract = "0.21.0"' not in versions:
+import re
+version_match = re.search(r'ImplementationContract = "(\d+)\.(\d+)\.(\d+)"', versions)
+implementation_version = tuple(map(int, version_match.groups())) if version_match else (0, 0, 0)
+if implementation_version < (0, 21, 0):
     issues.append("implementation contract")
 
 for page in [

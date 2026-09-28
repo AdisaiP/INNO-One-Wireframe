@@ -73,6 +73,27 @@ export interface AdminAppModulesResponse {
   items: AdminAppModule[];
 }
 
+export interface AdminIntegrationStatus {
+  id: string;
+  name: string;
+  category: string;
+  provider: string;
+  ownerModule: string;
+  endpoint: string;
+  status: 'connected' | 'degraded' | 'disabled' | 'not-configured';
+  enabled: boolean;
+  configured: boolean;
+  canTest: boolean;
+  checkedAt: string;
+  durationMs: number;
+  message: string;
+  capabilities: string[];
+}
+
+export interface AdminIntegrationsResponse {
+  items: AdminIntegrationStatus[];
+}
+
 export interface AdminOverview {
   organizations: number;
   locations: number;

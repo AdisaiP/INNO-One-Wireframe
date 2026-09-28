@@ -3,8 +3,11 @@ import { Link } from 'react-router-dom';
 import { INNOCollection, INNOCollectionHeader, INNOPage, INNOState } from '@inno/ui';
 import { getAdminOverview } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
+import { usePermission } from '../app/ProfileContext';
 
 export function AdminOverviewPage() {
+  const canViewIntegrations = usePermission('admin.integrations.view');
+  const canViewApps = usePermission('admin.apps.view');
   const query = useQuery({
     queryKey: ['admin', 'overview'],
     queryFn: getAdminOverview,
@@ -39,7 +42,8 @@ export function AdminOverviewPage() {
               <Link className="admin-overview-card" to="/admin/users"><b>Users</b><span>Browse and maintain organization profiles.</span></Link>
               <Link className="admin-overview-card" to="/admin/roles"><b>Roles & Permissions</b><span>Inspect centralized RBAC permissions.</span></Link>
               <Link className="admin-overview-card" to="/admin/access-scopes"><b>Access Scopes</b><span>Manage role + resource-scope bindings.</span></Link>
-              <Link className="admin-overview-card" to="/admin/apps"><b>Apps & Modules</b><span>Manage installed module availability.</span></Link>
+              {canViewIntegrations ? <Link className="admin-overview-card" to="/admin/integrations"><b>Integrations</b><span>Monitor platform integration health and run safe connection tests.</span></Link> : null}
+              {canViewApps ? <Link className="admin-overview-card" to="/admin/apps"><b>Apps & Modules</b><span>Manage installed module availability.</span></Link> : null}
             </div>
           </INNOCollection>
 

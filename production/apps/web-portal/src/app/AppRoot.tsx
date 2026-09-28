@@ -4,6 +4,7 @@ import { getCurrentProfile } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import { AdminAccessScopesPage } from '../pages/AdminAccessScopesPage';
 import { AdminAppsPage } from '../pages/AdminAppsPage';
+import { AdminIntegrationsPage } from '../pages/AdminIntegrationsPage';
 import { AdminLocationsPage, AdminOrganizationPage } from '../pages/AdminHierarchyPage';
 import { AdminOverviewPage } from '../pages/AdminOverviewPage';
 import { AdminPositionsPage } from '../pages/AdminPositionsPage';
@@ -66,6 +67,7 @@ export function AppRoot() {
   const canAdminUsers = profile.permissions.includes('admin.users.view');
   const canAdminRoles = profile.permissions.includes('admin.roles.view');
   const canAdminScopes = profile.permissions.includes('admin.access_scopes.view');
+  const canAdminIntegrations = profile.permissions.includes('admin.integrations.view');
   const canAdminApps = profile.permissions.includes('admin.apps.view');
   const canViewDevices = profile.permissions.includes('devices.view');
   const canDeployDevices = profile.permissions.includes('devices.deploy');
@@ -95,6 +97,7 @@ export function AppRoot() {
           <Route path="admin/users/:userId" element={canAdminUsers ? <AdminUserDetailPage /> : <DeferredPage name="User Detail" kind="permission" />} />
           <Route path="admin/roles" element={canAdminRoles ? <AdminRolesPage /> : <DeferredPage name="Roles & Permissions" kind="permission" />} />
           <Route path="admin/access-scopes" element={canAdminScopes ? <AdminAccessScopesPage /> : <DeferredPage name="Access Scopes" kind="permission" />} />
+          <Route path="admin/integrations" element={canAdminIntegrations ? <AdminIntegrationsPage /> : <DeferredPage name="Integrations" kind="permission" />} />
           <Route path="admin/apps" element={canAdminApps ? <AdminAppsPage /> : <DeferredPage name="Apps & Modules" kind="permission" />} />
 
           <Route path="devices" element={canViewDevices ? <DevicesPage /> : <DeferredPage name="Devices" kind="permission" />} />

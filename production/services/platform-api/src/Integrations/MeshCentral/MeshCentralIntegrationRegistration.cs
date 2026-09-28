@@ -13,6 +13,7 @@ public static class MeshCentralIntegrationRegistration
         services.Configure<MeshCentralOptions>(
             configuration.GetSection(MeshCentralOptions.SectionName));
         services.AddSingleton<IRemoteDeviceEngine, MeshCentralRemoteDeviceEngine>();
+        services.AddScoped<IIntegrationHealthProvider, MeshCentralIntegrationHealthProvider>();
         return services;
     }
 }

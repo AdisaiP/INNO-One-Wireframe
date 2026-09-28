@@ -4,6 +4,8 @@ import type {
   AdminAccessEvaluation,
   AdminAppModule,
   AdminAppModulesResponse,
+  AdminIntegrationStatus,
+  AdminIntegrationsResponse,
   AdminHierarchyItem,
   AdminOverview,
   AdminPermission,
@@ -121,6 +123,20 @@ export async function getPlatformApps(): Promise<AppLauncherResponse> {
 
 export async function getAdminApps(): Promise<AdminAppModulesResponse> {
   return request<AdminAppModulesResponse>('/admin/apps');
+}
+
+export async function getAdminIntegrations(): Promise<AdminIntegrationsResponse> {
+  return request<AdminIntegrationsResponse>('/admin/integrations');
+}
+
+export async function testAdminIntegration(
+  integrationId: string,
+): Promise<AdminIntegrationStatus> {
+  const response = await request<ResourceEnvelope<AdminIntegrationStatus>>(
+    '/admin/integrations/' + encodeURIComponent(integrationId) + '/test',
+    { method: 'POST' },
+  );
+  return response.data;
 }
 
 export async function updateAdminApp(

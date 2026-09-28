@@ -1,6 +1,7 @@
 using INNO.One.Contracts;
 using INNO.One.Infrastructure;
 using INNO.One.Infrastructure.Persistence;
+using INNO.One.Integrations.Keycloak;
 using INNO.One.Integrations.MeshCentral;
 using INNO.One.Modules.Assets;
 using INNO.One.Modules.Assets.Api;
@@ -35,6 +36,7 @@ builder.Services
     .AddReportsModule(coreDatabase)
     .AddInnoInfrastructure(coreDatabase);
 
+builder.Services.AddKeycloakIntegration(builder.Configuration);
 builder.Services.AddMeshCentralIntegration(builder.Configuration);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -94,6 +96,7 @@ api.MapPlatformEndpoints();
 api.MapAppRegistryEndpoints();
 api.MapAdminDirectoryEndpoints();
 api.MapAdminAccessEndpoints();
+api.MapAdminIntegrationsEndpoints();
 api.MapDevicesEndpoints();
 api.MapDeviceManagementEndpoints();
 api.MapDeviceSoftwareInventoryEndpoints();

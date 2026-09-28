@@ -2879,3 +2879,24 @@
     grid-column: 1;
   }
 }
+
+/* Step 32 · Admin Integrations Center */
+.integration-endpoint {
+  display: inline-block;
+  max-width: 300px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  font-size: 10px;
+  line-height: 1.4;
+}
+.integration-health-message {
+  max-width: 320px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 768px) {
+  .integration-endpoint,
+  .integration-health-message {
+    max-width: 220px;
+  }
+}

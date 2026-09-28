@@ -36,6 +36,7 @@ export function AppShell() {
   const canAdminUsers = usePermission('admin.users.view');
   const canAdminRoles = usePermission('admin.roles.view');
   const canAdminScopes = usePermission('admin.access_scopes.view');
+  const canAdminIntegrations = usePermission('admin.integrations.view');
   const canAdminApps = usePermission('admin.apps.view');
   const canViewDevices = usePermission('devices.view');
   const canDeployDevices = usePermission('devices.deploy');
@@ -72,6 +73,7 @@ export function AppShell() {
     if (canAdminUsers) items.push({ label: 'Users', path: '/admin/users' });
     if (canAdminRoles) items.push({ label: 'Roles & Permissions', path: '/admin/roles' });
     if (canAdminScopes) items.push({ label: 'Access Scopes', path: '/admin/access-scopes' });
+    if (canAdminIntegrations) items.push({ label: 'Integrations', path: '/admin/integrations' });
     if (canAdminApps) items.push({ label: 'Apps & Modules', path: '/admin/apps' });
     if (canViewDevices) items.unshift(
       { label: 'Devices', path: '/devices' },
@@ -95,7 +97,7 @@ export function AppShell() {
     );
     if (canViewAutomation) items.push({ label: 'Automation', path: '/helpdesk/automation' });
     return items;
-  }, [canAdmin, canAdminApps, canAdminLocations, canAdminOrganization, canAdminPositions, canAdminRoles, canAdminScopes, canAdminUsers, canDeployDevices, canManageAssetLicenses, canViewApps, canViewAssets, canViewAutomation, canViewDevices, canViewHelpdesk]);
+  }, [canAdmin, canAdminApps, canAdminIntegrations, canAdminLocations, canAdminOrganization, canAdminPositions, canAdminRoles, canAdminScopes, canAdminUsers, canDeployDevices, canManageAssetLicenses, canViewApps, canViewAssets, canViewAutomation, canViewDevices, canViewHelpdesk]);
 
   useEffect(() => setSideOpen(false), [location.pathname]);
 
@@ -192,7 +194,8 @@ export function AppShell() {
               {(canAdminRoles || canAdminScopes) ? <div className="prod-side-section">Access</div> : null}
               {canAdminRoles ? <NavLink to="/admin/roles">Roles & Permissions</NavLink> : null}
               {canAdminScopes ? <NavLink to="/admin/access-scopes">Access Scopes</NavLink> : null}
-              {canAdminApps ? <div className="prod-side-section">Platform</div> : null}
+              {(canAdminIntegrations || canAdminApps) ? <div className="prod-side-section">Platform</div> : null}
+              {canAdminIntegrations ? <NavLink to="/admin/integrations">Integrations</NavLink> : null}
               {canAdminApps ? <NavLink to="/admin/apps">Apps & Modules</NavLink> : null}
             </>
           ) : inApps ? (
