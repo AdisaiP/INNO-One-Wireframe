@@ -4,6 +4,7 @@ import { getCurrentProfile } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import { AdminAccessScopesPage } from '../pages/AdminAccessScopesPage';
 import { AdminAuditPage } from '../pages/AdminAuditPage';
+import { AdminBrandingPage } from '../pages/AdminBrandingPage';
 import { AdminSecurityPage } from '../pages/AdminSecurityPage';
 import { AdminAppsPage } from '../pages/AdminAppsPage';
 import { AdminIntegrationsPage } from '../pages/AdminIntegrationsPage';
@@ -72,6 +73,7 @@ export function AppRoot() {
   const canAdminIntegrations = profile.permissions.includes('admin.integrations.view');
   const canAdminSecurity = profile.permissions.includes('admin.security.view');
   const canAdminAudit = profile.permissions.includes('admin.audit.view');
+  const canAdminBranding = profile.permissions.includes('admin.branding.manage');
   const canAdminApps = profile.permissions.includes('admin.apps.view');
   const canViewDevices = profile.permissions.includes('devices.view');
   const canDeployDevices = profile.permissions.includes('devices.deploy');
@@ -104,6 +106,7 @@ export function AppRoot() {
           <Route path="admin/integrations" element={canAdminIntegrations ? <AdminIntegrationsPage /> : <DeferredPage name="Integrations" kind="permission" />} />
           <Route path="admin/security" element={canAdminSecurity ? <AdminSecurityPage /> : <DeferredPage name="Security" kind="permission" />} />
           <Route path="admin/audit" element={canAdminAudit ? <AdminAuditPage /> : <DeferredPage name="Audit Log" kind="permission" />} />
+          <Route path="admin/branding" element={canAdminBranding ? <AdminBrandingPage /> : <DeferredPage name="Branding" kind="permission" />} />
           <Route path="admin/apps" element={canAdminApps ? <AdminAppsPage /> : <DeferredPage name="Apps & Modules" kind="permission" />} />
 
           <Route path="devices" element={canViewDevices ? <DevicesPage /> : <DeferredPage name="Devices" kind="permission" />} />

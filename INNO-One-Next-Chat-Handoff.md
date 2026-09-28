@@ -1,9 +1,9 @@
 > [!IMPORTANT]
 > **Current production override — 2026-09-28**
 >
-> Production Steps **15–28 are implemented**, **Step 29 React UI Parity is completed**, **Step 30 Module SDK / Plugin Contract Foundation is completed**, **Step 31 Admin Center Core is completed**, **Step 32 Admin Integrations Center is completed**, **Step 33 Audit Center is completed**, and **Step 34 Security Center is completed** on `implementation/step34-security-center`.
+> Production Steps **15–28 are implemented**, **Step 29 React UI Parity is completed**, **Step 30 Module SDK / Plugin Contract Foundation is completed**, **Step 31 Admin Center Core is completed**, **Step 32 Admin Integrations Center is completed**, **Step 33 Audit Center is completed**, **Step 34 Security Center is completed**, and **Step 35 Branding Foundation is completed** on `implementation/step35-branding-foundation`.
 >
-> Read `INNO-One-Step34-Next-Chat-Handoff.md` first. Step 34 static/build/runtime/browser QA is green against the real PostgreSQL + Keycloak + MeshCentral runtime on `172.10.1.58`, including responsive visual QA at 1366 / 1024 / 768. Meeting remains intentionally deferred. **Do not merge or deploy unless explicitly requested.**
+> Read `INNO-One-Step35-Next-Chat-Handoff.md` first. Step 35 static/build/runtime/browser QA is green against the real PostgreSQL + Keycloak runtime on `172.10.1.58`, including responsive visual QA at 1366 / 1024 / 768. Meeting remains intentionally deferred. **Do not merge or deploy unless explicitly requested.**
 
 # INNO.One — Next Chat Handoff
 

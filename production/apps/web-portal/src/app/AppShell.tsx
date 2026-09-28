@@ -1,6 +1,7 @@
 import { type FormEvent, useEffect, useMemo, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { logout } from '../auth/keycloak';
+import { PRODUCT_BRAND } from './branding';
 import { usePermission, useProfile } from './ProfileContext';
 
 function initials(name: string): string {
@@ -39,6 +40,7 @@ export function AppShell() {
   const canAdminIntegrations = usePermission('admin.integrations.view');
   const canAdminSecurity = usePermission('admin.security.view');
   const canAdminAudit = usePermission('admin.audit.view');
+  const canAdminBranding = usePermission('admin.branding.manage');
   const canAdminApps = usePermission('admin.apps.view');
   const canViewDevices = usePermission('devices.view');
   const canDeployDevices = usePermission('devices.deploy');
@@ -78,6 +80,7 @@ export function AppShell() {
     if (canAdminIntegrations) items.push({ label: 'Integrations', path: '/admin/integrations' });
     if (canAdminSecurity) items.push({ label: 'Security', path: '/admin/security' });
     if (canAdminAudit) items.push({ label: 'Audit Log', path: '/admin/audit' });
+    if (canAdminBranding) items.push({ label: 'Branding', path: '/admin/branding' });
     if (canAdminApps) items.push({ label: 'Apps & Modules', path: '/admin/apps' });
     if (canViewDevices) items.unshift(
       { label: 'Devices', path: '/devices' },
@@ -101,7 +104,7 @@ export function AppShell() {
     );
     if (canViewAutomation) items.push({ label: 'Automation', path: '/helpdesk/automation' });
     return items;
-  }, [canAdmin, canAdminApps, canAdminAudit, canAdminIntegrations, canAdminLocations, canAdminOrganization, canAdminPositions, canAdminRoles, canAdminScopes, canAdminSecurity, canAdminUsers, canDeployDevices, canManageAssetLicenses, canViewApps, canViewAssets, canViewAutomation, canViewDevices, canViewHelpdesk]);
+  }, [canAdmin, canAdminApps, canAdminAudit, canAdminBranding, canAdminIntegrations, canAdminLocations, canAdminOrganization, canAdminPositions, canAdminRoles, canAdminScopes, canAdminSecurity, canAdminUsers, canDeployDevices, canManageAssetLicenses, canViewApps, canViewAssets, canViewAutomation, canViewDevices, canViewHelpdesk]);
 
   useEffect(() => setSideOpen(false), [location.pathname]);
 
@@ -120,8 +123,8 @@ export function AppShell() {
     <div className="inno-production-shell">
       <header className="prod-header">
         <NavLink className="prod-brand" to={homePath}>
-          <span className="prod-logo-mark">I1</span>
-          <span className="prod-brand-name">INNO.<b>One</b></span>
+          <span className="prod-logo-mark">{PRODUCT_BRAND.compactMark}</span>
+          <span className="prod-brand-name">{PRODUCT_BRAND.productNamePrefix}<b>{PRODUCT_BRAND.productNameEmphasis}</b></span>
         </NavLink>
         <div className="prod-header-center">
           <button className="prod-context-toggle" type="button" onClick={() => setSideOpen((value) => !value)} aria-expanded={sideOpen} aria-label="Toggle contextual navigation">
@@ -132,8 +135,8 @@ export function AppShell() {
             <input
               value={shellSearch}
               onChange={(event) => setShellSearch(event.target.value)}
-              placeholder="Search INNO.One…"
-              aria-label="Search available INNO.One pages"
+              placeholder={'Search ' + PRODUCT_BRAND.productName + '…'}
+              aria-label={'Search available ' + PRODUCT_BRAND.productName + ' pages'}
             />
             <span className="prod-search-hint" aria-hidden="true">Enter</span>
           </form>
@@ -198,10 +201,11 @@ export function AppShell() {
               {(canAdminRoles || canAdminScopes) ? <div className="prod-side-section">Access</div> : null}
               {canAdminRoles ? <NavLink to="/admin/roles">Roles & Permissions</NavLink> : null}
               {canAdminScopes ? <NavLink to="/admin/access-scopes">Access Scopes</NavLink> : null}
-              {(canAdminIntegrations || canAdminSecurity || canAdminAudit || canAdminApps) ? <div className="prod-side-section">Platform</div> : null}
+              {(canAdminIntegrations || canAdminSecurity || canAdminAudit || canAdminBranding || canAdminApps) ? <div className="prod-side-section">Platform</div> : null}
               {canAdminIntegrations ? <NavLink to="/admin/integrations">Integrations</NavLink> : null}
               {canAdminSecurity ? <NavLink to="/admin/security">Security</NavLink> : null}
               {canAdminAudit ? <NavLink to="/admin/audit">Audit Log</NavLink> : null}
+              {canAdminBranding ? <NavLink to="/admin/branding">Branding</NavLink> : null}
               {canAdminApps ? <NavLink to="/admin/apps">Apps & Modules</NavLink> : null}
             </>
           ) : inApps ? (
