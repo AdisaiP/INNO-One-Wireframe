@@ -805,6 +805,42 @@
   line-height: 1.5;
 }
 
+.profile-edit-form {
+  display: grid;
+  gap: 14px;
+  padding: 14px 16px 16px;
+}
+
+.profile-edit-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.profile-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.profile-save-error,
+.profile-save-success {
+  padding: 9px 10px;
+  border-radius: 8px;
+  font-size: 10px;
+}
+
+.profile-save-error {
+  border: 1px solid #f2c7c7;
+  background: #fff7f7;
+  color: #9f2d2d;
+}
+
+.profile-save-success {
+  border: 1px solid #bfe5ca;
+  background: #f4fbf6;
+  color: #23693a;
+}
+
 @media (max-width: 1180px) {
   .prod-header {
     grid-template-columns: 260px minmax(220px, 1fr) auto;
@@ -816,6 +852,10 @@
 
   .device-overview-grid,
   .profile-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-edit-grid {
     grid-template-columns: 1fr;
   }
 

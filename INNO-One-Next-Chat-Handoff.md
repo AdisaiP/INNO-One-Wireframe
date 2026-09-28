@@ -1,15 +1,15 @@
 > [!IMPORTANT]
 > **Current production override — 2026-09-29**
 >
-> Production Steps **15–28 are implemented**, **Step 29 React UI Parity is completed**, **Step 30 Module SDK / Plugin Contract Foundation is completed**, **Step 31 Admin Center Core is completed**, **Step 32 Admin Integrations Center is completed**, **Step 33 Audit Center is completed**, **Step 34 Security Center is completed**, **Step 35 Branding Foundation is completed**, **Step 36 Platform Settings Foundation is completed**, **Step 37 Platform Notification Center is completed**, **Step 38 Global Search is completed**, and **Step 39 Workspace Home is completed** on `implementation/step39-workspace-home`.
+> Production Steps **15–28 are implemented**, **Step 29 React UI Parity is completed**, **Step 30 Module SDK / Plugin Contract Foundation is completed**, **Step 31 Admin Center Core is completed**, **Step 32 Admin Integrations Center is completed**, **Step 33 Audit Center is completed**, **Step 34 Security Center is completed**, **Step 35 Branding Foundation is completed**, **Step 36 Platform Settings Foundation is completed**, **Step 37 Platform Notification Center is completed**, **Step 38 Global Search is completed**, **Step 39 Workspace Home is completed**, and **Step 40 Profile & Settings is completed** on `implementation/step40-profile-settings`.
 >
-> Read `INNO-One-Step39-Next-Chat-Handoff.md` first. Step 39 makes `/` the real Workspace start page, adds Continue Working / Needs Attention / Recent Activity, persists the Platform activity read model, and uses module-owned Devices / Assets / Helpdesk attention providers without cross-module table shortcuts. Static/build/runtime/browser QA is green against the real PostgreSQL + Keycloak runtime on `172.10.1.58`, including responsive visual QA at 1366 / 1024 / 768. The next contract-backed Account slice is Profile & Settings. Meeting remains intentionally deferred. **Do not merge or deploy unless explicitly requested.**
+> Read `INNO-One-Step40-Next-Chat-Handoff.md` first. Step 40 implements the frozen self-profile update contract at `PATCH /api/v1/platform/me/profile` and exposes only `Phone` / `Office` as user-editable business-profile fields. Organization-managed identity, hierarchy, role and SSO fields remain read-only; unsupported personal preference toggles remain hidden until a persistence contract exists. Static/build/EF/runtime/browser QA is green against the real PostgreSQL + Keycloak runtime on `172.10.1.58`, including responsive visual QA at 1366 / 1024 / 768. The next unimplemented Platform contract is the authorization-bound asynchronous operation resource `GET /api/v1/operations/{operationId}`. Meeting remains intentionally deferred. **Do not merge or deploy unless explicitly requested.**
 
 # INNO.One — Next Chat Handoff
 
-Last updated: 2026-09-26
-Project: `/Users/adisaip/Desktop/INNO-One-Wireframe/`  
-Scope: UI/UX prototype only — **ยังไม่ทำ Backend**
+Last updated: 2026-09-29
+Current project: `C:\Projects\INNO-One-Wireframe` on Windows
+Current production scope: **Implementation in progress through Step 40** — frozen UX baseline remains Design System V1.26 / UI Contract 1.20.0. Historical UX-only sections below are retained as project history.
 
 ---
 

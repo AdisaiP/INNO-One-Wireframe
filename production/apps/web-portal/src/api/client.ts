@@ -130,6 +130,17 @@ export async function getCurrentProfile(): Promise<Profile> {
   return response.data;
 }
 
+export async function updateCurrentProfile(input: {
+  phone?: string;
+  office?: string;
+}): Promise<Profile> {
+  const response = await request<ResourceEnvelope<Profile>>('/platform/me/profile', {
+    method: 'PATCH',
+    ...jsonRequest(input),
+  });
+  return response.data;
+}
+
 export async function getWorkspaceHome(): Promise<WorkspaceHomeResponse> {
   return request<WorkspaceHomeResponse>('/platform/workspace');
 }

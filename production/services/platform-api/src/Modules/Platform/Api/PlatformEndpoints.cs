@@ -17,6 +17,9 @@ public static class PlatformEndpoints
         api.MapGet("/platform/me", GetMeAsync)
             .WithName("platform.me.get");
 
+        api.MapPatch("/platform/me/profile", UpdateProfileAsync)
+            .WithName("platform.profile.update");
+
         return api;
     }
 
@@ -123,6 +126,77 @@ public static class PlatformEndpoints
 
         return Results.Ok(new ResourceResponse<ProfileResponse>(response));
     }
+
+    private static async Task<IResult> UpdateProfileAsync(
+        ProfileUpdateRequest request,
+        HttpContext httpContext,
+        PlatformDbContext db,
+        IAccessEvaluator accessEvaluator,
+        CancellationToken cancellationToken)
+    {
+        var access = await accessEvaluator.EvaluateAsync(
+            httpContext.User,
+            "platform.workspace.access",
+            cancellationToken);
+
+        if (!access.Allowed)
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status403Forbidden,
+                title: "Access denied",
+                detail: access.Reason);
+        }
+
+        if (request.Phone is null && request.Office is null)
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "No editable profile fields supplied",
+                detail: "Phone or office must be supplied.");
+        }
+
+        if (request.Phone is { Length: > 64 })
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Invalid phone",
+                detail: "Phone must be 64 characters or fewer.");
+        }
+
+        if (request.Office is { Length: > 120 })
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Invalid office",
+                detail: "Office must be 120 characters or fewer.");
+        }
+
+        var profile = await db.UserProfiles.SingleAsync(
+            x => x.Id == access.UserId,
+            cancellationToken);
+
+        if (request.Phone is not null)
+        {
+            profile.Phone = string.IsNullOrWhiteSpace(request.Phone)
+                ? null
+                : request.Phone.Trim();
+        }
+
+        if (request.Office is not null)
+        {
+            profile.Office = string.IsNullOrWhiteSpace(request.Office)
+                ? null
+                : request.Office.Trim();
+        }
+
+        profile.Version += 1;
+        profile.UpdatedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync(cancellationToken);
+
+        return await GetMeAsync(httpContext, db, accessEvaluator, cancellationToken);
+    }
+
+    private sealed record ProfileUpdateRequest(string? Phone, string? Office);
 
     private sealed record ReferenceResponse(string Id, string Name);
 

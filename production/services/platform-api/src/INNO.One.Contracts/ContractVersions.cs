@@ -7,6 +7,6 @@ public static class ContractVersions
     public const string ApiContract = "0.5.0";
     public const string EventAuditContract = "0.5.0";
     public const string DataModelContract = "0.6.0";
-    public const string ImplementationContract = "0.29.0";
+    public const string ImplementationContract = "0.30.0";
     public const string ApiBasePath = "/api/v1";
 }
