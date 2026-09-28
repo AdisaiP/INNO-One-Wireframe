@@ -1055,3 +1055,18 @@ export interface PlatformNotificationMarkAllResult {
   updatedCount: number;
   readAt: string;
 }
+
+export interface GlobalSearchResult {
+  type: string;
+  id: string;
+  title: string;
+  subtitle: string;
+  route: string;
+}
+
+export interface GlobalSearchResponse {
+  query: string;
+  items: GlobalSearchResult[];
+  totalItems: number;
+  providerCount: number;
+}

@@ -91,7 +91,6 @@ for marker in [
 for marker in [
     "admin.branding.manage",
     'to="/admin/branding">Branding</NavLink>',
-    "{ label: 'Branding', path: '/admin/branding' }",
 ]:
     if marker not in shell:
         issues.append("branding shell " + marker)

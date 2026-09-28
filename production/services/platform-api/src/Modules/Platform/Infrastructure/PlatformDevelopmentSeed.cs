@@ -136,6 +136,11 @@ public static class PlatformDevelopmentSeed
         ("platform.notifications.view", "platform", "View personal platform notifications")
     ];
 
+    private static readonly (string Id, string Module, string Name)[] Step38Permissions =
+    [
+        ("platform.search.use", "platform", "Use global search")
+    ];
+
     public static async Task SeedAsync(
         PlatformDbContext db,
         CancellationToken cancellationToken = default)
@@ -376,6 +381,12 @@ public static class PlatformDevelopmentSeed
             Module = x.Module,
             Name = x.Name
         }));
+        db.Permissions.AddRange(Step38Permissions.Select(x => new Permission
+        {
+            PermissionId = x.Id,
+            Module = x.Module,
+            Name = x.Name
+        }));
 
         db.RolePermissions.AddRange(basePermissions.Select(x => new RolePermission
         {
@@ -458,11 +469,17 @@ public static class PlatformDevelopmentSeed
             RoleId = PlatformAdminRoleId,
             PermissionId = x.Id
         }));
+        db.RolePermissions.AddRange(Step38Permissions.Select(x => new RolePermission
+        {
+            RoleId = PlatformAdminRoleId,
+            PermissionId = x.Id
+        }));
 
         db.RolePermissions.AddRange(
             new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "platform.workspace.access" },
             new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "platform.apps.view" },
             new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "platform.notifications.view" },
+            new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "platform.search.use" },
             new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "devices.view" },
             new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "helpdesk.ticket.view" },
             new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "helpdesk.ticket.create" },
@@ -473,6 +490,7 @@ public static class PlatformDevelopmentSeed
             "platform.workspace.access",
             "platform.apps.view",
             "platform.notifications.view",
+            "platform.search.use",
             "devices.view",
             "assets.view",
             "assets.qr.scan",
@@ -495,6 +513,7 @@ public static class PlatformDevelopmentSeed
             "platform.workspace.access",
             "platform.apps.view",
             "platform.notifications.view",
+            "platform.search.use",
             "helpdesk.ticket.view",
             "helpdesk.ticket.create"
         })
@@ -602,7 +621,8 @@ public static class PlatformDevelopmentSeed
             .Concat(Step34Permissions)
             .Concat(Step35Permissions)
             .Concat(Step36Permissions)
-            .Concat(Step37Permissions))
+            .Concat(Step37Permissions)
+            .Concat(Step38Permissions))
         {
             if (!await db.Permissions.AnyAsync(
                 x => x.PermissionId == permissionId,
@@ -698,7 +718,8 @@ public static class PlatformDevelopmentSeed
             .Concat(Step34Permissions)
             .Concat(Step35Permissions)
             .Concat(Step36Permissions)
-            .Concat(Step37Permissions))
+            .Concat(Step37Permissions)
+            .Concat(Step38Permissions))
         {
             await EnsureRolePermissionAsync(
                 db,
@@ -711,6 +732,7 @@ public static class PlatformDevelopmentSeed
         {
             "platform.apps.view",
             "platform.notifications.view",
+            "platform.search.use",
             "helpdesk.ticket.view",
             "helpdesk.ticket.create",
             "assets.qr.scan"
@@ -728,6 +750,7 @@ public static class PlatformDevelopmentSeed
             "platform.workspace.access",
             "platform.apps.view",
             "platform.notifications.view",
+            "platform.search.use",
             "devices.view",
             "assets.view",
             "assets.qr.scan",
@@ -750,6 +773,7 @@ public static class PlatformDevelopmentSeed
             "platform.workspace.access",
             "platform.apps.view",
             "platform.notifications.view",
+            "platform.search.use",
             "helpdesk.ticket.view",
             "helpdesk.ticket.create"
         })

@@ -52,6 +52,7 @@ import type {
   DeviceListItem,
   DiscoveryResult,
   DiscoveryScan,
+  GlobalSearchResponse,
   HelpdeskOverview,
   OperationAccepted,
   PlatformNotificationItem,
@@ -127,6 +128,14 @@ export async function getCurrentProfile(): Promise<Profile> {
 
 export async function getPlatformApps(): Promise<AppLauncherResponse> {
   return request<AppLauncherResponse>('/platform/apps');
+}
+
+export async function getGlobalSearch(query: string, limit = 30): Promise<GlobalSearchResponse> {
+  const params = new URLSearchParams({
+    q: query,
+    limit: String(limit),
+  });
+  return request<GlobalSearchResponse>('/search?' + params.toString());
 }
 
 export async function getPlatformNotifications(query: {

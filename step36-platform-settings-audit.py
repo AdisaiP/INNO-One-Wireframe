@@ -93,7 +93,6 @@ for marker in [
 
 for marker in [
     "admin.settings.manage",
-    "{ label: 'Platform Settings', path: '/admin/settings' }",
     'to="/admin/settings">Platform Settings</NavLink>',
 ]:
     if marker not in shell:

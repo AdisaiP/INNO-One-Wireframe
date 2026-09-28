@@ -1,4 +1,4 @@
-import { type FormEvent, useEffect, useMemo, useState } from 'react';
+import { type FormEvent, useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { logout } from '../auth/keycloak';
 import { PRODUCT_BRAND } from './branding';
@@ -32,6 +32,7 @@ export function AppShell() {
   const profile = useProfile();
   const canViewApps = usePermission('platform.apps.view');
   const canViewNotifications = usePermission('platform.notifications.view');
+  const canUseSearch = usePermission('platform.search.use');
   const canAdmin = usePermission('admin.access');
   const canAdminOrganization = usePermission('admin.organization.view');
   const canAdminLocations = usePermission('admin.locations.view');
@@ -70,60 +71,22 @@ export function AppShell() {
   const inTicketWorkspace = /^\/helpdesk\/tickets(?:\/new|\/[^/]+)?$/.test(location.pathname);
   const inProfile = location.pathname.startsWith('/profile');
   const inNotifications = location.pathname.startsWith('/notifications');
+  const inSearch = location.pathname.startsWith('/search');
   const inAccount = inProfile || inNotifications;
   const homePath = canViewDevices ? '/devices' : canViewHelpdesk ? '/helpdesk' : canViewAssets ? '/assets' : '/profile';
-  const searchTargets = useMemo(() => {
-    const items = [{ label: 'Profile & Settings', path: '/profile' }];
-    if (canViewNotifications) items.unshift({ label: 'Notifications', path: '/notifications' });
-    if (canViewApps) items.unshift({ label: 'Apps', path: '/apps' });
-    if (canAdmin) items.push({ label: 'Admin Center', path: '/admin' });
-    if (canAdminOrganization) items.push({ label: 'Organization Structure', path: '/admin/organization' });
-    if (canAdminLocations) items.push({ label: 'Locations', path: '/admin/locations' });
-    if (canAdminPositions) items.push({ label: 'Positions', path: '/admin/positions' });
-    if (canAdminUsers) items.push({ label: 'Users', path: '/admin/users' });
-    if (canAdminRoles) items.push({ label: 'Roles & Permissions', path: '/admin/roles' });
-    if (canAdminScopes) items.push({ label: 'Access Scopes', path: '/admin/access-scopes' });
-    if (canAdminIntegrations) items.push({ label: 'Integrations', path: '/admin/integrations' });
-    if (canAdminSecurity) items.push({ label: 'Security', path: '/admin/security' });
-    if (canAdminAudit) items.push({ label: 'Audit Log', path: '/admin/audit' });
-    if (canAdminBranding) items.push({ label: 'Branding', path: '/admin/branding' });
-    if (canAdminSettings) items.push({ label: 'Platform Settings', path: '/admin/settings' });
-    if (canAdminApps) items.push({ label: 'Apps & Modules', path: '/admin/apps' });
-    if (canViewDevices) items.unshift(
-      { label: 'Devices', path: '/devices' },
-      { label: 'Discovery', path: '/devices/discovery' },
-      { label: 'Device Groups', path: '/devices/groups' },
-    );
-    if (canDeployDevices) items.push({ label: 'Agent Deployment', path: '/devices/add' });
-    if (canViewAssets) items.push(
-      { label: 'Assets Overview', path: '/assets' },
-      { label: 'Asset Inventory', path: '/assets/inventory' },
-      { label: 'Software Baselines', path: '/assets/software-baselines' },
-      { label: 'Contracts & Warranty', path: '/assets/contracts' },
-    );
-    if (canManageAssetLicenses) items.push({ label: 'Software Licenses', path: '/assets/software-licenses' });
-    if (canViewHelpdesk) items.push(
-      { label: 'Helpdesk Overview', path: '/helpdesk' },
-      { label: 'Tickets', path: '/helpdesk/tickets' },
-      { label: 'Assigned to Me', path: '/helpdesk/assigned' },
-      { label: 'Team Queue', path: '/helpdesk/team' },
-      { label: 'SLA & Escalation', path: '/helpdesk/sla' },
-    );
-    if (canViewAutomation) items.push({ label: 'Automation', path: '/helpdesk/automation' });
-    return items;
-  }, [canAdmin, canAdminApps, canAdminAudit, canAdminBranding, canAdminIntegrations, canAdminLocations, canAdminOrganization, canAdminPositions, canAdminRoles, canAdminScopes, canAdminSecurity, canAdminSettings, canAdminUsers, canDeployDevices, canManageAssetLicenses, canViewApps, canViewAssets, canViewAutomation, canViewDevices, canViewHelpdesk, canViewNotifications]);
-
   useEffect(() => setSideOpen(false), [location.pathname]);
+
+  useEffect(() => {
+    if (inSearch) {
+      setShellSearch(new URLSearchParams(location.search).get('q') ?? '');
+    }
+  }, [inSearch, location.search]);
 
   function submitSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const query = shellSearch.trim().toLowerCase();
+    const query = shellSearch.trim();
     if (!query) return;
-    const match = searchTargets.find((item) => item.label.toLowerCase().includes(query));
-    if (match) {
-      navigate(match.path);
-      setShellSearch('');
-    }
+    navigate('/search?q=' + encodeURIComponent(query));
   }
 
   return (
@@ -137,16 +100,18 @@ export function AppShell() {
           <button className="prod-context-toggle" type="button" onClick={() => setSideOpen((value) => !value)} aria-expanded={sideOpen} aria-label="Toggle contextual navigation">
             <ShellIcon name="menu" />
           </button>
-          <form className="prod-global-search" role="search" onSubmit={submitSearch}>
-            <ShellIcon name="search" />
-            <input
-              value={shellSearch}
-              onChange={(event) => setShellSearch(event.target.value)}
-              placeholder={'Search ' + PRODUCT_BRAND.productName + '…'}
-              aria-label={'Search available ' + PRODUCT_BRAND.productName + ' pages'}
-            />
-            <span className="prod-search-hint" aria-hidden="true">Enter</span>
-          </form>
+          {canUseSearch ? (
+            <form className="prod-global-search" role="search" onSubmit={submitSearch}>
+              <ShellIcon name="search" />
+              <input
+                value={shellSearch}
+                onChange={(event) => setShellSearch(event.target.value)}
+                placeholder="Search devices, assets and tickets…"
+                aria-label="Search INNO.One resources"
+              />
+              <span className="prod-search-hint" aria-hidden="true">Enter</span>
+            </form>
+          ) : null}
         </div>
         <div className="prod-header-actions">
           {canViewNotifications ? (
@@ -197,9 +162,16 @@ export function AppShell() {
 
         <aside
           className={`prod-side${sideOpen ? ' open' : ''}`}
-          aria-label={inAccount ? 'Account navigation' : inAdmin ? 'Admin navigation' : inApps ? 'Apps navigation' : inAssets ? 'Assets navigation' : inHelpdesk ? 'Helpdesk navigation' : inDevices ? 'Devices navigation' : 'Workspace context'}
+          aria-label={inSearch ? 'Search navigation' : inAccount ? 'Account navigation' : inAdmin ? 'Admin navigation' : inApps ? 'Apps navigation' : inAssets ? 'Assets navigation' : inHelpdesk ? 'Helpdesk navigation' : inDevices ? 'Devices navigation' : 'Workspace context'}
         >
-          {inAccount ? (
+          {inSearch ? (
+            <>
+              <div className="prod-side-title">Workspace</div>
+              <div className="prod-side-section">Discover</div>
+              <NavLink end to="/search">Search</NavLink>
+              {canViewApps ? <NavLink to="/apps">Apps</NavLink> : null}
+            </>
+          ) : inAccount ? (
             <>
               <div className="prod-side-title">Account</div>
               <div className="prod-side-section">Workspace</div>

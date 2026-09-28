@@ -1,4 +1,5 @@
 using INNO.One.Contracts.Directory;
+using INNO.One.Contracts.Search;
 using INNO.One.Modules.Devices.Application;
 using INNO.One.Modules.Devices.Infrastructure;
 using INNO.One.Modules.Devices.Persistence;
@@ -18,6 +19,7 @@ public static class DevicesModule
 
         services.AddScoped<IDeviceDirectoryReader, DeviceDirectoryReader>();
         services.AddScoped<IDeviceSoftwareInventoryReader, DeviceSoftwareInventoryReader>();
+        services.AddScoped<IGlobalSearchProvider, DevicesGlobalSearchProvider>();
         services.AddScoped<DeviceLedgerWriter>();
         services.AddHostedService<DiscoveryScanWorker>();
         services.AddHostedService<MeshCentralSyncWorker>();

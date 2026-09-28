@@ -94,6 +94,7 @@ var api = app.MapGroup(ContractVersions.ApiBasePath)
 
 api.MapPlatformEndpoints();
 api.MapPlatformNotificationEndpoints();
+api.MapGlobalSearchEndpoints();
 api.MapAppRegistryEndpoints();
 api.MapAdminDirectoryEndpoints();
 api.MapAdminAccessEndpoints();

@@ -1,9 +1,9 @@
 > [!IMPORTANT]
-> **Current production override — 2026-09-28**
+> **Current production override — 2026-09-29**
 >
-> Production Steps **15–28 are implemented**, **Step 29 React UI Parity is completed**, **Step 30 Module SDK / Plugin Contract Foundation is completed**, **Step 31 Admin Center Core is completed**, **Step 32 Admin Integrations Center is completed**, **Step 33 Audit Center is completed**, **Step 34 Security Center is completed**, **Step 35 Branding Foundation is completed**, **Step 36 Platform Settings Foundation is completed**, and **Step 37 Platform Notification Center is completed** on `implementation/step37-notification-center`.
+> Production Steps **15–28 are implemented**, **Step 29 React UI Parity is completed**, **Step 30 Module SDK / Plugin Contract Foundation is completed**, **Step 31 Admin Center Core is completed**, **Step 32 Admin Integrations Center is completed**, **Step 33 Audit Center is completed**, **Step 34 Security Center is completed**, **Step 35 Branding Foundation is completed**, **Step 36 Platform Settings Foundation is completed**, **Step 37 Platform Notification Center is completed**, and **Step 38 Global Search is completed** on `implementation/step38-global-search`.
 >
-> Read `INNO-One-Step37-Next-Chat-Handoff.md` first. Step 37 adds the real self-scoped `/notifications` slice with persisted read/unread state, authorized deep links, shell integration, and the frozen `platform.notifications.view` contract. Static/build/runtime/browser QA is green against the real PostgreSQL + Keycloak runtime on `172.10.1.58`, including responsive visual QA at 1366 / 1024 / 768. The next contract-backed platform slice is Global Search. Meeting remains intentionally deferred. **Do not merge or deploy unless explicitly requested.**
+> Read `INNO-One-Step38-Next-Chat-Handoff.md` first. Step 38 replaces the temporary shell page lookup with the real `/search` slice, module-owned search providers for Devices / Assets / Helpdesk, effective permission/scope filtering, and the frozen `platform.search.use` contract. Static/build/runtime/browser QA is green against the real PostgreSQL + Keycloak runtime on `172.10.1.58`, including responsive visual QA at 1366 / 1024 / 768. The next contract-backed Workspace slice is Workspace Home. Meeting remains intentionally deferred. **Do not merge or deploy unless explicitly requested.**
 
 # INNO.One — Next Chat Handoff
 

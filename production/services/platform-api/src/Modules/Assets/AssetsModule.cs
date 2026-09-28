@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using INNO.One.Contracts.Search;
+using INNO.One.Modules.Assets.Application;
 using INNO.One.Modules.Assets.Infrastructure;
 using INNO.One.Modules.Assets.Persistence;
 
@@ -16,6 +18,7 @@ public static class AssetsModule
 
         services.AddScoped<AssetsLedgerWriter>();
         services.AddScoped<AssetCustomFieldValueService>();
+        services.AddScoped<IGlobalSearchProvider, AssetsGlobalSearchProvider>();
         return services;
     }
 }
