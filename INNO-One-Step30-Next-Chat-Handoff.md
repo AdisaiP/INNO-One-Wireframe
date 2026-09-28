@@ -3,7 +3,7 @@
 Last updated: 2026-09-28
 Step: **30 — Module SDK / Plugin Contract Foundation**
 Branch: `implementation/step30-module-plugin-contract`
-Status: **FOUNDATION CHECKPOINT — static/build complete, runtime browser QA pending**
+Status: **COMPLETE — static/build/runtime/browser QA passed**
 
 ## Goal
 
@@ -41,6 +41,12 @@ Manifest owns:
 - integration capabilities
 
 Meeting and Reports are declared but remain not installed in the App Registry.
+
+Runtime module dependencies preserve the frozen registry intent:
+- Assets → Devices
+- Helpdesk → Devices + Assets
+- Reports → Devices + Assets + Helpdesk
+- Devices / Meeting → Platform only
 ### Backend registry
 
 New:
@@ -133,25 +139,58 @@ Step 29 frozen UI behavior remains authoritative for existing production routes.
 - .NET build: PASS, 0 warnings / 0 errors
 - manifest JSON parse: PASS
 - `git diff --check`: PASS
-## Runtime QA pending
 
-Windows development machine currently does not have Docker Desktop.
+## Runtime QA completed
 
-Therefore the following Step 30 runtime checks are still pending:
-- PostgreSQL migration execution
-- Keycloak-backed authenticated API checks
-- `GET /platform/apps` permission matrix
-- `GET /admin/apps` admin visibility
-- enable/disable mutation + ETag stale-write test
-- dependency conflict tests
-- audit row verification
-- React browser QA for `/apps` and `/admin/apps`
-- visual QA at 1366 / 1024 / 768
+Runtime infrastructure:
+- VPN-connected Ubuntu server `172.10.1.58`
+- Docker project `inno-one-step18`
+- PostgreSQL 17
+- Keycloak 26.4.0
+- Windows source remained the current Step 30 branch
+- PostgreSQL/Keycloak were consumed through local SSH tunnels; source code was not deployed to the server
 
-Do not mark Step 30 fully complete until these runtime/browser checks pass.
+Verified:
+- `Step30AppRegistryConcurrency` migration applied to the real PostgreSQL database
+- Keycloak-backed admin and non-admin tokens
+- `GET /platform/apps` permission filtering
+- `GET /admin/apps` admin-only visibility
+- not-installed module enable conflict
+- dependency conflicts for Assets/Devices
+- enable/disable mutation
+- ETag stale-write returns 412
+- disabled module disappears from launcher
+- final Helpdesk state restored
+- audit rows `platform.app.availability_changed` written with version changes
+
+Automated runtime suite:
+- `python step30-runtime-qa.py`
+- **31 / 31 checks PASS**
+
+## Browser / visual QA completed
+
+Automated browser suite:
+- `python step30-browser-qa.py`
+- **48 / 48 checks PASS**
+
+Verified at:
+- 1366 px
+- 1024 px
+- 768 px
+
+Covered:
+- real Keycloak login
+- Apps data and search
+- Apps & Modules data
+- active rail state
+- no page-level horizontal overflow
+- module row/switch counts
+- no fake Install action
+- Inspect detail
+- screenshot review
+
+Local screenshots are generated under `qa-step30-browser/` and remain ignored QA artifacts.
 
 ## Next action
 
-Install/start the Windows runtime dependencies (PostgreSQL + Keycloak, preferably Docker Desktop), apply migrations, start API + Web, then execute Step 30 browser/runtime QA.
-
-Do not invent Step 31 before Step 30 runtime QA closes.
+Step 30 is closed. Continue only from a newly defined next requirement / phase. Do not invent Step 31 without an explicit scope source.

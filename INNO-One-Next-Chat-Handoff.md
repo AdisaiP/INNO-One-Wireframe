@@ -1,9 +1,9 @@
 > [!IMPORTANT]
 > **Current production override — 2026-09-28**
 >
-> Production Steps **15–28 are implemented** and **Step 29 React UI Parity is completed**. Step 30 Module SDK / Plugin Contract Foundation has started on `implementation/step30-module-plugin-contract`.
+> Production Steps **15–28 are implemented**, **Step 29 React UI Parity is completed**, and **Step 30 Module SDK / Plugin Contract Foundation is completed** on `implementation/step30-module-plugin-contract`.
 >
-> Read `INNO-One-Step30-Next-Chat-Handoff.md` first. Step 30 static/build validation is green, but runtime/browser QA is still pending on Windows because Docker/PostgreSQL/Keycloak are not available yet. **Do not merge or deploy unless explicitly requested.**
+> Read `INNO-One-Step30-Next-Chat-Handoff.md` first. Step 30 static/build/runtime/browser QA is green, including PostgreSQL + Keycloak runtime checks and visual QA at 1366 / 1024 / 768. **Do not merge or deploy unless explicitly requested.**
 
 # INNO.One — Next Chat Handoff
 

@@ -23,6 +23,14 @@ expected = {"devices", "assets", "helpdesk", "meeting", "reports"}
 if set(ids) != expected:
     issues.append("module catalog ids")
 
+expected_dependencies = {
+    "devices": {"platform"},
+    "assets": {"platform", "devices"},
+    "helpdesk": {"platform", "devices", "assets"},
+    "meeting": {"platform"},
+    "reports": {"platform", "devices", "assets", "helpdesk"},
+}
+
 known = set(ids) | {"platform"}
 for module in modules:
     module_id = module["id"]
@@ -32,7 +40,10 @@ for module in modules:
         issues.append(f"{module_id} entry permission")
     if not str(module.get("route", "")).startswith("/"):
         issues.append(f"{module_id} route")
-    for dependency in module.get("dependencies", []):
+    dependencies = set(module.get("dependencies", []))
+    if dependencies != expected_dependencies.get(module_id, set()):
+        issues.append(f"{module_id} dependency contract")
+    for dependency in dependencies:
         if dependency not in known or dependency == module_id:
             issues.append(f"{module_id} dependency {dependency}")
     nav_routes = set()

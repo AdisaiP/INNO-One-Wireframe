@@ -42,7 +42,7 @@
       "surface": "web",
       "launcher": true,
       "entryPermission": "assets.view",
-      "dependencies": ["platform"],
+      "dependencies": ["platform", "devices"],
       "permissions": [
         "assets.view",
         "assets.manage",
@@ -80,7 +80,7 @@
       "surface": "web",
       "launcher": true,
       "entryPermission": "helpdesk.ticket.view",
-      "dependencies": ["platform"],
+      "dependencies": ["platform", "devices", "assets"],
       "permissions": [
         "helpdesk.ticket.view",
         "helpdesk.ticket.create",
@@ -151,7 +151,7 @@
       "surface": "web",
       "launcher": true,
       "entryPermission": "reports.view",
-      "dependencies": ["platform"],
+      "dependencies": ["platform", "devices", "assets", "helpdesk"],
       "permissions": [
         "reports.view",
         "reports.create",
