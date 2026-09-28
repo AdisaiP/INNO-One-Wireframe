@@ -2,7 +2,14 @@ import { useQuery } from '@tanstack/react-query';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { getCurrentProfile } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
+import { AdminAccessScopesPage } from '../pages/AdminAccessScopesPage';
 import { AdminAppsPage } from '../pages/AdminAppsPage';
+import { AdminLocationsPage, AdminOrganizationPage } from '../pages/AdminHierarchyPage';
+import { AdminOverviewPage } from '../pages/AdminOverviewPage';
+import { AdminPositionsPage } from '../pages/AdminPositionsPage';
+import { AdminRolesPage } from '../pages/AdminRolesPage';
+import { AdminUserDetailPage } from '../pages/AdminUserDetailPage';
+import { AdminUsersPage } from '../pages/AdminUsersPage';
 import { AgentDeploymentPage } from '../pages/AgentDeploymentPage';
 import { AppsPage } from '../pages/AppsPage';
 import { AssetCustomFieldsPage } from '../pages/AssetCustomFieldsPage';
@@ -52,6 +59,13 @@ export function AppRoot() {
 
   const profile = profileQuery.data;
   const canViewApps = profile.permissions.includes('platform.apps.view');
+  const canAdmin = profile.permissions.includes('admin.access');
+  const canAdminOrganization = profile.permissions.includes('admin.organization.view');
+  const canAdminLocations = profile.permissions.includes('admin.locations.view');
+  const canAdminPositions = profile.permissions.includes('admin.positions.view');
+  const canAdminUsers = profile.permissions.includes('admin.users.view');
+  const canAdminRoles = profile.permissions.includes('admin.roles.view');
+  const canAdminScopes = profile.permissions.includes('admin.access_scopes.view');
   const canAdminApps = profile.permissions.includes('admin.apps.view');
   const canViewDevices = profile.permissions.includes('devices.view');
   const canDeployDevices = profile.permissions.includes('devices.deploy');
@@ -72,6 +86,15 @@ export function AppRoot() {
           <Route index element={<Navigate to={landingPath} replace />} />
           <Route path="profile" element={<ProfilePage />} />
           <Route path="apps" element={canViewApps ? <AppsPage /> : <DeferredPage name="Apps" kind="permission" />} />
+
+          <Route path="admin" element={canAdmin ? <AdminOverviewPage /> : <DeferredPage name="Admin Center" kind="permission" />} />
+          <Route path="admin/organization" element={canAdminOrganization ? <AdminOrganizationPage /> : <DeferredPage name="Organization Structure" kind="permission" />} />
+          <Route path="admin/locations" element={canAdminLocations ? <AdminLocationsPage /> : <DeferredPage name="Locations" kind="permission" />} />
+          <Route path="admin/positions" element={canAdminPositions ? <AdminPositionsPage /> : <DeferredPage name="Positions" kind="permission" />} />
+          <Route path="admin/users" element={canAdminUsers ? <AdminUsersPage /> : <DeferredPage name="Users" kind="permission" />} />
+          <Route path="admin/users/:userId" element={canAdminUsers ? <AdminUserDetailPage /> : <DeferredPage name="User Detail" kind="permission" />} />
+          <Route path="admin/roles" element={canAdminRoles ? <AdminRolesPage /> : <DeferredPage name="Roles & Permissions" kind="permission" />} />
+          <Route path="admin/access-scopes" element={canAdminScopes ? <AdminAccessScopesPage /> : <DeferredPage name="Access Scopes" kind="permission" />} />
           <Route path="admin/apps" element={canAdminApps ? <AdminAppsPage /> : <DeferredPage name="Apps & Modules" kind="permission" />} />
 
           <Route path="devices" element={canViewDevices ? <DevicesPage /> : <DeferredPage name="Devices" kind="permission" />} />
@@ -110,7 +133,7 @@ export function AppRoot() {
           <Route path="assets/manage/*" element={canManageAssets ? <DeferredPage name="Assets Management" /> : <DeferredPage name="Assets" />} />
           <Route path="meeting/*" element={<DeferredPage name="Meeting" />} />
           <Route path="reports/*" element={<DeferredPage name="Reports" />} />
-          <Route path="admin/*" element={<DeferredPage name="Admin Center" />} />
+          <Route path="admin/*" element={<DeferredPage name="Admin Center" kind="no-results" />} />
           <Route path="*" element={<DeferredPage name="Not Found" kind="no-results" />} />
         </Route>
       </Routes>

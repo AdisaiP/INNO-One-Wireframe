@@ -73,6 +73,105 @@ export interface AdminAppModulesResponse {
   items: AdminAppModule[];
 }
 
+export interface AdminOverview {
+  organizations: number;
+  locations: number;
+  positions: number;
+  users: number;
+  roles: number;
+  accessAssignments: number;
+}
+
+export interface AdminHierarchyItem {
+  id: string;
+  code: string;
+  name: string;
+  parentId?: string | null;
+  status: string;
+  eTag: string;
+}
+
+export interface AdminPosition {
+  id: string;
+  code: string;
+  name: string;
+  status: string;
+  eTag: string;
+}
+
+export interface AdminUserListItem {
+  id: string;
+  employeeId: string;
+  fullName: string;
+  email: string;
+  organization?: ReferenceValue | null;
+  position?: ReferenceValue | null;
+  location?: ReferenceValue | null;
+  status: string;
+  eTag: string;
+}
+
+export interface AdminUserAssignmentSummary {
+  id: string;
+  roleId: string;
+  roleName: string;
+  scopeType: string;
+  status: string;
+}
+
+export interface AdminUserDetail extends AdminUserListItem {
+  keycloakSubject: string;
+  phone?: string | null;
+  office?: string | null;
+  assignments: AdminUserAssignmentSummary[];
+}
+
+export interface AdminRole {
+  id: string;
+  code: string;
+  name: string;
+  status: string;
+  permissions: string[];
+  eTag: string;
+}
+
+export interface AdminPermission {
+  id: string;
+  module: string;
+  name: string;
+}
+
+export interface AdminScopeResource {
+  type: string;
+  id: string;
+}
+
+export interface AdminAccessAssignment {
+  id: string;
+  subjectType: string;
+  subjectId: string;
+  subjectName: string;
+  roleId: string;
+  roleName: string;
+  scopeType: string;
+  resources: AdminScopeResource[];
+  includeChildren: boolean;
+  actionOverrides: string[];
+  status: string;
+  eTag: string;
+}
+
+export interface AdminAccessEvaluation {
+  userId: string;
+  permission: string;
+  allowed: boolean;
+  reason: string;
+  allResources: boolean;
+  organizationIds: string[];
+  locationIds: string[];
+  deviceGroupIds: string[];
+}
+
 export interface DeviceListItem {
   id: string;
   name: string;

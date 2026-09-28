@@ -1,7 +1,16 @@
 import { getAccessToken } from '../auth/keycloak';
 import type {
+  AdminAccessAssignment,
+  AdminAccessEvaluation,
   AdminAppModule,
   AdminAppModulesResponse,
+  AdminHierarchyItem,
+  AdminOverview,
+  AdminPermission,
+  AdminPosition,
+  AdminRole,
+  AdminUserDetail,
+  AdminUserListItem,
   AgentInstaller,
   AppLauncherResponse,
   AssetCustomFieldDefinition,
@@ -128,6 +137,219 @@ export async function updateAdminApp(
         eTag ? { 'If-Match': eTag } : undefined,
       ),
     },
+  );
+  return response.data;
+}
+
+export async function getAdminOverview(): Promise<AdminOverview> {
+  const response = await request<ResourceEnvelope<AdminOverview>>('/admin/overview');
+  return response.data;
+}
+
+export async function getAdminOrganizationTree(): Promise<AdminHierarchyItem[]> {
+  const response = await request<{ items: AdminHierarchyItem[] }>('/admin/organization/tree');
+  return response.items;
+}
+
+export async function createAdminOrganizationUnit(input: {
+  code: string;
+  name: string;
+  parentId?: string | null;
+  status?: string;
+}): Promise<AdminHierarchyItem> {
+  const response = await request<ResourceEnvelope<AdminHierarchyItem>>(
+    '/admin/organization/units',
+    { method: 'POST', ...jsonRequest(input) },
+  );
+  return response.data;
+}
+
+export async function updateAdminOrganizationUnit(
+  unitId: string,
+  eTag: string,
+  input: { code: string; name: string; parentId?: string | null; status?: string },
+): Promise<AdminHierarchyItem> {
+  const response = await request<ResourceEnvelope<AdminHierarchyItem>>(
+    '/admin/organization/units/' + encodeURIComponent(unitId),
+    { method: 'PUT', ...jsonRequest(input, { 'If-Match': eTag }) },
+  );
+  return response.data;
+}
+
+export async function getAdminLocations(): Promise<AdminHierarchyItem[]> {
+  const response = await request<{ items: AdminHierarchyItem[] }>('/admin/locations/tree');
+  return response.items;
+}
+
+export async function createAdminLocation(input: {
+  code: string;
+  name: string;
+  parentId?: string | null;
+  status?: string;
+}): Promise<AdminHierarchyItem> {
+  const response = await request<ResourceEnvelope<AdminHierarchyItem>>(
+    '/admin/locations',
+    { method: 'POST', ...jsonRequest(input) },
+  );
+  return response.data;
+}
+
+export async function updateAdminLocation(
+  locationId: string,
+  eTag: string,
+  input: { code: string; name: string; parentId?: string | null; status?: string },
+): Promise<AdminHierarchyItem> {
+  const response = await request<ResourceEnvelope<AdminHierarchyItem>>(
+    '/admin/locations/' + encodeURIComponent(locationId),
+    { method: 'PUT', ...jsonRequest(input, { 'If-Match': eTag }) },
+  );
+  return response.data;
+}
+
+export async function getAdminPositions(): Promise<AdminPosition[]> {
+  const response = await request<{ items: AdminPosition[] }>('/admin/positions');
+  return response.items;
+}
+
+export async function createAdminPosition(input: {
+  code: string;
+  name: string;
+  status?: string;
+}): Promise<AdminPosition> {
+  const response = await request<ResourceEnvelope<AdminPosition>>(
+    '/admin/positions',
+    { method: 'POST', ...jsonRequest(input) },
+  );
+  return response.data;
+}
+
+export async function updateAdminPosition(
+  positionId: string,
+  eTag: string,
+  input: { code: string; name: string; status?: string },
+): Promise<AdminPosition> {
+  const response = await request<ResourceEnvelope<AdminPosition>>(
+    '/admin/positions/' + encodeURIComponent(positionId),
+    { method: 'PUT', ...jsonRequest(input, { 'If-Match': eTag }) },
+  );
+  return response.data;
+}
+
+export async function getAdminUsers(query: {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  status?: string;
+  organizationId?: string;
+} = {}): Promise<PagedResponse<AdminUserListItem>> {
+  const params = new URLSearchParams({
+    page: String(query.page ?? 1),
+    pageSize: String(query.pageSize ?? 25),
+  });
+  if (query.search?.trim()) params.set('search', query.search.trim());
+  if (query.status && query.status !== 'all') params.set('status', query.status);
+  if (query.organizationId && query.organizationId !== 'all') {
+    params.set('organizationId', query.organizationId);
+  }
+  return request<PagedResponse<AdminUserListItem>>('/admin/users?' + params.toString());
+}
+
+export async function getAdminUser(userId: string): Promise<AdminUserDetail> {
+  const response = await request<ResourceEnvelope<AdminUserDetail>>(
+    '/admin/users/' + encodeURIComponent(userId),
+  );
+  return response.data;
+}
+
+export async function createAdminUser(input: {
+  keycloakSubject: string;
+  employeeId: string;
+  fullName: string;
+  email: string;
+  phone?: string | null;
+  office?: string | null;
+  organizationId?: string | null;
+  positionId?: string | null;
+  locationId?: string | null;
+  status?: string;
+}): Promise<AdminUserDetail> {
+  const response = await request<ResourceEnvelope<AdminUserDetail>>(
+    '/admin/users',
+    { method: 'POST', ...jsonRequest(input) },
+  );
+  return response.data;
+}
+
+export async function updateAdminUser(
+  userId: string,
+  eTag: string,
+  input: {
+    employeeId: string;
+    fullName: string;
+    email: string;
+    phone?: string | null;
+    office?: string | null;
+    organizationId?: string | null;
+    positionId?: string | null;
+    locationId?: string | null;
+    status?: string;
+  },
+): Promise<AdminUserDetail> {
+  const response = await request<ResourceEnvelope<AdminUserDetail>>(
+    '/admin/users/' + encodeURIComponent(userId),
+    { method: 'PUT', ...jsonRequest(input, { 'If-Match': eTag }) },
+  );
+  return response.data;
+}
+
+export async function getAdminRoles(): Promise<AdminRole[]> {
+  const response = await request<{ items: AdminRole[] }>('/admin/roles');
+  return response.items;
+}
+
+export async function getAdminPermissions(): Promise<AdminPermission[]> {
+  const response = await request<{ items: AdminPermission[] }>('/admin/permissions');
+  return response.items;
+}
+
+export async function getAdminAccessAssignments(): Promise<AdminAccessAssignment[]> {
+  const response = await request<{ items: AdminAccessAssignment[] }>('/admin/access-assignments');
+  return response.items;
+}
+
+export async function getAdminAccessAssignment(assignmentId: string): Promise<AdminAccessAssignment> {
+  const response = await request<ResourceEnvelope<AdminAccessAssignment>>(
+    '/admin/access-assignments/' + encodeURIComponent(assignmentId),
+  );
+  return response.data;
+}
+
+export async function updateAdminAccessAssignment(
+  assignmentId: string,
+  eTag: string,
+  input: {
+    roleId: string;
+    scopeType: string;
+    resourceIds: string[];
+    includeChildren: boolean;
+    actionOverrides: string[];
+    status?: string;
+  },
+): Promise<AdminAccessAssignment> {
+  const response = await request<ResourceEnvelope<AdminAccessAssignment>>(
+    '/admin/access-assignments/' + encodeURIComponent(assignmentId),
+    { method: 'PUT', ...jsonRequest(input, { 'If-Match': eTag }) },
+  );
+  return response.data;
+}
+
+export async function evaluateAdminAccess(input: {
+  userId: string;
+  permission: string;
+}): Promise<AdminAccessEvaluation> {
+  const response = await request<ResourceEnvelope<AdminAccessEvaluation>>(
+    '/admin/access-scopes/evaluate',
+    { method: 'POST', ...jsonRequest(input) },
   );
   return response.data;
 }

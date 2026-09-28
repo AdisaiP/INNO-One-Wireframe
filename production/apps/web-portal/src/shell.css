@@ -2723,3 +2723,159 @@
     padding-top: 2px;
   }
 }
+
+/* Step 31 · Admin Center Core */
+.admin-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  padding: 16px;
+}
+.admin-overview-card {
+  display: grid;
+  gap: 6px;
+  min-height: 96px;
+  padding: 14px;
+  border: 1px solid var(--ds-border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ds-text);
+  text-decoration: none;
+}
+.admin-overview-card:hover,
+.admin-overview-card:focus-visible {
+  border-color: #b9c3d1;
+  background: #f8f9fb;
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(39,95,215,.1);
+}
+.admin-overview-card b {
+  font-size: 12px;
+}
+.admin-overview-card span {
+  color: var(--ds-text-3);
+  font-size: 10px;
+  line-height: 1.45;
+}
+.admin-master-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, .85fr);
+  gap: 16px;
+  align-items: start;
+}
+.admin-editor-panel {
+  position: sticky;
+  top: 76px;
+}
+.admin-user-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(300px, .75fr);
+  gap: 16px;
+  align-items: start;
+}
+.admin-role-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px;
+  padding: 16px;
+}
+.admin-role-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 12px;
+  padding: 12px;
+  border: 1px solid var(--ds-border);
+  border-radius: 10px;
+  background: #fff;
+}
+.admin-role-card > div {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+.admin-role-card b {
+  font-size: 11px;
+}
+.admin-role-card span,
+.admin-role-card small {
+  color: var(--ds-text-3);
+  font-size: 9px;
+}
+.admin-role-card small {
+  grid-column: 1 / -1;
+}
+.admin-permission-cell {
+  text-align: center;
+  font-weight: 800;
+}
+.admin-access-layout {
+  grid-template-columns: minmax(0, 1.55fr) minmax(320px, .75fr);
+}
+.admin-check-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.admin-check-field input {
+  width: auto;
+}
+.admin-evaluate-panel {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(240px, 1.4fr) auto;
+  gap: 12px;
+  align-items: end;
+  padding: 16px;
+}
+.admin-evaluation-result {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px 12px;
+  align-items: center;
+  margin: 0 16px 16px;
+  padding: 12px;
+  border: 1px solid var(--ds-border);
+  border-radius: 10px;
+  background: #f8f9fb;
+}
+.admin-evaluation-result > div {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+.admin-evaluation-result b {
+  font-size: 10px;
+  overflow-wrap: anywhere;
+}
+.admin-evaluation-result span,
+.admin-evaluation-result small {
+  color: var(--ds-text-3);
+  font-size: 9px;
+}
+.admin-evaluation-result small {
+  grid-column: 2;
+}
+@media (max-width: 1100px) {
+  .admin-master-detail,
+  .admin-user-layout {
+    grid-template-columns: 1fr;
+  }
+  .admin-editor-panel {
+    position: static;
+  }
+}
+@media (max-width: 768px) {
+  .admin-overview-grid,
+  .admin-role-grid {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+  .admin-evaluate-panel {
+    grid-template-columns: 1fr;
+  }
+  .admin-evaluation-result {
+    grid-template-columns: 1fr;
+  }
+  .admin-evaluation-result small {
+    grid-column: 1;
+  }
+}

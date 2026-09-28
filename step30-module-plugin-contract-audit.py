@@ -102,7 +102,7 @@ for marker in [
         issues.append("route " + marker)
 for marker in [
     'to="/apps" aria-label="Apps"',
-    'to="/admin/apps" aria-label="Admin Center"',
+    'to="/admin/apps">Apps & Modules</NavLink>',
     "platform.apps.view",
     "admin.apps.view",
 ]:
@@ -126,12 +126,15 @@ for marker in [
 if ">Install<" in admin_page or "Install</button>" in admin_page:
     issues.append("fake install action")
 
-if 'ImplementationContract = "0.20.0"' not in versions:
+import re
+version_match = re.search(r'ImplementationContract = "(\d+)\.(\d+)\.(\d+)"', versions)
+implementation_version = tuple(map(int, version_match.groups())) if version_match else (0, 0, 0)
+if implementation_version < (0, 20, 0):
     issues.append("implementation contract version")
 
 print("step30_modules=" + ",".join(ids))
 print("step30_manifest_schema=" + str(manifest.get("schemaVersion")))
-print("step30_implementation_contract=0.20.0")
+print("step30_implementation_contract_min=0.20.0")
 print("issues=" + str(len(issues)))
 for issue in issues:
     print("ISSUE: " + issue)

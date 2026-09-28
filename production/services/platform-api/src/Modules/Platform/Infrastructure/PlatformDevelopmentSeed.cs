@@ -86,6 +86,24 @@ public static class PlatformDevelopmentSeed
         ("admin.apps.manage", "admin", "Enable or disable installed applications")
     ];
 
+    private static readonly (string Id, string Module, string Name)[] Step31Permissions =
+    [
+        ("admin.access", "admin", "Access Admin Center"),
+        ("admin.organization.view", "admin", "View organization structure"),
+        ("admin.organization.manage", "admin", "Manage organization structure"),
+        ("admin.locations.view", "admin", "View locations"),
+        ("admin.locations.manage", "admin", "Manage locations"),
+        ("admin.positions.view", "admin", "View positions"),
+        ("admin.positions.manage", "admin", "Manage positions"),
+        ("admin.users.view", "admin", "View users"),
+        ("admin.users.manage", "admin", "Manage users"),
+        ("admin.roles.view", "admin", "View roles and permissions"),
+        ("admin.roles.manage", "admin", "Manage roles and permissions"),
+        ("admin.access_scopes.view", "admin", "View access scopes"),
+        ("admin.access_scopes.manage", "admin", "Manage access scopes"),
+        ("admin.access_scopes.evaluate", "admin", "Evaluate effective access")
+    ];
+
     public static async Task SeedAsync(
         PlatformDbContext db,
         CancellationToken cancellationToken = default)
@@ -284,6 +302,12 @@ public static class PlatformDevelopmentSeed
             Module = x.Module,
             Name = x.Name
         }));
+        db.Permissions.AddRange(Step31Permissions.Select(x => new Permission
+        {
+            PermissionId = x.Id,
+            Module = x.Module,
+            Name = x.Name
+        }));
 
         db.RolePermissions.AddRange(basePermissions.Select(x => new RolePermission
         {
@@ -327,6 +351,11 @@ public static class PlatformDevelopmentSeed
             PermissionId = x.Id
         }));
         db.RolePermissions.AddRange(Step30Permissions.Select(x => new RolePermission
+        {
+            RoleId = PlatformAdminRoleId,
+            PermissionId = x.Id
+        }));
+        db.RolePermissions.AddRange(Step31Permissions.Select(x => new RolePermission
         {
             RoleId = PlatformAdminRoleId,
             PermissionId = x.Id
@@ -463,7 +492,8 @@ public static class PlatformDevelopmentSeed
             .Concat(Step22Permissions)
             .Concat(Step23Permissions)
             .Concat(Step26Permissions)
-            .Concat(Step30Permissions))
+            .Concat(Step30Permissions)
+            .Concat(Step31Permissions))
         {
             if (!await db.Permissions.AnyAsync(
                 x => x.PermissionId == permissionId,
@@ -552,7 +582,8 @@ public static class PlatformDevelopmentSeed
             .Concat(Step22Permissions)
             .Concat(Step23Permissions)
             .Concat(Step26Permissions)
-            .Concat(Step30Permissions))
+            .Concat(Step30Permissions)
+            .Concat(Step31Permissions))
         {
             await EnsureRolePermissionAsync(
                 db,

@@ -265,7 +265,7 @@ for marker in [
     '<Route path="apps/*" element={<DeferredPage name="Apps" kind="no-results" />} />',
     '<Route path="meeting/*" element={<DeferredPage name="Meeting" />} />',
     '<Route path="reports/*" element={<DeferredPage name="Reports" />} />',
-    '<Route path="admin/*" element={<DeferredPage name="Admin Center" />} />',
+    '<Route path="admin/*" element={<DeferredPage name="Admin Center" kind="no-results" />} />',
     '<Route path="*" element={<DeferredPage name="Not Found" kind="no-results" />} />'
 ]:
     if marker not in app_root: issues.append('remaining route mapping '+marker)

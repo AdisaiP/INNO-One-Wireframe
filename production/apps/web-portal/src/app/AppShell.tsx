@@ -29,6 +29,13 @@ function ShellIcon({ name }: { name: ShellIconName }) {
 export function AppShell() {
   const profile = useProfile();
   const canViewApps = usePermission('platform.apps.view');
+  const canAdmin = usePermission('admin.access');
+  const canAdminOrganization = usePermission('admin.organization.view');
+  const canAdminLocations = usePermission('admin.locations.view');
+  const canAdminPositions = usePermission('admin.positions.view');
+  const canAdminUsers = usePermission('admin.users.view');
+  const canAdminRoles = usePermission('admin.roles.view');
+  const canAdminScopes = usePermission('admin.access_scopes.view');
   const canAdminApps = usePermission('admin.apps.view');
   const canViewDevices = usePermission('devices.view');
   const canDeployDevices = usePermission('devices.deploy');
@@ -43,6 +50,7 @@ export function AppShell() {
   const [sideOpen, setSideOpen] = useState(false);
   const [shellSearch, setShellSearch] = useState('');
   const inApps = location.pathname === '/apps';
+  const inAdmin = location.pathname === '/admin' || location.pathname.startsWith('/admin/');
   const inAdminApps = location.pathname.startsWith('/admin/apps');
   const inDevices = location.pathname.startsWith('/devices');
   const inDeviceDetail = /^\/devices\/[^/]+$/.test(location.pathname)
@@ -57,6 +65,13 @@ export function AppShell() {
   const searchTargets = useMemo(() => {
     const items = [{ label: 'Profile & Settings', path: '/profile' }];
     if (canViewApps) items.unshift({ label: 'Apps', path: '/apps' });
+    if (canAdmin) items.push({ label: 'Admin Center', path: '/admin' });
+    if (canAdminOrganization) items.push({ label: 'Organization Structure', path: '/admin/organization' });
+    if (canAdminLocations) items.push({ label: 'Locations', path: '/admin/locations' });
+    if (canAdminPositions) items.push({ label: 'Positions', path: '/admin/positions' });
+    if (canAdminUsers) items.push({ label: 'Users', path: '/admin/users' });
+    if (canAdminRoles) items.push({ label: 'Roles & Permissions', path: '/admin/roles' });
+    if (canAdminScopes) items.push({ label: 'Access Scopes', path: '/admin/access-scopes' });
     if (canAdminApps) items.push({ label: 'Apps & Modules', path: '/admin/apps' });
     if (canViewDevices) items.unshift(
       { label: 'Devices', path: '/devices' },
@@ -80,7 +95,7 @@ export function AppShell() {
     );
     if (canViewAutomation) items.push({ label: 'Automation', path: '/helpdesk/automation' });
     return items;
-  }, [canAdminApps, canDeployDevices, canManageAssetLicenses, canViewApps, canViewAssets, canViewAutomation, canViewDevices, canViewHelpdesk]);
+  }, [canAdmin, canAdminApps, canAdminLocations, canAdminOrganization, canAdminPositions, canAdminRoles, canAdminScopes, canAdminUsers, canDeployDevices, canManageAssetLicenses, canViewApps, canViewAssets, canViewAutomation, canViewDevices, canViewHelpdesk]);
 
   useEffect(() => setSideOpen(false), [location.pathname]);
 
@@ -146,8 +161,8 @@ export function AppShell() {
             <NavLink className={inHelpdesk ? 'active' : ''} to="/helpdesk" aria-label="Helpdesk" title="Helpdesk"><ShellIcon name="helpdesk" /></NavLink>
           ) : null}
           <span className="grow" />
-          {canAdminApps ? (
-            <NavLink className={inAdminApps ? 'active' : ''} to="/admin/apps" aria-label="Admin Center" title="Apps & Modules"><ShellIcon name="admin" /></NavLink>
+          {canAdmin ? (
+            <NavLink className={inAdmin ? 'active' : ''} to="/admin" aria-label="Admin Center" title="Admin Center"><ShellIcon name="admin" /></NavLink>
           ) : null}
           <NavLink className={inProfile ? 'active' : ''} to="/profile" aria-label="Profile & Settings" title="Profile & Settings"><ShellIcon name="profile" /></NavLink>
         </aside>
@@ -156,7 +171,7 @@ export function AppShell() {
 
         <aside
           className={`prod-side${sideOpen ? ' open' : ''}`}
-          aria-label={inProfile ? 'Account navigation' : inAdminApps ? 'Admin navigation' : inApps ? 'Apps navigation' : inAssets ? 'Assets navigation' : inHelpdesk ? 'Helpdesk navigation' : inDevices ? 'Devices navigation' : 'Workspace context'}
+          aria-label={inProfile ? 'Account navigation' : inAdmin ? 'Admin navigation' : inApps ? 'Apps navigation' : inAssets ? 'Assets navigation' : inHelpdesk ? 'Helpdesk navigation' : inDevices ? 'Devices navigation' : 'Workspace context'}
         >
           {inProfile ? (
             <>
@@ -164,11 +179,21 @@ export function AppShell() {
               <div className="prod-side-section">Workspace</div>
               <NavLink to="/profile">Profile & Settings</NavLink>
             </>
-          ) : inAdminApps ? (
+          ) : inAdmin ? (
             <>
               <div className="prod-side-title">Admin Center</div>
-              <div className="prod-side-section">Platform</div>
-              <NavLink to="/admin/apps">Apps & Modules</NavLink>
+              <div className="prod-side-section">Workspace</div>
+              <NavLink end to="/admin">Overview</NavLink>
+              {(canAdminOrganization || canAdminLocations || canAdminPositions || canAdminUsers) ? <div className="prod-side-section">Organization</div> : null}
+              {canAdminOrganization ? <NavLink to="/admin/organization">Structure</NavLink> : null}
+              {canAdminLocations ? <NavLink to="/admin/locations">Locations</NavLink> : null}
+              {canAdminPositions ? <NavLink to="/admin/positions">Positions</NavLink> : null}
+              {canAdminUsers ? <NavLink to="/admin/users">Users</NavLink> : null}
+              {(canAdminRoles || canAdminScopes) ? <div className="prod-side-section">Access</div> : null}
+              {canAdminRoles ? <NavLink to="/admin/roles">Roles & Permissions</NavLink> : null}
+              {canAdminScopes ? <NavLink to="/admin/access-scopes">Access Scopes</NavLink> : null}
+              {canAdminApps ? <div className="prod-side-section">Platform</div> : null}
+              {canAdminApps ? <NavLink to="/admin/apps">Apps & Modules</NavLink> : null}
             </>
           ) : inApps ? (
             <>
