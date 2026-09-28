@@ -110,5 +110,6 @@ public sealed class AppModule
     public required string AppId { get; set; }
     public bool Installed { get; set; }
     public bool Enabled { get; set; }
+    public long Version { get; set; } = 1;
     public DateTimeOffset UpdatedAt { get; set; }
 }

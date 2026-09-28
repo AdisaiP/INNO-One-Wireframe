@@ -262,7 +262,7 @@ for marker in ["kind = 'disabled'","kind?: Extract<INNOStateKind, 'permission' |
 if app_root.count('kind="permission"') < 20:
     issues.append('permission fallbacks incomplete')
 for marker in [
-    '<Route path="apps/*" element={<DeferredPage name="Apps" />} />',
+    '<Route path="apps/*" element={<DeferredPage name="Apps" kind="no-results" />} />',
     '<Route path="meeting/*" element={<DeferredPage name="Meeting" />} />',
     '<Route path="reports/*" element={<DeferredPage name="Reports" />} />',
     '<Route path="admin/*" element={<DeferredPage name="Admin Center" />} />',

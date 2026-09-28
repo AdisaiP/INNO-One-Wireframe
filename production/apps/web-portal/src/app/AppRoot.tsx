@@ -2,7 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { getCurrentProfile } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
+import { AdminAppsPage } from '../pages/AdminAppsPage';
 import { AgentDeploymentPage } from '../pages/AgentDeploymentPage';
+import { AppsPage } from '../pages/AppsPage';
 import { AssetCustomFieldsPage } from '../pages/AssetCustomFieldsPage';
 import { AssetDetailPage } from '../pages/AssetDetailPage';
 import { AssetInventoryPage } from '../pages/AssetInventoryPage';
@@ -49,6 +51,8 @@ export function AppRoot() {
   }
 
   const profile = profileQuery.data;
+  const canViewApps = profile.permissions.includes('platform.apps.view');
+  const canAdminApps = profile.permissions.includes('admin.apps.view');
   const canViewDevices = profile.permissions.includes('devices.view');
   const canDeployDevices = profile.permissions.includes('devices.deploy');
   const canViewAssets = profile.permissions.includes('assets.view');
@@ -67,6 +71,8 @@ export function AppRoot() {
         <Route element={<AppShell />}>
           <Route index element={<Navigate to={landingPath} replace />} />
           <Route path="profile" element={<ProfilePage />} />
+          <Route path="apps" element={canViewApps ? <AppsPage /> : <DeferredPage name="Apps" kind="permission" />} />
+          <Route path="admin/apps" element={canAdminApps ? <AdminAppsPage /> : <DeferredPage name="Apps & Modules" kind="permission" />} />
 
           <Route path="devices" element={canViewDevices ? <DevicesPage /> : <DeferredPage name="Devices" kind="permission" />} />
           <Route path="devices/discovery" element={canViewDevices ? <DiscoveryPage /> : <DeferredPage name="Discovery" kind="permission" />} />
@@ -100,7 +106,7 @@ export function AppRoot() {
           <Route path="helpdesk/automation/new" element={canViewAutomation ? <AutomationRulePage /> : <DeferredPage name="New Automation Rule" kind="permission" />} />
           <Route path="helpdesk/automation/:ruleId" element={canViewAutomation ? <AutomationRulePage /> : <DeferredPage name="Automation Rule" kind="permission" />} />
 
-          <Route path="apps/*" element={<DeferredPage name="Apps" />} />
+          <Route path="apps/*" element={<DeferredPage name="Apps" kind="no-results" />} />
           <Route path="assets/manage/*" element={canManageAssets ? <DeferredPage name="Assets Management" /> : <DeferredPage name="Assets" />} />
           <Route path="meeting/*" element={<DeferredPage name="Meeting" />} />
           <Route path="reports/*" element={<DeferredPage name="Reports" />} />

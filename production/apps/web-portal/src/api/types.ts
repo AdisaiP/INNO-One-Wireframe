@@ -32,6 +32,47 @@ export interface Profile {
   ssoStatus: string;
 }
 
+export interface AppNavigationItem {
+  id: string;
+  label: string;
+  route: string;
+}
+
+export interface AppLauncherItem {
+  id: string;
+  name: string;
+  icon: string;
+  route: string;
+  navigation: AppNavigationItem[];
+}
+
+export interface AppLauncherResponse {
+  items: AppLauncherItem[];
+}
+
+export interface AdminAppModule {
+  id: string;
+  name: string;
+  icon: string;
+  route: string;
+  entryPermission: string;
+  status: 'enabled' | 'disabled' | 'not-installed';
+  installed: boolean;
+  enabled: boolean;
+  dependenciesAvailable: boolean;
+  dependencies: string[];
+  permissions: string[];
+  events: string[];
+  capabilities: string[];
+  updatedAt?: string | null;
+  eTag?: string | null;
+}
+
+export interface AdminAppModulesResponse {
+  schemaVersion: number;
+  items: AdminAppModule[];
+}
+
 export interface DeviceListItem {
   id: string;
   name: string;

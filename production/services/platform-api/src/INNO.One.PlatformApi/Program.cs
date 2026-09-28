@@ -91,6 +91,7 @@ var api = app.MapGroup(ContractVersions.ApiBasePath)
     .RequireAuthorization();
 
 api.MapPlatformEndpoints();
+api.MapAppRegistryEndpoints();
 api.MapDevicesEndpoints();
 api.MapDeviceManagementEndpoints();
 api.MapDeviceSoftwareInventoryEndpoints();

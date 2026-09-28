@@ -1,9 +1,9 @@
 > [!IMPORTANT]
 > **Current production override — 2026-09-28**
 >
-> The historical sections below describe the frozen prototype era and are no longer the current implementation status. Production Steps **15–28 are implemented**, and **Step 29 React UI Parity is completed** on `implementation/step29-assets-parity-recovery`.
+> Production Steps **15–28 are implemented** and **Step 29 React UI Parity is completed**. Step 30 Module SDK / Plugin Contract Foundation has started on `implementation/step30-module-plugin-contract`.
 >
-> Read `INNO-One-Step29-Next-Chat-Handoff.md` before continuing production work. The user's Mac may still contain uncommitted Step 29 edits from the Remote Desktop interruption, so inspect the local working tree before any checkout/pull/reset. **Do not merge or deploy unless explicitly requested.**
+> Read `INNO-One-Step30-Next-Chat-Handoff.md` first. Step 30 static/build validation is green, but runtime/browser QA is still pending on Windows because Docker/PostgreSQL/Keycloak are not available yet. **Do not merge or deploy unless explicitly requested.**
 
 # INNO.One — Next Chat Handoff
 

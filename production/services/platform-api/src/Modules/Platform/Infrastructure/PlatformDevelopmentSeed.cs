@@ -79,6 +79,13 @@ public static class PlatformDevelopmentSeed
         ("assets.baseline.manage", "assets", "Manage software baseline definitions")
     ];
 
+    private static readonly (string Id, string Module, string Name)[] Step30Permissions =
+    [
+        ("platform.apps.view", "platform", "View available applications"),
+        ("admin.apps.view", "admin", "View Apps & Modules administration"),
+        ("admin.apps.manage", "admin", "Enable or disable installed applications")
+    ];
+
     public static async Task SeedAsync(
         PlatformDbContext db,
         CancellationToken cancellationToken = default)
@@ -271,6 +278,12 @@ public static class PlatformDevelopmentSeed
             Module = x.Module,
             Name = x.Name
         }));
+        db.Permissions.AddRange(Step30Permissions.Select(x => new Permission
+        {
+            PermissionId = x.Id,
+            Module = x.Module,
+            Name = x.Name
+        }));
 
         db.RolePermissions.AddRange(basePermissions.Select(x => new RolePermission
         {
@@ -313,9 +326,15 @@ public static class PlatformDevelopmentSeed
             RoleId = PlatformAdminRoleId,
             PermissionId = x.Id
         }));
+        db.RolePermissions.AddRange(Step30Permissions.Select(x => new RolePermission
+        {
+            RoleId = PlatformAdminRoleId,
+            PermissionId = x.Id
+        }));
 
         db.RolePermissions.AddRange(
             new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "platform.workspace.access" },
+            new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "platform.apps.view" },
             new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "devices.view" },
             new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "helpdesk.ticket.view" },
             new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "helpdesk.ticket.create" },
@@ -324,6 +343,7 @@ public static class PlatformDevelopmentSeed
         foreach (var permissionId in new[]
         {
             "platform.workspace.access",
+            "platform.apps.view",
             "devices.view",
             "assets.view",
             "assets.qr.scan",
@@ -344,6 +364,7 @@ public static class PlatformDevelopmentSeed
         foreach (var permissionId in new[]
         {
             "platform.workspace.access",
+            "platform.apps.view",
             "helpdesk.ticket.view",
             "helpdesk.ticket.create"
         })
@@ -441,7 +462,8 @@ public static class PlatformDevelopmentSeed
             .Concat(Step21Permissions)
             .Concat(Step22Permissions)
             .Concat(Step23Permissions)
-            .Concat(Step26Permissions))
+            .Concat(Step26Permissions)
+            .Concat(Step30Permissions))
         {
             if (!await db.Permissions.AnyAsync(
                 x => x.PermissionId == permissionId,
@@ -529,7 +551,8 @@ public static class PlatformDevelopmentSeed
             .Concat(Step21Permissions)
             .Concat(Step22Permissions)
             .Concat(Step23Permissions)
-            .Concat(Step26Permissions))
+            .Concat(Step26Permissions)
+            .Concat(Step30Permissions))
         {
             await EnsureRolePermissionAsync(
                 db,
@@ -540,6 +563,7 @@ public static class PlatformDevelopmentSeed
 
         foreach (var permissionId in new[]
         {
+            "platform.apps.view",
             "helpdesk.ticket.view",
             "helpdesk.ticket.create",
             "assets.qr.scan"
@@ -555,6 +579,7 @@ public static class PlatformDevelopmentSeed
         foreach (var permissionId in new[]
         {
             "platform.workspace.access",
+            "platform.apps.view",
             "devices.view",
             "assets.view",
             "assets.qr.scan",
@@ -575,6 +600,7 @@ public static class PlatformDevelopmentSeed
         foreach (var permissionId in new[]
         {
             "platform.workspace.access",
+            "platform.apps.view",
             "helpdesk.ticket.view",
             "helpdesk.ticket.create"
         })

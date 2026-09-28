@@ -12,13 +12,15 @@ function initials(name: string): string {
     .join('');
 }
 
-type ShellIconName = 'devices' | 'assets' | 'helpdesk' | 'profile' | 'search' | 'menu';
+type ShellIconName = 'apps' | 'devices' | 'assets' | 'helpdesk' | 'admin' | 'profile' | 'search' | 'menu';
 
 function ShellIcon({ name }: { name: ShellIconName }) {
   const common = { width: 18, height: 18, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.9 } as const;
+  if (name === 'apps') return <svg {...common} aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg>;
   if (name === 'devices') return <svg {...common} aria-hidden="true"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 22h8M12 18v4"/></svg>;
   if (name === 'assets') return <svg {...common} aria-hidden="true"><path d="m12 3 8 4.5-8 4.5-8-4.5L12 3Z"/><path d="m4 12 8 4.5 8-4.5M4 16.5 12 21l8-4.5"/></svg>;
   if (name === 'helpdesk') return <svg {...common} aria-hidden="true"><path d="M4 13a8 8 0 0 1 16 0v5a2 2 0 0 1-2 2h-3"/><path d="M4 14h3v5H5a1 1 0 0 1-1-1v-4ZM20 14h-3v5h2a1 1 0 0 0 1-1v-4Z"/></svg>;
+  if (name === 'admin') return <svg {...common} aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.1A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.1A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.1A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.15.37.39.7.7.94.31.24.69.38 1.08.4H21v4h-.1a1.7 1.7 0 0 0-1.5.66Z"/></svg>;
   if (name === 'profile') return <svg {...common} aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></svg>;
   if (name === 'menu') return <svg {...common} aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>;
   return <svg {...common} aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>;
@@ -26,6 +28,8 @@ function ShellIcon({ name }: { name: ShellIconName }) {
 
 export function AppShell() {
   const profile = useProfile();
+  const canViewApps = usePermission('platform.apps.view');
+  const canAdminApps = usePermission('admin.apps.view');
   const canViewDevices = usePermission('devices.view');
   const canDeployDevices = usePermission('devices.deploy');
   const canViewAssets = usePermission('assets.view');
@@ -38,6 +42,8 @@ export function AppShell() {
   const navigate = useNavigate();
   const [sideOpen, setSideOpen] = useState(false);
   const [shellSearch, setShellSearch] = useState('');
+  const inApps = location.pathname === '/apps';
+  const inAdminApps = location.pathname.startsWith('/admin/apps');
   const inDevices = location.pathname.startsWith('/devices');
   const inDeviceDetail = /^\/devices\/[^/]+$/.test(location.pathname)
     && !['/devices/discovery', '/devices/groups', '/devices/add'].includes(location.pathname);
@@ -50,6 +56,8 @@ export function AppShell() {
   const homePath = canViewDevices ? '/devices' : canViewHelpdesk ? '/helpdesk' : canViewAssets ? '/assets' : '/profile';
   const searchTargets = useMemo(() => {
     const items = [{ label: 'Profile & Settings', path: '/profile' }];
+    if (canViewApps) items.unshift({ label: 'Apps', path: '/apps' });
+    if (canAdminApps) items.push({ label: 'Apps & Modules', path: '/admin/apps' });
     if (canViewDevices) items.unshift(
       { label: 'Devices', path: '/devices' },
       { label: 'Discovery', path: '/devices/discovery' },
@@ -72,7 +80,7 @@ export function AppShell() {
     );
     if (canViewAutomation) items.push({ label: 'Automation', path: '/helpdesk/automation' });
     return items;
-  }, [canDeployDevices, canManageAssetLicenses, canViewAssets, canViewAutomation, canViewDevices, canViewHelpdesk]);
+  }, [canAdminApps, canDeployDevices, canManageAssetLicenses, canViewApps, canViewAssets, canViewAutomation, canViewDevices, canViewHelpdesk]);
 
   useEffect(() => setSideOpen(false), [location.pathname]);
 
@@ -125,6 +133,9 @@ export function AppShell() {
 
       <div className="prod-shell-body">
         <aside className="prod-rail" aria-label="App navigation">
+          {canViewApps ? (
+            <NavLink className={inApps ? 'active' : ''} to="/apps" aria-label="Apps" title="Apps"><ShellIcon name="apps" /></NavLink>
+          ) : null}
           {canViewDevices ? (
             <NavLink className={inDevices ? 'active' : ''} to="/devices" aria-label="Devices" title="Devices"><ShellIcon name="devices" /></NavLink>
           ) : null}
@@ -135,6 +146,9 @@ export function AppShell() {
             <NavLink className={inHelpdesk ? 'active' : ''} to="/helpdesk" aria-label="Helpdesk" title="Helpdesk"><ShellIcon name="helpdesk" /></NavLink>
           ) : null}
           <span className="grow" />
+          {canAdminApps ? (
+            <NavLink className={inAdminApps ? 'active' : ''} to="/admin/apps" aria-label="Admin Center" title="Apps & Modules"><ShellIcon name="admin" /></NavLink>
+          ) : null}
           <NavLink className={inProfile ? 'active' : ''} to="/profile" aria-label="Profile & Settings" title="Profile & Settings"><ShellIcon name="profile" /></NavLink>
         </aside>
 
@@ -142,13 +156,26 @@ export function AppShell() {
 
         <aside
           className={`prod-side${sideOpen ? ' open' : ''}`}
-          aria-label={inProfile ? 'Account navigation' : inAssets ? 'Assets navigation' : inHelpdesk ? 'Helpdesk navigation' : inDevices ? 'Devices navigation' : 'Workspace context'}
+          aria-label={inProfile ? 'Account navigation' : inAdminApps ? 'Admin navigation' : inApps ? 'Apps navigation' : inAssets ? 'Assets navigation' : inHelpdesk ? 'Helpdesk navigation' : inDevices ? 'Devices navigation' : 'Workspace context'}
         >
           {inProfile ? (
             <>
               <div className="prod-side-title">Account</div>
               <div className="prod-side-section">Workspace</div>
               <NavLink to="/profile">Profile & Settings</NavLink>
+            </>
+          ) : inAdminApps ? (
+            <>
+              <div className="prod-side-title">Admin Center</div>
+              <div className="prod-side-section">Platform</div>
+              <NavLink to="/admin/apps">Apps & Modules</NavLink>
+            </>
+          ) : inApps ? (
+            <>
+              <div className="prod-side-title">Apps</div>
+              <div className="prod-side-section">Launcher</div>
+              <NavLink end to="/apps">All Apps</NavLink>
+              {canAdminApps ? <NavLink to="/admin/apps">Apps & Modules</NavLink> : null}
             </>
           ) : inAssets ? (
             <>

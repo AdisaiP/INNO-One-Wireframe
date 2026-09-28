@@ -1,6 +1,9 @@
 import { getAccessToken } from '../auth/keycloak';
 import type {
+  AdminAppModule,
+  AdminAppModulesResponse,
   AgentInstaller,
+  AppLauncherResponse,
   AssetCustomFieldDefinition,
   AssetCustomFieldSchema,
   AssetDetail,
@@ -100,6 +103,32 @@ function jsonRequest(body: unknown, headers?: HeadersInit): RequestInit {
 
 export async function getCurrentProfile(): Promise<Profile> {
   const response = await request<ResourceEnvelope<Profile>>('/platform/me');
+  return response.data;
+}
+
+export async function getPlatformApps(): Promise<AppLauncherResponse> {
+  return request<AppLauncherResponse>('/platform/apps');
+}
+
+export async function getAdminApps(): Promise<AdminAppModulesResponse> {
+  return request<AdminAppModulesResponse>('/admin/apps');
+}
+
+export async function updateAdminApp(
+  appId: string,
+  eTag: string | null | undefined,
+  enabled: boolean,
+): Promise<AdminAppModule> {
+  const response = await request<ResourceEnvelope<AdminAppModule>>(
+    '/admin/apps/' + encodeURIComponent(appId),
+    {
+      method: 'PATCH',
+      ...jsonRequest(
+        { enabled },
+        eTag ? { 'If-Match': eTag } : undefined,
+      ),
+    },
+  );
   return response.data;
 }
 
