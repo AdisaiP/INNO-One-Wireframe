@@ -273,6 +273,7 @@ namespace INNO.One.Modules.Devices.Persistence.Migrations
 
                     b.Property<string>("SyncStatus")
                         .IsRequired()
+                        .ValueGeneratedOnAdd()
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)")
                         .HasDefaultValue("local")
@@ -321,6 +322,107 @@ namespace INNO.One.Modules.Devices.Persistence.Migrations
                         .HasDatabaseName("ix_device_group_members_device_id");
 
                     b.ToTable("device_group_members", "devices");
+                });
+
+            modelBuilder.Entity("INNO.One.Modules.Devices.Domain.DeviceInstalledSoftware", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Architecture")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("architecture");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("display_name");
+
+                    b.Property<string>("ProductKey")
+                        .IsRequired()
+                        .HasMaxLength(240)
+                        .HasColumnType("character varying(240)")
+                        .HasColumnName("product_key");
+
+                    b.Property<string>("Publisher")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("publisher");
+
+                    b.Property<Guid>("SnapshotId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("snapshot_id");
+
+                    b.Property<string>("Version")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id")
+                        .HasName("pk_installed_software");
+
+                    b.HasIndex("SnapshotId", "ProductKey")
+                        .IsUnique()
+                        .HasDatabaseName("ix_installed_software_snapshot_id_product_key");
+
+                    b.ToTable("installed_software", "devices");
+                });
+
+            modelBuilder.Entity("INNO.One.Modules.Devices.Domain.DeviceSoftwareInventorySnapshot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Completeness")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("completeness");
+
+                    b.Property<Guid>("DeviceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("device_id");
+
+                    b.Property<DateTimeOffset>("ObservedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("observed_at");
+
+                    b.Property<int>("PackageCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("package_count");
+
+                    b.Property<DateTimeOffset>("ReceivedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("received_at");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("source");
+
+                    b.Property<string>("SourceInstance")
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("source_instance");
+
+                    b.HasKey("Id")
+                        .HasName("pk_software_inventory_snapshots");
+
+                    b.HasIndex("DeviceId", "ObservedAt")
+                        .HasDatabaseName("ix_software_inventory_snapshots_device_id_observed_at");
+
+                    b.HasIndex("DeviceId", "ObservedAt", "Source")
+                        .IsUnique()
+                        .HasDatabaseName("ix_software_inventory_snapshots_device_id_observed_at_source");
+
+                    b.ToTable("software_inventory_snapshots", "devices");
                 });
 
             modelBuilder.Entity("INNO.One.Modules.Devices.Domain.DiscoveryResult", b =>
@@ -489,6 +591,26 @@ namespace INNO.One.Modules.Devices.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_device_group_members_device_groups_group_id");
+                });
+
+            modelBuilder.Entity("INNO.One.Modules.Devices.Domain.DeviceInstalledSoftware", b =>
+                {
+                    b.HasOne("INNO.One.Modules.Devices.Domain.DeviceSoftwareInventorySnapshot", null)
+                        .WithMany()
+                        .HasForeignKey("SnapshotId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_installed_software_software_inventory_snapshots_snapshot_id");
+                });
+
+            modelBuilder.Entity("INNO.One.Modules.Devices.Domain.DeviceSoftwareInventorySnapshot", b =>
+                {
+                    b.HasOne("INNO.One.Modules.Devices.Domain.Device", null)
+                        .WithMany()
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_software_inventory_snapshots_devices_device_id");
                 });
 
             modelBuilder.Entity("INNO.One.Modules.Devices.Domain.DiscoveryResult", b =>

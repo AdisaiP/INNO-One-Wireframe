@@ -1,6 +1,7 @@
 using INNO.One.Contracts.Api;
 using INNO.One.Contracts.Authorization;
 using INNO.One.Contracts.Identifiers;
+using INNO.One.Modules.Platform.Application;
 using INNO.One.Modules.Platform.Persistence;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -91,8 +92,8 @@ public static class PlatformEndpoints
                     continue;
                 }
 
-                var moduleId = permission.Split('.', 2)[0];
-                if (!string.Equals(moduleId, "platform", StringComparison.Ordinal)
+                var moduleId = PermissionNamespace.Get(permission);
+                if (PermissionNamespace.RequiresModuleAvailability(permission)
                     && !enabledModules.Contains(moduleId))
                 {
                     continue;

@@ -15,6 +15,11 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="..\..\..\..\..\module-manifests.json"
+                      Link="ModuleManifests.json"
+                      LogicalName="INNO.One.ModuleManifests.json" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\INNO.One.Contracts\INNO.One.Contracts.csproj" />
     <ProjectReference Include="..\..\INNO.One.SharedKernel\INNO.One.SharedKernel.csproj" />
   </ItemGroup>

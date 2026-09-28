@@ -1,11 +1,11 @@
 # INNO.One — Event & Audit Contract
 
-**Date:** 2026-09-26  
-**Status:** Implementation planning contract  
-**Event & Audit Contract:** 0.3.0  
-**API Contract:** 0.2.0  
-**UX/UI baseline:** Design System V1.26 / UI Contract 1.20.0  
-**Scope:** Step 12 — Event & Audit Contract  
+**Date:** 2026-09-26
+**Status:** Implementation planning contract
+**Event & Audit Contract:** 0.5.0
+**API Contract:** 0.5.0
+**UX/UI baseline:** Design System V1.26 / UI Contract 1.20.0
+**Scope:** Step 12 — Event & Audit Contract
 **Backend implementation:** Not started by this document
 
 ## 1. Purpose
@@ -960,3 +960,13 @@ Machine-readable source: `inno-event-audit-contract.json`.
 | `reports.report.run` | `reports` | `report_run` | `data_access_standard` | `internal` |
 | `reports.report.exported` | `reports` | `report_export` | `data_access_standard` | `restricted` |
 | `security.authorization.denied` | `platform` | `authorization_decision` | `security_long` | `restricted` |
+
+
+## Step 27 additive event — software inventory observed
+
+`device.software_inventory.observed` carries only Device ID, snapshot ID, observation time, completeness, source and package count. The complete package list stays in Devices persistence and is retrieved through the owning module contract. `devices.software_inventory.observed` records the privileged ingest action in the same transaction.
+
+
+## Step 28 implemented drift policy
+
+`baseline.drift` is emitted only when an existing evidence-backed result changes between Compliant and Missing. Initial evaluation and transitions involving Unknown do not emit drift. `assets.baseline.evaluated` records the evaluation summary in the same transaction.

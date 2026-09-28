@@ -18,6 +18,8 @@ public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> option
     public DbSet<AccessAssignmentResource> AccessAssignmentResources => Set<AccessAssignmentResource>();
     public DbSet<AccessAssignmentAction> AccessAssignmentActions => Set<AccessAssignmentAction>();
     public DbSet<AppModule> AppModules => Set<AppModule>();
+    public DbSet<PlatformNotification> Notifications => Set<PlatformNotification>();
+    public DbSet<PlatformActivityItem> ActivityItems => Set<PlatformActivityItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -132,6 +134,34 @@ public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> option
             entity.HasKey(x => x.Id);
             entity.HasIndex(x => x.AppId).IsUnique();
             entity.Property(x => x.AppId).HasMaxLength(64);
+        });
+
+        modelBuilder.Entity<PlatformNotification>(entity =>
+        {
+            entity.ToTable("notifications");
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.SourceModule).HasMaxLength(64);
+            entity.Property(x => x.NotificationType).HasMaxLength(64);
+            entity.Property(x => x.Title).HasMaxLength(240);
+            entity.Property(x => x.Message).HasMaxLength(1000);
+            entity.Property(x => x.DestinationPath).HasMaxLength(500);
+            entity.HasIndex(x => new { x.UserId, x.ReadAt, x.CreatedAt });
+            entity.HasIndex(x => new { x.UserId, x.IsImportant, x.CreatedAt });
+            entity.HasOne<UserProfile>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<PlatformActivityItem>(entity =>
+        {
+            entity.ToTable("activity_items");
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.SourceModule).HasMaxLength(64);
+            entity.Property(x => x.ResourceType).HasMaxLength(64);
+            entity.Property(x => x.ResourceId).HasMaxLength(128);
+            entity.Property(x => x.Title).HasMaxLength(240);
+            entity.Property(x => x.Activity).HasMaxLength(500);
+            entity.Property(x => x.DestinationPath).HasMaxLength(500);
+            entity.HasIndex(x => new { x.UserId, x.OccurredAt });
+            entity.HasOne<UserProfile>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
         });
 
         base.OnModelCreating(modelBuilder);

@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 1,
+  "modules": [
+    {
+      "id": "devices",
+      "name": "Devices",
+      "icon": "devices",
+      "route": "/devices",
+      "surface": "web",
+      "launcher": true,
+      "entryPermission": "devices.view",
+      "dependencies": ["platform"],
+      "permissions": [
+        "devices.view",
+        "devices.manage",
+        "devices.deploy",
+        "devices.remote"
+      ],
+      "navigation": [
+        { "id": "overview", "label": "Devices", "route": "/devices", "permission": "devices.view" },
+        { "id": "discovery", "label": "Discovery", "route": "/devices/discovery", "permission": "devices.view" },
+        { "id": "groups", "label": "Device Groups", "route": "/devices/groups", "permission": "devices.view" },
+        { "id": "deployment", "label": "Agent Deployment", "route": "/devices/add", "permission": "devices.deploy" }
+      ],
+      "events": [
+        "device.online",
+        "device.offline",
+        "remote.started"
+      ],
+      "capabilities": [
+        "navigation",
+        "global-search",
+        "audit",
+        "events"
+      ]
+    },
+    {
+      "id": "assets",
+      "name": "Assets",
+      "icon": "assets",
+      "route": "/assets",
+      "surface": "web",
+      "launcher": true,
+      "entryPermission": "assets.view",
+      "dependencies": ["platform", "devices"],
+      "permissions": [
+        "assets.view",
+        "assets.manage",
+        "assets.qr.print",
+        "assets.qr.scan",
+        "assets.license.manage",
+        "assets.contract.manage",
+        "assets.baseline.manage"
+      ],
+      "navigation": [
+        { "id": "overview", "label": "Overview", "route": "/assets", "permission": "assets.view" },
+        { "id": "inventory", "label": "Asset Inventory", "route": "/assets/inventory", "permission": "assets.view" },
+        { "id": "baselines", "label": "Software Baselines", "route": "/assets/software-baselines", "permission": "assets.view" },
+        { "id": "licenses", "label": "Software Licenses", "route": "/assets/software-licenses", "permission": "assets.license.manage" },
+        { "id": "contracts", "label": "Contracts & Warranty", "route": "/assets/contracts", "permission": "assets.view" },
+        { "id": "custom-fields", "label": "Custom Fields", "route": "/assets/custom-fields", "permission": "assets.view" },
+        { "id": "qr-labels", "label": "QR Labels", "route": "/assets/qr-labels", "permission": "assets.qr.print" },
+        { "id": "ownership", "label": "Ownership & Users", "route": "/assets/ownership", "permission": "assets.view" },
+        { "id": "owners", "label": "User Profiles", "route": "/assets/owners", "permission": "assets.view" },
+        { "id": "submissions", "label": "Agent Submissions", "route": "/assets/ownership/submissions", "permission": "assets.view" }
+      ],
+      "events": ["ownership.changed"],
+      "capabilities": [
+        "navigation",
+        "global-search",
+        "audit",
+        "events"
+      ]
+    },
+    {
+      "id": "helpdesk",
+      "name": "Helpdesk",
+      "icon": "helpdesk",
+      "route": "/helpdesk",
+      "surface": "web",
+      "launcher": true,
+      "entryPermission": "helpdesk.ticket.view",
+      "dependencies": ["platform", "devices", "assets"],
+      "permissions": [
+        "helpdesk.ticket.view",
+        "helpdesk.ticket.create",
+        "helpdesk.ticket.reply",
+        "helpdesk.ticket.assign",
+        "helpdesk.ticket.resolve",
+        "helpdesk.sla.manage",
+        "helpdesk.automation.view",
+        "helpdesk.automation.manage"
+      ],
+      "navigation": [
+        { "id": "overview", "label": "Overview", "route": "/helpdesk", "permission": "helpdesk.ticket.view" },
+        { "id": "tickets", "label": "Tickets", "route": "/helpdesk/tickets", "permission": "helpdesk.ticket.view" },
+        { "id": "assigned", "label": "Assigned to Me", "route": "/helpdesk/assigned", "permission": "helpdesk.ticket.view" },
+        { "id": "team", "label": "Team Queue", "route": "/helpdesk/team", "permission": "helpdesk.ticket.view" },
+        { "id": "sla", "label": "SLA & Escalation", "route": "/helpdesk/sla", "permission": "helpdesk.ticket.view" },
+        { "id": "calendar", "label": "Business Calendar", "route": "/helpdesk/calendar", "permission": "helpdesk.sla.manage" },
+        { "id": "automation", "label": "Automation", "route": "/helpdesk/automation", "permission": "helpdesk.automation.view" }
+      ],
+      "events": [
+        "ticket.created",
+        "ticket.assigned",
+        "ticket.resolved"
+      ],
+      "capabilities": [
+        "navigation",
+        "global-search",
+        "audit",
+        "events"
+      ]
+    },
+    {
+      "id": "meeting",
+      "name": "Meeting",
+      "icon": "meeting",
+      "route": "/meeting",
+      "surface": "web",
+      "launcher": true,
+      "entryPermission": "meeting.view",
+      "dependencies": ["platform"],
+      "permissions": [
+        "meeting.view",
+        "meeting.create",
+        "meeting.record",
+        "meeting.share",
+        "meeting.files.manage"
+      ],
+      "navigation": [
+        { "id": "overview", "label": "Overview", "route": "/meeting", "permission": "meeting.view" }
+      ],
+      "events": [
+        "meeting.created",
+        "transcript.completed",
+        "summary.completed"
+      ],
+      "capabilities": [
+        "navigation",
+        "global-search",
+        "audit",
+        "events"
+      ]
+    },
+    {
+      "id": "reports",
+      "name": "Reports",
+      "icon": "reports",
+      "route": "/reports",
+      "surface": "web",
+      "launcher": true,
+      "entryPermission": "reports.view",
+      "dependencies": ["platform", "devices", "assets", "helpdesk"],
+      "permissions": [
+        "reports.view",
+        "reports.create",
+        "reports.manage"
+      ],
+      "navigation": [
+        { "id": "overview", "label": "Overview", "route": "/reports", "permission": "reports.view" }
+      ],
+      "events": [],
+      "capabilities": [
+        "navigation",
+        "global-search",
+        "audit"
+      ]
+    }
+  ]
+}

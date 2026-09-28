@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { INNOButton, INNOPage } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOPage, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarSpacer } from '@inno/ui';
 import { decideOwnershipSubmission, getOwnershipSubmissions } from '../api/client';
 import { usePermission } from '../app/ProfileContext';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -15,15 +15,42 @@ export function AssetOwnershipSubmissionsPage() {
     onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ['assets'] }); },
   });
 
-  return <INNOPage eyebrow="Assets · Ownership" title="Agent Submissions">
-    <p className="page-helper">Review ownership information submitted by the separate Endpoint Agent surface.</p>
-    <section className="collection-card">
-      <div className="collection-head"><div><h2>Ownership submissions</h2><p>Durable confirmations awaiting Web review.</p></div>{query.data ? <span className="prod-tag">{query.data.totalItems} submissions</span> : null}</div>
-      <div className="collection-toolbar"><label><span className="sr-only">Submission status</span><select value={status} onChange={(e) => setStatus(e.target.value)}><option value="pending">Status: Pending</option><option value="all">All</option><option value="confirmed">Confirmed</option><option value="rejected">Rejected</option></select></label><span className="toolbar-spacer" /><span className="collection-scope">Endpoint Agent is not embedded in Web</span></div>
+  return <INNOPage
+    eyebrow="Assets · Ownership"
+    title="Agent Submissions"
+    description="Review ownership information submitted by the separate Endpoint Agent surface."
+  >
+    <INNOCollection>
+      <INNOCollectionHeader
+        title="Ownership submissions"
+        description="Durable confirmations awaiting Web review."
+        meta={query.data ? <INNOStatus>{query.data.totalItems} submissions</INNOStatus> : undefined}
+      />
+      <INNOCollectionToolbar>
+        <INNOSelectField label="Submission status" value={status} onChange={setStatus}>
+          <option value="pending">Status: Pending</option>
+          <option value="all">All</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="rejected">Rejected</option>
+        </INNOSelectField>
+        <INNOToolbarSpacer />
+        <span className="collection-scope">Endpoint Agent is not embedded in Web</span>
+      </INNOCollectionToolbar>
       {decision.isError ? <div className="form-error" role="alert">{decision.error.message}</div> : null}
-      {query.isPending ? <div className="collection-state"><LoadingState label="Loading submissions…" /></div> : query.isError ? <div className="collection-state"><ErrorState error={query.error} retry={() => void query.refetch()} /></div> : (
-        <div className="production-table-wrap"><table className="production-table"><thead><tr><th>User / Device</th><th>Asset</th><th>Submitted</th><th>Possession</th><th>Changes</th><th>Status</th>{canManage ? <th className="action-column">Decision</th> : null}</tr></thead><tbody>{query.data.items.map((item) => <tr key={item.id}><td><b>{item.userName}</b><div className="table-meta">{item.deviceName}</div></td><td>{item.assetTag}</td><td>{new Date(item.submittedAt).toLocaleString()}</td><td>{item.possession}</td><td>{item.changes.join(', ') || 'No changes'}</td><td><span className="prod-tag">{item.status}</span></td>{canManage ? <td className="action-column">{item.status === 'pending' ? <div className="inline-actions"><INNOButton variant="secondary" disabled={decision.isPending} onClick={() => decision.mutate({ id: item.id, eTag: item.eTag, value: 'rejected' })}>Reject</INNOButton><INNOButton disabled={decision.isPending} onClick={() => decision.mutate({ id: item.id, eTag: item.eTag, value: 'confirmed' })}>Confirm</INNOButton></div> : <span>Reviewed</span>}</td> : null}</tr>)}</tbody></table></div>
+      {query.isPending ? (
+        <div className="collection-state"><LoadingState label="Loading submissions…" /></div>
+      ) : query.isError ? (
+        <div className="collection-state"><ErrorState error={query.error} retry={() => void query.refetch()} /></div>
+      ) : query.data.items.length === 0 ? (
+        <div className="collection-state"><INNOState kind="empty" title="No ownership submissions" description="No submissions match the selected status." /></div>
+      ) : (
+        <INNOTableWrap width="xwide">
+          <table>
+            <thead><tr><th>User / Device</th><th>Asset</th><th>Submitted</th><th>Possession</th><th>Changes</th><th>Status</th>{canManage ? <th className="action-column">Decision</th> : null}</tr></thead>
+            <tbody>{query.data.items.map((item) => <tr key={item.id}><td><b>{item.userName}</b><div className="table-meta">{item.deviceName}</div></td><td>{item.assetTag}</td><td>{new Date(item.submittedAt).toLocaleString()}</td><td>{item.possession}</td><td>{item.changes.join(', ') || 'No changes'}</td><td><INNOStatus tone={item.status === 'confirmed' ? 'success' : item.status === 'rejected' ? 'danger' : 'warning'}>{item.status}</INNOStatus></td>{canManage ? <td className="action-column">{item.status === 'pending' ? <div className="inline-actions"><INNOButton variant="secondary" disabled={decision.isPending} onClick={() => decision.mutate({ id: item.id, eTag: item.eTag, value: 'rejected' })}>Reject</INNOButton><INNOButton disabled={decision.isPending} onClick={() => decision.mutate({ id: item.id, eTag: item.eTag, value: 'confirmed' })}>Confirm</INNOButton></div> : <span>Reviewed</span>}</td> : null}</tr>)}</tbody>
+          </table>
+        </INNOTableWrap>
       )}
-    </section>
+    </INNOCollection>
   </INNOPage>;
 }

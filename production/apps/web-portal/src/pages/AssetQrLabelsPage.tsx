@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import QRCode from 'qrcode';
-import { INNOButton, INNOPage, INNOState } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOPage, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarSpacer } from '@inno/ui';
 import { createAssetQrLabel, getAssets } from '../api/client';
 import type { AssetListItem, AssetQrLabel } from '../api/types';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -172,10 +172,11 @@ export function AssetQrLabelsPage() {
   });
 
   return (
-    <INNOPage eyebrow="Assets · Management" title="QR Labels">
-      <p className="page-helper">
-        Select assets, define the physical label, generate secure opaque QR values and print.
-      </p>
+    <INNOPage
+      eyebrow="Assets · Management"
+      title="QR Labels"
+      description="Select assets, define the physical label, generate secure opaque QR values and print."
+    >
 
       <div className="qr-flow-strip" aria-label="QR label workflow">
         {[
@@ -195,35 +196,26 @@ export function AssetQrLabelsPage() {
       {error ? <div className="form-error" role="alert">{error}</div> : null}
       {message ? <div className="form-success" role="status">{message}</div> : null}
 
-      <section className="collection-card qr-select-section">
-        <div className="collection-head">
-          <div><h2>1 · Select assets</h2><p>Choose equipment that needs a physical QR label.</p></div>
-          <span className="prod-tag">{selected.size} selected</span>
-        </div>
-        <div className="collection-toolbar">
-          <label className="search-field">
-            <span className="sr-only">Search assets for QR labels</span>
-            <input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search asset tag, name, serial, model…"
-            />
-          </label>
-          <label>
-            <span className="sr-only">Category filter</span>
-            <select value={category} onChange={(event) => setCategory(event.target.value)}>
-              <option value="all">Category: All</option>
-              <option>Computer</option>
-              <option>Notebook</option>
-              <option>Monitor</option>
-              <option>Printer</option>
-            </select>
-          </label>
-          <span className="toolbar-spacer" />
+      <INNOCollection className="qr-select-section">
+        <INNOCollectionHeader
+          title="1 · Select assets"
+          description="Choose equipment that needs a physical QR label."
+          meta={<INNOStatus>{selected.size} selected</INNOStatus>}
+        />
+        <INNOCollectionToolbar>
+          <INNOSearchField label="Search assets for QR labels" value={search} onChange={setSearch} placeholder="Search asset tag, name, serial, model…" />
+          <INNOSelectField label="Category filter" value={category} onChange={setCategory}>
+            <option value="all">Category: All</option>
+            <option>Computer</option>
+            <option>Notebook</option>
+            <option>Monitor</option>
+            <option>Printer</option>
+          </INNOSelectField>
+          <INNOToolbarSpacer />
           <INNOButton variant="secondary" disabled={assets.length === 0} onClick={toggleAllVisible}>
             {assets.length > 0 && assets.every((asset) => selected.has(asset.id)) ? 'Clear visible' : 'Select visible'}
           </INNOButton>
-        </div>
+        </INNOCollectionToolbar>
         {assetsQuery.isPending ? (
           <div className="collection-state"><LoadingState label="Loading assets…" /></div>
         ) : assetsQuery.isError ? (
@@ -237,8 +229,8 @@ export function AssetQrLabelsPage() {
             />
           </div>
         ) : (
-          <div className="production-table-wrap">
-            <table className="production-table qr-asset-table">
+          <INNOTableWrap width="xwide">
+            <table className="qr-asset-table">
               <thead>
                 <tr>
                   <th className="select-column"><span className="sr-only">Select</span></th>
@@ -264,14 +256,14 @@ export function AssetQrLabelsPage() {
                     <td>{asset.category}</td>
                     <td>{asset.brandModel || '—'}</td>
                     <td>{asset.owner ?? 'Unassigned'}</td>
-                    <td><span className="prod-tag">{asset.status.replaceAll('_', ' ')}</span></td>
+                    <td><INNOStatus>{asset.status.replaceAll('_', ' ')}</INNOStatus></td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          </div>
+          </INNOTableWrap>
         )}
-      </section>
+      </INNOCollection>
 
       <section className="prod-panel qr-setup-section">
         <div className="prod-panel-head">
@@ -309,7 +301,7 @@ export function AssetQrLabelsPage() {
             <h3>3 · Print preview</h3>
             <p>Generated QR codes contain only a secure opaque token. Asset data is loaded after authenticated lookup.</p>
           </div>
-          <span className="prod-tag">{generatedForSelection.length} ready</span>
+          <INNOStatus tone={generatedForSelection.length > 0 ? 'success' : 'neutral'}>{generatedForSelection.length} ready</INNOStatus>
         </div>
 
         {generatedForSelection.length === 0 ? (
@@ -339,25 +331,22 @@ export function AssetQrLabelsPage() {
         </div>
       </section>
 
-      <div className="editor-footer standalone-editor-footer qr-action-footer">
+      <INNOEditorFooter className="standalone-editor-footer qr-action-footer">
         <span className="editor-footer-note">
           Regenerating replaces each selected Asset’s previous active QR label.
         </span>
         <INNOButton
           variant="secondary"
-          disabled={selected.size === 0 || generateMutation.isPending}
+          busy={generateMutation.isPending}
+          disabled={selected.size === 0}
           onClick={() => generateMutation.mutate()}
         >
-          {generateMutation.isPending
-            ? 'Generating…'
-            : generatedForSelection.length > 0
-              ? 'Regenerate Preview'
-              : 'Generate Preview'}
+          {generatedForSelection.length > 0 ? 'Regenerate Preview' : 'Generate Preview'}
         </INNOButton>
         <INNOButton disabled={!canPrint || generateMutation.isPending} onClick={() => window.print()}>
           Print Selected
         </INNOButton>
-      </div>
+      </INNOEditorFooter>
 
       <div className="qr-print-area" aria-hidden="true">
         {printLabels.map(({ key, label }) => (

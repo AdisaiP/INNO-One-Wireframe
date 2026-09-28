@@ -1,0 +1,198 @@
+{
+  "step": 29,
+  "name": "React UI Parity / Frozen UI Port Pass",
+  "status": "completed",
+  "branch": "implementation/step29-assets-parity-recovery",
+  "frozenDesignSystem": "V1.26",
+  "frozenUiContract": "1.20.0",
+  "backendContractsChanged": false,
+  "sourceOfTruth": [
+    "inno-design-system.css",
+    "workspace-v2.css",
+    "INNO-One-Final-Visual-QA-Baseline.md",
+    "frozen HTML routes"
+  ],
+  "phases": [
+    "shell",
+    "shared_primitives",
+    "devices",
+    "assets",
+    "helpdesk",
+    "remaining_routes"
+  ],
+  "completedPhases": [
+    "shell",
+    "shared_primitives",
+    "devices",
+    "assets",
+    "helpdesk",
+    "remaining_routes"
+  ],
+  "nextPhase": null,
+  "sharedPrimitives": [
+    "INNOPage",
+    "INNOButton",
+    "INNOState",
+    "INNOStatus",
+    "INNOCollection",
+    "INNOCollectionHeader",
+    "INNOCollectionToolbar",
+    "INNOSearchField",
+    "INNOSelectField",
+    "INNOTableWrap",
+    "INNOPagination",
+    "INNOResourceHeader",
+    "INNOEditorFooter"
+  ],
+  "representativeRoutes": [
+    "/devices",
+    "/assets/inventory",
+    "/helpdesk/automation",
+    "/devices/:deviceId",
+    "/helpdesk/tickets/new"
+  ],
+  "devicesParityRoutes": [
+    "/devices",
+    "/devices/discovery",
+    "/devices/groups",
+    "/devices/groups/:groupId",
+    "/devices/add",
+    "/devices/:deviceId"
+  ],
+  "canonical1366": {
+    "header": 56,
+    "rail": 60,
+    "sidebar": 216
+  },
+  "viewports": [
+    1366,
+    1024,
+    768
+  ],
+  "preserve": [
+    "API behavior",
+    "permission gates",
+    "runtime states",
+    "database behavior",
+    "surface boundaries"
+  ],
+  "forbid": [
+    "fake controls",
+    "backend contract changes",
+    "database migrations",
+    "merge",
+    "deploy"
+  ],
+  "targetBranch": "implementation/step29-react-ui-parity",
+  "assetsParityRoutes": [
+    "/assets",
+    "/assets/inventory",
+    "/assets/:assetId",
+    "/assets/ownership",
+    "/assets/owners",
+    "/assets/owners/:userId",
+    "/assets/ownership/submissions",
+    "/assets/custom-fields",
+    "/assets/qr-labels",
+    "/assets/software-baselines",
+    "/assets/software-licenses",
+    "/assets/contracts"
+  ],
+  "assetsProductionOnlyMapping": {
+    "/assets/software-baselines": "Frozen Assets collection/master-detail patterns + Step 26–28 evidence contracts"
+  },
+  "assetsValidation": {
+    "step29StaticAudit": "passed",
+    "step15To28Regression": "passed",
+    "webTypecheck": "passed",
+    "webBuild": "passed",
+    "dotnetBuild": "passed",
+    "browserQa": "passed",
+    "browserQaChecks": 141,
+    "browserQaFailures": 0,
+    "browserQaRunId": 36345408540,
+    "buildQaRunId": 36342574582
+  },
+  "helpdeskParityRoutes": [
+    "/helpdesk",
+    "/helpdesk/tickets",
+    "/helpdesk/assigned",
+    "/helpdesk/team",
+    "/helpdesk/tickets/new",
+    "/helpdesk/tickets/:ticketId",
+    "/helpdesk/sla",
+    "/helpdesk/calendar",
+    "/helpdesk/automation",
+    "/helpdesk/automation/new",
+    "/helpdesk/automation/:ruleId"
+  ],
+  "helpdeskValidation": {
+    "step29StaticAudit": "passed",
+    "step15To28Regression": "passed",
+    "webTypecheck": "passed",
+    "webBuild": "passed",
+    "dotnetBuild": "passed",
+    "browserQa": "passed",
+    "browserQaChecks": 159,
+    "browserQaFailures": 0,
+    "browserQaRunId": 36348620829,
+    "buildQaRunId": 36348620757
+  },
+  "remainingParityRoutes": [
+    "/profile",
+    "/apps/*",
+    "/assets/manage/*",
+    "/meeting/*",
+    "/reports/*",
+    "/admin/*",
+    "*"
+  ],
+  "remainingRouteStatePolicy": {
+    "profile": "implemented",
+    "futureModuleBoundaries": "disabled",
+    "unauthorizedImplementedRoutes": "permission",
+    "unknownRoutes": "no-results"
+  },
+  "remainingRoutesValidation": {
+    "step29StaticAudit": "passed",
+    "step15To28Regression": "passed",
+    "webTypecheck": "passed",
+    "webBuild": "passed",
+    "dotnetBuild": "passed",
+    "browserQa": "passed",
+    "browserQaChecks": 60,
+    "browserQaFailures": 0,
+    "browserQaRunId": 36349832490,
+    "buildQaRunId": 36349832401
+  },
+  "finalValidation": {
+    "step29StaticAudit": "passed",
+    "step15To28Regression": "passed",
+    "webTypecheck": "passed",
+    "webBuild": "passed",
+    "dotnetBuild": "passed",
+    "fullBrowserRegression": "passed",
+    "fullBrowserChecks": 456,
+    "fullBrowserFailures": 0,
+    "shellChecks": 23,
+    "devicesChecks": 73,
+    "assetsChecks": 141,
+    "helpdeskChecks": 159,
+    "remainingRoutesChecks": 60,
+    "finalVisualCapture": "passed",
+    "finalVisualScreenshots": 33,
+    "finalVisualRoutes": 11,
+    "finalVisualViewports": [
+      1366,
+      1024,
+      768
+    ],
+    "finalVisualReview": "passed",
+    "finalVisualIssues": 0,
+    "finalFullRunId": 36350613486,
+    "artifactUpload": "quota_exceeded_non_product",
+    "visualExportRunId": 36351061454,
+    "visualContactSheetBranch": "qa/step29-final-visual",
+    "visualContactSheetCommit": "c233c1408e31dacacb1bf8ea966385db092bfd73"
+  }
+}

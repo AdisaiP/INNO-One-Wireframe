@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { INNOButton, INNOPage } from '@inno/ui';
+import { INNOButton, INNOEditorFooter, INNOPage, INNOState, INNOStatus } from '@inno/ui';
 import {
   createAutomationRule,
   getAutomationRule,
@@ -96,7 +96,7 @@ export function AutomationRulePage() {
           <section className="prod-panel">
             <div className="prod-panel-head">
               <div><h3>{form.name || 'Untitled automation rule'}</h3><p>Trigger, conditions and resulting action.</p></div>
-              <span className={'prod-tag ' + (form.status === 'active' ? 'success' : '')}>{form.status === 'active' ? 'Active' : 'Paused'}</span>
+              <INNOStatus tone={form.status === 'active' ? 'success' : 'neutral'}>{form.status === 'active' ? 'Active' : 'Paused'}</INNOStatus>
             </div>
             <div className="editor-form">
               {saveError ? <div className="form-error" role="alert">{saveError}</div> : null}
@@ -204,7 +204,7 @@ export function AutomationRulePage() {
             <section className="prod-panel">
               <div className="prod-panel-head">
                 <div><h3>Escalation sequence</h3><p>The active SLA policy supplies the level thresholds.</p></div>
-                <span className="prod-tag">3 levels</span>
+                <INNOStatus>3 levels</INNOStatus>
               </div>
               <div className="automation-escalation-summary">
                 <div><b>Level 1 · Team Lead</b><span>75% of resolution target</span></div>
@@ -214,15 +214,16 @@ export function AutomationRulePage() {
             </section>
           ) : null}
 
-          <div className="editor-footer standalone-editor-footer">
-            <Link className="inno-link-button secondary-link" to="/helpdesk/automation">Cancel</Link>
+          <INNOEditorFooter className="standalone-editor-footer">
+            <Link className="inno-link-button secondary" to="/helpdesk/automation">Cancel</Link>
             <INNOButton
-              disabled={mutation.isPending || !form.name.trim() || !form.conditionValue.trim() || !form.actionValue.trim()}
+              busy={mutation.isPending}
+              disabled={!form.name.trim() || !form.conditionValue.trim() || !form.actionValue.trim()}
               onClick={() => mutation.mutate()}
             >
-              {mutation.isPending ? 'Saving rule…' : 'Save Rule'}
+              Save Rule
             </INNOButton>
-          </div>
+          </INNOEditorFooter>
         </div>
 
         <aside className="panel-stack">
@@ -245,7 +246,7 @@ export function AutomationRulePage() {
                     <div><b>{execution.result}</b><span>{execution.trigger.replaceAll('_', ' ')}</span></div>
                     <time>{new Date(execution.executedAt).toLocaleString()}</time>
                   </Link>
-                )) : <div className="compact-empty">This rule has not executed yet.</div>}
+                )) : <INNOState compact kind="empty" title="No executions yet" description="This rule has not executed yet." />}
               </div>
             </section>
           ) : null}

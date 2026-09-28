@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOButton, INNOPage } from '@inno/ui';
+import { INNOButton, INNOEditorFooter, INNOPage, INNOState, INNOStatus } from '@inno/ui';
 import {
   getSlaMonitor,
   getSlaPolicies,
@@ -130,11 +130,12 @@ export function HelpdeskSlaPage() {
   };
 
   return (
-    <INNOPage eyebrow="Helpdesk · Manage" title="SLA & Escalation">
-      <div className="page-intro-row">
-        <p className="page-helper">Response and resolution targets, business-time behavior and escalation levels.</p>
-        <Link className="inno-link-button secondary-link" to="/helpdesk/calendar">Business Calendar</Link>
-      </div>
+    <INNOPage
+      eyebrow="Helpdesk · Manage"
+      title="SLA & Escalation"
+      description="Response and resolution targets, business-time behavior and escalation levels."
+      actions={<Link className="inno-link-button secondary" to="/helpdesk/calendar">Business Calendar</Link>}
+    >
 
       <div className="production-stat-strip helpdesk-stat-strip">
         <div><span>Active policies</span><b>{activePolicies}</b><small>Across priority levels</small></div>
@@ -155,7 +156,7 @@ export function HelpdeskSlaPage() {
                   <h3>{selected.name}</h3>
                   <p>{selected.appliesTo ?? 'Priority default policy'}</p>
                 </div>
-                <span className={'prod-tag ' + (selected.isActive ? 'success' : '')}>{selected.isActive ? 'Active' : 'Inactive'}</span>
+                <INNOStatus tone={selected.isActive ? 'success' : 'neutral'}>{selected.isActive ? 'Active' : 'Inactive'}</INNOStatus>
               </div>
               <div className="editor-form">
                 {saveError ? <div className="form-error" role="alert">{saveError}</div> : null}
@@ -242,7 +243,7 @@ export function HelpdeskSlaPage() {
             <section className="prod-panel">
               <div className="prod-panel-head">
                 <div><h3>Escalation levels</h3><p>Sequential escalation by elapsed resolution target.</p></div>
-                <span className="prod-tag">{levels.length} levels</span>
+                <INNOStatus>{levels.length} levels</INNOStatus>
               </div>
               <div className="sla-level-list">
                 {levels.map((level, index) => (
@@ -283,12 +284,10 @@ export function HelpdeskSlaPage() {
                 ))}
               </div>
               {canManage ? (
-                <div className="editor-footer">
+                <INNOEditorFooter>
                   <span className="footer-helper">Changes recalculate active ticket targets using business time.</span>
-                  <INNOButton disabled={mutation.isPending} onClick={() => mutation.mutate()}>
-                    {mutation.isPending ? 'Saving policy…' : 'Save Policy'}
-                  </INNOButton>
-                </div>
+                  <INNOButton busy={mutation.isPending} onClick={() => mutation.mutate()}>Save Policy</INNOButton>
+                </INNOEditorFooter>
               ) : null}
             </section>
           </div>
@@ -297,10 +296,10 @@ export function HelpdeskSlaPage() {
             <section className="prod-panel">
               <div className="prod-panel-head">
                 <div><h3>Live SLA monitor</h3><p>Operational context inside your effective ticket scope.</p></div>
-                {monitorQuery.isFetching ? <span className="prod-tag">Refreshing</span> : null}
+                {monitorQuery.isFetching ? <INNOStatus>Refreshing</INNOStatus> : null}
               </div>
               {monitorQuery.isError ? (
-                <div className="compact-empty">SLA monitor is temporarily unavailable.</div>
+                <INNOState compact kind="error" title="SLA monitor unavailable" description="The live monitor could not be loaded. Policy editing remains available." />
               ) : (
                 <div className="sla-monitor-list">
                   {monitor.slice(0, 8).map((item) => (
@@ -312,7 +311,7 @@ export function HelpdeskSlaPage() {
                       <span className={'sla-chip ' + item.state}>{item.state.replace('_', ' ')}</span>
                     </Link>
                   ))}
-                  {!monitor.length ? <div className="compact-empty">No active SLA timers in scope.</div> : null}
+                  {!monitor.length ? <INNOState compact kind="empty" title="No active SLA timers" description="No open ticket in scope currently has an active SLA timer." /> : null}
                 </div>
               )}
             </section>

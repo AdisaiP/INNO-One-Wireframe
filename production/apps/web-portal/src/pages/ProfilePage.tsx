@@ -1,4 +1,4 @@
-import { INNOPage } from '@inno/ui';
+import { INNOPage, INNOStatus } from '@inno/ui';
 import { useProfile } from '../app/ProfileContext';
 
 function valueOrDash(value?: string | null) {
@@ -10,8 +10,11 @@ export function ProfilePage() {
   const roleSummary = profile.roles.join(', ') || 'User';
 
   return (
-    <INNOPage eyebrow="Account" title="Profile & Settings">
-      <p className="page-helper">Your workspace profile and organization-managed sign-in.</p>
+    <INNOPage
+      eyebrow="Account"
+      title="Profile & Settings"
+      description="Your workspace profile and organization-managed sign-in."
+    >
 
       <div className="profile-layout">
         <section className="prod-panel">
@@ -27,7 +30,7 @@ export function ProfilePage() {
                 {roleSummary}
               </div>
             </div>
-            <span className="prod-tag success">{profile.status}</span>
+            <INNOStatus tone="success">{profile.status}</INNOStatus>
           </div>
 
           <div className="kv-grid production-kv-grid">
@@ -40,7 +43,7 @@ export function ProfilePage() {
             <div className="kv-row"><span>Time zone</span><b>{profile.timeZone}</b></div>
             <div className="kv-row">
               <span>SSO</span>
-              <b><span className="prod-tag success">Connected</span></b>
+              <b><INNOStatus tone="success">Connected</INNOStatus></b>
             </div>
           </div>
         </section>
@@ -51,7 +54,7 @@ export function ProfilePage() {
               <h3>Security & sessions</h3>
               <p>Identity and sign-in are managed by your organization.</p>
             </div>
-            <span className="prod-tag success">Healthy</span>
+            <INNOStatus tone="success">Healthy</INNOStatus>
           </div>
           <div className="settings-stack">
             <div className="settings-row">
@@ -59,19 +62,23 @@ export function ProfilePage() {
                 <b>Single Sign-On</b>
                 <span>Keycloak · Authorization Code + PKCE</span>
               </div>
-              <span className="prod-tag success">Connected</span>
+              <INNOStatus tone="success">Connected</INNOStatus>
             </div>
             <div className="settings-row">
               <div>
                 <b>Business authorization</b>
                 <span>Resolved from INNO.One roles and resource scopes</span>
               </div>
-              <span className="prod-tag">{profile.permissions.length} permissions</span>
+              <INNOStatus>{profile.permissions.length} permissions</INNOStatus>
             </div>
           </div>
           <div className="purpose-note">
             <b>Sign-in and authorization are separate.</b>
             <span>Keycloak establishes identity. INNO.One resolves role, permission and resource scope server-side.</span>
+          </div>
+          <div className="purpose-note">
+            <b>Personal preferences are not exposed in this production slice.</b>
+            <span>Notification read state is persisted. Email and desktop preference controls remain unavailable until their preference persistence contract is defined.</span>
           </div>
         </section>
       </div>

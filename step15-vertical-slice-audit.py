@@ -13,8 +13,8 @@ issues = []
 
 if manifest.get("contractVersion") != "0.6.0":
     issues.append("Step 15 manifest must be version 0.6.0")
-if impl.get("contractVersion") != "0.16.0":
-    issues.append("current Implementation Contract must be 0.16.0 after Step 21")
+if impl.get("contractVersion") != "0.19.0":
+    issues.append("current Implementation Contract must be 0.19.0 after Step 21")
 if impl.get("status") != "implementation-in-progress":
     issues.append("implementation status must be implementation-in-progress after Step 15")
 
@@ -155,9 +155,13 @@ devices_page = (PROD / "apps/web-portal/src/pages/DevicesPage.tsx").read_text()
 for marker in ("Search devices", "Status filter", "Operating system filter", "No devices found"):
     if marker not in devices_page:
         issues.append(f"Devices collection missing {marker}")
-for unavailable in ("Add Device", "Discover Devices", "Remote Desktop"):
-    if unavailable in devices_page:
-        issues.append(f"unimplemented high-emphasis action is visible: {unavailable}")
+later_device_management = (ROOT / "inno-step16-devices-management.json").exists()
+unavailable = ["Remote Desktop"]
+if not later_device_management:
+    unavailable.extend(["Add Device", "Discover Devices"])
+for action in unavailable:
+    if action in devices_page:
+        issues.append(f"unimplemented high-emphasis action is visible: {action}")
 
 detail_page = (PROD / "apps/web-portal/src/pages/DeviceDetailPage.tsx").read_text()
 if "Resource offline" not in detail_page or "latest cached inventory" not in detail_page:

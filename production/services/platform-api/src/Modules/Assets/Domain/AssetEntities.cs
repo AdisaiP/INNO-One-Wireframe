@@ -161,3 +161,33 @@ public sealed class AssetContractLink
     public required string CoverageStatus { get; set; }
     public DateTimeOffset LinkedAt { get; set; }
 }
+
+
+public sealed class SoftwareBaseline
+{
+    public Guid Id { get; set; }
+    public required string Code { get; set; }
+    public required string Name { get; set; }
+    public string? TargetCategory { get; set; }
+    public required string RequiredPackagesJson { get; set; }
+    public required string Status { get; set; }
+    public int Version { get; set; } = 1;
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
+}
+
+
+public sealed class SoftwareBaselineResult
+{
+    public Guid Id { get; set; }
+    public Guid BaselineId { get; set; }
+    public Guid AssetId { get; set; }
+    public required string ResultStatus { get; set; }
+    public required string ReasonCode { get; set; }
+    public required string MissingPackagesJson { get; set; }
+    public string? InventorySnapshotReference { get; set; }
+    public DateTimeOffset? InventoryObservedAt { get; set; }
+    public int BaselineVersion { get; set; }
+    public DateTimeOffset EvaluatedAt { get; set; }
+    public int Version { get; set; } = 1;
+}

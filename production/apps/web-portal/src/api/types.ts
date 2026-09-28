@@ -32,6 +32,252 @@ export interface Profile {
   ssoStatus: string;
 }
 
+export interface AppNavigationItem {
+  id: string;
+  label: string;
+  route: string;
+}
+
+export interface AppLauncherItem {
+  id: string;
+  name: string;
+  icon: string;
+  route: string;
+  navigation: AppNavigationItem[];
+}
+
+export interface AppLauncherResponse {
+  items: AppLauncherItem[];
+}
+
+export interface AdminAppModule {
+  id: string;
+  name: string;
+  icon: string;
+  route: string;
+  entryPermission: string;
+  status: 'enabled' | 'disabled' | 'not-installed';
+  installed: boolean;
+  enabled: boolean;
+  dependenciesAvailable: boolean;
+  dependencies: string[];
+  permissions: string[];
+  events: string[];
+  capabilities: string[];
+  updatedAt?: string | null;
+  eTag?: string | null;
+}
+
+export interface AdminAppModulesResponse {
+  schemaVersion: number;
+  items: AdminAppModule[];
+}
+
+export interface AdminIntegrationStatus {
+  id: string;
+  name: string;
+  category: string;
+  provider: string;
+  ownerModule: string;
+  endpoint: string;
+  status: 'connected' | 'degraded' | 'disabled' | 'not-configured';
+  enabled: boolean;
+  configured: boolean;
+  canTest: boolean;
+  checkedAt: string;
+  durationMs: number;
+  message: string;
+  capabilities: string[];
+}
+
+export interface AdminIntegrationsResponse {
+  items: AdminIntegrationStatus[];
+}
+
+export interface AdminAuditListItem {
+  auditId: string;
+  occurredAt: string;
+  action: string;
+  module: string;
+  targetType: string;
+  targetId: string;
+  actorType: string;
+  actorId: string;
+  actorName?: string | null;
+  correlationId?: string | null;
+  traceId?: string | null;
+  classification: string;
+}
+
+export interface AdminAuditDetail extends AdminAuditListItem {
+  metadata: unknown;
+}
+
+export interface AdminAuditFacets {
+  modules: string[];
+  actions: string[];
+  targetTypes: string[];
+  classifications: string[];
+}
+
+export type AdminSecurityStatus =
+  | 'healthy'
+  | 'attention'
+  | 'unavailable'
+  | 'informational';
+
+export interface AdminSecurityControl {
+  id: string;
+  name: string;
+  status: AdminSecurityStatus;
+  value: string;
+  detail: string;
+}
+
+export interface AdminSecurityPostureItem {
+  id: string;
+  name: string;
+  category: string;
+  ownerModule: string;
+  status: AdminSecurityStatus;
+  checkedAt: string;
+  durationMs: number;
+  message: string;
+  controls: AdminSecurityControl[];
+}
+
+export interface AdminSecurityResponse {
+  configurationMode: string;
+  mutablePolicies: boolean;
+  checkedAt: string;
+  summary: {
+    providers: number;
+    healthy: number;
+    attention: number;
+    unavailable: number;
+    informational: number;
+  };
+  items: AdminSecurityPostureItem[];
+}
+
+export interface AdminPlatformSetting {
+  id: string;
+  group: string;
+  name: string;
+  value: string;
+  source: string;
+  status: 'frozen' | 'effective';
+  detail: string;
+}
+
+export interface AdminPlatformSettingsResponse {
+  configurationMode: string;
+  mutableSettings: boolean;
+  environment: string;
+  checkedAt: string;
+  groups: string[];
+  items: AdminPlatformSetting[];
+}
+
+export interface AdminOverview {
+  organizations: number;
+  locations: number;
+  positions: number;
+  users: number;
+  roles: number;
+  accessAssignments: number;
+}
+
+export interface AdminHierarchyItem {
+  id: string;
+  code: string;
+  name: string;
+  parentId?: string | null;
+  status: string;
+  eTag: string;
+}
+
+export interface AdminPosition {
+  id: string;
+  code: string;
+  name: string;
+  status: string;
+  eTag: string;
+}
+
+export interface AdminUserListItem {
+  id: string;
+  employeeId: string;
+  fullName: string;
+  email: string;
+  organization?: ReferenceValue | null;
+  position?: ReferenceValue | null;
+  location?: ReferenceValue | null;
+  status: string;
+  eTag: string;
+}
+
+export interface AdminUserAssignmentSummary {
+  id: string;
+  roleId: string;
+  roleName: string;
+  scopeType: string;
+  status: string;
+}
+
+export interface AdminUserDetail extends AdminUserListItem {
+  keycloakSubject: string;
+  phone?: string | null;
+  office?: string | null;
+  assignments: AdminUserAssignmentSummary[];
+}
+
+export interface AdminRole {
+  id: string;
+  code: string;
+  name: string;
+  status: string;
+  permissions: string[];
+  eTag: string;
+}
+
+export interface AdminPermission {
+  id: string;
+  module: string;
+  name: string;
+}
+
+export interface AdminScopeResource {
+  type: string;
+  id: string;
+}
+
+export interface AdminAccessAssignment {
+  id: string;
+  subjectType: string;
+  subjectId: string;
+  subjectName: string;
+  roleId: string;
+  roleName: string;
+  scopeType: string;
+  resources: AdminScopeResource[];
+  includeChildren: boolean;
+  actionOverrides: string[];
+  status: string;
+  eTag: string;
+}
+
+export interface AdminAccessEvaluation {
+  userId: string;
+  permission: string;
+  allowed: boolean;
+  reason: string;
+  allResources: boolean;
+  organizationIds: string[];
+  locationIds: string[];
+  deviceGroupIds: string[];
+}
+
 export interface DeviceListItem {
   id: string;
   name: string;
@@ -75,6 +321,27 @@ export interface DeviceDetail {
   diskUsedGb?: number | null;
   diskTotalGb?: number | null;
   managementEngine?: string | null;
+}
+
+
+export interface DeviceSoftwarePackage {
+  productKey: string;
+  displayName: string;
+  version?: string | null;
+  publisher?: string | null;
+  architecture?: string | null;
+}
+
+export interface DeviceSoftwareInventory {
+  deviceId: string;
+  inventoryStatus: 'not_reported' | 'complete' | 'partial';
+  snapshotId?: string | null;
+  observedAt?: string | null;
+  receivedAt?: string | null;
+  source?: string | null;
+  sourceInstance?: string | null;
+  packageCount: number;
+  packages: DeviceSoftwarePackage[];
 }
 
 export interface DeviceGroupListItem {
@@ -714,4 +981,144 @@ export interface OwnershipDecision {
   status: string;
   reviewedAt?: string | null;
   eTag: string;
+}
+
+
+export interface SoftwareBaselineItem {
+  id: string;
+  code: string;
+  name: string;
+  targetCategory: string | null;
+  requiredPackages: string[];
+  status: 'draft' | 'active' | 'inactive';
+  evaluationStatus: 'not_evaluated' | 'current' | 'stale';
+  updatedAt: string;
+  eTag: string;
+}
+export type SoftwareBaselineRequest = Pick<SoftwareBaselineItem,
+  'code' | 'name' | 'targetCategory' | 'requiredPackages' | 'status'>;
+export interface SoftwareBaselineListResponse {
+  items: SoftwareBaselineItem[];
+  totalItems: number;
+}
+
+
+export interface SoftwareBaselineResultItem {
+  id: string;
+  assetId: string;
+  assetTag: string;
+  assetName: string;
+  category: string;
+  status: 'compliant' | 'missing' | 'unknown';
+  reasonCode: string;
+  missingPackages: string[];
+  inventorySnapshotId?: string | null;
+  inventoryObservedAt?: string | null;
+  evaluatedAt: string;
+}
+export interface SoftwareBaselineResults {
+  baselineId: string;
+  baselineName: string;
+  baselineVersion: number;
+  compliantCount: number;
+  missingCount: number;
+  unknownCount: number;
+  evaluatedAt?: string | null;
+  items: SoftwareBaselineResultItem[];
+}
+
+export interface PlatformNotificationItem {
+  id: string;
+  sourceModule: string;
+  notificationType: string;
+  title: string;
+  message: string;
+  destinationPath: string;
+  isImportant: boolean;
+  isRead: boolean;
+  readAt?: string | null;
+  createdAt: string;
+}
+
+export interface PlatformNotificationsResponse {
+  items: PlatformNotificationItem[];
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+  unreadCount: number;
+  importantCount: number;
+  allCount: number;
+}
+
+export interface PlatformNotificationMarkAllResult {
+  updatedCount: number;
+  readAt: string;
+}
+
+export interface GlobalSearchResult {
+  type: string;
+  id: string;
+  title: string;
+  subtitle: string;
+  route: string;
+}
+
+export interface GlobalSearchResponse {
+  query: string;
+  items: GlobalSearchResult[];
+  totalItems: number;
+  providerCount: number;
+}
+
+export interface WorkspaceAppItem {
+  id: string;
+  name: string;
+  icon: string;
+  route: string;
+}
+
+export interface WorkspaceActivityItem {
+  sourceModule: string;
+  resourceType: string;
+  resourceId: string;
+  title: string;
+  activity: string;
+  destinationPath: string;
+  occurredAt: string;
+}
+
+export interface WorkspaceAttentionItem {
+  id: string;
+  module: string;
+  title: string;
+  detail: string;
+  count: number;
+  severity: 'neutral' | 'info' | 'warning' | 'danger';
+  route: string;
+}
+
+export interface WorkspaceHomeResponse {
+  fullName: string;
+  apps: WorkspaceAppItem[];
+  continueItems: WorkspaceActivityItem[];
+  attentionItems: WorkspaceAttentionItem[];
+  recentItems: WorkspaceActivityItem[];
+  attentionTotal: number;
+  partialFailures: string[];
+  generatedAt: string;
+}
+
+export interface WorkspaceContinueResponse {
+  items: WorkspaceActivityItem[];
+}
+
+export interface WorkspaceAttentionResponse {
+  items: WorkspaceAttentionItem[];
+  totalCount: number;
+  partialFailures: string[];
+}
+
+export interface WorkspaceActivityResponse {
+  items: WorkspaceActivityItem[];
 }

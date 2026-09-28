@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { INNOButton, INNOPage } from '@inno/ui';
+import { INNOButton, INNOEditorFooter, INNOPage, INNOStatus } from '@inno/ui';
 import { createTicket, getDevices, getTicketCategories } from '../api/client';
 import { usePermission, useProfile } from '../app/ProfileContext';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -79,8 +79,11 @@ export function TicketCreatePage() {
       : 'P3 · Normal';
 
   return (
-    <INNOPage eyebrow="Helpdesk" title="Create Ticket">
-      <p className="page-helper">Capture the request once. Device context is linked by ID without duplicating endpoint inventory.</p>
+    <INNOPage
+      eyebrow="Helpdesk"
+      title="Create Ticket"
+      description="Capture the request once. Device context is linked by ID without duplicating endpoint inventory."
+    >
 
       {categories.isPending ? <LoadingState label="Loading ticket form…" /> : null}
       {categories.isError ? <ErrorState error={categories.error} retry={() => void categories.refetch()} /> : null}
@@ -93,7 +96,7 @@ export function TicketCreatePage() {
                 <h3>Request details</h3>
                 <p>Describe what the requester needs support with.</p>
               </div>
-              <span className="prod-tag">{calculatedPriority}</span>
+              <INNOStatus tone={calculatedPriority.startsWith('P1') ? 'danger' : calculatedPriority.startsWith('P2') ? 'warning' : 'neutral'}>{calculatedPriority}</INNOStatus>
             </div>
 
             <div className="editor-form">
@@ -142,18 +145,16 @@ export function TicketCreatePage() {
                   </select>
                 </label>
               </div>
-              <div className="editor-footer">
+              <INNOEditorFooter>
                 <INNOButton variant="secondary" onClick={() => navigate('/helpdesk')}>Cancel</INNOButton>
-                <INNOButton disabled={mutation.isPending} onClick={submit}>
-                  {mutation.isPending ? 'Creating ticket…' : 'Create Ticket'}
-                </INNOButton>
-              </div>
+                <INNOButton busy={mutation.isPending} onClick={submit}>Create Ticket</INNOButton>
+              </INNOEditorFooter>
             </div>
           </section>
 
           <aside className="panel-stack">
             <section className="prod-panel">
-              <div className="prod-panel-head"><div><h3>Requester</h3><p>Resolved from your signed-in INNO.One profile.</p></div><span className="prod-tag success">Matched</span></div>
+              <div className="prod-panel-head"><div><h3>Requester</h3><p>Resolved from your signed-in INNO.One profile.</p></div><INNOStatus tone="success">Matched</INNOStatus></div>
               <div className="production-kv-grid">
                 <div className="kv-row"><span>Name</span><b>{profile.fullName}</b></div>
                 <div className="kv-row"><span>Organization</span><b>{profile.organization?.name ?? '—'}</b></div>

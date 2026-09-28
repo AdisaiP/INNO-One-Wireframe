@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOPage } from '@inno/ui';
+import { INNOPage, INNOState, INNOStatus } from '@inno/ui';
 import { getHelpdeskOverview } from '../api/client';
 import { usePermission } from '../app/ProfileContext';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -15,7 +15,7 @@ function TicketRow({ ticket }: { ticket: TicketSummary }) {
       </div>
       <div className="helpdesk-queue-meta">
         <span className={'priority-chip ' + ticket.priority.toLowerCase()}>{ticket.priority}</span>
-        <span className={'status-dot ' + (ticket.status === 'resolved' ? 'offline' : 'online')}>{ticket.statusName}</span>
+        <INNOStatus tone={ticket.status === 'resolved' ? 'neutral' : 'success'} dot>{ticket.statusName}</INNOStatus>
       </div>
     </Link>
   );
@@ -29,11 +29,12 @@ export function HelpdeskOverviewPage() {
   });
 
   return (
-    <INNOPage eyebrow="Helpdesk" title="Service Desk">
-      <div className="page-intro-row">
-        <p className="page-helper">Tickets, workload and SLA attention in one operational view.</p>
-        {canCreate ? <Link className="inno-link-button" to="/helpdesk/tickets/new">Create Ticket</Link> : null}
-      </div>
+    <INNOPage
+      eyebrow="Helpdesk"
+      title="Service Desk"
+      description="Tickets, workload and SLA attention in one operational view."
+      actions={canCreate ? <Link className="inno-link-button" to="/helpdesk/tickets/new">Create Ticket</Link> : undefined}
+    >
 
       {query.isPending ? <LoadingState label="Loading Helpdesk…" /> : null}
       {query.isError ? <ErrorState error={query.error} retry={() => void query.refetch()} /> : null}
@@ -59,7 +60,7 @@ export function HelpdeskOverviewPage() {
               <div className="helpdesk-queue-list">
                 {query.data.priorityTickets.length
                   ? query.data.priorityTickets.map((ticket) => <TicketRow key={ticket.id} ticket={ticket} />)
-                  : <div className="compact-empty">No open tickets in scope.</div>}
+                  : <INNOState compact kind="empty" title="No open tickets" description="No active priority tickets are visible in your current scope." />}
               </div>
             </section>
 
@@ -74,7 +75,7 @@ export function HelpdeskOverviewPage() {
               <div className="helpdesk-queue-list">
                 {query.data.myTickets.length
                   ? query.data.myTickets.map((ticket) => <TicketRow key={ticket.id} ticket={ticket} />)
-                  : <div className="compact-empty">Nothing is assigned to you.</div>}
+                  : <INNOState compact kind="empty" title="Nothing assigned to you" description="Assigned tickets will appear here when work enters your queue." />}
               </div>
             </section>
           </div>

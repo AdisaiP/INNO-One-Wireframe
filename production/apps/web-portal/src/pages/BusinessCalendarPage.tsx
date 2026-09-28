@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOButton, INNOPage } from '@inno/ui';
+import { INNOButton, INNOEditorFooter, INNOPage, INNOStatus, INNOTableWrap } from '@inno/ui';
 import {
   getBusinessCalendar,
   updateBusinessCalendar,
@@ -77,11 +77,12 @@ export function BusinessCalendarPage() {
   };
 
   return (
-    <INNOPage eyebrow="Helpdesk · Configuration" title="Business Calendar">
-      <div className="page-intro-row">
-        <p className="page-helper">Working hours and holidays used for SLA calculations.</p>
-        <Link className="inno-link-button secondary-link" to="/helpdesk/sla">Open SLA policies</Link>
-      </div>
+    <INNOPage
+      eyebrow="Helpdesk · Configuration"
+      title="Business Calendar"
+      description="Working hours and holidays used for SLA calculations."
+      actions={<Link className="inno-link-button secondary" to="/helpdesk/sla">Open SLA policies</Link>}
+    >
 
       {query.isPending ? <LoadingState label="Loading Business Calendar…" /> : null}
       {query.isError ? <ErrorState error={query.error} retry={() => void query.refetch()} /> : null}
@@ -92,7 +93,7 @@ export function BusinessCalendarPage() {
             <section className="prod-panel">
               <div className="prod-panel-head">
                 <div><h3>Working hours</h3><p>The SLA clock runs only inside these windows.</p></div>
-                <span className="prod-tag">{timeZoneId}</span>
+                <INNOStatus>{timeZoneId}</INNOStatus>
               </div>
               <div className="editor-form">
                 {saveError ? <div className="form-error" role="alert">{saveError}</div> : null}
@@ -164,22 +165,22 @@ export function BusinessCalendarPage() {
             <section className="prod-panel">
               <div className="prod-panel-head">
                 <div><h3>Holiday exceptions</h3><p>These dates are removed from SLA timer calculations.</p></div>
-                <span className="prod-tag">{query.data.holidays.length} dates</span>
+                <INNOStatus>{query.data.holidays.length} dates</INNOStatus>
               </div>
-              <div className="production-table-wrap">
-                <table className="production-table">
+              <INNOTableWrap width="wide">
+                <table>
                   <thead><tr><th>Date</th><th>Holiday</th><th>Type</th></tr></thead>
                   <tbody>
                     {query.data.holidays.map((holiday) => (
                       <tr key={holiday.date}>
                         <td>{new Date(holiday.date + 'T00:00:00').toLocaleDateString()}</td>
                         <td>{holiday.name}</td>
-                        <td><span className="prod-tag">{holiday.isWorking ? 'Working exception' : 'Public holiday'}</span></td>
+                        <td><INNOStatus tone={holiday.isWorking ? 'warning' : 'neutral'}>{holiday.isWorking ? 'Working exception' : 'Public holiday'}</INNOStatus></td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-              </div>
+              </INNOTableWrap>
               <div className="purpose-note calendar-note">
                 <b>Holiday maintenance remains read-only in this slice.</b>
                 <span>Step 18 implements working-time calculation against seeded holidays without introducing an uncontracted holiday-import workflow.</span>
@@ -187,12 +188,10 @@ export function BusinessCalendarPage() {
             </section>
 
             {canManage ? (
-              <div className="editor-footer standalone-editor-footer">
+              <INNOEditorFooter className="standalone-editor-footer">
                 <span className="footer-helper">Saving recalculates due dates for active tickets that use this calendar.</span>
-                <INNOButton disabled={mutation.isPending} onClick={() => mutation.mutate()}>
-                  {mutation.isPending ? 'Saving calendar…' : 'Save Calendar'}
-                </INNOButton>
-              </div>
+                <INNOButton busy={mutation.isPending} onClick={() => mutation.mutate()}>Save Calendar</INNOButton>
+              </INNOEditorFooter>
             ) : null}
           </div>
 
@@ -200,7 +199,7 @@ export function BusinessCalendarPage() {
             <section className="prod-panel">
               <div className="prod-panel-head">
                 <div><h3>SLA calendar usage</h3><p>Default working-time source.</p></div>
-                <span className="prod-tag success">In use</span>
+                <INNOStatus tone="success">In use</INNOStatus>
               </div>
               <div className="production-kv-grid ticket-properties">
                 <div className="kv-row"><span>Calendar</span><b>{query.data.name}</b></div>

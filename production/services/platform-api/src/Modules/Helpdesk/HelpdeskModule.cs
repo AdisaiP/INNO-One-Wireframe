@@ -1,3 +1,6 @@
+using INNO.One.Contracts.Search;
+using INNO.One.Contracts.Workspace;
+using INNO.One.Modules.Helpdesk.Application;
 using INNO.One.Modules.Helpdesk.Infrastructure;
 using INNO.One.Modules.Helpdesk.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +23,9 @@ public static class HelpdeskModule
 
         services.AddScoped<HelpdeskLedgerWriter>();
         services.AddScoped<BusinessTimeCalculator>();
+        services.AddScoped<IGlobalSearchProvider, HelpdeskGlobalSearchProvider>();
+        services.AddScoped<IWorkspaceAttentionProvider, HelpdeskWorkspaceAttentionProvider>();
+        services.AddScoped<IWorkspaceResourceVisibilityProvider, HelpdeskWorkspaceAttentionProvider>();
         services.AddHostedService<HelpdeskSlaAutomationWorker>();
         return services;
     }

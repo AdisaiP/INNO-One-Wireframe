@@ -1,10 +1,10 @@
 {
-  "contractVersion": "0.2.0",
+  "contractVersion": "0.5.0",
   "status": "implementation-planning",
   "generatedFrom": {
     "designSystem": "V1.26",
     "uiContract": "1.20.0",
-    "implementationContract": "0.2.0",
+    "implementationContract": "0.19.0",
     "frozenAt": "2026-09-26"
   },
   "basePath": "/api/v1",
@@ -2269,6 +2269,102 @@
       "screens": [
         "helpdesk-automation.html",
         "helpdesk-automation-rule.html"
+      ]
+    },
+    {
+      "id": "assets.baselines.list",
+      "method": "GET",
+      "path": "/assets/software-baselines",
+      "module": "assets",
+      "permission": "assets.view",
+      "scope": "all",
+      "response": "collection",
+      "screens": [
+        "/assets/software-baselines"
+      ]
+    },
+    {
+      "id": "assets.baselines.create",
+      "method": "POST",
+      "path": "/assets/software-baselines",
+      "module": "assets",
+      "permission": "assets.baseline.manage",
+      "scope": "all",
+      "response": "resource",
+      "screens": [
+        "/assets/software-baselines"
+      ]
+    },
+    {
+      "id": "assets.baselines.get",
+      "method": "GET",
+      "path": "/assets/software-baselines/{baselineId}",
+      "module": "assets",
+      "permission": "assets.view",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "/assets/software-baselines"
+      ]
+    },
+    {
+      "id": "assets.baselines.update",
+      "method": "PATCH",
+      "path": "/assets/software-baselines/{baselineId}",
+      "module": "assets",
+      "permission": "assets.baseline.manage",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "/assets/software-baselines"
+      ]
+    },
+    {
+      "id": "devices.software_inventory.get",
+      "method": "GET",
+      "path": "/devices/{deviceId}/software-inventory",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "device-detail-v2.html"
+      ]
+    },
+    {
+      "id": "devices.software_inventory.put",
+      "method": "PUT",
+      "path": "/devices/{deviceId}/software-inventory",
+      "module": "devices",
+      "permission": "devices.manage",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "device-detail-v2.html"
+      ]
+    },
+    {
+      "id": "assets.baseline_results.list",
+      "method": "GET",
+      "path": "/assets/software-baselines/{baselineId}/results",
+      "module": "assets",
+      "permission": "assets.view",
+      "scope": "effective",
+      "response": "collection",
+      "screens": [
+        "/assets/software-baselines"
+      ]
+    },
+    {
+      "id": "assets.baselines.evaluate",
+      "method": "POST",
+      "path": "/assets/software-baselines/{baselineId}/evaluate",
+      "module": "assets",
+      "permission": "assets.baseline.manage",
+      "scope": "effective",
+      "response": "resource",
+      "screens": [
+        "/assets/software-baselines"
       ]
     }
   ],

@@ -149,6 +149,10 @@ namespace INNO.One.Modules.Platform.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
+                    b.Property<long>("Version")
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
                     b.HasKey("Id")
                         .HasName("pk_app_modules");
 
@@ -290,6 +294,131 @@ namespace INNO.One.Modules.Platform.Persistence.Migrations
                         .HasName("pk_permissions");
 
                     b.ToTable("permissions", "platform");
+                });
+
+            modelBuilder.Entity("INNO.One.Modules.Platform.Domain.PlatformActivityItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Activity")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("activity");
+
+                    b.Property<string>("DestinationPath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("destination_path");
+
+                    b.Property<DateTimeOffset>("OccurredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("occurred_at");
+
+                    b.Property<string>("ResourceId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("resource_id");
+
+                    b.Property<string>("ResourceType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("resource_type");
+
+                    b.Property<string>("SourceModule")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("source_module");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(240)
+                        .HasColumnType("character varying(240)")
+                        .HasColumnName("title");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_activity_items");
+
+                    b.HasIndex("UserId", "OccurredAt")
+                        .HasDatabaseName("ix_activity_items_user_id_occurred_at");
+
+                    b.ToTable("activity_items", "platform");
+                });
+
+            modelBuilder.Entity("INNO.One.Modules.Platform.Domain.PlatformNotification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("DestinationPath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("destination_path");
+
+                    b.Property<bool>("IsImportant")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_important");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("message");
+
+                    b.Property<string>("NotificationType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("notification_type");
+
+                    b.Property<DateTimeOffset?>("ReadAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("read_at");
+
+                    b.Property<string>("SourceModule")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("source_module");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(240)
+                        .HasColumnType("character varying(240)")
+                        .HasColumnName("title");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_notifications");
+
+                    b.HasIndex("UserId", "IsImportant", "CreatedAt")
+                        .HasDatabaseName("ix_notifications_user_id_is_important_created_at");
+
+                    b.HasIndex("UserId", "ReadAt", "CreatedAt")
+                        .HasDatabaseName("ix_notifications_user_id_read_at_created_at");
+
+                    b.ToTable("notifications", "platform");
                 });
 
             modelBuilder.Entity("INNO.One.Modules.Platform.Domain.Position", b =>
@@ -550,6 +679,26 @@ namespace INNO.One.Modules.Platform.Persistence.Migrations
                         .HasForeignKey("ParentUnitId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_organization_units_organization_units_parent_unit_id");
+                });
+
+            modelBuilder.Entity("INNO.One.Modules.Platform.Domain.PlatformActivityItem", b =>
+                {
+                    b.HasOne("INNO.One.Modules.Platform.Domain.UserProfile", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_activity_items_user_profiles_user_id");
+                });
+
+            modelBuilder.Entity("INNO.One.Modules.Platform.Domain.PlatformNotification", b =>
+                {
+                    b.HasOne("INNO.One.Modules.Platform.Domain.UserProfile", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_notifications_user_profiles_user_id");
                 });
 
             modelBuilder.Entity("INNO.One.Modules.Platform.Domain.RolePermission", b =>

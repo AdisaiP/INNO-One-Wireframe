@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOPage } from '@inno/ui';
+import { INNOCollection, INNOCollectionHeader, INNOPage, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { getAssetOverview } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 
@@ -12,11 +12,12 @@ export function AssetsOverviewPage() {
   const query = useQuery({ queryKey: ['assets', 'overview'], queryFn: getAssetOverview });
 
   return (
-    <INNOPage eyebrow="Assets" title="Asset Overview">
-      <div className="page-intro-row">
-        <p className="page-helper">Ownership, inventory status and attention items inside your effective scope.</p>
-        <Link className="inno-link-button" to="/assets/inventory">View Asset Inventory</Link>
-      </div>
+    <INNOPage
+      eyebrow="Assets"
+      title="Asset Overview"
+      description="Ownership, inventory status and attention items inside your effective scope."
+      actions={<Link className="inno-link-button" to="/assets/inventory">View Asset Inventory</Link>}
+    >
 
       {query.isPending ? <LoadingState label="Loading Assets…" /> : null}
       {query.isError ? <ErrorState error={query.error} retry={() => void query.refetch()} /> : null}
@@ -30,28 +31,33 @@ export function AssetsOverviewPage() {
             <div><span>Repair / review</span><b>{query.data.repair}</b><small>{query.data.warrantyExpiring} warranties expire within 90 days</small></div>
           </div>
 
-          <section className="collection-card">
-            <div className="collection-head">
-              <div><h2>Recently updated assets</h2><p>Latest inventory or ownership changes.</p></div>
-              <Link className="open-resource" to="/assets/inventory">View all</Link>
-            </div>
-            <div className="production-table-wrap">
-              <table className="production-table">
-                <thead><tr><th>Asset</th><th>Category</th><th>Status</th><th>Updated</th><th className="action-column">Action</th></tr></thead>
-                <tbody>
-                  {query.data.recentAssets.map((asset) => (
-                    <tr key={asset.id}>
-                      <td><b>{asset.assetTag}</b><div className="table-meta">{asset.name}</div></td>
-                      <td>{asset.category}</td>
-                      <td><span className="prod-tag">{statusLabel(asset.status)}</span></td>
-                      <td>{new Date(asset.updatedAt).toLocaleString()}</td>
-                      <td className="action-column"><Link className="open-resource" to={'/assets/' + asset.id}>Open</Link></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
+          <INNOCollection>
+            <INNOCollectionHeader
+              title="Recently updated assets"
+              description="Latest inventory or ownership changes."
+              meta={<Link className="open-resource" to="/assets/inventory">View all</Link>}
+            />
+            {query.data.recentAssets.length === 0 ? (
+              <div className="collection-state"><INNOState kind="empty" title="No recent asset changes" description="Recent inventory and ownership updates will appear here." /></div>
+            ) : (
+              <INNOTableWrap width="wide">
+                <table>
+                  <thead><tr><th>Asset</th><th>Category</th><th>Status</th><th>Updated</th><th className="action-column">Action</th></tr></thead>
+                  <tbody>
+                    {query.data.recentAssets.map((asset) => (
+                      <tr key={asset.id}>
+                        <td><b>{asset.assetTag}</b><div className="table-meta">{asset.name}</div></td>
+                        <td>{asset.category}</td>
+                        <td><INNOStatus>{statusLabel(asset.status)}</INNOStatus></td>
+                        <td>{new Date(asset.updatedAt).toLocaleString()}</td>
+                        <td className="action-column"><Link className="device-row-action" to={'/assets/' + asset.id} aria-label={'Open ' + asset.assetTag}><span aria-hidden="true">›</span></Link></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </INNOTableWrap>
+            )}
+          </INNOCollection>
         </>
       ) : null}
     </INNOPage>

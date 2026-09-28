@@ -14,6 +14,8 @@ public sealed class AssetsDbContext(DbContextOptions<AssetsDbContext> options) :
     public DbSet<AssetCustomFieldValue> CustomFieldValues => Set<AssetCustomFieldValue>();
     public DbSet<AssetQrLabel> QrLabels => Set<AssetQrLabel>();
     public DbSet<AssetQrScan> QrScans => Set<AssetQrScan>();
+    public DbSet<SoftwareBaseline> SoftwareBaselines => Set<SoftwareBaseline>();
+    public DbSet<SoftwareBaselineResult> SoftwareBaselineResults => Set<SoftwareBaselineResult>();
     public DbSet<SoftwareLicense> SoftwareLicenses => Set<SoftwareLicense>();
     public DbSet<LicenseAllocation> LicenseAllocations => Set<LicenseAllocation>();
     public DbSet<AssetContract> Contracts => Set<AssetContract>();
@@ -129,6 +131,34 @@ public sealed class AssetsDbContext(DbContextOptions<AssetsDbContext> options) :
                 .WithMany()
                 .HasForeignKey(x => x.LabelId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<SoftwareBaseline>(entity =>
+        {
+            entity.ToTable("software_baselines");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => x.Code).IsUnique();
+            entity.Property(x => x.Code).HasMaxLength(64);
+            entity.Property(x => x.Name).HasMaxLength(180);
+            entity.Property(x => x.TargetCategory).HasMaxLength(80);
+            entity.Property(x => x.RequiredPackagesJson).HasColumnType("jsonb");
+            entity.Property(x => x.Status).HasMaxLength(24);
+            entity.Property(x => x.Version).IsConcurrencyToken();
+        });
+
+        modelBuilder.Entity<SoftwareBaselineResult>(entity =>
+        {
+            entity.ToTable("baseline_results");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => new { x.BaselineId, x.AssetId }).IsUnique();
+            entity.HasIndex(x => new { x.ResultStatus, x.EvaluatedAt });
+            entity.Property(x => x.ResultStatus).HasMaxLength(24);
+            entity.Property(x => x.ReasonCode).HasMaxLength(48);
+            entity.Property(x => x.MissingPackagesJson).HasColumnType("jsonb");
+            entity.Property(x => x.InventorySnapshotReference).HasMaxLength(80);
+            entity.Property(x => x.Version).IsConcurrencyToken();
+            entity.HasOne<SoftwareBaseline>().WithMany().HasForeignKey(x => x.BaselineId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<Asset>().WithMany().HasForeignKey(x => x.AssetId).OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<SoftwareLicense>(entity =>

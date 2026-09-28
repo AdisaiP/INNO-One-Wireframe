@@ -10,18 +10,18 @@ events=json.loads((ROOT/'inno-event-audit-contract.json').read_text())
 
 issues=[]
 
-if impl.get('contractVersion')!='0.16.0':
-    issues.append(f"expected current Implementation Contract 0.16.0, found {impl.get('contractVersion')}")
+if impl.get('contractVersion')!='0.19.0':
+    issues.append(f"expected current Implementation Contract 0.19.0, found {impl.get('contractVersion')}")
 data_ref=impl.get('dataModelContract',{})
-if data_ref.get('version')!='0.4.0':
-    issues.append('implementation contract must reference Data Model Contract 0.4.0')
+if data_ref.get('version')!='0.6.0':
+    issues.append('implementation contract must reference Data Model Contract 0.6.0')
 for key in ('documentation','source','audit'):
     value=data_ref.get(key)
     if not value or not (ROOT/value).exists():
         issues.append(f"missing Data Model contract reference: {key}={value}")
 
-if data.get('contractVersion')!='0.4.0':
-    issues.append(f"expected Data Model Contract 0.4.0, found {data.get('contractVersion')}")
+if data.get('contractVersion')!='0.6.0':
+    issues.append(f"expected Data Model Contract 0.6.0, found {data.get('contractVersion')}")
 if data.get('databaseEngine',{}).get('product')!='PostgreSQL':
     issues.append('production relational engine must be PostgreSQL')
 
@@ -54,16 +54,16 @@ meeting_names=[t.get('name') for t in meeting_tables]
 if len(meeting_names)!=len(set(meeting_names)):
     issues.append('meeting: duplicate table name')
 
-if len(core_tables)!=83:
-    issues.append(f"expected 83 core tables, found {len(core_tables)}")
+if len(core_tables)!=85:
+    issues.append(f"expected 85 core tables, found {len(core_tables)}")
 if len(meeting_tables)!=9:
     issues.append(f"expected 9 meeting tables, found {len(meeting_tables)}")
-if len(core_tables)+len(meeting_tables)!=92:
-    issues.append(f"expected 92 total planning tables, found {len(core_tables)+len(meeting_tables)}")
+if len(core_tables)+len(meeting_tables)!=94:
+    issues.append(f"expected 94 total planning tables, found {len(core_tables)+len(meeting_tables)}")
 
 required_tables={
     'platform':{'user_profiles','organization_units','locations','positions','roles','permissions','role_permissions','access_assignments','access_assignment_resources','access_assignment_actions','app_modules'},
-    'devices':{'devices','device_external_mappings','device_groups','device_group_members','remote_sessions','deployment_jobs','endpoint_policies','device_alerts','device_alert_rules'},
+    'devices':{'devices','device_external_mappings','device_groups','device_group_members','remote_sessions','deployment_jobs','endpoint_policies','device_alerts','device_alert_rules','software_inventory_snapshots','installed_software'},
     'assets':{'assets','asset_ownership_history','ownership_submissions','qr_labels','qr_scans','software_licenses','contracts'},
     'helpdesk':{'tickets','ticket_replies','ticket_attachments','ticket_assignments','ticket_status_history','sla_policies','categories','statuses','automation_rules','knowledge_articles'},
     'reports':{'saved_reports','report_runs','report_exports'},

@@ -3,10 +3,12 @@ import { ApiError } from '../api/client';
 
 export function LoadingState({ label = 'Loading…' }: { label?: string }) {
   return (
-    <div className="production-loading" role="status" aria-live="polite">
-      <span className="production-spinner" aria-hidden="true" />
-      <span>{label}</span>
-    </div>
+    <INNOState
+      kind="loading"
+      compact
+      title={label}
+      description="Please wait while INNO.One loads the latest available data."
+    />
   );
 }
 
@@ -27,19 +29,14 @@ export function ErrorState({
 
   return (
     <INNOState
+      kind={isForbidden || isUnauthorized ? 'permission' : 'error'}
       title={title}
       description={
         error instanceof Error
           ? error.message
           : 'The request could not be completed.'
       }
-      action={
-        retry ? (
-          <div className="state-action">
-            <INNOButton variant="secondary" onClick={retry}>Try again</INNOButton>
-          </div>
-        ) : undefined
-      }
+      action={retry ? <INNOButton variant="secondary" onClick={retry}>Try again</INNOButton> : undefined}
     />
   );
 }

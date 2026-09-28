@@ -1,6 +1,25 @@
 import { getAccessToken } from '../auth/keycloak';
 import type {
+  AdminAccessAssignment,
+  AdminAccessEvaluation,
+  AdminAuditDetail,
+  AdminAuditFacets,
+  AdminAuditListItem,
+  AdminSecurityResponse,
+  AdminPlatformSettingsResponse,
+  AdminAppModule,
+  AdminAppModulesResponse,
+  AdminIntegrationStatus,
+  AdminIntegrationsResponse,
+  AdminHierarchyItem,
+  AdminOverview,
+  AdminPermission,
+  AdminPosition,
+  AdminRole,
+  AdminUserDetail,
+  AdminUserListItem,
   AgentInstaller,
+  AppLauncherResponse,
   AssetCustomFieldDefinition,
   AssetCustomFieldSchema,
   AssetDetail,
@@ -12,6 +31,10 @@ import type {
   AssetQrLabel,
   AssetQrResolvedAsset,
   SoftwareLicenseItem,
+  SoftwareBaselineItem,
+  SoftwareBaselineRequest,
+  SoftwareBaselineListResponse,
+  SoftwareBaselineResults,
   SoftwareLicenseListResponse,
   AssetContractItem,
   AssetContractListResponse,
@@ -22,14 +45,23 @@ import type {
   BusinessCalendar,
   CreatedTicket,
   DeviceDetail,
+  DeviceSoftwareInventory,
   DeviceGroupDetail,
   DeviceGroupListItem,
   DeviceGroupMember,
   DeviceListItem,
   DiscoveryResult,
   DiscoveryScan,
+  GlobalSearchResponse,
+  WorkspaceActivityResponse,
+  WorkspaceAttentionResponse,
+  WorkspaceContinueResponse,
+  WorkspaceHomeResponse,
   HelpdeskOverview,
   OperationAccepted,
+  PlatformNotificationItem,
+  PlatformNotificationMarkAllResult,
+  PlatformNotificationsResponse,
   PagedResponse,
   ProblemDetails,
   Profile,
@@ -98,6 +130,359 @@ export async function getCurrentProfile(): Promise<Profile> {
   return response.data;
 }
 
+export async function getWorkspaceHome(): Promise<WorkspaceHomeResponse> {
+  return request<WorkspaceHomeResponse>('/platform/workspace');
+}
+
+export async function getWorkspaceContinue(): Promise<WorkspaceContinueResponse> {
+  return request<WorkspaceContinueResponse>('/platform/workspace/continue');
+}
+
+export async function getWorkspaceAttention(): Promise<WorkspaceAttentionResponse> {
+  return request<WorkspaceAttentionResponse>('/platform/workspace/attention');
+}
+
+export async function getWorkspaceActivity(limit = 50): Promise<WorkspaceActivityResponse> {
+  return request<WorkspaceActivityResponse>('/platform/activity?limit=' + String(limit));
+}
+
+export async function getPlatformApps(): Promise<AppLauncherResponse> {
+  return request<AppLauncherResponse>('/platform/apps');
+}
+
+export async function getGlobalSearch(query: string, limit = 30): Promise<GlobalSearchResponse> {
+  const params = new URLSearchParams({
+    q: query,
+    limit: String(limit),
+  });
+  return request<GlobalSearchResponse>('/search?' + params.toString());
+}
+
+export async function getPlatformNotifications(query: {
+  page?: number;
+  pageSize?: number;
+  state?: 'all' | 'unread';
+} = {}): Promise<PlatformNotificationsResponse> {
+  const params = new URLSearchParams({
+    page: String(query.page ?? 1),
+    pageSize: String(query.pageSize ?? 25),
+  });
+  if (query.state && query.state !== 'all') params.set('state', query.state);
+  return request<PlatformNotificationsResponse>('/platform/notifications?' + params.toString());
+}
+
+export async function updatePlatformNotification(
+  notificationId: string,
+  isRead: boolean,
+): Promise<PlatformNotificationItem> {
+  return request<PlatformNotificationItem>(
+    '/platform/notifications/' + encodeURIComponent(notificationId),
+    { method: 'PATCH', ...jsonRequest({ isRead }) },
+  );
+}
+
+export async function markAllPlatformNotificationsRead(): Promise<PlatformNotificationMarkAllResult> {
+  return request<PlatformNotificationMarkAllResult>(
+    '/platform/notifications/mark-all-read',
+    { method: 'POST' },
+  );
+}
+
+export async function getAdminApps(): Promise<AdminAppModulesResponse> {
+  return request<AdminAppModulesResponse>('/admin/apps');
+}
+
+export async function getAdminIntegrations(): Promise<AdminIntegrationsResponse> {
+  return request<AdminIntegrationsResponse>('/admin/integrations');
+}
+
+export async function getAdminAudit(query: {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  module?: string;
+  action?: string;
+  actor?: string;
+  targetType?: string;
+  classification?: string;
+  from?: string;
+  to?: string;
+} = {}): Promise<PagedResponse<AdminAuditListItem>> {
+  const params = new URLSearchParams({
+    page: String(query.page ?? 1),
+    pageSize: String(query.pageSize ?? 50),
+  });
+  if (query.search?.trim()) params.set('search', query.search.trim());
+  if (query.module && query.module !== 'all') params.set('module', query.module);
+  if (query.action && query.action !== 'all') params.set('action', query.action);
+  if (query.actor?.trim()) params.set('actor', query.actor.trim());
+  if (query.targetType && query.targetType !== 'all') params.set('targetType', query.targetType);
+  if (query.classification && query.classification !== 'all') params.set('classification', query.classification);
+  if (query.from) params.set('from', query.from);
+  if (query.to) params.set('to', query.to);
+  return request<PagedResponse<AdminAuditListItem>>('/admin/audit?' + params.toString());
+}
+
+export async function getAdminAuditFacets(): Promise<AdminAuditFacets> {
+  return request<AdminAuditFacets>('/admin/audit/facets');
+}
+
+export async function getAdminSecurity(): Promise<AdminSecurityResponse> {
+  return request<AdminSecurityResponse>('/admin/security');
+}
+
+export async function getAdminPlatformSettings(): Promise<AdminPlatformSettingsResponse> {
+  return request<AdminPlatformSettingsResponse>('/admin/settings');
+}
+
+export async function getAdminAuditDetail(auditId: string): Promise<AdminAuditDetail> {
+  const response = await request<ResourceEnvelope<AdminAuditDetail>>(
+    '/admin/audit/' + encodeURIComponent(auditId),
+  );
+  return response.data;
+}
+
+export async function testAdminIntegration(
+  integrationId: string,
+): Promise<AdminIntegrationStatus> {
+  const response = await request<ResourceEnvelope<AdminIntegrationStatus>>(
+    '/admin/integrations/' + encodeURIComponent(integrationId) + '/test',
+    { method: 'POST' },
+  );
+  return response.data;
+}
+
+export async function updateAdminApp(
+  appId: string,
+  eTag: string | null | undefined,
+  enabled: boolean,
+): Promise<AdminAppModule> {
+  const response = await request<ResourceEnvelope<AdminAppModule>>(
+    '/admin/apps/' + encodeURIComponent(appId),
+    {
+      method: 'PATCH',
+      ...jsonRequest(
+        { enabled },
+        eTag ? { 'If-Match': eTag } : undefined,
+      ),
+    },
+  );
+  return response.data;
+}
+
+export async function getAdminOverview(): Promise<AdminOverview> {
+  const response = await request<ResourceEnvelope<AdminOverview>>('/admin/overview');
+  return response.data;
+}
+
+export async function getAdminOrganizationTree(): Promise<AdminHierarchyItem[]> {
+  const response = await request<{ items: AdminHierarchyItem[] }>('/admin/organization/tree');
+  return response.items;
+}
+
+export async function createAdminOrganizationUnit(input: {
+  code: string;
+  name: string;
+  parentId?: string | null;
+  status?: string;
+}): Promise<AdminHierarchyItem> {
+  const response = await request<ResourceEnvelope<AdminHierarchyItem>>(
+    '/admin/organization/units',
+    { method: 'POST', ...jsonRequest(input) },
+  );
+  return response.data;
+}
+
+export async function updateAdminOrganizationUnit(
+  unitId: string,
+  eTag: string,
+  input: { code: string; name: string; parentId?: string | null; status?: string },
+): Promise<AdminHierarchyItem> {
+  const response = await request<ResourceEnvelope<AdminHierarchyItem>>(
+    '/admin/organization/units/' + encodeURIComponent(unitId),
+    { method: 'PUT', ...jsonRequest(input, { 'If-Match': eTag }) },
+  );
+  return response.data;
+}
+
+export async function getAdminLocations(): Promise<AdminHierarchyItem[]> {
+  const response = await request<{ items: AdminHierarchyItem[] }>('/admin/locations/tree');
+  return response.items;
+}
+
+export async function createAdminLocation(input: {
+  code: string;
+  name: string;
+  parentId?: string | null;
+  status?: string;
+}): Promise<AdminHierarchyItem> {
+  const response = await request<ResourceEnvelope<AdminHierarchyItem>>(
+    '/admin/locations',
+    { method: 'POST', ...jsonRequest(input) },
+  );
+  return response.data;
+}
+
+export async function updateAdminLocation(
+  locationId: string,
+  eTag: string,
+  input: { code: string; name: string; parentId?: string | null; status?: string },
+): Promise<AdminHierarchyItem> {
+  const response = await request<ResourceEnvelope<AdminHierarchyItem>>(
+    '/admin/locations/' + encodeURIComponent(locationId),
+    { method: 'PUT', ...jsonRequest(input, { 'If-Match': eTag }) },
+  );
+  return response.data;
+}
+
+export async function getAdminPositions(): Promise<AdminPosition[]> {
+  const response = await request<{ items: AdminPosition[] }>('/admin/positions');
+  return response.items;
+}
+
+export async function createAdminPosition(input: {
+  code: string;
+  name: string;
+  status?: string;
+}): Promise<AdminPosition> {
+  const response = await request<ResourceEnvelope<AdminPosition>>(
+    '/admin/positions',
+    { method: 'POST', ...jsonRequest(input) },
+  );
+  return response.data;
+}
+
+export async function updateAdminPosition(
+  positionId: string,
+  eTag: string,
+  input: { code: string; name: string; status?: string },
+): Promise<AdminPosition> {
+  const response = await request<ResourceEnvelope<AdminPosition>>(
+    '/admin/positions/' + encodeURIComponent(positionId),
+    { method: 'PUT', ...jsonRequest(input, { 'If-Match': eTag }) },
+  );
+  return response.data;
+}
+
+export async function getAdminUsers(query: {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  status?: string;
+  organizationId?: string;
+} = {}): Promise<PagedResponse<AdminUserListItem>> {
+  const params = new URLSearchParams({
+    page: String(query.page ?? 1),
+    pageSize: String(query.pageSize ?? 25),
+  });
+  if (query.search?.trim()) params.set('search', query.search.trim());
+  if (query.status && query.status !== 'all') params.set('status', query.status);
+  if (query.organizationId && query.organizationId !== 'all') {
+    params.set('organizationId', query.organizationId);
+  }
+  return request<PagedResponse<AdminUserListItem>>('/admin/users?' + params.toString());
+}
+
+export async function getAdminUser(userId: string): Promise<AdminUserDetail> {
+  const response = await request<ResourceEnvelope<AdminUserDetail>>(
+    '/admin/users/' + encodeURIComponent(userId),
+  );
+  return response.data;
+}
+
+export async function createAdminUser(input: {
+  keycloakSubject: string;
+  employeeId: string;
+  fullName: string;
+  email: string;
+  phone?: string | null;
+  office?: string | null;
+  organizationId?: string | null;
+  positionId?: string | null;
+  locationId?: string | null;
+  status?: string;
+}): Promise<AdminUserDetail> {
+  const response = await request<ResourceEnvelope<AdminUserDetail>>(
+    '/admin/users',
+    { method: 'POST', ...jsonRequest(input) },
+  );
+  return response.data;
+}
+
+export async function updateAdminUser(
+  userId: string,
+  eTag: string,
+  input: {
+    employeeId: string;
+    fullName: string;
+    email: string;
+    phone?: string | null;
+    office?: string | null;
+    organizationId?: string | null;
+    positionId?: string | null;
+    locationId?: string | null;
+    status?: string;
+  },
+): Promise<AdminUserDetail> {
+  const response = await request<ResourceEnvelope<AdminUserDetail>>(
+    '/admin/users/' + encodeURIComponent(userId),
+    { method: 'PUT', ...jsonRequest(input, { 'If-Match': eTag }) },
+  );
+  return response.data;
+}
+
+export async function getAdminRoles(): Promise<AdminRole[]> {
+  const response = await request<{ items: AdminRole[] }>('/admin/roles');
+  return response.items;
+}
+
+export async function getAdminPermissions(): Promise<AdminPermission[]> {
+  const response = await request<{ items: AdminPermission[] }>('/admin/permissions');
+  return response.items;
+}
+
+export async function getAdminAccessAssignments(): Promise<AdminAccessAssignment[]> {
+  const response = await request<{ items: AdminAccessAssignment[] }>('/admin/access-assignments');
+  return response.items;
+}
+
+export async function getAdminAccessAssignment(assignmentId: string): Promise<AdminAccessAssignment> {
+  const response = await request<ResourceEnvelope<AdminAccessAssignment>>(
+    '/admin/access-assignments/' + encodeURIComponent(assignmentId),
+  );
+  return response.data;
+}
+
+export async function updateAdminAccessAssignment(
+  assignmentId: string,
+  eTag: string,
+  input: {
+    roleId: string;
+    scopeType: string;
+    resourceIds: string[];
+    includeChildren: boolean;
+    actionOverrides: string[];
+    status?: string;
+  },
+): Promise<AdminAccessAssignment> {
+  const response = await request<ResourceEnvelope<AdminAccessAssignment>>(
+    '/admin/access-assignments/' + encodeURIComponent(assignmentId),
+    { method: 'PUT', ...jsonRequest(input, { 'If-Match': eTag }) },
+  );
+  return response.data;
+}
+
+export async function evaluateAdminAccess(input: {
+  userId: string;
+  permission: string;
+}): Promise<AdminAccessEvaluation> {
+  const response = await request<ResourceEnvelope<AdminAccessEvaluation>>(
+    '/admin/access-scopes/evaluate',
+    { method: 'POST', ...jsonRequest(input) },
+  );
+  return response.data;
+}
+
 export interface DeviceQuery {
   page: number;
   pageSize: number;
@@ -124,6 +509,14 @@ export async function getDevices(query: DeviceQuery): Promise<PagedResponse<Devi
 export async function getDevice(deviceId: string): Promise<DeviceDetail> {
   const response = await request<ResourceEnvelope<DeviceDetail>>(
     '/devices/' + encodeURIComponent(deviceId),
+  );
+  return response.data;
+}
+
+
+export async function getDeviceSoftwareInventory(deviceId: string): Promise<DeviceSoftwareInventory> {
+  const response = await request<ResourceEnvelope<DeviceSoftwareInventory>>(
+    '/devices/' + encodeURIComponent(deviceId) + '/software-inventory',
   );
   return response.data;
 }
@@ -758,4 +1151,37 @@ export async function updateAutomationRule(
     },
   );
   return response.data;
+}
+
+export async function getSoftwareBaselines(query: { search?: string; status?: string }): Promise<SoftwareBaselineListResponse> {
+  const params = new URLSearchParams();
+  if (query.search?.trim()) params.set('search', query.search.trim());
+  if (query.status && query.status !== 'all') params.set('status', query.status);
+  return request<SoftwareBaselineListResponse>('/assets/software-baselines?' + params.toString());
+}
+export async function createSoftwareBaseline(body: SoftwareBaselineRequest): Promise<SoftwareBaselineItem> {
+  const result = await request<ResourceEnvelope<SoftwareBaselineItem>>(
+    '/assets/software-baselines', { method: 'POST', ...jsonRequest(body) },
+  );
+  return result.data;
+}
+export async function updateSoftwareBaseline(id: string, eTag: string, body: SoftwareBaselineRequest): Promise<SoftwareBaselineItem> {
+  const result = await request<ResourceEnvelope<SoftwareBaselineItem>>(
+    '/assets/software-baselines/' + encodeURIComponent(id),
+    { method: 'PATCH', ...jsonRequest(body, { 'If-Match': eTag }) },
+  );
+  return result.data;
+}
+
+
+export async function getSoftwareBaselineResults(id: string): Promise<SoftwareBaselineResults> {
+  return request<SoftwareBaselineResults>(
+    '/assets/software-baselines/' + encodeURIComponent(id) + '/results',
+  );
+}
+export async function evaluateSoftwareBaseline(id: string): Promise<SoftwareBaselineResults> {
+  return request<SoftwareBaselineResults>(
+    '/assets/software-baselines/' + encodeURIComponent(id) + '/evaluate',
+    { method: 'POST' },
+  );
 }

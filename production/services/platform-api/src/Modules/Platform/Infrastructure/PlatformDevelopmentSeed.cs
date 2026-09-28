@@ -74,6 +74,73 @@ public static class PlatformDevelopmentSeed
         ("assets.contract.manage", "assets", "Manage contracts and warranty")
     ];
 
+    private static readonly (string Id, string Module, string Name)[] Step26Permissions =
+    [
+        ("assets.baseline.manage", "assets", "Manage software baseline definitions")
+    ];
+
+    private static readonly (string Id, string Module, string Name)[] Step30Permissions =
+    [
+        ("platform.apps.view", "platform", "View available applications"),
+        ("admin.apps.view", "admin", "View Apps & Modules administration"),
+        ("admin.apps.manage", "admin", "Enable or disable installed applications")
+    ];
+
+    private static readonly (string Id, string Module, string Name)[] Step31Permissions =
+    [
+        ("admin.access", "admin", "Access Admin Center"),
+        ("admin.organization.view", "admin", "View organization structure"),
+        ("admin.organization.manage", "admin", "Manage organization structure"),
+        ("admin.locations.view", "admin", "View locations"),
+        ("admin.locations.manage", "admin", "Manage locations"),
+        ("admin.positions.view", "admin", "View positions"),
+        ("admin.positions.manage", "admin", "Manage positions"),
+        ("admin.users.view", "admin", "View users"),
+        ("admin.users.manage", "admin", "Manage users"),
+        ("admin.roles.view", "admin", "View roles and permissions"),
+        ("admin.roles.manage", "admin", "Manage roles and permissions"),
+        ("admin.access_scopes.view", "admin", "View access scopes"),
+        ("admin.access_scopes.manage", "admin", "Manage access scopes"),
+        ("admin.access_scopes.evaluate", "admin", "Evaluate effective access")
+    ];
+
+    private static readonly (string Id, string Module, string Name)[] Step32Permissions =
+    [
+        ("admin.integrations.view", "admin", "View platform integrations"),
+        ("admin.integrations.manage", "admin", "Test platform integrations")
+    ];
+
+    private static readonly (string Id, string Module, string Name)[] Step33Permissions =
+    [
+        ("admin.audit.view", "admin", "View audit records")
+    ];
+
+    private static readonly (string Id, string Module, string Name)[] Step34Permissions =
+    [
+        ("admin.security.view", "admin", "View security posture"),
+        ("admin.security.manage", "admin", "Manage security policies")
+    ];
+
+    private static readonly (string Id, string Module, string Name)[] Step35Permissions =
+    [
+        ("admin.branding.manage", "admin", "Manage platform branding")
+    ];
+
+    private static readonly (string Id, string Module, string Name)[] Step36Permissions =
+    [
+        ("admin.settings.manage", "admin", "Manage platform settings")
+    ];
+
+    private static readonly (string Id, string Module, string Name)[] Step37Permissions =
+    [
+        ("platform.notifications.view", "platform", "View personal platform notifications")
+    ];
+
+    private static readonly (string Id, string Module, string Name)[] Step38Permissions =
+    [
+        ("platform.search.use", "platform", "Use global search")
+    ];
+
     public static async Task SeedAsync(
         PlatformDbContext db,
         CancellationToken cancellationToken = default)
@@ -260,6 +327,67 @@ public static class PlatformDevelopmentSeed
             Name = x.Name
         }));
 
+        db.Permissions.AddRange(Step26Permissions.Select(x => new Permission
+        {
+            PermissionId = x.Id,
+            Module = x.Module,
+            Name = x.Name
+        }));
+        db.Permissions.AddRange(Step30Permissions.Select(x => new Permission
+        {
+            PermissionId = x.Id,
+            Module = x.Module,
+            Name = x.Name
+        }));
+        db.Permissions.AddRange(Step31Permissions.Select(x => new Permission
+        {
+            PermissionId = x.Id,
+            Module = x.Module,
+            Name = x.Name
+        }));
+        db.Permissions.AddRange(Step32Permissions.Select(x => new Permission
+        {
+            PermissionId = x.Id,
+            Module = x.Module,
+            Name = x.Name
+        }));
+        db.Permissions.AddRange(Step33Permissions.Select(x => new Permission
+        {
+            PermissionId = x.Id,
+            Module = x.Module,
+            Name = x.Name
+        }));
+        db.Permissions.AddRange(Step34Permissions.Select(x => new Permission
+        {
+            PermissionId = x.Id,
+            Module = x.Module,
+            Name = x.Name
+        }));
+        db.Permissions.AddRange(Step35Permissions.Select(x => new Permission
+        {
+            PermissionId = x.Id,
+            Module = x.Module,
+            Name = x.Name
+        }));
+        db.Permissions.AddRange(Step36Permissions.Select(x => new Permission
+        {
+            PermissionId = x.Id,
+            Module = x.Module,
+            Name = x.Name
+        }));
+        db.Permissions.AddRange(Step37Permissions.Select(x => new Permission
+        {
+            PermissionId = x.Id,
+            Module = x.Module,
+            Name = x.Name
+        }));
+        db.Permissions.AddRange(Step38Permissions.Select(x => new Permission
+        {
+            PermissionId = x.Id,
+            Module = x.Module,
+            Name = x.Name
+        }));
+
         db.RolePermissions.AddRange(basePermissions.Select(x => new RolePermission
         {
             RoleId = PlatformAdminRoleId,
@@ -296,8 +424,62 @@ public static class PlatformDevelopmentSeed
             PermissionId = x.Id
         }));
 
+        db.RolePermissions.AddRange(Step26Permissions.Select(x => new RolePermission
+        {
+            RoleId = PlatformAdminRoleId,
+            PermissionId = x.Id
+        }));
+        db.RolePermissions.AddRange(Step30Permissions.Select(x => new RolePermission
+        {
+            RoleId = PlatformAdminRoleId,
+            PermissionId = x.Id
+        }));
+        db.RolePermissions.AddRange(Step31Permissions.Select(x => new RolePermission
+        {
+            RoleId = PlatformAdminRoleId,
+            PermissionId = x.Id
+        }));
+        db.RolePermissions.AddRange(Step32Permissions.Select(x => new RolePermission
+        {
+            RoleId = PlatformAdminRoleId,
+            PermissionId = x.Id
+        }));
+        db.RolePermissions.AddRange(Step33Permissions.Select(x => new RolePermission
+        {
+            RoleId = PlatformAdminRoleId,
+            PermissionId = x.Id
+        }));
+        db.RolePermissions.AddRange(Step34Permissions.Select(x => new RolePermission
+        {
+            RoleId = PlatformAdminRoleId,
+            PermissionId = x.Id
+        }));
+        db.RolePermissions.AddRange(Step35Permissions.Select(x => new RolePermission
+        {
+            RoleId = PlatformAdminRoleId,
+            PermissionId = x.Id
+        }));
+        db.RolePermissions.AddRange(Step36Permissions.Select(x => new RolePermission
+        {
+            RoleId = PlatformAdminRoleId,
+            PermissionId = x.Id
+        }));
+        db.RolePermissions.AddRange(Step37Permissions.Select(x => new RolePermission
+        {
+            RoleId = PlatformAdminRoleId,
+            PermissionId = x.Id
+        }));
+        db.RolePermissions.AddRange(Step38Permissions.Select(x => new RolePermission
+        {
+            RoleId = PlatformAdminRoleId,
+            PermissionId = x.Id
+        }));
+
         db.RolePermissions.AddRange(
             new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "platform.workspace.access" },
+            new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "platform.apps.view" },
+            new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "platform.notifications.view" },
+            new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "platform.search.use" },
             new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "devices.view" },
             new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "helpdesk.ticket.view" },
             new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "helpdesk.ticket.create" },
@@ -306,6 +488,9 @@ public static class PlatformDevelopmentSeed
         foreach (var permissionId in new[]
         {
             "platform.workspace.access",
+            "platform.apps.view",
+            "platform.notifications.view",
+            "platform.search.use",
             "devices.view",
             "assets.view",
             "assets.qr.scan",
@@ -326,6 +511,9 @@ public static class PlatformDevelopmentSeed
         foreach (var permissionId in new[]
         {
             "platform.workspace.access",
+            "platform.apps.view",
+            "platform.notifications.view",
+            "platform.search.use",
             "helpdesk.ticket.view",
             "helpdesk.ticket.create"
         })
@@ -396,6 +584,9 @@ public static class PlatformDevelopmentSeed
                 UpdatedAt = now
             });
 
+        db.Notifications.AddRange(Step37Notifications(now));
+        db.ActivityItems.AddRange(Step39ActivityItems(now));
+
         await db.SaveChangesAsync(cancellationToken);
     }
 
@@ -422,7 +613,17 @@ public static class PlatformDevelopmentSeed
             .Concat(Step19Permissions)
             .Concat(Step21Permissions)
             .Concat(Step22Permissions)
-            .Concat(Step23Permissions))
+            .Concat(Step23Permissions)
+            .Concat(Step26Permissions)
+            .Concat(Step30Permissions)
+            .Concat(Step31Permissions)
+            .Concat(Step32Permissions)
+            .Concat(Step33Permissions)
+            .Concat(Step34Permissions)
+            .Concat(Step35Permissions)
+            .Concat(Step36Permissions)
+            .Concat(Step37Permissions)
+            .Concat(Step38Permissions))
         {
             if (!await db.Permissions.AnyAsync(
                 x => x.PermissionId == permissionId,
@@ -509,7 +710,17 @@ public static class PlatformDevelopmentSeed
             .Concat(Step19Permissions)
             .Concat(Step21Permissions)
             .Concat(Step22Permissions)
-            .Concat(Step23Permissions))
+            .Concat(Step23Permissions)
+            .Concat(Step26Permissions)
+            .Concat(Step30Permissions)
+            .Concat(Step31Permissions)
+            .Concat(Step32Permissions)
+            .Concat(Step33Permissions)
+            .Concat(Step34Permissions)
+            .Concat(Step35Permissions)
+            .Concat(Step36Permissions)
+            .Concat(Step37Permissions)
+            .Concat(Step38Permissions))
         {
             await EnsureRolePermissionAsync(
                 db,
@@ -520,6 +731,9 @@ public static class PlatformDevelopmentSeed
 
         foreach (var permissionId in new[]
         {
+            "platform.apps.view",
+            "platform.notifications.view",
+            "platform.search.use",
             "helpdesk.ticket.view",
             "helpdesk.ticket.create",
             "assets.qr.scan"
@@ -535,6 +749,9 @@ public static class PlatformDevelopmentSeed
         foreach (var permissionId in new[]
         {
             "platform.workspace.access",
+            "platform.apps.view",
+            "platform.notifications.view",
+            "platform.search.use",
             "devices.view",
             "assets.view",
             "assets.qr.scan",
@@ -555,6 +772,9 @@ public static class PlatformDevelopmentSeed
         foreach (var permissionId in new[]
         {
             "platform.workspace.access",
+            "platform.apps.view",
+            "platform.notifications.view",
+            "platform.search.use",
             "helpdesk.ticket.view",
             "helpdesk.ticket.create"
         })
@@ -622,8 +842,232 @@ public static class PlatformDevelopmentSeed
             });
         }
 
+        await EnsureStep37NotificationsAsync(db, now, cancellationToken);
+        await EnsureStep39ActivityAsync(db, now, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
     }
+
+    private static async Task EnsureStep37NotificationsAsync(
+        PlatformDbContext db,
+        DateTimeOffset now,
+        CancellationToken cancellationToken)
+    {
+        var seeded = Step37Notifications(now).ToArray();
+        var ids = seeded.Select(x => x.Id).ToArray();
+        var existing = await db.Notifications.AsNoTracking()
+            .Where(x => ids.Contains(x.Id))
+            .Select(x => x.Id)
+            .ToHashSetAsync(cancellationToken);
+
+        db.Notifications.AddRange(seeded.Where(x => !existing.Contains(x.Id)));
+    }
+
+    private static IEnumerable<PlatformNotification> Step37Notifications(DateTimeOffset now)
+    {
+        return
+        [
+            new PlatformNotification
+            {
+                Id = Guid.Parse("90000000-0000-0000-0000-000000000001"),
+                UserId = UserId,
+                SourceModule = "devices",
+                NotificationType = "device.offline",
+                Title = "PC-FIN-021 is offline longer than expected",
+                Message = "Devices · anomaly detected · opens Devices workspace",
+                DestinationPath = "/devices",
+                IsImportant = true,
+                CreatedAt = now.AddMinutes(-12)
+            },
+            new PlatformNotification
+            {
+                Id = Guid.Parse("90000000-0000-0000-0000-000000000002"),
+                UserId = UserId,
+                SourceModule = "helpdesk",
+                NotificationType = "ticket.assigned",
+                Title = "HD-2026-001048 assigned to you",
+                Message = "Helpdesk · Network / VPN · P2 High",
+                DestinationPath = "/helpdesk/assigned",
+                IsImportant = true,
+                CreatedAt = now.AddMinutes(-34)
+            },
+            new PlatformNotification
+            {
+                Id = Guid.Parse("90000000-0000-0000-0000-000000000003"),
+                UserId = UserId,
+                SourceModule = "assets",
+                NotificationType = "contract.expiring",
+                Title = "4 contracts expire within 90 days",
+                Message = "Assets · warranty and contract attention",
+                DestinationPath = "/assets/contracts",
+                IsImportant = false,
+                ReadAt = now.AddMinutes(-45),
+                CreatedAt = now.AddHours(-2)
+            },
+            new PlatformNotification
+            {
+                Id = Guid.Parse("90000000-0000-0000-0000-000000000004"),
+                UserId = UserId,
+                SourceModule = "assets",
+                NotificationType = "license.overage",
+                Title = "Adobe Acrobat Pro exceeds purchased seats",
+                Message = "Assets · 13 seats over entitlement",
+                DestinationPath = "/assets/software-licenses",
+                IsImportant = true,
+                ReadAt = now.AddHours(-1),
+                CreatedAt = now.AddHours(-4)
+            },
+            new PlatformNotification
+            {
+                Id = Guid.Parse("90000000-0000-0000-0000-000000000005"),
+                UserId = UserId,
+                SourceModule = "helpdesk",
+                NotificationType = "sla.at_risk",
+                Title = "2 high-priority tickets are approaching SLA",
+                Message = "Helpdesk · response targets need attention",
+                DestinationPath = "/helpdesk/sla",
+                IsImportant = false,
+                ReadAt = now.AddHours(-2),
+                CreatedAt = now.AddHours(-6)
+            },
+            new PlatformNotification
+            {
+                Id = Guid.Parse("90000000-0000-0000-0000-000000000006"),
+                UserId = HrViewerUserId,
+                SourceModule = "devices",
+                NotificationType = "device.offline",
+                Title = "HR-NB-014 has not checked in",
+                Message = "Devices · last seen outside the expected interval",
+                DestinationPath = "/devices",
+                IsImportant = true,
+                CreatedAt = now.AddMinutes(-18)
+            }
+        ];
+    }
+
+    private static async Task EnsureStep39ActivityAsync(
+        PlatformDbContext db,
+        DateTimeOffset now,
+        CancellationToken cancellationToken)
+    {
+        var seeded = Step39ActivityItems(now).ToArray();
+        var ids = seeded.Select(x => x.Id).ToArray();
+        var existing = await db.ActivityItems.AsNoTracking()
+            .Where(x => ids.Contains(x.Id))
+            .Select(x => x.Id)
+            .ToHashSetAsync(cancellationToken);
+
+        db.ActivityItems.AddRange(seeded.Where(x => !existing.Contains(x.Id)));
+    }
+
+    private static IEnumerable<PlatformActivityItem> Step39ActivityItems(DateTimeOffset now)
+    {
+        return
+        [
+            Activity(
+                "a1000000-0000-0000-0000-000000000001",
+                UserId,
+                "devices",
+                "device",
+                "dev_80000000000000000000000000000002",
+                "NOTEBOOK-IT-003",
+                "Viewed device details",
+                "/devices/dev_80000000000000000000000000000002",
+                now.AddMinutes(-12)),
+            Activity(
+                "a1000000-0000-0000-0000-000000000002",
+                UserId,
+                "helpdesk",
+                "ticket",
+                "ticket_93000000000000000000000000000003",
+                "HD-2026-001050 · Spreadsheet application crashes",
+                "Reviewed assigned ticket",
+                "/helpdesk/tickets/ticket_93000000000000000000000000000003",
+                now.AddMinutes(-38)),
+            Activity(
+                "a1000000-0000-0000-0000-000000000003",
+                UserId,
+                "assets",
+                "asset",
+                "asset_90000000000000000000000000000002",
+                "AST-NB-000003 · Developer Notebook",
+                "Viewed asset details",
+                "/assets/asset_90000000000000000000000000000002",
+                now.AddHours(-1)),
+            Activity(
+                "a1000000-0000-0000-0000-000000000004",
+                UserId,
+                "helpdesk",
+                "ticket",
+                "ticket_93000000000000000000000000000002",
+                "HD-2026-001049 · Payroll portal access denied",
+                "Opened requester ticket",
+                "/helpdesk/tickets/ticket_93000000000000000000000000000002",
+                now.AddHours(-3)),
+            Activity(
+                "a1000000-0000-0000-0000-000000000005",
+                HrViewerUserId,
+                "devices",
+                "device",
+                "dev_80000000000000000000000000000001",
+                "DESKTOP-HR-014",
+                "Viewed device details",
+                "/devices/dev_80000000000000000000000000000001",
+                now.AddMinutes(-18)),
+            Activity(
+                "a1000000-0000-0000-0000-000000000006",
+                HrViewerUserId,
+                "helpdesk",
+                "ticket",
+                "ticket_93000000000000000000000000000001",
+                "HD-2026-001048 · Cannot connect VPN",
+                "Reviewed HR support ticket",
+                "/helpdesk/tickets/ticket_93000000000000000000000000000001",
+                now.AddHours(-1)),
+            Activity(
+                "a1000000-0000-0000-0000-000000000007",
+                SupportAgentUserId,
+                "helpdesk",
+                "ticket",
+                "ticket_93000000000000000000000000000001",
+                "HD-2026-001048 · Cannot connect VPN",
+                "Replied to requester",
+                "/helpdesk/tickets/ticket_93000000000000000000000000000001",
+                now.AddMinutes(-22)),
+            Activity(
+                "a1000000-0000-0000-0000-000000000008",
+                SomchaiUserId,
+                "helpdesk",
+                "ticket",
+                "ticket_93000000000000000000000000000001",
+                "HD-2026-001048 · Cannot connect VPN",
+                "Opened your support ticket",
+                "/helpdesk/tickets/ticket_93000000000000000000000000000001",
+                now.AddMinutes(-26))
+        ];
+    }
+
+    private static PlatformActivityItem Activity(
+        string id,
+        Guid userId,
+        string sourceModule,
+        string resourceType,
+        string resourceId,
+        string title,
+        string activity,
+        string destinationPath,
+        DateTimeOffset occurredAt) =>
+        new()
+        {
+            Id = Guid.Parse(id),
+            UserId = userId,
+            SourceModule = sourceModule,
+            ResourceType = resourceType,
+            ResourceId = resourceId,
+            Title = title,
+            Activity = activity,
+            DestinationPath = destinationPath,
+            OccurredAt = occurredAt
+        };
 
     private static async Task EnsureRolePermissionAsync(
         PlatformDbContext db,

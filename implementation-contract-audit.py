@@ -9,11 +9,11 @@ registry_text = (ROOT / "platform-registry.js").read_text()
 
 issues = []
 
-if contract.get("contractVersion") != "0.16.0":
-    issues.append(f"expected implementation contract 0.16.0, found {contract.get('contractVersion')}")
+if contract.get("contractVersion") != "0.19.0":
+    issues.append(f"expected implementation contract 0.19.0, found {contract.get('contractVersion')}")
 api_contract = contract.get("apiContract", {})
-if api_contract.get("version") != "0.2.0":
-    issues.append("implementation contract must reference API Contract 0.2.0")
+if api_contract.get("version") != "0.5.0":
+    issues.append("implementation contract must reference API Contract 0.5.0")
 if api_contract.get("basePath") != "/api/v1":
     issues.append("implementation contract API base path must be /api/v1")
 for ref in (api_contract.get("source"), api_contract.get("openApi")):
@@ -21,8 +21,8 @@ for ref in (api_contract.get("source"), api_contract.get("openApi")):
         issues.append(f"missing API contract reference: {ref}")
 
 event_contract = contract.get("eventAuditContract", {})
-if event_contract.get("version") != "0.3.0":
-    issues.append("implementation contract must reference Event/Audit Contract 0.3.0")
+if event_contract.get("version") != "0.5.0":
+    issues.append("implementation contract must reference Event/Audit Contract 0.5.0")
 for ref in (event_contract.get("source"), event_contract.get("documentation"), event_contract.get("audit")):
     if not ref or not (ROOT / ref).exists():
         issues.append(f"missing Event/Audit contract reference: {ref}")
@@ -32,8 +32,8 @@ if event_contract.get("crossModuleDurability") != "transactional-outbox":
     issues.append("cross-module event durability must use transactional outbox")
 
 data_contract = contract.get("dataModelContract", {})
-if data_contract.get("version") != "0.4.0":
-    issues.append("implementation contract must reference Data Model Contract 0.4.0")
+if data_contract.get("version") != "0.6.0":
+    issues.append("implementation contract must reference Data Model Contract 0.6.0")
 for ref in (data_contract.get("source"), data_contract.get("documentation"), data_contract.get("audit")):
     if not ref or not (ROOT / ref).exists():
         issues.append(f"missing Data Model contract reference: {ref}")

@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOButton, INNOPage, INNOState } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarSpacer } from '@inno/ui';
 import { getSoftwareLicenses, updateSoftwareLicense } from '../api/client';
 import type { SoftwareLicenseItem } from '../api/types';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -134,10 +134,11 @@ export function SoftwareLicensesPage() {
   const summary = query.data?.summary;
 
   return (
-    <INNOPage eyebrow="Assets · Management" title="Software Licenses">
-      <p className="page-helper">
-        Compare purchased entitlements with detected endpoint installations and recent usage.
-      </p>
+    <INNOPage
+      eyebrow="Assets · Management"
+      title="Software Licenses"
+      description="Compare purchased entitlements with detected endpoint installations and recent usage."
+    >
 
       <div className="production-stat-strip license-stat-strip">
         <div>
@@ -165,42 +166,26 @@ export function SoftwareLicensesPage() {
       {saveError ? <div className="form-error" role="alert">{saveError}</div> : null}
       {message ? <div className="form-success" role="status">{message}</div> : null}
 
-      <section className="collection-card license-collection">
-        <div className="collection-head">
-          <div>
-            <h2>License products</h2>
-            <p>Purchased seats compared with the current detected footprint.</p>
-          </div>
-          {query.data ? <span className="prod-tag">{query.data.totalItems} products</span> : null}
-        </div>
-
-        <div className="collection-toolbar">
-          <label className="search-field">
-            <span className="sr-only">Search software licenses</span>
-            <input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search product, vendor, model or contract…"
-            />
-          </label>
-          <label>
-            <span className="sr-only">Compliance filter</span>
-            <select value={compliance} onChange={(event) => setCompliance(event.target.value)}>
-              <option value="all">Compliance: All</option>
-              <option value="compliant">Compliant</option>
-              <option value="overused">Overused</option>
-            </select>
-          </label>
-          <label>
-            <span className="sr-only">Vendor filter</span>
-            <select value={vendor} onChange={(event) => setVendor(event.target.value)}>
-              <option value="all">Vendor: All</option>
-              {query.data?.vendors.map((value) => <option key={value} value={value}>{value}</option>)}
-            </select>
-          </label>
-          <span className="toolbar-spacer" />
+      <INNOCollection className="license-collection">
+        <INNOCollectionHeader
+          title="License products"
+          description="Purchased seats compared with the current detected footprint."
+          meta={query.data ? <INNOStatus>{query.data.totalItems} products</INNOStatus> : undefined}
+        />
+        <INNOCollectionToolbar>
+          <INNOSearchField label="Search software licenses" value={search} onChange={setSearch} placeholder="Search product, vendor, model or contract…" />
+          <INNOSelectField label="Compliance filter" value={compliance} onChange={setCompliance}>
+            <option value="all">Compliance: All</option>
+            <option value="compliant">Compliant</option>
+            <option value="overused">Overused</option>
+          </INNOSelectField>
+          <INNOSelectField label="Vendor filter" value={vendor} onChange={setVendor}>
+            <option value="all">Vendor: All</option>
+            {query.data?.vendors.map((value) => <option key={value} value={value}>{value}</option>)}
+          </INNOSelectField>
+          <INNOToolbarSpacer />
           <span className="collection-scope">License manager permission required</span>
-        </div>
+        </INNOCollectionToolbar>
 
         {query.isPending ? (
           <div className="collection-state"><LoadingState label="Loading software licenses…" /></div>
@@ -227,8 +212,8 @@ export function SoftwareLicensesPage() {
           </div>
         ) : (
           <>
-            <div className="production-table-wrap">
-              <table className="production-table license-table">
+            <INNOTableWrap width="xwide">
+              <table className="license-table">
                 <thead>
                   <tr>
                     <th>Product</th>
@@ -255,75 +240,53 @@ export function SoftwareLicensesPage() {
                         </div>
                       </td>
                       <td>
-                        <span className={'prod-tag ' + (item.compliance === 'overused' ? 'danger-tag' : 'success-tag')}>
+                        <INNOStatus tone={item.compliance === 'overused' ? 'danger' : 'success'}>
                           {item.compliance === 'overused'
                             ? Math.abs(item.seatBalance) + ' over'
                             : item.seatBalance + ' available'}
-                        </span>
+                        </INNOStatus>
                       </td>
                       <td className="numeric-column">{money(item.estimatedGapCost, item.currency)}</td>
                       <td className="action-column">
-                        <button
-                          type="button"
-                          className="open-resource button-link"
-                          onClick={() => setSelectedId(item.id)}
-                        >
-                          Open
+                        <button type="button" className="device-row-action" aria-label={'Open ' + item.productName} onClick={() => setSelectedId(item.id)}>
+                          <span aria-hidden="true">›</span>
                         </button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-            </div>
-            <div className="collection-footer">
-              <span>
-                Showing {(query.data.page - 1) * query.data.pageSize + 1}–
-                {Math.min(query.data.page * query.data.pageSize, query.data.totalItems)} of {query.data.totalItems}
-              </span>
-              <div className="pagination-actions">
-                <INNOButton
-                  variant="secondary"
-                  disabled={query.data.page <= 1}
-                  onClick={() => setPage((value) => Math.max(1, value - 1))}
-                >
-                  Previous
-                </INNOButton>
-                <span>Page {query.data.page} of {Math.max(query.data.totalPages, 1)}</span>
-                <INNOButton
-                  variant="secondary"
-                  disabled={query.data.page >= query.data.totalPages}
-                  onClick={() => setPage((value) => value + 1)}
-                >
-                  Next
-                </INNOButton>
-              </div>
-            </div>
+            </INNOTableWrap>
+            <INNOPagination
+              page={query.data.page}
+              totalPages={query.data.totalPages}
+              totalItems={query.data.totalItems}
+              pageSize={query.data.pageSize}
+              onPageChange={setPage}
+            />
           </>
         )}
-      </section>
+      </INNOCollection>
       {selected ? (
         <section className="license-detail-grid">
-          <div className="collection-card license-allocations">
-            <div className="collection-head">
-              <div>
-                <h2>{selected.productName}</h2>
-                <p>Installed endpoints & recent usage.</p>
-              </div>
-              <span className={'prod-tag ' + (selected.compliance === 'overused' ? 'danger-tag' : 'success-tag')}>
+          <INNOCollection className="license-allocations">
+            <INNOCollectionHeader
+              title={selected.productName}
+              description="Installed endpoints & recent usage."
+              meta={<INNOStatus tone={selected.compliance === 'overused' ? 'danger' : 'success'}>
                 {selected.compliance === 'overused'
                   ? Math.abs(selected.seatBalance) + ' over'
                   : selected.seatBalance + ' available'}
-              </span>
-            </div>
+              </INNOStatus>}
+            />
 
             {selected.allocations.length === 0 ? (
               <div className="collection-state">
                 <INNOState title="No detected usage" description="No endpoint allocations are currently recorded for this product." />
               </div>
             ) : (
-              <div className="production-table-wrap">
-                <table className="production-table supporting-table">
+              <INNOTableWrap width="wide">
+                <table className="supporting-table">
                   <thead>
                     <tr>
                       <th>Endpoint</th>
@@ -341,7 +304,7 @@ export function SoftwareLicensesPage() {
                         <td>{allocation.assignedTo ?? allocation.source.replaceAll('_', ' ')}</td>
                         <td className="numeric-column">{allocation.seatCount}</td>
                         <td>{allocation.lastUsedAt ? new Date(allocation.lastUsedAt).toLocaleString() : '—'}</td>
-                        <td><span className="prod-tag">{allocation.status}</span></td>
+                        <td><INNOStatus>{allocation.status}</INNOStatus></td>
                         <td className="action-column">
                           {allocation.assetId
                             ? <Link className="open-resource" to={'/assets/' + allocation.assetId}>Open</Link>
@@ -351,9 +314,9 @@ export function SoftwareLicensesPage() {
                     ))}
                   </tbody>
                 </table>
-              </div>
+              </INNOTableWrap>
             )}
-          </div>
+          </INNOCollection>
 
           <div className="prod-panel license-record-panel">
             <div className="prod-panel-head">
@@ -419,17 +382,12 @@ export function SoftwareLicensesPage() {
               <div><span>Contract</span><b>{selected.contractReference ?? '—'}</b></div>
             </div>
 
-            <div className="editor-footer license-record-footer">
+            <INNOEditorFooter className="license-record-footer">
               <span className="editor-footer-note">
                 Saving is audited. Crossing into overuse emits a compliance event.
               </span>
-              <INNOButton
-                disabled={saveMutation.isPending}
-                onClick={save}
-              >
-                {saveMutation.isPending ? 'Saving…' : 'Save License'}
-              </INNOButton>
-            </div>
+              <INNOButton busy={saveMutation.isPending} onClick={save}>Save License</INNOButton>
+            </INNOEditorFooter>
           </div>
         </section>
       ) : null}

@@ -97,3 +97,27 @@ public sealed class DiscoveryResult
     public Guid? MatchedDeviceId { get; set; }
     public DateTimeOffset DiscoveredAt { get; set; }
 }
+
+
+public sealed class DeviceSoftwareInventorySnapshot
+{
+    public Guid Id { get; set; }
+    public Guid DeviceId { get; set; }
+    public DateTimeOffset ObservedAt { get; set; }
+    public DateTimeOffset ReceivedAt { get; set; }
+    public required string Completeness { get; set; }
+    public required string Source { get; set; }
+    public string? SourceInstance { get; set; }
+    public int PackageCount { get; set; }
+}
+
+public sealed class DeviceInstalledSoftware
+{
+    public Guid Id { get; set; }
+    public Guid SnapshotId { get; set; }
+    public required string ProductKey { get; set; }
+    public required string DisplayName { get; set; }
+    public string? Version { get; set; }
+    public string? Publisher { get; set; }
+    public string? Architecture { get; set; }
+}

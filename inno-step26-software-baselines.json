@@ -1,0 +1,31 @@
+{
+  "contractVersion": "0.17.0",
+  "status": "definitions implemented; evaluation awaiting Devices software inventory",
+  "operations": [
+    "assets.baselines.list",
+    "assets.baselines.create",
+    "assets.baselines.get",
+    "assets.baselines.update"
+  ],
+  "webRoutes": [
+    "/assets/software-baselines"
+  ],
+  "persistence": {
+    "newTables": [
+      "assets.software_baselines"
+    ],
+    "reservedReadModel": "assets.baseline_results",
+    "crossModuleForeignKeys": false
+  },
+  "permissions": {
+    "read": "assets.view",
+    "write": "assets.baseline.manage"
+  },
+  "auditActions": [
+    "assets.baseline.created",
+    "assets.baseline.updated"
+  ],
+  "activeEvents": [],
+  "evaluationStatus": "awaiting_inventory",
+  "blockedBy": "No authoritative installed-software inventory in Devices; license allocations are not inventory evidence."
+}

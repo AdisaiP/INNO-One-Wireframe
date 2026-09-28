@@ -5,7 +5,10 @@ import { BrowserRouter } from 'react-router-dom';
 import '@inno/ui/styles.css';
 import './shell.css';
 import { AppRoot } from './app/AppRoot';
+import { applyProductDocumentBrand } from './app/branding';
 import { initializeAuthentication } from './auth/keycloak';
+
+applyProductDocumentBrand();
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 const queryClient = new QueryClient({

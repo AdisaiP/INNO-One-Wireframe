@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
-import { INNOButton, INNOPage } from '@inno/ui';
+import { INNOButton, INNOEditorFooter, INNOPage, INNOResourceHeader, INNOState, INNOStatus } from '@inno/ui';
 import {
   getTicket,
   reassignTicket,
@@ -92,41 +92,25 @@ export function TicketDetailPage() {
   const resolved = ticket.status === 'resolved';
 
   return (
-    <INNOPage eyebrow="Helpdesk" title={ticket.ticketNumber}>
+    <main className="inno-page">
       <div className="resource-breadcrumb">
         <Link to="/helpdesk">Helpdesk</Link><span>›</span>
         <Link to="/helpdesk/tickets">Tickets</Link><span>›</span>
         <span>{ticket.ticketNumber}</span>
       </div>
 
-      <div className="resource-head-actions helpdesk-resource-head">
-        <div>
-          <div className="resource-title-line">
-            <h2>{ticket.subject}</h2>
-            <span className={'status-dot ' + (resolved ? 'offline' : 'online')}>{ticket.statusName}</span>
-          </div>
-          <div className="resource-meta-line">
-            <span>{ticket.ticketNumber}</span><span>·</span>
-            <span>{ticket.category?.name ?? 'Uncategorized'}</span><span>·</span>
-            <span>{ticket.organization?.name ?? '—'}</span>
-          </div>
-        </div>
-        <div className="ticket-resource-actions">
-          {canResolve && !resolved ? (
-            <INNOButton
-              disabled={resolveMutation.isPending}
-              onClick={() => resolveMutation.mutate()}
-            >
-              {resolveMutation.isPending ? 'Resolving…' : 'Resolve'}
-            </INNOButton>
-          ) : null}
-          {canAssign && !resolved ? (
-            <INNOButton variant="secondary" onClick={() => setShowAssign((value) => !value)}>
-              Reassign
-            </INNOButton>
-          ) : null}
-        </div>
-      </div>
+      <INNOResourceHeader
+        icon={<span aria-hidden="true">◫</span>}
+        title={ticket.subject}
+        status={<INNOStatus tone={resolved ? 'neutral' : 'warning'}>{ticket.statusName}</INNOStatus>}
+        meta={<><span>{ticket.ticketNumber}</span><span>·</span><span>{ticket.category?.name ?? 'Uncategorized'}</span><span>·</span><span>{ticket.organization?.name ?? '—'}</span></>}
+        actions={
+          <>
+            {canResolve && !resolved ? <INNOButton busy={resolveMutation.isPending} onClick={() => resolveMutation.mutate()}>Resolve</INNOButton> : null}
+            {canAssign && !resolved ? <INNOButton variant="secondary" onClick={() => setShowAssign((value) => !value)}>Reassign</INNOButton> : null}
+          </>
+        }
+      />
 
       {actionError ? <div className="form-error ticket-action-error" role="alert">{actionError}</div> : null}
 
@@ -166,12 +150,10 @@ export function TicketDetailPage() {
                 </select>
               </label>
             </div>
-            <div className="editor-footer">
+            <INNOEditorFooter>
               <INNOButton variant="secondary" onClick={() => setShowAssign(false)}>Cancel</INNOButton>
-              <INNOButton disabled={assignMutation.isPending} onClick={() => assignMutation.mutate()}>
-                {assignMutation.isPending ? 'Reassigning…' : 'Reassign'}
-              </INNOButton>
-            </div>
+              <INNOButton busy={assignMutation.isPending} onClick={() => assignMutation.mutate()}>Reassign</INNOButton>
+            </INNOEditorFooter>
           </div>
         </section>
       ) : null}
@@ -181,7 +163,7 @@ export function TicketDetailPage() {
           <section className="prod-panel">
             <div className="prod-panel-head">
               <div><h3>Conversation</h3><p>Requester and support updates.</p></div>
-              <span className="prod-tag">{ticket.messages.length} messages</span>
+              <INNOStatus>{ticket.messages.length} messages</INNOStatus>
             </div>
             <div className="ticket-thread">
               {ticket.messages.map((message) => (
@@ -190,7 +172,7 @@ export function TicketDetailPage() {
                   <div>
                     <div className="ticket-message-head">
                       <b>{message.authorName}</b>
-                      {message.visibility === 'internal' ? <span className="prod-tag">Internal note</span> : null}
+                      {message.visibility === 'internal' ? <INNOStatus>Internal note</INNOStatus> : null}
                       <span>{formatDate(message.createdAt)}</span>
                     </div>
                     <div className="ticket-message-body">{message.body}</div>
@@ -219,10 +201,11 @@ export function TicketDetailPage() {
                       Internal note
                     </label>
                     <INNOButton
-                      disabled={replyMutation.isPending || !replyBody.trim()}
+                      busy={replyMutation.isPending}
+                      disabled={!replyBody.trim()}
                       onClick={() => replyMutation.mutate()}
                     >
-                      {replyMutation.isPending ? 'Sending…' : visibility === 'internal' ? 'Add Note' : 'Send Reply'}
+                      {visibility === 'internal' ? 'Add Note' : 'Send Reply'}
                     </INNOButton>
                   </div>
                 </div>
@@ -272,7 +255,7 @@ export function TicketDetailPage() {
                 <div className="sla-progress"><span style={{ width: Math.min(ticket.sla.elapsedPercent, 100) + '%' }} /></div>
                 <small>Resolution due {formatDate(ticket.sla.resolutionDueAt)}</small>
               </div>
-            ) : <div className="compact-empty">No SLA policy resolved.</div>}
+            ) : <INNOState compact kind="empty" title="No SLA policy resolved" description="No SLA policy is currently applied to this ticket." />}
           </section>
 
           <section className="prod-panel">
@@ -285,10 +268,10 @@ export function TicketDetailPage() {
                 </div>
                 <span>Open</span>
               </Link>
-            ) : <div className="compact-empty">No Device linked to this ticket.</div>}
+            ) : <INNOState compact kind="empty" title="No related device" description="No managed Device is linked to this ticket." />}
           </section>
         </aside>
       </div>
-    </INNOPage>
+    </main>
   );
 }

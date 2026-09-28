@@ -1,11 +1,11 @@
 {
-  "contractVersion": "0.4.0",
+  "contractVersion": "0.6.0",
   "status": "implementation-planning",
   "generatedFrom": {
     "designSystem": "V1.26",
     "uiContract": "1.20.0",
-    "implementationContract": "0.3.0",
-    "apiContract": "0.2.0",
+    "implementationContract": "0.19.0",
+    "apiContract": "0.5.0",
     "eventAuditContract": "0.3.0",
     "frozenAt": "2026-09-26"
   },
@@ -280,6 +280,28 @@
           "kind": "entity",
           "primaryKey": "id",
           "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "retention"
+        },
+        {
+          "name": "software_inventory_snapshots",
+          "purpose": "Immutable installed-software observation metadata with completeness and provenance",
+          "kind": "history",
+          "primaryKey": "id",
+          "unique": [
+            "device_id+observed_at+source"
+          ],
+          "crossModuleRefs": [],
+          "deletePolicy": "retention"
+        },
+        {
+          "name": "installed_software",
+          "purpose": "Normalized software packages observed in a Devices-owned snapshot",
+          "kind": "history",
+          "primaryKey": "id",
+          "unique": [
+            "snapshot_id+product_key"
+          ],
           "crossModuleRefs": [],
           "deletePolicy": "retention"
         },
@@ -627,10 +649,12 @@
         },
         {
           "name": "baseline_results",
-          "purpose": "Asset/device baseline comparison results",
+          "purpose": "Latest evidence-backed result per software baseline and Asset; unknown preserves incomplete/stale evidence",
           "kind": "read-model",
           "primaryKey": "id",
-          "unique": [],
+          "unique": [
+            "baseline_id+asset_id"
+          ],
           "crossModuleRefs": [],
           "deletePolicy": "retention"
         },

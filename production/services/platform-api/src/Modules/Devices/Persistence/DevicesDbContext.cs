@@ -13,6 +13,8 @@ public sealed class DevicesDbContext(DbContextOptions<DevicesDbContext> options)
     public DbSet<DeviceGroupMember> DeviceGroupMembers => Set<DeviceGroupMember>();
     public DbSet<DiscoveryScan> DiscoveryScans => Set<DiscoveryScan>();
     public DbSet<DiscoveryResult> DiscoveryResults => Set<DiscoveryResult>();
+    public DbSet<DeviceSoftwareInventorySnapshot> SoftwareInventorySnapshots => Set<DeviceSoftwareInventorySnapshot>();
+    public DbSet<DeviceInstalledSoftware> InstalledSoftware => Set<DeviceInstalledSoftware>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -75,6 +77,31 @@ public sealed class DevicesDbContext(DbContextOptions<DevicesDbContext> options)
             entity.HasOne<DeviceGroup>().WithMany().HasForeignKey(x => x.GroupId).OnDelete(DeleteBehavior.Cascade);
             entity.HasOne<Device>().WithMany().HasForeignKey(x => x.DeviceId).OnDelete(DeleteBehavior.Cascade);
             entity.HasIndex(x => x.DeviceId);
+        });
+
+        modelBuilder.Entity<DeviceSoftwareInventorySnapshot>(entity =>
+        {
+            entity.ToTable("software_inventory_snapshots");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => new { x.DeviceId, x.ObservedAt });
+            entity.HasIndex(x => new { x.DeviceId, x.ObservedAt, x.Source }).IsUnique();
+            entity.Property(x => x.Completeness).HasMaxLength(16);
+            entity.Property(x => x.Source).HasMaxLength(64);
+            entity.Property(x => x.SourceInstance).HasMaxLength(160);
+            entity.HasOne<Device>().WithMany().HasForeignKey(x => x.DeviceId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<DeviceInstalledSoftware>(entity =>
+        {
+            entity.ToTable("installed_software");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => new { x.SnapshotId, x.ProductKey }).IsUnique();
+            entity.Property(x => x.ProductKey).HasMaxLength(240);
+            entity.Property(x => x.DisplayName).HasMaxLength(300);
+            entity.Property(x => x.Version).HasMaxLength(120);
+            entity.Property(x => x.Publisher).HasMaxLength(200);
+            entity.Property(x => x.Architecture).HasMaxLength(32);
+            entity.HasOne<DeviceSoftwareInventorySnapshot>().WithMany().HasForeignKey(x => x.SnapshotId).OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<DiscoveryScan>(entity =>

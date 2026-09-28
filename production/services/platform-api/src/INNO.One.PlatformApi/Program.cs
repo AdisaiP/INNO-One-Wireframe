@@ -1,6 +1,7 @@
 using INNO.One.Contracts;
 using INNO.One.Infrastructure;
 using INNO.One.Infrastructure.Persistence;
+using INNO.One.Integrations.Keycloak;
 using INNO.One.Integrations.MeshCentral;
 using INNO.One.Modules.Assets;
 using INNO.One.Modules.Assets.Api;
@@ -35,6 +36,7 @@ builder.Services
     .AddReportsModule(coreDatabase)
     .AddInnoInfrastructure(coreDatabase);
 
+builder.Services.AddKeycloakIntegration(builder.Configuration);
 builder.Services.AddMeshCentralIntegration(builder.Configuration);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -91,12 +93,25 @@ var api = app.MapGroup(ContractVersions.ApiBasePath)
     .RequireAuthorization();
 
 api.MapPlatformEndpoints();
+api.MapWorkspaceEndpoints();
+api.MapPlatformNotificationEndpoints();
+api.MapGlobalSearchEndpoints();
+api.MapAppRegistryEndpoints();
+api.MapAdminDirectoryEndpoints();
+api.MapAdminAccessEndpoints();
+api.MapAdminIntegrationsEndpoints();
+api.MapAdminAuditEndpoints();
+api.MapAdminSecurityEndpoints();
+api.MapAdminSettingsEndpoints();
 api.MapDevicesEndpoints();
 api.MapDeviceManagementEndpoints();
+api.MapDeviceSoftwareInventoryEndpoints();
 api.MapAssetsEndpoints();
 api.MapAssetsCustomFieldEndpoints();
 api.MapAssetsQrEndpoints();
 api.MapSoftwareLicenseEndpoints();
+api.MapSoftwareBaselineEndpoints();
+api.MapSoftwareBaselineEvaluationEndpoints();
 api.MapContractsWarrantyEndpoints();
 api.MapHelpdeskEndpoints();
 api.MapHelpdeskSlaAutomationEndpoints();

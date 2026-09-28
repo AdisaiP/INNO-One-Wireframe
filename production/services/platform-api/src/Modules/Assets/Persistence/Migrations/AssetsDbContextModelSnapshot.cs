@@ -640,6 +640,134 @@ namespace INNO.One.Modules.Assets.Migrations
                     b.ToTable("ownership_submissions", "assets");
                 });
 
+            modelBuilder.Entity("INNO.One.Modules.Assets.Domain.SoftwareBaseline", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("RequiredPackagesJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("required_packages_json");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("character varying(24)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("TargetCategory")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("target_category");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id")
+                        .HasName("pk_software_baselines");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_software_baselines_code");
+
+                    b.ToTable("software_baselines", "assets");
+                });
+
+            modelBuilder.Entity("INNO.One.Modules.Assets.Domain.SoftwareBaselineResult", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AssetId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("asset_id");
+
+                    b.Property<Guid>("BaselineId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("baseline_id");
+
+                    b.Property<int>("BaselineVersion")
+                        .HasColumnType("integer")
+                        .HasColumnName("baseline_version");
+
+                    b.Property<DateTimeOffset>("EvaluatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("evaluated_at");
+
+                    b.Property<DateTimeOffset?>("InventoryObservedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("inventory_observed_at");
+
+                    b.Property<string>("InventorySnapshotReference")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("inventory_snapshot_reference");
+
+                    b.Property<string>("MissingPackagesJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("missing_packages_json");
+
+                    b.Property<string>("ReasonCode")
+                        .IsRequired()
+                        .HasMaxLength(48)
+                        .HasColumnType("character varying(48)")
+                        .HasColumnName("reason_code");
+
+                    b.Property<string>("ResultStatus")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("character varying(24)")
+                        .HasColumnName("result_status");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id")
+                        .HasName("pk_baseline_results");
+
+                    b.HasIndex("AssetId")
+                        .HasDatabaseName("ix_baseline_results_asset_id");
+
+                    b.HasIndex("BaselineId", "AssetId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_baseline_results_baseline_id_asset_id");
+
+                    b.HasIndex("ResultStatus", "EvaluatedAt")
+                        .HasDatabaseName("ix_baseline_results_result_status_evaluated_at");
+
+                    b.ToTable("baseline_results", "assets");
+                });
+
             modelBuilder.Entity("INNO.One.Modules.Assets.Domain.SoftwareLicense", b =>
                 {
                     b.Property<Guid>("Id")
@@ -812,6 +940,23 @@ namespace INNO.One.Modules.Assets.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_ownership_submissions_assets_asset_id");
+                });
+
+            modelBuilder.Entity("INNO.One.Modules.Assets.Domain.SoftwareBaselineResult", b =>
+                {
+                    b.HasOne("INNO.One.Modules.Assets.Domain.Asset", null)
+                        .WithMany()
+                        .HasForeignKey("AssetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_baseline_results_assets_asset_id");
+
+                    b.HasOne("INNO.One.Modules.Assets.Domain.SoftwareBaseline", null)
+                        .WithMany()
+                        .HasForeignKey("BaselineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_baseline_results_software_baselines_baseline_id");
                 });
 #pragma warning restore 612, 618
         }
