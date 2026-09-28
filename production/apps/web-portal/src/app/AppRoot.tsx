@@ -4,6 +4,7 @@ import { getCurrentProfile } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import { AdminAccessScopesPage } from '../pages/AdminAccessScopesPage';
 import { AdminAuditPage } from '../pages/AdminAuditPage';
+import { AdminSecurityPage } from '../pages/AdminSecurityPage';
 import { AdminAppsPage } from '../pages/AdminAppsPage';
 import { AdminIntegrationsPage } from '../pages/AdminIntegrationsPage';
 import { AdminLocationsPage, AdminOrganizationPage } from '../pages/AdminHierarchyPage';
@@ -69,6 +70,7 @@ export function AppRoot() {
   const canAdminRoles = profile.permissions.includes('admin.roles.view');
   const canAdminScopes = profile.permissions.includes('admin.access_scopes.view');
   const canAdminIntegrations = profile.permissions.includes('admin.integrations.view');
+  const canAdminSecurity = profile.permissions.includes('admin.security.view');
   const canAdminAudit = profile.permissions.includes('admin.audit.view');
   const canAdminApps = profile.permissions.includes('admin.apps.view');
   const canViewDevices = profile.permissions.includes('devices.view');
@@ -100,6 +102,7 @@ export function AppRoot() {
           <Route path="admin/roles" element={canAdminRoles ? <AdminRolesPage /> : <DeferredPage name="Roles & Permissions" kind="permission" />} />
           <Route path="admin/access-scopes" element={canAdminScopes ? <AdminAccessScopesPage /> : <DeferredPage name="Access Scopes" kind="permission" />} />
           <Route path="admin/integrations" element={canAdminIntegrations ? <AdminIntegrationsPage /> : <DeferredPage name="Integrations" kind="permission" />} />
+          <Route path="admin/security" element={canAdminSecurity ? <AdminSecurityPage /> : <DeferredPage name="Security" kind="permission" />} />
           <Route path="admin/audit" element={canAdminAudit ? <AdminAuditPage /> : <DeferredPage name="Audit Log" kind="permission" />} />
           <Route path="admin/apps" element={canAdminApps ? <AdminAppsPage /> : <DeferredPage name="Apps & Modules" kind="permission" />} />
 

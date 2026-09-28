@@ -115,6 +115,12 @@ public static class PlatformDevelopmentSeed
         ("admin.audit.view", "admin", "View audit records")
     ];
 
+    private static readonly (string Id, string Module, string Name)[] Step34Permissions =
+    [
+        ("admin.security.view", "admin", "View security posture"),
+        ("admin.security.manage", "admin", "Manage security policies")
+    ];
+
     public static async Task SeedAsync(
         PlatformDbContext db,
         CancellationToken cancellationToken = default)
@@ -331,6 +337,12 @@ public static class PlatformDevelopmentSeed
             Module = x.Module,
             Name = x.Name
         }));
+        db.Permissions.AddRange(Step34Permissions.Select(x => new Permission
+        {
+            PermissionId = x.Id,
+            Module = x.Module,
+            Name = x.Name
+        }));
 
         db.RolePermissions.AddRange(basePermissions.Select(x => new RolePermission
         {
@@ -389,6 +401,11 @@ public static class PlatformDevelopmentSeed
             PermissionId = x.Id
         }));
         db.RolePermissions.AddRange(Step33Permissions.Select(x => new RolePermission
+        {
+            RoleId = PlatformAdminRoleId,
+            PermissionId = x.Id
+        }));
+        db.RolePermissions.AddRange(Step34Permissions.Select(x => new RolePermission
         {
             RoleId = PlatformAdminRoleId,
             PermissionId = x.Id
@@ -528,7 +545,8 @@ public static class PlatformDevelopmentSeed
             .Concat(Step30Permissions)
             .Concat(Step31Permissions)
             .Concat(Step32Permissions)
-            .Concat(Step33Permissions))
+            .Concat(Step33Permissions)
+            .Concat(Step34Permissions))
         {
             if (!await db.Permissions.AnyAsync(
                 x => x.PermissionId == permissionId,
@@ -620,7 +638,8 @@ public static class PlatformDevelopmentSeed
             .Concat(Step30Permissions)
             .Concat(Step31Permissions)
             .Concat(Step32Permissions)
-            .Concat(Step33Permissions))
+            .Concat(Step33Permissions)
+            .Concat(Step34Permissions))
         {
             await EnsureRolePermissionAsync(
                 db,

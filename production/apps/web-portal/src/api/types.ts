@@ -120,6 +120,46 @@ export interface AdminAuditFacets {
   classifications: string[];
 }
 
+export type AdminSecurityStatus =
+  | 'healthy'
+  | 'attention'
+  | 'unavailable'
+  | 'informational';
+
+export interface AdminSecurityControl {
+  id: string;
+  name: string;
+  status: AdminSecurityStatus;
+  value: string;
+  detail: string;
+}
+
+export interface AdminSecurityPostureItem {
+  id: string;
+  name: string;
+  category: string;
+  ownerModule: string;
+  status: AdminSecurityStatus;
+  checkedAt: string;
+  durationMs: number;
+  message: string;
+  controls: AdminSecurityControl[];
+}
+
+export interface AdminSecurityResponse {
+  configurationMode: string;
+  mutablePolicies: boolean;
+  checkedAt: string;
+  summary: {
+    providers: number;
+    healthy: number;
+    attention: number;
+    unavailable: number;
+    informational: number;
+  };
+  items: AdminSecurityPostureItem[];
+}
+
 export interface AdminOverview {
   organizations: number;
   locations: number;

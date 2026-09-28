@@ -1,4 +1,5 @@
 using INNO.One.Contracts.Integrations;
+using INNO.One.Contracts.Security;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,6 +16,7 @@ public static class KeycloakIntegrationRegistration
             client.Timeout = TimeSpan.FromSeconds(5);
         });
         services.AddScoped<IIntegrationHealthProvider, KeycloakIntegrationHealthProvider>();
+        services.AddScoped<ISecurityPostureProvider, KeycloakSecurityPostureProvider>();
         return services;
     }
 }

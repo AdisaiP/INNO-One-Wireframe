@@ -1,5 +1,6 @@
 using INNO.One.Contracts.Authorization;
 using INNO.One.Contracts.Directory;
+using INNO.One.Contracts.Security;
 using INNO.One.Modules.Platform.Application;
 using INNO.One.Modules.Platform.Infrastructure;
 using INNO.One.Modules.Platform.Persistence;
@@ -20,6 +21,7 @@ public static class PlatformModule
         services.AddScoped<IAccessEvaluator, AccessEvaluator>();
         services.AddScoped<IPlatformDirectoryReader, PlatformDirectoryReader>();
         services.AddScoped<PlatformLedgerWriter>();
+        services.AddScoped<ISecurityPostureProvider, PlatformSecurityPostureProvider>();
         services.AddSingleton<ModuleManifestCatalog>();
 
         return services;
