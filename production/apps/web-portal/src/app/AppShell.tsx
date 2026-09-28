@@ -13,7 +13,7 @@ function initials(name: string): string {
     .join('');
 }
 
-type ShellIconName = 'apps' | 'devices' | 'assets' | 'helpdesk' | 'admin' | 'profile' | 'search' | 'menu';
+type ShellIconName = 'apps' | 'devices' | 'assets' | 'helpdesk' | 'admin' | 'profile' | 'search' | 'menu' | 'bell';
 
 function ShellIcon({ name }: { name: ShellIconName }) {
   const common = { width: 18, height: 18, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.9 } as const;
@@ -23,6 +23,7 @@ function ShellIcon({ name }: { name: ShellIconName }) {
   if (name === 'helpdesk') return <svg {...common} aria-hidden="true"><path d="M4 13a8 8 0 0 1 16 0v5a2 2 0 0 1-2 2h-3"/><path d="M4 14h3v5H5a1 1 0 0 1-1-1v-4ZM20 14h-3v5h2a1 1 0 0 0 1-1v-4Z"/></svg>;
   if (name === 'admin') return <svg {...common} aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.1A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.1A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.1A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.15.37.39.7.7.94.31.24.69.38 1.08.4H21v4h-.1a1.7 1.7 0 0 0-1.5.66Z"/></svg>;
   if (name === 'profile') return <svg {...common} aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></svg>;
+  if (name === 'bell') return <svg {...common} aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>;
   if (name === 'menu') return <svg {...common} aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>;
   return <svg {...common} aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>;
 }
@@ -30,6 +31,7 @@ function ShellIcon({ name }: { name: ShellIconName }) {
 export function AppShell() {
   const profile = useProfile();
   const canViewApps = usePermission('platform.apps.view');
+  const canViewNotifications = usePermission('platform.notifications.view');
   const canAdmin = usePermission('admin.access');
   const canAdminOrganization = usePermission('admin.organization.view');
   const canAdminLocations = usePermission('admin.locations.view');
@@ -67,9 +69,12 @@ export function AppShell() {
   const inHelpdesk = location.pathname.startsWith('/helpdesk');
   const inTicketWorkspace = /^\/helpdesk\/tickets(?:\/new|\/[^/]+)?$/.test(location.pathname);
   const inProfile = location.pathname.startsWith('/profile');
+  const inNotifications = location.pathname.startsWith('/notifications');
+  const inAccount = inProfile || inNotifications;
   const homePath = canViewDevices ? '/devices' : canViewHelpdesk ? '/helpdesk' : canViewAssets ? '/assets' : '/profile';
   const searchTargets = useMemo(() => {
     const items = [{ label: 'Profile & Settings', path: '/profile' }];
+    if (canViewNotifications) items.unshift({ label: 'Notifications', path: '/notifications' });
     if (canViewApps) items.unshift({ label: 'Apps', path: '/apps' });
     if (canAdmin) items.push({ label: 'Admin Center', path: '/admin' });
     if (canAdminOrganization) items.push({ label: 'Organization Structure', path: '/admin/organization' });
@@ -106,7 +111,7 @@ export function AppShell() {
     );
     if (canViewAutomation) items.push({ label: 'Automation', path: '/helpdesk/automation' });
     return items;
-  }, [canAdmin, canAdminApps, canAdminAudit, canAdminBranding, canAdminIntegrations, canAdminLocations, canAdminOrganization, canAdminPositions, canAdminRoles, canAdminScopes, canAdminSecurity, canAdminSettings, canAdminUsers, canDeployDevices, canManageAssetLicenses, canViewApps, canViewAssets, canViewAutomation, canViewDevices, canViewHelpdesk]);
+  }, [canAdmin, canAdminApps, canAdminAudit, canAdminBranding, canAdminIntegrations, canAdminLocations, canAdminOrganization, canAdminPositions, canAdminRoles, canAdminScopes, canAdminSecurity, canAdminSettings, canAdminUsers, canDeployDevices, canManageAssetLicenses, canViewApps, canViewAssets, canViewAutomation, canViewDevices, canViewHelpdesk, canViewNotifications]);
 
   useEffect(() => setSideOpen(false), [location.pathname]);
 
@@ -144,6 +149,16 @@ export function AppShell() {
           </form>
         </div>
         <div className="prod-header-actions">
+          {canViewNotifications ? (
+            <NavLink
+              className={({ isActive }) => 'prod-icon-button prod-notification-link' + (isActive ? ' active' : '')}
+              to="/notifications"
+              aria-label="Open Notifications"
+              title="Notifications"
+            >
+              <ShellIcon name="bell" />
+            </NavLink>
+          ) : null}
           <NavLink className="prod-user" to="/profile" aria-label="Open Profile & Settings">
             <span className="prod-avatar">{initials(profile.fullName)}</span>
             <span className="prod-user-copy">
@@ -175,19 +190,20 @@ export function AppShell() {
           {canAdmin ? (
             <NavLink className={inAdmin ? 'active' : ''} to="/admin" aria-label="Admin Center" title="Admin Center"><ShellIcon name="admin" /></NavLink>
           ) : null}
-          <NavLink className={inProfile ? 'active' : ''} to="/profile" aria-label="Profile & Settings" title="Profile & Settings"><ShellIcon name="profile" /></NavLink>
+          <NavLink className={inAccount ? 'active' : ''} to="/profile" aria-label="Profile & Settings" title="Profile & Settings"><ShellIcon name="profile" /></NavLink>
         </aside>
 
         {sideOpen ? <button className="prod-side-backdrop" type="button" aria-label="Close contextual navigation" onClick={() => setSideOpen(false)} /> : null}
 
         <aside
           className={`prod-side${sideOpen ? ' open' : ''}`}
-          aria-label={inProfile ? 'Account navigation' : inAdmin ? 'Admin navigation' : inApps ? 'Apps navigation' : inAssets ? 'Assets navigation' : inHelpdesk ? 'Helpdesk navigation' : inDevices ? 'Devices navigation' : 'Workspace context'}
+          aria-label={inAccount ? 'Account navigation' : inAdmin ? 'Admin navigation' : inApps ? 'Apps navigation' : inAssets ? 'Assets navigation' : inHelpdesk ? 'Helpdesk navigation' : inDevices ? 'Devices navigation' : 'Workspace context'}
         >
-          {inProfile ? (
+          {inAccount ? (
             <>
               <div className="prod-side-title">Account</div>
               <div className="prod-side-section">Workspace</div>
+              {canViewNotifications ? <NavLink to="/notifications">Notifications</NavLink> : null}
               <NavLink to="/profile">Profile & Settings</NavLink>
             </>
           ) : inAdmin ? (

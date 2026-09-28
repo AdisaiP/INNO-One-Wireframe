@@ -1026,3 +1026,32 @@ export interface SoftwareBaselineResults {
   evaluatedAt?: string | null;
   items: SoftwareBaselineResultItem[];
 }
+
+export interface PlatformNotificationItem {
+  id: string;
+  sourceModule: string;
+  notificationType: string;
+  title: string;
+  message: string;
+  destinationPath: string;
+  isImportant: boolean;
+  isRead: boolean;
+  readAt?: string | null;
+  createdAt: string;
+}
+
+export interface PlatformNotificationsResponse {
+  items: PlatformNotificationItem[];
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+  unreadCount: number;
+  importantCount: number;
+  allCount: number;
+}
+
+export interface PlatformNotificationMarkAllResult {
+  updatedCount: number;
+  readAt: string;
+}

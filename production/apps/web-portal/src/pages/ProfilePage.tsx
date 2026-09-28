@@ -78,7 +78,7 @@ export function ProfilePage() {
           </div>
           <div className="purpose-note">
             <b>Personal preferences are not exposed in this production slice.</b>
-            <span>Frozen preference controls remain unavailable until their persistence and notification contracts are implemented.</span>
+            <span>Notification read state is persisted. Email and desktop preference controls remain unavailable until their preference persistence contract is defined.</span>
           </div>
         </section>
       </div>

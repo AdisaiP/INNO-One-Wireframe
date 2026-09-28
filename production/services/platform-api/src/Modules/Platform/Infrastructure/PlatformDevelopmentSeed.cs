@@ -131,6 +131,11 @@ public static class PlatformDevelopmentSeed
         ("admin.settings.manage", "admin", "Manage platform settings")
     ];
 
+    private static readonly (string Id, string Module, string Name)[] Step37Permissions =
+    [
+        ("platform.notifications.view", "platform", "View personal platform notifications")
+    ];
+
     public static async Task SeedAsync(
         PlatformDbContext db,
         CancellationToken cancellationToken = default)
@@ -365,6 +370,12 @@ public static class PlatformDevelopmentSeed
             Module = x.Module,
             Name = x.Name
         }));
+        db.Permissions.AddRange(Step37Permissions.Select(x => new Permission
+        {
+            PermissionId = x.Id,
+            Module = x.Module,
+            Name = x.Name
+        }));
 
         db.RolePermissions.AddRange(basePermissions.Select(x => new RolePermission
         {
@@ -442,10 +453,16 @@ public static class PlatformDevelopmentSeed
             RoleId = PlatformAdminRoleId,
             PermissionId = x.Id
         }));
+        db.RolePermissions.AddRange(Step37Permissions.Select(x => new RolePermission
+        {
+            RoleId = PlatformAdminRoleId,
+            PermissionId = x.Id
+        }));
 
         db.RolePermissions.AddRange(
             new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "platform.workspace.access" },
             new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "platform.apps.view" },
+            new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "platform.notifications.view" },
             new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "devices.view" },
             new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "helpdesk.ticket.view" },
             new RolePermission { RoleId = DeviceViewerRoleId, PermissionId = "helpdesk.ticket.create" },
@@ -455,6 +472,7 @@ public static class PlatformDevelopmentSeed
         {
             "platform.workspace.access",
             "platform.apps.view",
+            "platform.notifications.view",
             "devices.view",
             "assets.view",
             "assets.qr.scan",
@@ -476,6 +494,7 @@ public static class PlatformDevelopmentSeed
         {
             "platform.workspace.access",
             "platform.apps.view",
+            "platform.notifications.view",
             "helpdesk.ticket.view",
             "helpdesk.ticket.create"
         })
@@ -546,6 +565,8 @@ public static class PlatformDevelopmentSeed
                 UpdatedAt = now
             });
 
+        db.Notifications.AddRange(Step37Notifications(now));
+
         await db.SaveChangesAsync(cancellationToken);
     }
 
@@ -580,7 +601,8 @@ public static class PlatformDevelopmentSeed
             .Concat(Step33Permissions)
             .Concat(Step34Permissions)
             .Concat(Step35Permissions)
-            .Concat(Step36Permissions))
+            .Concat(Step36Permissions)
+            .Concat(Step37Permissions))
         {
             if (!await db.Permissions.AnyAsync(
                 x => x.PermissionId == permissionId,
@@ -675,7 +697,8 @@ public static class PlatformDevelopmentSeed
             .Concat(Step33Permissions)
             .Concat(Step34Permissions)
             .Concat(Step35Permissions)
-            .Concat(Step36Permissions))
+            .Concat(Step36Permissions)
+            .Concat(Step37Permissions))
         {
             await EnsureRolePermissionAsync(
                 db,
@@ -687,6 +710,7 @@ public static class PlatformDevelopmentSeed
         foreach (var permissionId in new[]
         {
             "platform.apps.view",
+            "platform.notifications.view",
             "helpdesk.ticket.view",
             "helpdesk.ticket.create",
             "assets.qr.scan"
@@ -703,6 +727,7 @@ public static class PlatformDevelopmentSeed
         {
             "platform.workspace.access",
             "platform.apps.view",
+            "platform.notifications.view",
             "devices.view",
             "assets.view",
             "assets.qr.scan",
@@ -724,6 +749,7 @@ public static class PlatformDevelopmentSeed
         {
             "platform.workspace.access",
             "platform.apps.view",
+            "platform.notifications.view",
             "helpdesk.ticket.view",
             "helpdesk.ticket.create"
         })
@@ -791,7 +817,105 @@ public static class PlatformDevelopmentSeed
             });
         }
 
+        await EnsureStep37NotificationsAsync(db, now, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
+    }
+
+    private static async Task EnsureStep37NotificationsAsync(
+        PlatformDbContext db,
+        DateTimeOffset now,
+        CancellationToken cancellationToken)
+    {
+        var seeded = Step37Notifications(now).ToArray();
+        var ids = seeded.Select(x => x.Id).ToArray();
+        var existing = await db.Notifications.AsNoTracking()
+            .Where(x => ids.Contains(x.Id))
+            .Select(x => x.Id)
+            .ToHashSetAsync(cancellationToken);
+
+        db.Notifications.AddRange(seeded.Where(x => !existing.Contains(x.Id)));
+    }
+
+    private static IEnumerable<PlatformNotification> Step37Notifications(DateTimeOffset now)
+    {
+        return
+        [
+            new PlatformNotification
+            {
+                Id = Guid.Parse("90000000-0000-0000-0000-000000000001"),
+                UserId = UserId,
+                SourceModule = "devices",
+                NotificationType = "device.offline",
+                Title = "PC-FIN-021 is offline longer than expected",
+                Message = "Devices · anomaly detected · opens Devices workspace",
+                DestinationPath = "/devices",
+                IsImportant = true,
+                CreatedAt = now.AddMinutes(-12)
+            },
+            new PlatformNotification
+            {
+                Id = Guid.Parse("90000000-0000-0000-0000-000000000002"),
+                UserId = UserId,
+                SourceModule = "helpdesk",
+                NotificationType = "ticket.assigned",
+                Title = "HD-2026-001048 assigned to you",
+                Message = "Helpdesk · Network / VPN · P2 High",
+                DestinationPath = "/helpdesk/assigned",
+                IsImportant = true,
+                CreatedAt = now.AddMinutes(-34)
+            },
+            new PlatformNotification
+            {
+                Id = Guid.Parse("90000000-0000-0000-0000-000000000003"),
+                UserId = UserId,
+                SourceModule = "assets",
+                NotificationType = "contract.expiring",
+                Title = "4 contracts expire within 90 days",
+                Message = "Assets · warranty and contract attention",
+                DestinationPath = "/assets/contracts",
+                IsImportant = false,
+                ReadAt = now.AddMinutes(-45),
+                CreatedAt = now.AddHours(-2)
+            },
+            new PlatformNotification
+            {
+                Id = Guid.Parse("90000000-0000-0000-0000-000000000004"),
+                UserId = UserId,
+                SourceModule = "assets",
+                NotificationType = "license.overage",
+                Title = "Adobe Acrobat Pro exceeds purchased seats",
+                Message = "Assets · 13 seats over entitlement",
+                DestinationPath = "/assets/software-licenses",
+                IsImportant = true,
+                ReadAt = now.AddHours(-1),
+                CreatedAt = now.AddHours(-4)
+            },
+            new PlatformNotification
+            {
+                Id = Guid.Parse("90000000-0000-0000-0000-000000000005"),
+                UserId = UserId,
+                SourceModule = "helpdesk",
+                NotificationType = "sla.at_risk",
+                Title = "2 high-priority tickets are approaching SLA",
+                Message = "Helpdesk · response targets need attention",
+                DestinationPath = "/helpdesk/sla",
+                IsImportant = false,
+                ReadAt = now.AddHours(-2),
+                CreatedAt = now.AddHours(-6)
+            },
+            new PlatformNotification
+            {
+                Id = Guid.Parse("90000000-0000-0000-0000-000000000006"),
+                UserId = HrViewerUserId,
+                SourceModule = "devices",
+                NotificationType = "device.offline",
+                Title = "HR-NB-014 has not checked in",
+                Message = "Devices · last seen outside the expected interval",
+                DestinationPath = "/devices",
+                IsImportant = true,
+                CreatedAt = now.AddMinutes(-18)
+            }
+        ];
     }
 
     private static async Task EnsureRolePermissionAsync(

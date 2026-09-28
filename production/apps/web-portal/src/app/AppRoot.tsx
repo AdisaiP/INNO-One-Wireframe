@@ -40,6 +40,7 @@ import { DiscoveryPage } from '../pages/DiscoveryPage';
 import { DeferredPage } from '../pages/DeferredPage';
 import { HelpdeskOverviewPage } from '../pages/HelpdeskOverviewPage';
 import { HelpdeskSlaPage } from '../pages/HelpdeskSlaPage';
+import { NotificationsPage } from '../pages/NotificationsPage';
 import { ProfilePage } from '../pages/ProfilePage';
 import { TicketCreatePage } from '../pages/TicketCreatePage';
 import { TicketDetailPage } from '../pages/TicketDetailPage';
@@ -64,6 +65,7 @@ export function AppRoot() {
 
   const profile = profileQuery.data;
   const canViewApps = profile.permissions.includes('platform.apps.view');
+  const canViewNotifications = profile.permissions.includes('platform.notifications.view');
   const canAdmin = profile.permissions.includes('admin.access');
   const canAdminOrganization = profile.permissions.includes('admin.organization.view');
   const canAdminLocations = profile.permissions.includes('admin.locations.view');
@@ -95,6 +97,7 @@ export function AppRoot() {
         <Route element={<AppShell />}>
           <Route index element={<Navigate to={landingPath} replace />} />
           <Route path="profile" element={<ProfilePage />} />
+          <Route path="notifications" element={canViewNotifications ? <NotificationsPage /> : <DeferredPage name="Notifications" kind="permission" />} />
           <Route path="apps" element={canViewApps ? <AppsPage /> : <DeferredPage name="Apps" kind="permission" />} />
 
           <Route path="admin" element={canAdmin ? <AdminOverviewPage /> : <DeferredPage name="Admin Center" kind="permission" />} />

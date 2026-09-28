@@ -54,6 +54,9 @@ import type {
   DiscoveryScan,
   HelpdeskOverview,
   OperationAccepted,
+  PlatformNotificationItem,
+  PlatformNotificationMarkAllResult,
+  PlatformNotificationsResponse,
   PagedResponse,
   ProblemDetails,
   Profile,
@@ -124,6 +127,36 @@ export async function getCurrentProfile(): Promise<Profile> {
 
 export async function getPlatformApps(): Promise<AppLauncherResponse> {
   return request<AppLauncherResponse>('/platform/apps');
+}
+
+export async function getPlatformNotifications(query: {
+  page?: number;
+  pageSize?: number;
+  state?: 'all' | 'unread';
+} = {}): Promise<PlatformNotificationsResponse> {
+  const params = new URLSearchParams({
+    page: String(query.page ?? 1),
+    pageSize: String(query.pageSize ?? 25),
+  });
+  if (query.state && query.state !== 'all') params.set('state', query.state);
+  return request<PlatformNotificationsResponse>('/platform/notifications?' + params.toString());
+}
+
+export async function updatePlatformNotification(
+  notificationId: string,
+  isRead: boolean,
+): Promise<PlatformNotificationItem> {
+  return request<PlatformNotificationItem>(
+    '/platform/notifications/' + encodeURIComponent(notificationId),
+    { method: 'PATCH', ...jsonRequest({ isRead }) },
+  );
+}
+
+export async function markAllPlatformNotificationsRead(): Promise<PlatformNotificationMarkAllResult> {
+  return request<PlatformNotificationMarkAllResult>(
+    '/platform/notifications/mark-all-read',
+    { method: 'POST' },
+  );
 }
 
 export async function getAdminApps(): Promise<AdminAppModulesResponse> {

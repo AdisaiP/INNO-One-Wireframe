@@ -113,3 +113,17 @@ public sealed class AppModule
     public long Version { get; set; } = 1;
     public DateTimeOffset UpdatedAt { get; set; }
 }
+
+public sealed class PlatformNotification
+{
+    public Guid Id { get; set; }
+    public Guid UserId { get; set; }
+    public required string SourceModule { get; set; }
+    public required string NotificationType { get; set; }
+    public required string Title { get; set; }
+    public required string Message { get; set; }
+    public required string DestinationPath { get; set; }
+    public bool IsImportant { get; set; }
+    public DateTimeOffset? ReadAt { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+}
