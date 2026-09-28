@@ -2900,3 +2900,114 @@
     max-width: 220px;
   }
 }
+
+/* Step 33 · Audit Center */
+.admin-audit-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(320px, .75fr);
+  gap: 16px;
+  align-items: start;
+}
+.admin-audit-detail {
+  position: sticky;
+  top: 76px;
+  min-width: 0;
+}
+.admin-audit-filter-row {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(170px, .7fr) minmax(170px, .7fr) auto;
+  gap: 12px;
+  align-items: end;
+  padding: 0 16px 16px;
+  border-bottom: 1px solid var(--ds-border);
+}
+.audit-clear-button,
+.audit-close-button {
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--ds-border-strong);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ds-text-2);
+  font-size: 10px;
+  font-weight: 750;
+  cursor: pointer;
+}
+.audit-action,
+.audit-opaque-id {
+  overflow-wrap: anywhere;
+}
+.audit-opaque-id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 9px;
+}
+.admin-audit-detail-body {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+}
+.audit-detail-list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+.audit-detail-list > div {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--ds-border);
+}
+.audit-detail-list dt {
+  color: var(--ds-text-3);
+  font-size: 9px;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.audit-detail-list dd {
+  min-width: 0;
+  margin: 0;
+  color: var(--ds-text-2);
+  font-size: 10px;
+  overflow-wrap: anywhere;
+}
+.audit-metadata-block {
+  display: grid;
+  gap: 8px;
+}
+.audit-metadata-block > b {
+  font-size: 10px;
+}
+.audit-metadata-block pre {
+  max-height: 320px;
+  margin: 0;
+  padding: 12px;
+  overflow: auto;
+  border: 1px solid var(--ds-border);
+  border-radius: 8px;
+  background: #f8f9fb;
+  color: var(--ds-text-2);
+  font-size: 9px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 1100px) {
+  .admin-audit-layout {
+    grid-template-columns: 1fr;
+  }
+  .admin-audit-detail {
+    position: static;
+  }
+}
+@media (max-width: 768px) {
+  .admin-audit-filter-row {
+    grid-template-columns: 1fr;
+    padding: 0 12px 12px;
+  }
+  .audit-detail-list > div {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}

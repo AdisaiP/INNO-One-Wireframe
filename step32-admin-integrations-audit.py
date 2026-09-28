@@ -141,7 +141,7 @@ if implementation_version < (0, 22, 0):
     issues.append("implementation contract")
 
 print("step32_providers=core-database,keycloak,meshcentral")
-print("step32_implementation_contract=0.22.0")
+print("step32_implementation_contract_min=0.22.0")
 print("issues=" + str(len(issues)))
 for issue in issues:
     print("ISSUE: " + issue)

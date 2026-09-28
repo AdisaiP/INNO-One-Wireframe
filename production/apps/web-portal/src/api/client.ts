@@ -2,6 +2,9 @@ import { getAccessToken } from '../auth/keycloak';
 import type {
   AdminAccessAssignment,
   AdminAccessEvaluation,
+  AdminAuditDetail,
+  AdminAuditFacets,
+  AdminAuditListItem,
   AdminAppModule,
   AdminAppModulesResponse,
   AdminIntegrationStatus,
@@ -127,6 +130,44 @@ export async function getAdminApps(): Promise<AdminAppModulesResponse> {
 
 export async function getAdminIntegrations(): Promise<AdminIntegrationsResponse> {
   return request<AdminIntegrationsResponse>('/admin/integrations');
+}
+
+export async function getAdminAudit(query: {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  module?: string;
+  action?: string;
+  actor?: string;
+  targetType?: string;
+  classification?: string;
+  from?: string;
+  to?: string;
+} = {}): Promise<PagedResponse<AdminAuditListItem>> {
+  const params = new URLSearchParams({
+    page: String(query.page ?? 1),
+    pageSize: String(query.pageSize ?? 50),
+  });
+  if (query.search?.trim()) params.set('search', query.search.trim());
+  if (query.module && query.module !== 'all') params.set('module', query.module);
+  if (query.action && query.action !== 'all') params.set('action', query.action);
+  if (query.actor?.trim()) params.set('actor', query.actor.trim());
+  if (query.targetType && query.targetType !== 'all') params.set('targetType', query.targetType);
+  if (query.classification && query.classification !== 'all') params.set('classification', query.classification);
+  if (query.from) params.set('from', query.from);
+  if (query.to) params.set('to', query.to);
+  return request<PagedResponse<AdminAuditListItem>>('/admin/audit?' + params.toString());
+}
+
+export async function getAdminAuditFacets(): Promise<AdminAuditFacets> {
+  return request<AdminAuditFacets>('/admin/audit/facets');
+}
+
+export async function getAdminAuditDetail(auditId: string): Promise<AdminAuditDetail> {
+  const response = await request<ResourceEnvelope<AdminAuditDetail>>(
+    '/admin/audit/' + encodeURIComponent(auditId),
+  );
+  return response.data;
 }
 
 export async function testAdminIntegration(

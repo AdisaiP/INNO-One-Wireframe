@@ -7,6 +7,7 @@ import { usePermission } from '../app/ProfileContext';
 
 export function AdminOverviewPage() {
   const canViewIntegrations = usePermission('admin.integrations.view');
+  const canViewAudit = usePermission('admin.audit.view');
   const canViewApps = usePermission('admin.apps.view');
   const query = useQuery({
     queryKey: ['admin', 'overview'],
@@ -43,6 +44,7 @@ export function AdminOverviewPage() {
               <Link className="admin-overview-card" to="/admin/roles"><b>Roles & Permissions</b><span>Inspect centralized RBAC permissions.</span></Link>
               <Link className="admin-overview-card" to="/admin/access-scopes"><b>Access Scopes</b><span>Manage role + resource-scope bindings.</span></Link>
               {canViewIntegrations ? <Link className="admin-overview-card" to="/admin/integrations"><b>Integrations</b><span>Monitor platform integration health and run safe connection tests.</span></Link> : null}
+              {canViewAudit ? <Link className="admin-overview-card" to="/admin/audit"><b>Audit Log</b><span>Search immutable privileged and operational history.</span></Link> : null}
               {canViewApps ? <Link className="admin-overview-card" to="/admin/apps"><b>Apps & Modules</b><span>Manage installed module availability.</span></Link> : null}
             </div>
           </INNOCollection>

@@ -94,6 +94,32 @@ export interface AdminIntegrationsResponse {
   items: AdminIntegrationStatus[];
 }
 
+export interface AdminAuditListItem {
+  auditId: string;
+  occurredAt: string;
+  action: string;
+  module: string;
+  targetType: string;
+  targetId: string;
+  actorType: string;
+  actorId: string;
+  actorName?: string | null;
+  correlationId?: string | null;
+  traceId?: string | null;
+  classification: string;
+}
+
+export interface AdminAuditDetail extends AdminAuditListItem {
+  metadata: unknown;
+}
+
+export interface AdminAuditFacets {
+  modules: string[];
+  actions: string[];
+  targetTypes: string[];
+  classifications: string[];
+}
+
 export interface AdminOverview {
   organizations: number;
   locations: number;
