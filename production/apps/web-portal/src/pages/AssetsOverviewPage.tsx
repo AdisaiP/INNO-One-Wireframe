@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOCollection, INNOCollectionHeader, INNOPage, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOIcon, INNOCollection, INNOCollectionHeader, INNOPage, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { getAssetOverview } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 
@@ -50,7 +50,7 @@ export function AssetsOverviewPage() {
                         <td>{asset.category}</td>
                         <td><INNOStatus>{statusLabel(asset.status)}</INNOStatus></td>
                         <td>{new Date(asset.updatedAt).toLocaleString()}</td>
-                        <td className="action-column"><Link className="device-row-action" to={'/assets/' + asset.id} aria-label={'Open ' + asset.assetTag}><span aria-hidden="true">›</span></Link></td>
+                        <td className="action-column"><Link className="device-row-action" to={'/assets/' + asset.id} aria-label={'Open ' + asset.assetTag}><INNOIcon token="action.next" size={14} /></Link></td>
                       </tr>
                     ))}
                   </tbody>

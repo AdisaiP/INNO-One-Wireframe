@@ -102,7 +102,7 @@ for marker in [
         issues.append("route " + marker)
 for marker in [
     'to="/apps" aria-label="Apps"',
-    'to="/admin/apps">Apps & Modules</NavLink>',
+    'to="/admin/apps"><SideNavLabel token="section.modules">Apps & Modules</SideNavLabel></NavLink>',
     "platform.apps.view",
     "admin.apps.view",
 ]:

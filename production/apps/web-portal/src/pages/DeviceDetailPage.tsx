@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
-import { INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOResourceHeader, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOIcon, INNOResourceHeader, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { getDevice, getDeviceSoftwareInventory } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 
@@ -67,7 +67,7 @@ export function DeviceDetailPage() {
       </div>
 
       <INNOResourceHeader
-        icon={<span aria-hidden="true">▣</span>}
+        icon={<INNOIcon token="nav.devices" size={20} />}
         title={device.name}
         status={<INNOStatus tone={device.status === 'online' ? 'success' : 'neutral'} dot>{device.status}</INNOStatus>}
         meta={<><span>{model}</span><span>·</span><span>{device.operatingSystem ?? 'Unknown OS'}</span><span>·</span><span>{group}</span></>}

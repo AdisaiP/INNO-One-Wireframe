@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  INNOIcon,
   INNOButton,
   INNOCollection,
   INNOCollectionHeader,
@@ -131,7 +132,7 @@ export function AdminHierarchyPage({ kind }: { kind: Kind }) {
                         <td>{item.code}</td>
                         <td>{parent?.name ?? '—'}</td>
                         <td><INNOStatus tone={item.status === 'active' ? 'success' : 'neutral'}>{item.status}</INNOStatus></td>
-                        <td className="action-column"><button type="button" className="device-row-action" aria-label={'Open ' + item.name} onClick={() => setSelectedId(item.id)}>›</button></td>
+                        <td className="action-column"><button type="button" className="device-row-action" aria-label={'Open ' + item.name} onClick={() => setSelectedId(item.id)}><INNOIcon token="action.next" size={14} /></button></td>
                       </tr>
                     );
                   })}

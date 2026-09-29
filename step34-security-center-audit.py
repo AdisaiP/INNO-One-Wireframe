@@ -127,7 +127,7 @@ for marker in [
 
 for marker in [
     "admin.security.view",
-    'to="/admin/security">Security</NavLink>',
+    'to="/admin/security"><SideNavLabel token="section.security">Security</SideNavLabel></NavLink>',
     "Security",
 ]:
     if marker not in shell:

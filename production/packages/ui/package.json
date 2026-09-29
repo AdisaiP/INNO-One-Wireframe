@@ -17,12 +17,13 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@inno/shared": "workspace:*"
+    "@inno/shared": "workspace:*",
+    "lucide-react": "1.48.0"
   },
   "devDependencies": {
-    "typescript": "5.9.3",
+    "@types/react": "19.3.0",
     "react": "19.2.0",
-    "@types/react": "19.3.0"
+    "typescript": "5.9.3"
   },
   "peerDependencies": {
     "react": "^19.2.0"

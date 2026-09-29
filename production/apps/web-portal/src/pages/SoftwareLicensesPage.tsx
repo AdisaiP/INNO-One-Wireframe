@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarSpacer } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOIcon, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarSpacer } from '@inno/ui';
 import { getSoftwareLicenses, updateSoftwareLicense } from '../api/client';
 import type { SoftwareLicenseItem } from '../api/types';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -249,7 +249,7 @@ export function SoftwareLicensesPage() {
                       <td className="numeric-column">{money(item.estimatedGapCost, item.currency)}</td>
                       <td className="action-column">
                         <button type="button" className="device-row-action" aria-label={'Open ' + item.productName} onClick={() => setSelectedId(item.id)}>
-                          <span aria-hidden="true">›</span>
+                          <INNOIcon token="action.next" size={14} />
                         </button>
                       </td>
                     </tr>

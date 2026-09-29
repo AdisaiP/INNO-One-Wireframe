@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarSpacer } from '@inno/ui';
+import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarSpacer } from '@inno/ui';
 import { getTicketStatuses, getTickets } from '../api/client';
 import { usePermission } from '../app/ProfileContext';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -122,7 +122,7 @@ export function TicketsPage({ mode = 'all' }: { mode?: TicketQueueMode }) {
                       <td>{ticket.assignee ?? ticket.team ?? 'Unassigned'}</td>
                       <td><span className={'sla-chip ' + (ticket.slaState ?? 'active')}>{ticket.slaState ?? '—'}</span>{ticket.slaState ? <div className="table-meta">{ticket.slaElapsedPercent}% elapsed</div> : null}</td>
                       <td>{formatRelative(ticket.updatedAt)}</td>
-                      <td className="action-column"><Link className="device-row-action" to={'/helpdesk/tickets/' + ticket.id} aria-label={'Open ' + ticket.ticketNumber}><span aria-hidden="true">›</span></Link></td>
+                      <td className="action-column"><Link className="device-row-action" to={'/helpdesk/tickets/' + ticket.id} aria-label={'Open ' + ticket.ticketNumber}><INNOIcon token="action.next" size={14} /></Link></td>
                     </tr>
                   ))}
                 </tbody>
@@ -149,7 +149,7 @@ export function TicketsPage({ mode = 'all' }: { mode?: TicketQueueMode }) {
                   <span className={'priority-chip ' + ticket.priority.toLowerCase()}>{ticket.priority}</span>
                   <INNOStatus tone={ticket.status === 'resolved' ? 'neutral' : 'success'}>{ticket.statusName}</INNOStatus>
                   <div className={'helpdesk-queue-sla ' + (ticket.slaState ?? 'active')}>{ticket.slaState ? ticket.slaElapsedPercent + '% elapsed' : 'No SLA'}</div>
-                  <span className="device-row-action" aria-hidden="true">›</span>
+                  <span className="device-row-action" aria-hidden="true"><INNOIcon token="action.next" size={14} /></span>
                 </Link>
               ))}
             </div>

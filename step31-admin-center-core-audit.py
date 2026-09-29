@@ -141,14 +141,14 @@ for marker in routes:
         issues.append("route " + marker)
 
 for marker in [
-    'to="/admin">Overview</NavLink>',
-    'to="/admin/organization">Structure</NavLink>',
-    'to="/admin/locations">Locations</NavLink>',
-    'to="/admin/positions">Positions</NavLink>',
-    'to="/admin/users">Users</NavLink>',
-    'to="/admin/roles">Roles & Permissions</NavLink>',
-    'to="/admin/access-scopes">Access Scopes</NavLink>',
-    'to="/admin/apps">Apps & Modules</NavLink>',
+    'to="/admin"><SideNavLabel token="section.overview">Overview</SideNavLabel></NavLink>',
+    'to="/admin/organization"><SideNavLabel token="section.organization">Structure</SideNavLabel></NavLink>',
+    'to="/admin/locations"><SideNavLabel token="section.locations">Locations</SideNavLabel></NavLink>',
+    'to="/admin/positions"><SideNavLabel token="section.positions">Positions</SideNavLabel></NavLink>',
+    'to="/admin/users"><SideNavLabel token="section.users">Users</SideNavLabel></NavLink>',
+    'to="/admin/roles"><SideNavLabel token="section.roles">Roles & Permissions</SideNavLabel></NavLink>',
+    'to="/admin/access-scopes"><SideNavLabel token="section.accessScopes">Access Scopes</SideNavLabel></NavLink>',
+    'to="/admin/apps"><SideNavLabel token="section.modules">Apps & Modules</SideNavLabel></NavLink>',
 ]:
     if marker not in shell:
         issues.append("shell " + marker)

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOEditorFooter, INNOPage, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOEditorFooter, INNOPage, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { getAdminLocations, getAdminOrganizationTree, getAdminPositions, getAdminUser, updateAdminUser } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
@@ -90,7 +90,7 @@ export function AdminUserDetailPage() {
           {user.data.assignments.length ? (
             <INNOTableWrap>
               <table><thead><tr><th>Role</th><th>Scope</th><th>Status</th><th className="action-column">Action</th></tr></thead>
-                <tbody>{user.data.assignments.map((assignment) => <tr key={assignment.id}><td><b>{assignment.roleName}</b></td><td>{assignment.scopeType}</td><td><INNOStatus tone={assignment.status === 'active' ? 'success' : 'neutral'}>{assignment.status}</INNOStatus></td><td className="action-column"><Link className="device-row-action" to={'/admin/access-scopes?assignment=' + assignment.id} aria-label={'Open ' + assignment.roleName + ' assignment'}>›</Link></td></tr>)}</tbody>
+                <tbody>{user.data.assignments.map((assignment) => <tr key={assignment.id}><td><b>{assignment.roleName}</b></td><td>{assignment.scopeType}</td><td><INNOStatus tone={assignment.status === 'active' ? 'success' : 'neutral'}>{assignment.status}</INNOStatus></td><td className="action-column"><Link className="device-row-action" to={'/admin/access-scopes?assignment=' + assignment.id} aria-label={'Open ' + assignment.roleName + ' assignment'}><INNOIcon token="action.next" size={14} /></Link></td></tr>)}</tbody>
               </table>
             </INNOTableWrap>
           ) : <div className="collection-state"><INNOState title="No direct assignments" description="This profile does not have a direct role + scope binding." /></div>}

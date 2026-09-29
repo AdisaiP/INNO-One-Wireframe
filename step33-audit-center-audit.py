@@ -109,7 +109,7 @@ for marker in [
 
 for marker in [
     "admin.audit.view",
-    'to="/admin/audit">Audit Log</NavLink>',
+    'to="/admin/audit"><SideNavLabel token="section.audit">Audit Log</SideNavLabel></NavLink>',
     "Audit Log",
 ]:
     if marker not in shell:

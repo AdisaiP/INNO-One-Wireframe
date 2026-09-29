@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOEditorFooter, INNOResourceHeader, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOEditorFooter, INNOIcon, INNOResourceHeader, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { changeAssetOwnership, getAsset, getAssetOwners, updateAsset } from '../api/client';
 import type { AssetCustomFieldValue } from '../api/types';
 import { usePermission } from '../app/ProfileContext';
@@ -182,7 +182,7 @@ export function AssetDetailPage() {
     <main className="inno-page">
       <div className="resource-breadcrumb"><Link to="/assets/inventory">Asset Inventory</Link><span>›</span><span>{asset.assetTag}</span></div>
       <INNOResourceHeader
-        icon={<span aria-hidden="true">▧</span>}
+        icon={<INNOIcon token="nav.assets" size={20} />}
         title={asset.assetTag}
         status={<INNOStatus tone={asset.status === 'in_use' ? 'success' : asset.status === 'repair' ? 'warning' : 'neutral'}>{statusLabel(asset.status)}</INNOStatus>}
         meta={<><span>{asset.name}</span><span>·</span><span>{[asset.brand, asset.model].filter(Boolean).join(' ') || asset.category}</span><span>·</span><span>{asset.serialNumber ?? 'No serial'}</span></>}

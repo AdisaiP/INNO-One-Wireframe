@@ -214,6 +214,21 @@
   font-size: 13px;
 }
 
+.prod-side-link-content {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.prod-side-link-content > .inno-icon {
+  color: #8290a3;
+}
+
+.prod-side a.active .prod-side-link-content > .inno-icon {
+  color: currentColor;
+}
+
 .prod-side a.active {
   background: var(--ds-primary-soft);
   color: #2457bd;

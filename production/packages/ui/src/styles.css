@@ -177,34 +177,24 @@ body { margin: 0; font-family: var(--ds-font); background: var(--ds-bg); color: 
 .inno-toolbar-spacer { flex: 1; }
 
 .inno-search { position: relative; min-width: min(360px, 100%); flex: 0 1 360px; }
+.inno-icon {
+  display: inline-block;
+  flex: 0 0 auto;
+  vertical-align: middle;
+}
+.inno-icon.is-spinning {
+  animation: inno-ui-spin .8s linear infinite;
+}
 .inno-search-icon {
   position: absolute;
-  left: 11px;
+  left: 10px;
   top: 50%;
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
+  display: grid;
+  place-items: center;
   transform: translateY(-50%);
   color: #8a94a5;
-}
-.inno-search-icon::before {
-  content: "";
-  position: absolute;
-  width: 8px;
-  height: 8px;
-
-  border: 1.5px solid currentColor;
-  border-radius: 50%;
-}
-.inno-search-icon::after {
-  content: "";
-  position: absolute;
-  width: 5px;
-  height: 1.5px;
-  left: 8px;
-  top: 9px;
-  background: currentColor;
-  transform: rotate(45deg);
-  border-radius: 1px;
 }
 .inno-search input,
 .inno-select select {
@@ -339,14 +329,7 @@ body { margin: 0; font-family: var(--ds-font); background: var(--ds-bg); color: 
   color: #6e7b8f;
   font-size: 16px;
 }
-.inno-state-icon::before { content: "—"; }
-.inno-state[data-state="no-results"] .inno-state-icon::before { content: "⌕"; }
-.inno-state[data-state="loading"] .inno-state-icon::before { content: "↻"; }
-.inno-state[data-state="error"] .inno-state-icon::before { content: "!"; }
-.inno-state[data-state="permission"] .inno-state-icon::before { content: "×"; }
-.inno-state[data-state="disabled"] .inno-state-icon::before { content: "–"; }
-.inno-state[data-state="offline"] .inno-state-icon::before { content: "○"; }
-.inno-state[data-state="partial"] .inno-state-icon::before { content: "△"; }
+.inno-state-icon .inno-icon { width: 18px; height: 18px; }
 .inno-state h4 { margin: 0; font-size: 13px; }
 .inno-state p { max-width: 460px; margin: 4px auto 0; color: var(--ds-muted); font-size: 10px; line-height: 1.55; }
 .inno-state-meta { margin-top: 7px; color: #8a94a4; font-size: 9px; }
@@ -357,7 +340,7 @@ body { margin: 0; font-family: var(--ds-font); background: var(--ds-bg); color: 
 .inno-state.offline .inno-state-icon,
 .inno-state.partial .inno-state-icon { background: var(--ds-warning-soft); color: var(--ds-warning); }
 
-.inno-state.loading .inno-state-icon::before { animation: inno-ui-spin .8s linear infinite; }
+.inno-state.loading .inno-state-icon { color: var(--ds-primary); }
 
 @media (max-width: 1366px) {
   .inno-page { padding: 22px 20px 40px; }

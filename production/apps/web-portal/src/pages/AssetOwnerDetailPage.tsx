@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
-import { INNOCollection, INNOCollectionHeader, INNOResourceHeader, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOIcon, INNOCollection, INNOCollectionHeader, INNOResourceHeader, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { getAssetOwner } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 
@@ -13,7 +13,7 @@ export function AssetOwnerDetailPage() {
   return <main className="inno-page">
     <div className="resource-breadcrumb"><Link to="/assets/owners">User Profiles</Link><span>›</span><span>{owner.fullName}</span></div>
     <INNOResourceHeader
-      icon={<span aria-hidden="true">◉</span>}
+      icon={<INNOIcon token="section.userProfiles" size={20} />}
       title={owner.fullName}
       status={<INNOStatus>{owner.assets.length} assets</INNOStatus>}
       meta={<><span>{owner.employeeId}</span><span>·</span><span>{owner.organization ?? 'No organization'}</span><span>·</span><span>{owner.email}</span></>}
@@ -24,7 +24,7 @@ export function AssetOwnerDetailPage() {
       {owner.assets.length === 0 ? (
         <div className="collection-state"><INNOState kind="empty" title="No owned assets" description="No visible Assets are currently assigned to this user." /></div>
       ) : (
-        <INNOTableWrap width="wide"><table><thead><tr><th>Asset</th><th>Model</th><th>Status</th><th>Updated</th><th className="action-column">Action</th></tr></thead><tbody>{owner.assets.map((asset) => <tr key={asset.id}><td><b>{asset.assetTag}</b><div className="table-meta">{asset.name}</div></td><td>{asset.brandModel || '—'}</td><td><INNOStatus>{asset.status.replaceAll('_', ' ')}</INNOStatus></td><td>{new Date(asset.assignedAt).toLocaleString()}</td><td className="action-column"><Link className="device-row-action" to={'/assets/' + asset.id} aria-label={'Open ' + asset.assetTag}><span aria-hidden="true">›</span></Link></td></tr>)}</tbody></table></INNOTableWrap>
+        <INNOTableWrap width="wide"><table><thead><tr><th>Asset</th><th>Model</th><th>Status</th><th>Updated</th><th className="action-column">Action</th></tr></thead><tbody>{owner.assets.map((asset) => <tr key={asset.id}><td><b>{asset.assetTag}</b><div className="table-meta">{asset.name}</div></td><td>{asset.brandModel || '—'}</td><td><INNOStatus>{asset.status.replaceAll('_', ' ')}</INNOStatus></td><td>{new Date(asset.assignedAt).toLocaleString()}</td><td className="action-column"><Link className="device-row-action" to={'/assets/' + asset.id} aria-label={'Open ' + asset.assetTag}><INNOIcon token="action.next" size={14} /></Link></td></tr>)}</tbody></table></INNOTableWrap>
       )}
     </INNOCollection>
   </main>;

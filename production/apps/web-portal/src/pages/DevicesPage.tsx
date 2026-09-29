@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarSpacer } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOIcon, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarSpacer } from '@inno/ui';
 import { getDevices } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
@@ -26,10 +26,14 @@ type DeviceColumn = 'type' | 'status' | 'user' | 'os' | 'group' | 'lastSeen';
 
 function DeviceTypeGlyph({ type }: { type: string }) {
   const kind = type.toLowerCase();
-  if (kind.includes('server')) return <span className="device-type-glyph" aria-hidden="true">▦</span>;
-  if (kind.includes('notebook') || kind.includes('laptop')) return <span className="device-type-glyph" aria-hidden="true">▱</span>;
-  if (kind.includes('virtual') || kind.includes('vm')) return <span className="device-type-glyph" aria-hidden="true">◇</span>;
-  return <span className="device-type-glyph" aria-hidden="true">▣</span>;
+  const token = kind.includes('server')
+    ? 'device.server'
+    : kind.includes('notebook') || kind.includes('laptop')
+      ? 'device.laptop'
+      : kind.includes('virtual') || kind.includes('vm')
+        ? 'device.virtual'
+        : 'device.desktop';
+  return <span className="device-type-glyph" aria-hidden="true"><INNOIcon token={token} size={15} /></span>;
 }
 
 export function DevicesPage() {
@@ -178,7 +182,7 @@ export function DevicesPage() {
                       {columns.lastSeen ? <td>{formatLastSeen(device.lastSeenAt)}</td> : null}
                       <td className="action-column">
                         <Link className="device-row-action" to={`/devices/${device.id}`} aria-label={`Open ${device.name}`} title="Open device">
-                          <span aria-hidden="true">›</span>
+                          <INNOIcon token="action.next" size={14} />
                         </Link>
                       </td>
                     </tr>

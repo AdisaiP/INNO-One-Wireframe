@@ -2,6 +2,7 @@ import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 import {
+  INNOIcon,
   INNOCollection,
   INNOCollectionHeader,
   INNOCollectionToolbar,
@@ -274,7 +275,7 @@ export function AdminAuditPage() {
                             aria-label={'Open audit record ' + item.auditId}
                             onClick={() => selectAudit(item.auditId)}
                           >
-                            ›
+                            <INNOIcon token="action.next" size={14} />
                           </button>
                         </td>
                       </tr>

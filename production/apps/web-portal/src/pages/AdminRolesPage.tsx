@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOPage, INNOSearchField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOIcon, INNOPage, INNOSearchField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { getAdminPermissions, getAdminRoles } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 
@@ -75,7 +75,7 @@ export function AdminRolesPage() {
                   <tr key={permission.id}>
                     <td><b>{permission.id}</b><div className="table-meta">{permission.name}</div></td>
                     <td>{permission.module}</td>
-                    {roles.data?.map((role) => <td key={role.id} className="admin-permission-cell">{role.permissions.includes(permission.id) ? '✓' : '—'}</td>)}
+                    {roles.data?.map((role) => <td key={role.id} className="admin-permission-cell">{role.permissions.includes(permission.id) ? <INNOIcon token="status.success" size={14} /> : '—'}</td>)}
                   </tr>
                 ))}
               </tbody>
