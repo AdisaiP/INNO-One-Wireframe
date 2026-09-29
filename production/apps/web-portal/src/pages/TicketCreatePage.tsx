@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
-import { INNOButton, INNOEditorFooter, INNOPage, INNOStatus } from '@inno/ui';
+import { Link, useNavigate } from 'react-router-dom';
+import { INNOButton, INNOEditorFooter, INNOIcon, INNOPage, INNOStatus } from '@inno/ui';
 import { createTicket, getDevices, getTicketCategories } from '../api/client';
 import { usePermission, useProfile } from '../app/ProfileContext';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -77,49 +77,91 @@ export function TicketCreatePage() {
     : urgency === 'High' || impact === 'Department' || impact === 'Team'
       ? 'P2 · High'
       : 'P3 · Normal';
+  const priorityTone = calculatedPriority.startsWith('P1')
+    ? 'danger'
+    : calculatedPriority.startsWith('P2')
+      ? 'warning'
+      : 'neutral';
 
   return (
     <INNOPage
       eyebrow="Helpdesk"
       title="Create Ticket"
-      description="Capture the request once. Device context is linked by ID without duplicating endpoint inventory."
+      description="Capture the problem first. Routing and operational details stay secondary until they are needed."
+      breadcrumb={(
+        <>
+          <Link to="/helpdesk">Helpdesk</Link>
+          <INNOIcon token="action.next" size={11} />
+          <Link to="/helpdesk/tickets">Tickets</Link>
+          <INNOIcon token="action.next" size={11} />
+          <span>New ticket</span>
+        </>
+      )}
     >
-
       {categories.isPending ? <LoadingState label="Loading ticket form…" /> : null}
       {categories.isError ? <ErrorState error={categories.error} retry={() => void categories.refetch()} /> : null}
 
       {!categories.isPending && !categories.isError ? (
         <div className="ticket-create-layout">
-          <section className="prod-panel">
-            <div className="prod-panel-head">
-              <div>
-                <h3>Request details</h3>
-                <p>Describe what the requester needs support with.</p>
-              </div>
-              <INNOStatus tone={calculatedPriority.startsWith('P1') ? 'danger' : calculatedPriority.startsWith('P2') ? 'warning' : 'neutral'}>{calculatedPriority}</INNOStatus>
-            </div>
+          <div className="ticket-create-main">
+            {formError ? <div className="form-error" role="alert">{formError}</div> : null}
 
-            <div className="editor-form">
-              {formError ? <div className="form-error" role="alert">{formError}</div> : null}
+            <section className="ticket-create-section">
+              <div className="ticket-create-section-head">
+                <div className="ticket-create-section-title">
+                  <span className="ticket-create-step">1</span>
+                  <div>
+                    <h3>Describe the issue</h3>
+                    <p>Give Helpdesk enough information to understand what is wrong.</p>
+                  </div>
+                </div>
+              </div>
               <div className="editor-grid">
                 <label className="field-block field-wide">
                   <span>Subject</span>
-                  <input value={subject} onChange={(event) => setSubject(event.target.value)} placeholder="Short summary of the issue" />
+                  <input
+                    value={subject}
+                    onChange={(event) => setSubject(event.target.value)}
+                    placeholder="Briefly describe the issue"
+                  />
                 </label>
                 <label className="field-block field-wide">
                   <span>Description</span>
-                  <textarea value={description} onChange={(event) => setDescription(event.target.value)} rows={7} placeholder="What happened, what was expected and what has already been tried?" />
+                  <textarea
+                    value={description}
+                    onChange={(event) => setDescription(event.target.value)}
+                    rows={7}
+                    placeholder="Describe what happened, when it started and what was already tried"
+                  />
                 </label>
-                <label className="field-block">
+                <label className="field-block field-wide">
                   <span>Category</span>
                   <select value={categoryId} onChange={(event) => setCategoryId(event.target.value)}>
                     <option value="">Select category</option>
                     {categoryOptions.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
                   </select>
                 </label>
-                <label className="field-block">
+              </div>
+            </section>
+            <section className="ticket-create-section">
+              <div className="ticket-create-section-head">
+                <div className="ticket-create-section-title">
+                  <span className="ticket-create-step">2</span>
+                  <div>
+                    <h3>Add context</h3>
+                    <p>Link the affected device when it helps investigation.</p>
+                  </div>
+                </div>
+                <INNOStatus>Optional</INNOStatus>
+              </div>
+              <div className="editor-grid">
+                <label className="field-block field-wide">
                   <span>Related device</span>
-                  <select value={relatedDeviceId} onChange={(event) => setRelatedDeviceId(event.target.value)} disabled={!canViewDevices}>
+                  <select
+                    value={relatedDeviceId}
+                    onChange={(event) => setRelatedDeviceId(event.target.value)}
+                    disabled={!canViewDevices}
+                  >
                     <option value="">No related device</option>
                     {(devices.data?.items ?? []).map((device) => (
                       <option key={device.id} value={device.id}>{device.name} · {device.status}</option>
@@ -127,34 +169,53 @@ export function TicketCreatePage() {
                   </select>
                   {!canViewDevices ? <small>Device linking is hidden without Devices access.</small> : null}
                 </label>
-                <label className="field-block">
-                  <span>Impact</span>
-                  <select value={impact} onChange={(event) => setImpact(event.target.value)}>
-                    <option>Individual</option>
-                    <option>Team</option>
-                    <option>Department</option>
-                    <option>Organization</option>
-                  </select>
-                </label>
-                <label className="field-block">
-                  <span>Urgency</span>
-                  <select value={urgency} onChange={(event) => setUrgency(event.target.value)}>
-                    <option>Normal</option>
-                    <option>High</option>
-                    <option>Critical</option>
-                  </select>
-                </label>
               </div>
-              <INNOEditorFooter>
-                <INNOButton variant="secondary" onClick={() => navigate('/helpdesk')}>Cancel</INNOButton>
-                <INNOButton busy={mutation.isPending} onClick={submit}>Create Ticket</INNOButton>
-              </INNOEditorFooter>
-            </div>
-          </section>
+            </section>
+
+            <details className="ticket-create-advanced">
+              <summary>
+                <span>Advanced routing & priority</span>
+                <INNOStatus tone={priorityTone}>{calculatedPriority}</INNOStatus>
+              </summary>
+              <div className="ticket-create-advanced-body">
+                <div className="editor-grid">
+                  <label className="field-block">
+                    <span>Impact</span>
+                    <select value={impact} onChange={(event) => setImpact(event.target.value)}>
+                      <option>Individual</option>
+                      <option>Team</option>
+                      <option>Department</option>
+                      <option>Organization</option>
+                    </select>
+                  </label>
+                  <label className="field-block">
+                    <span>Urgency</span>
+                    <select value={urgency} onChange={(event) => setUrgency(event.target.value)}>
+                      <option>Normal</option>
+                      <option>High</option>
+                      <option>Critical</option>
+                    </select>
+                  </label>
+                  <label className="field-block field-wide">
+                    <span>Calculated priority</span>
+                    <input value={calculatedPriority} readOnly />
+                  </label>
+                </div>
+              </div>
+            </details>
+
+            <INNOEditorFooter>
+              <INNOButton variant="secondary" onClick={() => navigate('/helpdesk')}>Cancel</INNOButton>
+              <INNOButton busy={mutation.isPending} onClick={submit}>Create Ticket</INNOButton>
+            </INNOEditorFooter>
+          </div>
 
           <aside className="panel-stack">
             <section className="prod-panel">
-              <div className="prod-panel-head"><div><h3>Requester</h3><p>Resolved from your signed-in INNO.One profile.</p></div><INNOStatus tone="success">Matched</INNOStatus></div>
+              <div className="prod-panel-head">
+                <div><h3>Requester</h3><p>Resolved from your signed-in INNO.One profile.</p></div>
+                <INNOStatus tone="success">Matched</INNOStatus>
+              </div>
               <div className="production-kv-grid">
                 <div className="kv-row"><span>Name</span><b>{profile.fullName}</b></div>
                 <div className="kv-row"><span>Organization</span><b>{profile.organization?.name ?? '—'}</b></div>

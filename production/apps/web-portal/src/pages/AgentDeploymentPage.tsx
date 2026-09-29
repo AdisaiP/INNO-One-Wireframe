@@ -28,13 +28,11 @@ export function AgentDeploymentPage() {
       eyebrow="Devices"
       title="Agent Deployment"
       description="Generate a time-limited enrollment link for installing the managed endpoint agent into a Device Group."
+      illustration={<img src="/illustrations/device-setup.svg" alt="" />}
     >
 
       <div className="deployment-layout">
-        <section className="prod-panel">
-          <div className="prod-panel-head">
-            <div><h3>Enrollment package</h3><p>The remote engine stays behind the Devices API boundary.</p></div>
-          </div>
+        <section className="prod-panel deployment-card">
           {groups.isPending ? (
             <div className="collection-state"><LoadingState label="Loading device groups…" /></div>
           ) : groups.isError ? (
@@ -77,16 +75,16 @@ export function AgentDeploymentPage() {
               </div>
               {generate.isError ? <ErrorState error={generate.error} /> : null}
               <INNOEditorFooter>
-                <INNOButton type="submit" busy={generate.isPending} disabled={!groupId}>Generate Enrollment</INNOButton>
+                <INNOButton type="submit" busy={generate.isPending} disabled={!groupId}>Generate Installer</INNOButton>
               </INNOEditorFooter>
             </form>
           )}
         </section>
 
-        <section className="prod-panel">
-          <div className="prod-panel-head"><div><h3>How enrollment works</h3><p>Canonical device identity is created only after the engine reports the endpoint.</p></div></div>
+        <section className="prod-panel deployment-card">
+          <div className="deployment-section-title"><h3>How Enrollment Works</h3></div>
           <div className="enrollment-steps">
-            <div><b>1</b><span>Generate enrollment</span></div>
+            <div><b>1</b><span>Generate installer</span></div>
             <div><b>2</b><span>Install agent on target device</span></div>
             <div><b>3</b><span>Agent connects to MeshCentral</span></div>
             <div><b>4</b><span>INNO.One synchronization creates or updates the canonical Device</span></div>

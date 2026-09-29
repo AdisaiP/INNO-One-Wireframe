@@ -27,14 +27,6 @@ function relativeTime(value: string) {
   return new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' }).format(date);
 }
 
-function moduleLabel(value: string) {
-  if (value === 'helpdesk') return 'Helpdesk';
-  if (value === 'devices') return 'Devices';
-  if (value === 'assets') return 'Assets';
-  if (value === 'meeting') return 'Meeting';
-  return value.charAt(0).toUpperCase() + value.slice(1);
-}
-
 function moduleMark(value: string) {
   if (value === 'helpdesk') return 'H';
   if (value === 'devices') return 'D';
@@ -95,24 +87,6 @@ export function NotificationsPage() {
 
       {data ? (
         <>
-          <div className="notification-stat-strip" aria-label="Notification summary">
-            <div>
-              <span>Unread</span>
-              <b>{data.unreadCount}</b>
-              <small>Needs your attention</small>
-            </div>
-            <div>
-              <span>Important</span>
-              <b>{data.importantCount}</b>
-              <small>Priority activity</small>
-            </div>
-            <div>
-              <span>All</span>
-              <b>{data.allCount}</b>
-              <small>Personal notifications</small>
-            </div>
-          </div>
-
           <div className="notification-layout">
             <section className="notification-feed" aria-label="Notification feed">
               {data.items.length === 0 ? (
@@ -138,10 +112,8 @@ export function NotificationsPage() {
                         {notification.isImportant ? <INNOStatus tone="warning">Important</INNOStatus> : null}
                       </span>
                       <span>{notification.message}</span>
-                      <small>{moduleLabel(notification.sourceModule)}</small>
                     </span>
                     <span className="notification-time">{relativeTime(notification.createdAt)}</span>
-                    {!notification.isRead ? <span className="notification-unread-dot" aria-label="Unread" /> : null}
                   </button>
                 ))
               )}

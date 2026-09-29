@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
-import { INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOIcon, INNOResourceHeader, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOIcon, INNOResourceHeader, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOSurfaceTabs, INNOTableWrap } from '@inno/ui';
 import { getDevice, getDeviceSoftwareInventory } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 
@@ -21,6 +21,7 @@ function lastSeen(value?: string | null) {
 
 export function DeviceDetailPage() {
   const { deviceId = '' } = useParams();
+  const [activeTab, setActiveTab] = useState<'overview' | 'software'>('overview');
   const [softwareSearch, setSoftwareSearch] = useState('');
   const [publisher, setPublisher] = useState('all');
   const query = useQuery({
@@ -87,9 +88,18 @@ export function DeviceDetailPage() {
         <div><span>Last seen</span><b>{lastSeen(device.lastSeenAt)}</b><small>{device.agentVersion ? `Agent ${device.agentVersion}` : 'Agent version unknown'}</small></div>
       </div>
 
-      <div className="overview-label">Overview</div>
+      <INNOSurfaceTabs
+        ariaLabel="Device detail sections"
+        activeId={activeTab}
+        onChange={(id) => setActiveTab(id as 'overview' | 'software')}
+        items={[
+          { id: 'overview', label: 'Overview' },
+          { id: 'software', label: 'Software' },
+        ]}
+      />
 
-      <div className="device-overview-grid">
+      <div hidden={activeTab !== 'overview'}>
+        <div className="device-overview-grid">
         <section className="prod-panel">
           <div className="prod-panel-head">
             <div>
@@ -149,9 +159,11 @@ export function DeviceDetailPage() {
             </div>
           </section>
         </div>
+        </div>
       </div>
 
-      <INNOCollection className="device-software-card">
+      <div hidden={activeTab !== 'software'}>
+        <INNOCollection className="device-software-card">
         <INNOCollectionHeader
           title="Installed software"
           description="Latest Devices-owned observation used as evidence for software baselines."
@@ -201,7 +213,8 @@ export function DeviceDetailPage() {
             </INNOTableWrap>
           </>
         )}
-      </INNOCollection>
+        </INNOCollection>
+      </div>
     </main>
   );
 }

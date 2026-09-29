@@ -247,20 +247,68 @@ export function INNOPage({
   eyebrow,
   description,
   actions,
+  breadcrumb,
+  illustration,
   children,
-}: PropsWithChildren<{ title: string; eyebrow?: string; description?: ReactNode; actions?: ReactNode }>) {
+}: PropsWithChildren<{
+  title: string;
+  eyebrow?: string;
+  description?: ReactNode;
+  actions?: ReactNode;
+  breadcrumb?: ReactNode;
+  illustration?: ReactNode;
+}>) {
+  const header = (
+    <header className="inno-page-head">
+      <div className="inno-page-heading">
+        {eyebrow ? <div className="inno-eyebrow">{eyebrow}</div> : null}
+        <h1>{title}</h1>
+        {description ? <div className="inno-page-sub">{description}</div> : null}
+      </div>
+      {actions ? <div className="inno-page-actions">{actions}</div> : null}
+    </header>
+  );
+
   return (
     <main className="inno-page">
-      <header className="inno-page-head">
-        <div className="inno-page-heading">
-          {eyebrow ? <div className="inno-eyebrow">{eyebrow}</div> : null}
-          <h1>{title}</h1>
-          {description ? <div className="inno-page-sub">{description}</div> : null}
-        </div>
-        {actions ? <div className="inno-page-actions">{actions}</div> : null}
-      </header>
+      {breadcrumb ? <nav className="inno-page-breadcrumb" aria-label="Breadcrumb">{breadcrumb}</nav> : null}
+      {illustration ? (
+        <section className="inno-page-hero">
+          <div className="inno-page-hero-copy">{header}</div>
+          <div className="inno-page-illustration" aria-hidden="true">{illustration}</div>
+        </section>
+      ) : header}
       {children}
     </main>
+  );
+}
+
+export function INNOSurfaceTabs({
+  items,
+  activeId,
+  onChange,
+  ariaLabel = 'Sections',
+}: {
+  items: Array<{ id: string; label: ReactNode }>;
+  activeId: string;
+  onChange: (id: string) => void;
+  ariaLabel?: string;
+}) {
+  return (
+    <div className="inno-surface-tabs" role="tablist" aria-label={ariaLabel}>
+      {items.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          role="tab"
+          aria-selected={item.id === activeId}
+          className={item.id === activeId ? 'active' : undefined}
+          onClick={() => onChange(item.id)}
+        >
+          {item.label}
+        </button>
+      ))}
+    </div>
   );
 }
 
