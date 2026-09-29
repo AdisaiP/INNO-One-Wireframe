@@ -77,7 +77,7 @@ if assets_validation.get('browserQa') != 'passed' or assets_validation.get('brow
 if assets_validation.get('browserQaChecks') != 141:
     issues.append('assets browser qa count')
 
-for marker in ['SideNavLabel','INNOIcon','prod-global-search','prod-context-toggle','prod-side-backdrop']:
+for marker in ['SideNavLabel','INNOIcon','prod-global-search','prod-side-collapse','prod-context-reveal','prod-side-backdrop']:
     if marker not in shell: issues.append('shell marker '+marker)
 for stale in ['aria-label="Devices">D</NavLink>','aria-label="Assets">A</NavLink>','aria-label="Helpdesk">H</NavLink>']:
     if stale in shell: issues.append('letter rail '+stale)

@@ -254,19 +254,19 @@ body { margin: 0; font-family: var(--ds-font); background: var(--ds-bg); color: 
   justify-content: space-between;
   align-items: flex-start;
   gap: 12px;
-  padding: 16px 16px 12px;
-  border-bottom: 0;
+  padding: 12px 16px;
+  border-bottom: 1px solid #edf0f3;
 }
-.inno-collection-head h2 { margin: 0; font-size: 14px; font-weight: 720; }
-.inno-collection-head p { margin: 4px 0 0; color: var(--ds-muted); font-size: 11px; line-height: 1.4; }
+.inno-collection-head h2 { margin: 0; font-size: 13px; font-weight: 720; }
+.inno-collection-head p { margin: 4px 0 0; color: var(--ds-muted); font-size: 10px; line-height: 1.4; }
 .inno-collection-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .inno-collection-toolbar {
   display: flex;
   gap: 8px;
   align-items: center;
   flex-wrap: wrap;
-  padding: 0 16px 16px;
-  border-bottom: 0;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--ds-border);
   background: #fff;
 }
 .inno-toolbar-spacer { flex: 1; }
@@ -349,7 +349,7 @@ body { margin: 0; font-family: var(--ds-font); background: var(--ds-bg); color: 
   align-items: center;
   gap: 12px;
   min-height: 54px;
-  padding: 12px 14px;
+  padding: 12px 16px;
   border-top: 1px solid var(--ds-border);
   color: var(--ds-muted);
   font-size: 11px;
@@ -357,18 +357,21 @@ body { margin: 0; font-family: var(--ds-font); background: var(--ds-bg); color: 
 .inno-pagination-actions { display: flex; align-items: center; gap: 8px; }
 
 .inno-editor-footer {
-  position: sticky;
-  bottom: 0;
-  z-index: 8;
+  position: static;
+  bottom: auto;
+  z-index: 12;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 8px;
-  margin-top: 18px;
-  padding: 12px 0;
-  border-top: 1px solid var(--ds-border);
-  background: rgba(247, 248, 250, .96);
-  backdrop-filter: blur(8px);
+  min-height: 58px;
+  margin-top: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--ds-border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .96);
+  box-shadow: 0 8px 24px rgba(23,32,51,.08);
+  backdrop-filter: blur(10px);
 }
 .inno-editor-footer > .inno-btn--secondary:first-child { margin-right: auto; }
 
@@ -440,20 +443,20 @@ body { margin: 0; font-family: var(--ds-font); background: var(--ds-bg); color: 
 }
 
 .inno-state {
-  min-height: 180px;
+  min-height: 220px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 10px;
   padding: 28px 22px;
-  border: 1px dashed #d8dee7;
-  border-radius: 11px;
-  background: #fbfcfd;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: #3f4b5e;
   text-align: center;
 }
-.inno-state.compact { min-height: 110px; padding: 18px 14px; border: 0; border-radius: 0; background: transparent; }
+.inno-state.compact { min-height: 150px; padding: 22px 16px; border: 0; border-radius: 0; background: transparent; }
 .inno-state-icon {
 
   width: 42px;
@@ -479,13 +482,13 @@ body { margin: 0; font-family: var(--ds-font); background: var(--ds-bg); color: 
 .inno-state.loading .inno-state-icon { color: var(--ds-primary); }
 
 @media (max-width: 1366px) {
-  .inno-page { padding: 22px 20px 40px; }
+  .inno-page { padding: 24px 16px 32px; }
   .inno-page-head { gap: 16px; }
   .inno-page-head h1 { font-size: 23px; }
 }
 
 @media (max-width: 850px) {
-  .inno-page { padding: 18px 14px 34px; }
+  .inno-page { padding: 16px 12px 32px; }
   .inno-page-head,
   .inno-resource-head { flex-direction: column; align-items: stretch; }
   .inno-page-actions,
@@ -496,7 +499,7 @@ body { margin: 0; font-family: var(--ds-font); background: var(--ds-bg); color: 
 }
 
 @media (max-width: 680px) {
-  .inno-page { padding: 14px 10px 30px; }
+  .inno-page { padding: 12px 8px 24px; }
   .inno-page-head h1 { font-size: 21px; }
   .inno-page-actions,
   .inno-resource-actions { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 3px; }

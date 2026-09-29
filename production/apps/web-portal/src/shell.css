@@ -1795,7 +1795,7 @@
 }
 .standalone-editor-footer {
   border: 1px solid #e2e7ed;
-  border-radius: 10px;
+  border-radius: 12px;
   background: #fff;
 }
 .automation-condition {
@@ -2034,7 +2034,7 @@
   font-size: 9px;
   line-height: 1.45;
 }
-.qr-action-footer { margin-top: 0; }
+.qr-action-footer { margin-top: 14px; }
 .qr-action-footer .editor-footer-note { margin-right: auto; }
 .qr-print-area { display: none; }
 
@@ -2087,8 +2087,8 @@
 
 
 /* Step 22 · Software License Compliance */
-.license-stat-strip { margin-bottom: 14px; }
-.license-collection { margin-bottom: 14px; }
+.license-stat-strip { margin-bottom: 16px; }
+.license-collection { margin-bottom: 16px; }
 .numeric-column { text-align: right !important; }
 .selected-row { background: #f7f9ff; }
 .prod-tag.success-tag {
@@ -2217,8 +2217,8 @@
   background: #fff5dc;
   color: #8a6400;
 }
-.contract-stat-strip { margin-bottom: 14px; }
-.contract-collection { margin-bottom: 14px; }
+.contract-stat-strip { margin-bottom: 16px; }
+.contract-collection { margin-bottom: 16px; }
 .contract-detail-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(320px, .75fr);
@@ -2268,7 +2268,7 @@
 }
 .contract-record-footer {
   align-items: center;
-  margin-top: 12px;
+  margin-top: 14px;
 }
 .contract-record-footer .editor-footer-note { margin-right: auto; }
 
@@ -4023,5 +4023,225 @@
   .workspace-attention-count {
     grid-column: 2;
     justify-self: start;
+  }
+}
+
+
+/* Step 42.1 detailed shell fidelity: contextual navigation controls */
+.prod-context-toggle { display: none !important; }
+.prod-side { position: relative; }
+.prod-side-title { padding-right: 46px; }
+
+.prod-side-collapse {
+  position: absolute;
+  top: 13px;
+  right: 12px;
+  z-index: 3;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: #778397;
+  cursor: pointer;
+}
+.prod-side-collapse:hover,
+.prod-side-collapse:focus-visible {
+  outline: 0;
+  background: #f1f4f8;
+  color: #334055;
+}
+.prod-side-collapse::after {
+  content: "";
+  position: absolute;
+  right: 7px;
+  top: 8px;
+  width: 1px;
+  height: 14px;
+  border-radius: 1px;
+  background: #c9d0db;
+}
+.prod-side-collapse > .inno-icon { transform: translateX(-3px); }
+
+.prod-main { position: relative; }
+.prod-context-reveal {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--ds-border);
+  border-radius: 8px;
+  background: #fff;
+  color: #536078;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 680;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(16,24,40,.03);
+}
+.prod-context-reveal:hover,
+.prod-context-reveal:focus-visible {
+  outline: 0;
+  border-color: #cbd5e4;
+  background: #f7f9fc;
+  color: #2f3c50;
+}
+
+@media (min-width: 1181px) {
+  .inno-production-shell.side-collapsed { --prod-side-w: 0px; }
+  .inno-production-shell.side-collapsed .prod-shell-body {
+    grid-template-columns: var(--prod-rail-w) minmax(0, 1fr);
+  }
+  .inno-production-shell.side-collapsed .prod-side { display: none; }
+  .inno-production-shell.side-collapsed .prod-main { grid-column: 2; }
+  .inno-production-shell.side-collapsed .prod-header {
+    grid-template-columns: 165px minmax(320px, 720px) minmax(120px, 1fr);
+  }
+  .inno-production-shell.side-collapsed .prod-brand {
+    display: flex;
+    justify-content: flex-start;
+    padding: 0 14px;
+  }
+  .inno-production-shell.side-collapsed .prod-brand-name { display: inline; }
+  .inno-production-shell.side-collapsed .prod-context-reveal {
+    display: grid;
+    position: fixed;
+    top: calc(var(--prod-header-h) + 16px);
+    left: var(--prod-rail-w);
+    z-index: 26;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    place-items: center;
+    transform: translateX(-50%);
+    border-radius: 8px;
+  }
+  .inno-production-shell.side-collapsed .prod-context-reveal span { display: none; }
+}
+@media (min-width: 1367px) {
+  .inno-production-shell.side-collapsed .prod-header {
+    grid-template-columns: 180px minmax(320px, 720px) minmax(120px, 1fr);
+  }
+}
+@media (min-width: 1601px) {
+  .inno-production-shell.side-collapsed .prod-header {
+    grid-template-columns: 190px minmax(360px, 720px) minmax(120px, 1fr);
+  }
+}
+
+@media (max-width: 1180px) {
+  .inno-production-shell { --prod-side-w: 0px; }
+  .inno-production-shell .prod-context-reveal {
+    display: inline-flex;
+    position: absolute;
+    top: 16px;
+    left: 18px;
+    z-index: 12;
+  }
+  .inno-production-shell.side-open .prod-context-reveal { display: none; }
+  .inno-production-shell .inno-page,
+  .inno-production-shell .workspace-home-page {
+    padding-top: 62px !important;
+  }
+  .prod-side-collapse {
+    top: 13px;
+    right: 12px;
+    border-color: #e4e8ef;
+    background: #f6f8fb;
+  }
+  .prod-side-collapse::after { display: none; }
+  .prod-side-collapse > .inno-icon { transform: none; }
+
+  .prod-header {
+    grid-template-columns: 180px minmax(220px, 1fr) auto;
+  }
+  .prod-brand {
+    display: flex;
+    justify-content: flex-start;
+    padding: 0 14px;
+    border-right: 1px solid var(--ds-border);
+  }
+  .prod-brand-name { display: inline; }
+}
+
+@media (max-width: 850px) {
+  .prod-header {
+    grid-template-columns: 150px minmax(0, 1fr) auto;
+  }
+  .prod-brand {
+    display: flex;
+    justify-content: flex-start;
+    padding: 0 12px;
+    border-right: 1px solid var(--ds-border);
+  }
+  .prod-brand-name { display: inline; }
+  .inno-production-shell .prod-context-reveal {
+    top: 14px;
+    left: 14px;
+  }
+  .inno-production-shell .inno-page,
+  .inno-production-shell .workspace-home-page {
+    padding-top: 58px !important;
+  }
+}
+
+@media (max-width: 680px) {
+  .prod-header {
+    grid-template-columns: 50px 44px auto;
+  }
+  .prod-brand {
+    padding: 0 10px;
+    justify-content: center;
+  }
+  .prod-brand-name { display: none; }
+  .inno-production-shell .prod-context-reveal {
+    top: 12px;
+    left: 10px;
+    height: 32px;
+    padding: 0 9px;
+  }
+  .inno-production-shell .prod-context-reveal span { display: none; }
+  .inno-production-shell .inno-page,
+  .inno-production-shell .workspace-home-page {
+    padding-top: 54px !important;
+  }
+}
+
+/* Collection-local empty/no-result states should not render a second card. */
+.collection-state > .inno-state.compact {
+  min-height: 150px;
+  padding: 24px 16px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.collection-state > .inno-state.compact .inno-state-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+}
+
+
+/* Step 42.1 micro-fidelity: shell body already starts below the sticky 56px header. */
+.prod-rail {
+  position: sticky;
+  top: 0;
+}
+.prod-side {
+  position: sticky;
+  top: 0;
+}
+@media (max-width: 1180px) {
+  .prod-rail {
+    position: sticky;
+    top: 0;
+  }
+  .prod-side {
+    position: fixed;
+    top: var(--prod-header-h);
+    left: var(--prod-rail-w);
   }
 }

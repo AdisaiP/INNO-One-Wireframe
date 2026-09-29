@@ -57,6 +57,7 @@ export function AppShell() {
   const location = useLocation();
   const navigate = useNavigate();
   const [sideOpen, setSideOpen] = useState(false);
+  const [sideCollapsed, setSideCollapsed] = useState(() => window.localStorage.getItem('inno.ui.sidebar.collapsed') === '1');
   const [shellSearch, setShellSearch] = useState('');
   const inApps = location.pathname === '/apps';
   const inAdmin = location.pathname === '/admin' || location.pathname.startsWith('/admin/');
@@ -75,7 +76,28 @@ export function AppShell() {
   const inWorkspace = location.pathname === '/' || location.pathname.startsWith('/workspace/');
   const inAccount = inProfile || inNotifications;
   const homePath = canWorkspace ? '/' : canViewDevices ? '/devices' : canViewHelpdesk ? '/helpdesk' : canViewAssets ? '/assets' : '/profile';
+  const contextLabel = inWorkspace || inSearch ? 'Workspace'
+    : inAccount ? 'Account'
+      : inAdmin ? 'Admin Center'
+        : inApps ? 'Apps'
+          : inAssets ? 'Assets'
+            : inHelpdesk ? 'Helpdesk'
+              : inDevices ? 'Devices'
+                : 'INNO.One';
+
   useEffect(() => setSideOpen(false), [location.pathname]);
+
+  useEffect(() => {
+    window.localStorage.setItem('inno.ui.sidebar.collapsed', sideCollapsed ? '1' : '0');
+  }, [sideCollapsed]);
+
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') setSideOpen(false);
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   useEffect(() => {
     if (inSearch) {
@@ -90,17 +112,30 @@ export function AppShell() {
     navigate('/search?q=' + encodeURIComponent(query));
   }
 
+  function openContextNavigation() {
+    if (window.matchMedia('(max-width: 1180px)').matches) {
+      setSideOpen(true);
+      return;
+    }
+    setSideCollapsed(false);
+  }
+
+  function closeContextNavigation() {
+    if (window.matchMedia('(max-width: 1180px)').matches) {
+      setSideOpen(false);
+      return;
+    }
+    setSideCollapsed(true);
+  }
+
   return (
-    <div className="inno-production-shell">
+    <div className={'inno-production-shell' + (sideCollapsed ? ' side-collapsed' : '') + (sideOpen ? ' side-open' : '')}>
       <header className="prod-header">
         <NavLink className="prod-brand" to={homePath}>
           <span className="prod-logo-mark">{PRODUCT_BRAND.compactMark}</span>
           <span className="prod-brand-name">{PRODUCT_BRAND.productNamePrefix}<b>{PRODUCT_BRAND.productNameEmphasis}</b></span>
         </NavLink>
         <div className="prod-header-center">
-          <button className="prod-context-toggle" type="button" onClick={() => setSideOpen((value) => !value)} aria-expanded={sideOpen} aria-label="Toggle contextual navigation">
-            <NavIcon token="action.menu" />
-          </button>
           {canUseSearch ? (
             <form className="prod-global-search" role="search" onSubmit={submitSearch}>
               <NavIcon token="action.search" />
@@ -168,6 +203,15 @@ export function AppShell() {
           className={`prod-side${sideOpen ? ' open' : ''}`}
           aria-label={inWorkspace ? 'Workspace navigation' : inSearch ? 'Search navigation' : inAccount ? 'Account navigation' : inAdmin ? 'Admin navigation' : inApps ? 'Apps navigation' : inAssets ? 'Assets navigation' : inHelpdesk ? 'Helpdesk navigation' : inDevices ? 'Devices navigation' : 'Workspace context'}
         >
+          <button
+            className="prod-side-collapse"
+            type="button"
+            onClick={closeContextNavigation}
+            aria-label={sideOpen ? 'Close contextual navigation' : 'Collapse contextual navigation'}
+            title={sideOpen ? 'Close navigation' : 'Collapse sidebar'}
+          >
+            <NavIcon token={sideOpen ? 'action.close' : 'action.collapse'} />
+          </button>
           {inWorkspace ? (
             <>
               <div className="prod-side-title">Workspace</div>
@@ -274,6 +318,16 @@ export function AppShell() {
         </aside>
 
         <div className="prod-main">
+          <button
+            className="prod-context-reveal"
+            type="button"
+            onClick={openContextNavigation}
+            aria-expanded={sideOpen || !sideCollapsed}
+            aria-label={'Open ' + contextLabel + ' navigation'}
+          >
+            <NavIcon token={sideCollapsed ? 'action.expand' : 'action.menu'} />
+            <span>{contextLabel}</span>
+          </button>
           <Outlet />
         </div>
       </div>

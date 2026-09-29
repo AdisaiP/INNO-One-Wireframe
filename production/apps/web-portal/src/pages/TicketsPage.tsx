@@ -91,6 +91,7 @@ export function TicketsPage({ mode = 'all' }: { mode?: TicketQueueMode }) {
         ) : query.data.items.length === 0 ? (
           <div className="collection-state">
             <INNOState
+              compact
               kind={search || status !== 'all' || priority !== 'all' ? 'no-results' : 'empty'}
               title={search || status !== 'all' || priority !== 'all' ? 'No tickets found' : 'No tickets in this queue'}
               description={search || status !== 'all' || priority !== 'all'

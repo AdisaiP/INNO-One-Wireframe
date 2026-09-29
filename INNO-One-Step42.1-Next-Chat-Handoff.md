@@ -298,7 +298,7 @@ issues=0
 Full static regression:
 
 ```text
-STATIC_TOTAL=42
+STATIC_TOTAL=43
 STATIC_FAILED=0
 ```
 
@@ -318,9 +318,9 @@ web-portal build     PASS
 Vite output:
 
 ```text
-CSS ~81.7 kB
-JS  ~643.0 kB
-gzip ~167.5 kB
+CSS ~86.0 kB
+JS  ~644.3 kB
+gzip ~167.9 kB
 ```
 
 The existing >500 kB bundle warning remains and should be treated as a later performance/code-splitting task rather than solved by reverting shared UI fidelity.
@@ -384,3 +384,100 @@ Meeting remains deferred.
 
 Do not merge Step 42.1 to main unless explicitly requested.
 Do not deploy.
+
+## 18. Detailed micro-fidelity polish after live user review
+
+A live review after the first Step 42.1 checkpoint identified remaining small-but-visible drift. This follow-up keeps Step 42.1 open and fixes those details rather than moving to Step 43 prematurely.
+
+### Contextual navigation / hamburger
+
+The shell now follows the frozen navigation contract more closely:
+
+- global header does not own the contextual hamburger
+- desktop contextual sidebar has its own collapse control
+- collapsed desktop shows a compact reopen handle at the content edge
+- 1024 / 768 show a labeled hamburger above page content
+- compact navigation opens as a drawer with backdrop and close control
+- Escape closes the compact drawer
+- collapsed state is persisted in `inno.ui.sidebar.collapsed`
+
+A real geometry bug was also fixed: the rail/sidebar previously received the 56px header offset twice and began at y=112px. They now begin immediately below the header at y=56px.
+
+### Empty / no-results states
+
+Collection-local states no longer render as a second dashed card inside the owning collection.
+
+The Helpdesk empty queue state:
+
+```text
+No tickets in this queue
+```
+
+now uses a compact flat state inside the collection body.
+
+Shared `INNOState` also uses the frozen flat state language rather than an arbitrary nested-card treatment.
+
+### Micro-spacing reconciliation
+
+The shared Production primitives were reconciled again against the frozen final density values:
+
+- 1366 page padding: 24 / 16 / 32
+- 850-and-below page padding: 16 / 12 / 32
+- 680-and-below page padding: 12 / 8 / 24
+- collection header: 12 / 16 with separator
+- collection toolbar: 12 / 16 with separator
+- pagination: 12 / 16
+- canonical editor footer: 58px minimum height, 14px top rhythm, 10 / 12 padding, radius 12
+- standalone editor footer radius: 12
+- QR action footer top rhythm: 14px
+- License / Contracts stat-strip bottom rhythm: 16px
+- Contract record footer top rhythm: 14px
+
+A stale Vite/HMR stylesheet was discovered during debugging. The Web dev server was restarted clean before final browser verification so computed-style checks reflect current source only.
+
+### New detailed QA
+
+```text
+step42_1-detail-polish-browser-qa.py
+checks = 38
+failures = 0
+```
+
+Coverage includes:
+
+- desktop sidebar collapse / restore
+- desktop rail/sidebar y=56 geometry
+- no contextual hamburger in global header
+- labeled 1024 / 768 hamburger
+- drawer / backdrop / close behavior
+- frozen collection header / toolbar spacing
+- flat collection-local empty queue state
+
+```text
+step42_1-micro-spacing-browser-qa.py
+routes = 44
+checks = 620
+failures = 0
+```
+
+This sweep validates live computed CSS at 1366 / 1024 / 768 for page padding, page-header rhythm, collections, pagination, panel headers, resource headers, tabs, stats, editor footers and page heroes.
+
+New static guard:
+
+```text
+step42_1-detail-polish-audit.py
+issues = 0
+```
+
+The complete regression remains green:
+
+```text
+Broad Production     1233 / 1233
+Detail                156 / 156
+Fidelity               96 / 96
+Detailed polish        38 / 38
+Micro-spacing         620 / 620
+Static audits          43 / 43
+```
+
+No backend, database, API or frozen contract version changed.
