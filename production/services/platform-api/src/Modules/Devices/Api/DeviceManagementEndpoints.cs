@@ -621,11 +621,13 @@ public static class DeviceManagementEndpoints
 
         var scanId = OpaqueId.Format("scan", scan.Id);
         var operationId = OpaqueId.Format("op", scan.OperationId);
+        var statusUrl = $"/api/v1/operations/{operationId}";
         return Results.Accepted(
-            $"/api/v1/devices/discovery-scans/{scanId}",
+            statusUrl,
             new OperationResponse(
                 operationId,
                 "queued",
+                statusUrl,
                 0,
                 new { scanId, addressCount = addresses.Count }));
     }
@@ -1085,6 +1087,7 @@ public static class DeviceManagementEndpoints
     private sealed record OperationResponse(
         string OperationId,
         string Status,
+        string StatusUrl,
         int Progress,
         object Resource);
 

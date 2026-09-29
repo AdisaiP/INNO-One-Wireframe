@@ -416,14 +416,30 @@ export interface DiscoveryResult {
   discoveredAt: string;
 }
 
+export type OperationState = 'queued' | 'running' | 'succeeded' | 'failed' | 'partial';
+
 export interface OperationAccepted {
   operationId: string;
-  status: string;
+  status: OperationState;
+  statusUrl: string;
   progress: number;
   resource: {
     scanId: string;
     addressCount: number;
   };
+}
+
+export interface OperationStatus {
+  operationId: string;
+  operationType: string;
+  originModule: string;
+  status: OperationState;
+  progress: number;
+  errorCode?: string | null;
+  statusUrl: string;
+  createdAt: string;
+  updatedAt: string;
+  expiresAt?: string | null;
 }
 
 export interface AgentInstaller {

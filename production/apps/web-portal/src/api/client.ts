@@ -59,6 +59,7 @@ import type {
   WorkspaceHomeResponse,
   HelpdeskOverview,
   OperationAccepted,
+  OperationStatus,
   PlatformNotificationItem,
   PlatformNotificationMarkAllResult,
   PlatformNotificationsResponse,
@@ -611,6 +612,13 @@ export async function createDiscoveryScan(ranges: string[]): Promise<OperationAc
     method: 'POST',
     ...jsonRequest({ ranges }),
   });
+}
+
+export async function getOperation(operationId: string): Promise<OperationStatus> {
+  const response = await request<ResourceEnvelope<OperationStatus>>(
+    '/operations/' + encodeURIComponent(operationId),
+  );
+  return response.data;
 }
 
 export async function getDiscoveryScan(scanId: string): Promise<DiscoveryScan> {
