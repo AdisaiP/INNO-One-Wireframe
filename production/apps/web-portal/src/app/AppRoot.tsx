@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { getCurrentProfile } from '../api/client';
@@ -54,6 +55,11 @@ import { TicketDetailPage } from '../pages/TicketDetailPage';
 import { TicketsPage } from '../pages/TicketsPage';
 import { AppShell } from './AppShell';
 import { ProfileProvider } from './ProfileContext';
+
+const InternalDesignSystemPage = lazy(async () => {
+  const module = await import('../pages/InternalDesignSystemPage');
+  return { default: module.InternalDesignSystemPage };
+});
 
 export function AppRoot() {
   const profileQuery = useQuery({
@@ -126,6 +132,16 @@ export function AppRoot() {
           <Route path="admin/branding" element={canAdminBranding ? <AdminBrandingPage /> : <DeferredPage name="Branding" kind="permission" />} />
           <Route path="admin/settings" element={canAdminSettings ? <AdminPlatformSettingsPage /> : <DeferredPage name="Platform Settings" kind="permission" />} />
           <Route path="admin/apps" element={canAdminApps ? <AdminAppsPage /> : <DeferredPage name="Apps & Modules" kind="permission" />} />
+
+          {/* Internal reference route: intentionally absent from normal product navigation. */}
+          <Route
+            path="internal/design-system"
+            element={canAdmin ? (
+              <Suspense fallback={<LoadingState label="Loading design system…" />}>
+                <InternalDesignSystemPage />
+              </Suspense>
+            ) : <DeferredPage name="Design System" kind="permission" />}
+          />
 
           <Route path="devices" element={canViewDevices ? <DevicesPage /> : <DeferredPage name="Devices" kind="permission" />} />
           <Route path="devices/discovery" element={canViewDevices ? <DiscoveryPage /> : <DeferredPage name="Discovery" kind="permission" />} />

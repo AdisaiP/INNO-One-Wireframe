@@ -60,7 +60,8 @@ export function AppShell() {
   const [sideCollapsed, setSideCollapsed] = useState(() => window.localStorage.getItem('inno.ui.sidebar.collapsed') === '1');
   const [shellSearch, setShellSearch] = useState('');
   const inApps = location.pathname === '/apps';
-  const inAdmin = location.pathname === '/admin' || location.pathname.startsWith('/admin/');
+  const inDesignSystem = location.pathname.startsWith('/internal/design-system');
+  const inAdmin = location.pathname === '/admin' || location.pathname.startsWith('/admin/') || inDesignSystem;
   const inAdminApps = location.pathname.startsWith('/admin/apps');
   const inDevices = location.pathname.startsWith('/devices');
   const inDeviceDetail = /^\/devices\/[^/]+$/.test(location.pathname)
