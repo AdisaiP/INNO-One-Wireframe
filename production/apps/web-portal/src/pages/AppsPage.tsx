@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
+  INNOIcon,
   INNOCollection,
   INNOCollectionHeader,
   INNOCollectionToolbar,
@@ -83,7 +84,7 @@ export function AppsPage() {
                       {app.navigation.length} {app.navigation.length === 1 ? 'destination' : 'destinations'}
                     </small>
                   </span>
-                  <span className="production-app-open" aria-hidden="true">›</span>
+                  <span className="production-app-open" aria-hidden="true"><INNOIcon token="action.next" size={15} /></span>
                 </Link>
               ))}
             </div>

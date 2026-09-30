@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOResourceHeader, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOResourceHeader, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { getDeviceGroup, getDeviceGroupMembers, updateDeviceGroup } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
@@ -82,7 +82,7 @@ export function DeviceGroupDetailPage() {
       </div>
 
       <INNOResourceHeader
-        icon={<span aria-hidden="true">▦</span>}
+        icon={<INNOIcon token="section.groups" size={20} />}
         title={data.name}
         status={<><INNOStatus tone={data.status === 'active' ? 'success' : 'neutral'} dot>{data.status}</INNOStatus><INNOStatus tone={data.syncStatus === 'synced' ? 'success' : 'neutral'}>{data.syncStatus}</INNOStatus></>}
         meta={<><span>{data.code}</span><span>·</span><span>{data.groupType}</span>{data.description ? <><span>·</span><span>{data.description}</span></> : null}</>}
@@ -145,7 +145,7 @@ export function DeviceGroupDetailPage() {
                     <td>{device.organization ?? '—'}</td>
                     <td><INNOStatus tone={device.status === 'online' ? 'success' : 'neutral'} dot>{device.status}</INNOStatus></td>
                     <td>{formatLastSeen(device.lastSeenAt)}</td>
-                    <td className="action-column"><Link className="device-row-action" to={'/devices/' + device.id} aria-label={'Open ' + device.name}><span aria-hidden="true">›</span></Link></td>
+                    <td className="action-column"><Link className="device-row-action" to={'/devices/' + device.id} aria-label={'Open ' + device.name}><INNOIcon token="action.next" size={14} /></Link></td>
                   </tr>
                 ))}
               </tbody>

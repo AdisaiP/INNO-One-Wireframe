@@ -1,5 +1,182 @@
 import type { ButtonHTMLAttributes, ChangeEvent, PropsWithChildren, ReactNode } from 'react';
+import {
+  ArrowLeft,
+  Bell,
+  Blocks,
+  Boxes,
+  BriefcaseBusiness,
+  Building2,
+  CalendarDays,
+  ChevronLeft,
+  ChevronRight,
+  CircleAlert,
+  CircleCheck,
+  CircleDashed,
+  CircleX,
+  ClipboardList,
+  Contact,
+  Download,
+  Ellipsis,
+  Eye,
+  FileText,
+  Grid2X2,
+  Hand,
+  Headphones,
+  History,
+  House,
+  Info,
+  KeyRound,
+  Layers3,
+  Laptop,
+  ListFilter,
+  LoaderCircle,
+  LockKeyhole,
+  MapPin,
+  Menu,
+  Monitor,
+  Package,
+  PackageOpen,
+  Palette,
+  Pencil,
+  Pin,
+  Plug,
+  Plus,
+  QrCode,
+  Radar,
+  RefreshCw,
+  Save,
+  ScanSearch,
+  Search,
+  SearchCode,
+  SearchX,
+  Server,
+  Settings,
+  Shield,
+  ShieldCheck,
+  SlidersHorizontal,
+  Store,
+  Timer,
+  Trash2,
+  TriangleAlert,
+  Unplug,
+  Upload,
+  User,
+  UserCheck,
+  Users,
+  WandSparkles,
+  WifiOff,
+  X,
+  type LucideIcon as LucideIconType,
+} from 'lucide-react';
 import { cx } from '@inno/shared';
+
+const INNO_ICON_MAP = {
+  'nav.workspace': House,
+  'nav.apps': Grid2X2,
+  'nav.devices': Monitor,
+  'nav.assets': Package,
+  'nav.helpdesk': Headphones,
+  'nav.admin': Settings,
+  'device.desktop': Monitor,
+  'device.laptop': Laptop,
+  'device.server': Server,
+  'device.virtual': Boxes,
+  'section.overview': House,
+  'section.discovery': Radar,
+  'section.groups': Layers3,
+  'section.remote': Monitor,
+  'section.remoteConsent': Hand,
+  'section.query': SearchCode,
+  'section.deployment': PackageOpen,
+  'section.maintenance': RefreshCw,
+  'section.policies': ShieldCheck,
+  'section.alerts': TriangleAlert,
+  'section.inventory': Boxes,
+  'section.licenses': KeyRound,
+  'section.contracts': FileText,
+  'section.qr': QrCode,
+  'section.ownership': Contact,
+  'section.tickets': FileText,
+  'section.assigned': UserCheck,
+  'section.team': Users,
+  'section.sla': Timer,
+  'section.automation': WandSparkles,
+  'section.calendar': CalendarDays,
+  'section.customFields': SlidersHorizontal,
+  'section.userProfiles': Users,
+  'section.submissions': ClipboardList,
+  'section.organization': Building2,
+  'section.locations': MapPin,
+  'section.positions': BriefcaseBusiness,
+  'section.users': Users,
+  'section.roles': ShieldCheck,
+  'section.accessScopes': ScanSearch,
+  'section.modules': Blocks,
+  'section.integrations': Plug,
+  'section.security': Shield,
+  'section.audit': ClipboardList,
+  'section.branding': Palette,
+  'section.settings': Settings,
+  'section.continue': History,
+  'section.attention': CircleAlert,
+  'section.recent': History,
+  'section.notifications': Bell,
+  'section.profile': User,
+  'section.available': Store,
+  'action.search': Search,
+  'action.menu': Menu,
+  'action.add': Plus,
+  'action.edit': Pencil,
+  'action.delete': Trash2,
+  'action.more': Ellipsis,
+  'action.filter': ListFilter,
+  'action.save': Save,
+  'action.export': Download,
+  'action.upload': Upload,
+  'action.refresh': RefreshCw,
+  'action.back': ArrowLeft,
+  'action.close': X,
+  'action.view': Eye,
+  'action.disconnect': Unplug,
+  'action.collapse': ChevronLeft,
+  'action.expand': ChevronRight,
+  'action.next': ChevronRight,
+  'status.success': CircleCheck,
+  'status.warning': TriangleAlert,
+  'status.error': CircleX,
+  'status.info': Info,
+  'status.offline': WifiOff,
+  'status.empty': CircleDashed,
+  'status.noResults': SearchX,
+  'status.loading': LoaderCircle,
+} satisfies Record<string, LucideIconType>;
+
+export type INNOIconToken = keyof typeof INNO_ICON_MAP;
+
+export function INNOIcon({
+  token,
+  size = 16,
+  strokeWidth = 1.9,
+  className,
+}: {
+  token: INNOIconToken;
+  size?: number;
+  strokeWidth?: number;
+  className?: string;
+}) {
+  const Icon = INNO_ICON_MAP[token];
+  return (
+    <Icon
+      className={cx('inno-icon', token === 'status.loading' && 'is-spinning', className)}
+      width={size}
+      height={size}
+      strokeWidth={strokeWidth}
+      aria-hidden="true"
+      focusable="false"
+      data-icon-token={token}
+    />
+  );
+}
 
 export type INNOButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 
@@ -42,6 +219,14 @@ export function INNOState({
   compact?: boolean;
 }) {
   const role = kind === 'error' ? 'alert' : kind === 'loading' ? 'status' : undefined;
+  const iconToken: INNOIconToken =
+    kind === 'loading' ? 'status.loading'
+      : kind === 'error' ? 'status.error'
+        : kind === 'permission' || kind === 'disabled' ? 'status.warning'
+          : kind === 'offline' ? 'status.offline'
+            : kind === 'partial' ? 'status.warning'
+              : kind === 'no-results' ? 'status.noResults'
+                : 'status.empty';
   return (
     <section
       className={cx('inno-state', compact && 'compact', kind !== 'empty' && kind)}
@@ -49,7 +234,7 @@ export function INNOState({
       role={role}
       aria-live={kind === 'loading' ? 'polite' : undefined}
     >
-      <span className="inno-state-icon" aria-hidden="true" />
+      <span className="inno-state-icon" aria-hidden="true"><INNOIcon token={iconToken} size={18} /></span>
       <div>
         <h4>{title}</h4>
         {description ? <p>{description}</p> : null}
@@ -65,20 +250,68 @@ export function INNOPage({
   eyebrow,
   description,
   actions,
+  breadcrumb,
+  illustration,
   children,
-}: PropsWithChildren<{ title: string; eyebrow?: string; description?: ReactNode; actions?: ReactNode }>) {
+}: PropsWithChildren<{
+  title: string;
+  eyebrow?: string;
+  description?: ReactNode;
+  actions?: ReactNode;
+  breadcrumb?: ReactNode;
+  illustration?: ReactNode;
+}>) {
+  const header = (
+    <header className="inno-page-head">
+      <div className="inno-page-heading">
+        {eyebrow ? <div className="inno-eyebrow">{eyebrow}</div> : null}
+        <h1>{title}</h1>
+        {description ? <div className="inno-page-sub">{description}</div> : null}
+      </div>
+      {actions ? <div className="inno-page-actions">{actions}</div> : null}
+    </header>
+  );
+
   return (
     <main className="inno-page">
-      <header className="inno-page-head">
-        <div className="inno-page-heading">
-          {eyebrow ? <div className="inno-eyebrow">{eyebrow}</div> : null}
-          <h1>{title}</h1>
-          {description ? <div className="inno-page-sub">{description}</div> : null}
-        </div>
-        {actions ? <div className="inno-page-actions">{actions}</div> : null}
-      </header>
+      {breadcrumb ? <nav className="inno-page-breadcrumb" aria-label="Breadcrumb">{breadcrumb}</nav> : null}
+      {illustration ? (
+        <section className="inno-page-hero">
+          <div className="inno-page-hero-copy">{header}</div>
+          <div className="inno-page-illustration" aria-hidden="true">{illustration}</div>
+        </section>
+      ) : header}
       {children}
     </main>
+  );
+}
+
+export function INNOSurfaceTabs({
+  items,
+  activeId,
+  onChange,
+  ariaLabel = 'Sections',
+}: {
+  items: Array<{ id: string; label: ReactNode }>;
+  activeId: string;
+  onChange: (id: string) => void;
+  ariaLabel?: string;
+}) {
+  return (
+    <div className="inno-surface-tabs" role="tablist" aria-label={ariaLabel}>
+      {items.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          role="tab"
+          aria-selected={item.id === activeId}
+          className={item.id === activeId ? 'active' : undefined}
+          onClick={() => onChange(item.id)}
+        >
+          {item.label}
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -151,7 +384,7 @@ export function INNOSearchField({
   return (
     <label className={cx('inno-search', className)}>
       <span className="inno-sr-only">{label}</span>
-      <span className="inno-search-icon" aria-hidden="true" />
+      <span className="inno-search-icon" aria-hidden="true"><INNOIcon token="action.search" size={14} /></span>
       <input
         value={value}
         onChange={(event: ChangeEvent<HTMLInputElement>) => onChange(event.target.value)}

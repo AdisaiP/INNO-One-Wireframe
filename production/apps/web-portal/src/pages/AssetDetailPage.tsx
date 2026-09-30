@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOEditorFooter, INNOResourceHeader, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOEditorFooter, INNOIcon, INNOResourceHeader, INNOState, INNOStatus, INNOSurfaceTabs, INNOTableWrap } from '@inno/ui';
 import { changeAssetOwnership, getAsset, getAssetOwners, updateAsset } from '../api/client';
 import type { AssetCustomFieldValue } from '../api/types';
 import { usePermission } from '../app/ProfileContext';
@@ -85,6 +85,7 @@ export function AssetDetailPage() {
   const queryClient = useQueryClient();
   const query = useQuery({ queryKey: ['assets', 'detail', assetId], queryFn: () => getAsset(assetId), enabled: Boolean(assetId) });
   const owners = useQuery({ queryKey: ['assets', 'owners', 'picker'], queryFn: () => getAssetOwners({ pageSize: 100 }), enabled: canManage });
+  const [activeTab, setActiveTab] = useState<'overview' | 'custom' | 'ownership'>('overview');
   const [form, setForm] = useState({ name: '', category: '', lifecycleStatus: '', purchasePrice: '' });
   const [ownerId, setOwnerId] = useState('');
   const [customValues, setCustomValues] = useState<Record<string, unknown>>({});
@@ -182,7 +183,7 @@ export function AssetDetailPage() {
     <main className="inno-page">
       <div className="resource-breadcrumb"><Link to="/assets/inventory">Asset Inventory</Link><span>›</span><span>{asset.assetTag}</span></div>
       <INNOResourceHeader
-        icon={<span aria-hidden="true">▧</span>}
+        icon={<INNOIcon token="nav.assets" size={20} />}
         title={asset.assetTag}
         status={<INNOStatus tone={asset.status === 'in_use' ? 'success' : asset.status === 'repair' ? 'warning' : 'neutral'}>{statusLabel(asset.status)}</INNOStatus>}
         meta={<><span>{asset.name}</span><span>·</span><span>{[asset.brand, asset.model].filter(Boolean).join(' ') || asset.category}</span><span>·</span><span>{asset.serialNumber ?? 'No serial'}</span></>}
@@ -196,9 +197,21 @@ export function AssetDetailPage() {
         <div><span>Source</span><b>{asset.source.replaceAll('_', ' ')}</b><small>Updated {new Date(asset.updatedAt).toLocaleString()}</small></div>
       </div>
 
+      <INNOSurfaceTabs
+        ariaLabel="Asset detail sections"
+        activeId={activeTab}
+        onChange={(id) => setActiveTab(id as 'overview' | 'custom' | 'ownership')}
+        items={[
+          { id: 'overview', label: 'Overview' },
+          { id: 'custom', label: 'Custom Fields' },
+          { id: 'ownership', label: 'Ownership' },
+        ]}
+      />
+
       {saveError ? <div className="form-error" role="alert">{saveError}</div> : null}
       {savedMessage ? <div className="form-success" role="status">{savedMessage}</div> : null}
-      <div className="device-overview-grid">
+      <div hidden={activeTab !== 'overview'}>
+        <div className="device-overview-grid">
         <section className="prod-panel">
           <div className="prod-panel-head"><div><h3>Asset information</h3><p>Canonical inventory record owned by Assets.</p></div></div>
           {canManage ? (
@@ -231,7 +244,9 @@ export function AssetDetailPage() {
           </section>
         </div>
       </div>
+      </div>
 
+      <div hidden={activeTab !== 'custom'}>
       <section className="prod-panel asset-custom-values-panel">
         <div className="prod-panel-head">
           <div>
@@ -276,14 +291,16 @@ export function AssetDetailPage() {
           </div>
         )}
       </section>
+      </div>
 
-      {canManage ? (
+      {canManage && activeTab !== 'ownership' ? (
         <INNOEditorFooter className="standalone-editor-footer">
           <span className="editor-footer-note">Asset and custom-field changes are audited and version checked.</span>
           <INNOButton busy={saveMutation.isPending} disabled={!form.name.trim()} onClick={saveAsset}>Save Asset</INNOButton>
         </INNOEditorFooter>
       ) : null}
 
+      <div hidden={activeTab !== 'ownership'}>
       <INNOCollection>
         <INNOCollectionHeader title="Ownership history" description="Immutable ownership changes for this asset." />
         {asset.ownershipHistory.length === 0 ? (
@@ -292,6 +309,7 @@ export function AssetDetailPage() {
           <INNOTableWrap width="wide"><table><thead><tr><th>Effective</th><th>Previous owner</th><th>Owner</th><th>Reason</th></tr></thead><tbody>{asset.ownershipHistory.map((item) => <tr key={item.id}><td>{new Date(item.effectiveAt).toLocaleString()}</td><td>{item.previousOwner ?? 'Unassigned'}</td><td>{item.owner ?? 'Unassigned'}</td><td>{item.reasonCode.replaceAll('_', ' ')}</td></tr>)}</tbody></table></INNOTableWrap>
         )}
       </INNOCollection>
+      </div>
     </main>
   );
 }

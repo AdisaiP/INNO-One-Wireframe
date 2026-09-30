@@ -1,7 +1,9 @@
 using INNO.One.Contracts.Audit;
 using INNO.One.Contracts.Integrations;
+using INNO.One.Contracts.Operations;
 using INNO.One.Infrastructure.Audit;
 using INNO.One.Infrastructure.IntegrationHealth;
+using INNO.One.Infrastructure.Operations;
 using INNO.One.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +26,7 @@ public static class InfrastructureRegistration
             $"{connection.Host}:{port}/{connection.Database}"));
         services.AddScoped<IIntegrationHealthProvider, PostgreSqlIntegrationHealthProvider>();
         services.AddScoped<IAuditQueryService, AuditQueryService>();
+        services.AddScoped<IOperationReader, OperationReader>();
 
         return services;
     }

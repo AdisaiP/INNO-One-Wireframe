@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { getAssetContracts, updateAssetContract } from '../api/client';
 import { usePermission } from '../app/ProfileContext';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -204,7 +204,7 @@ export function ContractsWarrantyPage() {
                       <td>{item.serviceType}</td>
                       <td className="numeric-column">{item.coveredAssets.length}</td>
                       <td><INNOStatus tone={item.status === 'expired' ? 'danger' : item.status === 'expiring' ? 'warning' : 'success'}>{statusLabel(item.status)}</INNOStatus></td>
-                      <td className="action-column"><button type="button" className="device-row-action" aria-label={'Open ' + item.contractNumber} onClick={() => setSelectedId(item.id)}><span aria-hidden="true">›</span></button></td>
+                      <td className="action-column"><button type="button" className="device-row-action" aria-label={'Open ' + item.contractNumber} onClick={() => setSelectedId(item.id)}><INNOIcon token="action.next" size={14} /></button></td>
                     </tr>
                   ))}
                 </tbody>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
-import { INNOButton, INNOEditorFooter, INNOPage, INNOResourceHeader, INNOState, INNOStatus } from '@inno/ui';
+import { INNOButton, INNOEditorFooter, INNOIcon, INNOPage, INNOResourceHeader, INNOState, INNOStatus } from '@inno/ui';
 import {
   getTicket,
   reassignTicket,
@@ -100,7 +100,7 @@ export function TicketDetailPage() {
       </div>
 
       <INNOResourceHeader
-        icon={<span aria-hidden="true">◫</span>}
+        icon={<INNOIcon token="section.tickets" size={20} />}
         title={ticket.subject}
         status={<INNOStatus tone={resolved ? 'neutral' : 'warning'}>{ticket.statusName}</INNOStatus>}
         meta={<><span>{ticket.ticketNumber}</span><span>·</span><span>{ticket.category?.name ?? 'Uncategorized'}</span><span>·</span><span>{ticket.organization?.name ?? '—'}</span></>}

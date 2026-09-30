@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOPage, INNOSearchField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOPage, INNOSearchField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { createAdminPosition, getAdminPositions, updateAdminPosition } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
@@ -54,7 +54,7 @@ export function AdminPositionsPage() {
           {items.length ? (
             <INNOTableWrap>
               <table><thead><tr><th>Position</th><th>Code</th><th>Status</th><th className="action-column">Action</th></tr></thead>
-                <tbody>{items.map((item) => <tr key={item.id} className={item.id === selectedId ? 'selected-row' : undefined}><td><b>{item.name}</b></td><td>{item.code}</td><td><INNOStatus tone={item.status === 'active' ? 'success' : 'neutral'}>{item.status}</INNOStatus></td><td className="action-column"><button type="button" className="device-row-action" aria-label={'Open ' + item.name} onClick={() => { setCreateMode(false); setSelectedId(item.id); }}>›</button></td></tr>)}</tbody>
+                <tbody>{items.map((item) => <tr key={item.id} className={item.id === selectedId ? 'selected-row' : undefined}><td><b>{item.name}</b></td><td>{item.code}</td><td><INNOStatus tone={item.status === 'active' ? 'success' : 'neutral'}>{item.status}</INNOStatus></td><td className="action-column"><button type="button" className="device-row-action" aria-label={'Open ' + item.name} onClick={() => { setCreateMode(false); setSelectedId(item.id); }}><INNOIcon token="action.next" size={14} /></button></td></tr>)}</tbody>
               </table>
             </INNOTableWrap>
           ) : query.data ? <div className="collection-state"><INNOState kind={search ? 'no-results' : 'empty'} title="No positions found" description={search ? 'Try another search.' : 'Create the first position.'} /></div> : null}

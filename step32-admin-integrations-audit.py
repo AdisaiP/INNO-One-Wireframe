@@ -103,7 +103,7 @@ for marker in [
 
 for marker in [
     "admin.integrations.view",
-    'to="/admin/integrations">Integrations</NavLink>',
+    'to="/admin/integrations"><SideNavLabel token="section.integrations">Integrations</SideNavLabel></NavLink>',
     "Integrations",
 ]:
     if marker not in shell:

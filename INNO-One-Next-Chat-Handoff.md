@@ -1,15 +1,22 @@
 > [!IMPORTANT]
+> **Current production override — 2026-09-30**
+>
+> **Step 42.2B Surface / Card Hierarchy is complete** on `ux/step42.2-design-system-baseline`.
+>
+> Read `INNO-One-Step42.2B-Next-Chat-Handoff.md` first. Production now follows a Page → Section/Collection → Inset hierarchy: standard Section/Collection surfaces use border + white surface + 12px radius without card shadow, while inset summary content uses a subtle borderless 8px surface. Overlay/focus shadows remain intact and collection-local states remain flat. Dedicated surface QA is 117/117, Step 42.2A scroll QA is 12/12, Design System browser QA is 56/56, broad Production regression is 1305/1305 across 48 routes on the final rerun, the static chain is 45/45, and build/typecheck are green. The next UX slice is **Step 42.2C — List / Collection Pages**. Meeting remains deferred. **Do not merge or deploy unless explicitly requested.**
+
+> [!IMPORTANT]
 > **Current production override — 2026-09-29**
 >
-> Production Steps **15–28 are implemented**, **Step 29 React UI Parity is completed**, **Step 30 Module SDK / Plugin Contract Foundation is completed**, **Step 31 Admin Center Core is completed**, **Step 32 Admin Integrations Center is completed**, **Step 33 Audit Center is completed**, **Step 34 Security Center is completed**, **Step 35 Branding Foundation is completed**, **Step 36 Platform Settings Foundation is completed**, **Step 37 Platform Notification Center is completed**, **Step 38 Global Search is completed**, and **Step 39 Workspace Home is completed** on `implementation/step39-workspace-home`.
+> Production Steps **15–28 are implemented**, **Step 29 React UI Parity is completed**, **Step 30 Module SDK / Plugin Contract Foundation is completed**, **Step 31 Admin Center Core is completed**, **Step 32 Admin Integrations Center is completed**, **Step 33 Audit Center is completed**, **Step 34 Security Center is completed**, **Step 35 Branding Foundation is completed**, **Step 36 Platform Settings Foundation is completed**, **Step 37 Platform Notification Center is completed**, **Step 38 Global Search is completed**, **Step 39 Workspace Home is completed**, **Step 40 Profile & Settings is completed**, **Step 41 Asynchronous Operation Resource is completed**, **Step 42 Production UX/UI Reconciliation is completed**, and **Step 42.1 Wireframe Fidelity Pass is completed** on `ux/step42.1-wireframe-fidelity`.
 >
-> Read `INNO-One-Step39-Next-Chat-Handoff.md` first. Step 39 makes `/` the real Workspace start page, adds Continue Working / Needs Attention / Recent Activity, persists the Platform activity read model, and uses module-owned Devices / Assets / Helpdesk attention providers without cross-module table shortcuts. Static/build/runtime/browser QA is green against the real PostgreSQL + Keycloak runtime on `172.10.1.58`, including responsive visual QA at 1366 / 1024 / 768. The next contract-backed Account slice is Profile & Settings. Meeting remains intentionally deferred. **Do not merge or deploy unless explicitly requested.**
+> Read `INNO-One-Step42.1-Next-Chat-Handoff.md` first. Step 42.1 restores visual fidelity between the frozen HTML wireframes and Production React rather than treating consistency audits as proof of visual parity. Shared page rhythm, shell density, Workspace, Admin Overview, Notifications, Profile proportions, Agent Deployment, Ticket Create, resource breadcrumbs and Device/Asset detail tabs were reconciled against the canonical 1366px baseline and rechecked at 1024 / 768. Unsupported controls were not reintroduced; Profile preferences remain hidden without persistence and Helpdesk Automation remains a bounded Trigger → Condition → Action editor. Final broad browser QA is 1251/1251, detail QA is 156/156, Step 42.1 fidelity QA is 96/96, detailed shell/empty-state QA is 38/38, micro-spacing QA is 630/630, and the full static chain is 43/43. The next feature slice is Step 43 Inventory Query using the Step 41 operation resource. React Flow remains reserved for a future true branching workflow canvas. Meeting remains intentionally deferred. **Do not merge or deploy unless explicitly requested.**
 
 # INNO.One — Next Chat Handoff
 
-Last updated: 2026-09-26
-Project: `/Users/adisaip/Desktop/INNO-One-Wireframe/`  
-Scope: UI/UX prototype only — **ยังไม่ทำ Backend**
+Last updated: 2026-09-29
+Current project: `C:\Projects\INNO-One-Wireframe` on Windows
+Current production scope: **Implementation complete through Step 42.1 Wireframe Fidelity Pass** — frozen UX baseline remains Design System V1.26 / UI Contract 1.20.0. Historical UX-only sections below are retained as project history.
 
 ---
 

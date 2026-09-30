@@ -59,6 +59,7 @@ import type {
   WorkspaceHomeResponse,
   HelpdeskOverview,
   OperationAccepted,
+  OperationStatus,
   PlatformNotificationItem,
   PlatformNotificationMarkAllResult,
   PlatformNotificationsResponse,
@@ -127,6 +128,17 @@ function jsonRequest(body: unknown, headers?: HeadersInit): RequestInit {
 
 export async function getCurrentProfile(): Promise<Profile> {
   const response = await request<ResourceEnvelope<Profile>>('/platform/me');
+  return response.data;
+}
+
+export async function updateCurrentProfile(input: {
+  phone?: string;
+  office?: string;
+}): Promise<Profile> {
+  const response = await request<ResourceEnvelope<Profile>>('/platform/me/profile', {
+    method: 'PATCH',
+    ...jsonRequest(input),
+  });
   return response.data;
 }
 
@@ -600,6 +612,13 @@ export async function createDiscoveryScan(ranges: string[]): Promise<OperationAc
     method: 'POST',
     ...jsonRequest({ ranges }),
   });
+}
+
+export async function getOperation(operationId: string): Promise<OperationStatus> {
+  const response = await request<ResourceEnvelope<OperationStatus>>(
+    '/operations/' + encodeURIComponent(operationId),
+  );
+  return response.data;
 }
 
 export async function getDiscoveryScan(scanId: string): Promise<DiscoveryScan> {

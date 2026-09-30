@@ -5,6 +5,7 @@ import {
   createDiscoveryScan,
   getDiscoveryResults,
   getDiscoveryScan,
+  getOperation,
 } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
@@ -20,6 +21,7 @@ export function DiscoveryPage() {
   const canManage = usePermission('devices.manage');
   const [rangeInput, setRangeInput] = useState('');
   const [scanId, setScanId] = useState<string | null>(null);
+  const [operationId, setOperationId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [resultStatus, setResultStatus] = useState('unmanaged');
   const ranges = useMemo(() => splitRanges(rangeInput), [rangeInput]);
@@ -28,6 +30,17 @@ export function DiscoveryPage() {
     mutationFn: () => createDiscoveryScan(ranges),
     onSuccess: (operation) => {
       setScanId(operation.resource.scanId);
+      setOperationId(operation.operationId);
+    },
+  });
+
+  const operation = useQuery({
+    queryKey: ['operation', operationId],
+    queryFn: () => getOperation(operationId ?? ''),
+    enabled: Boolean(operationId),
+    refetchInterval: (query) => {
+      const status = query.state.data?.status;
+      return status === 'queued' || status === 'running' ? 800 : false;
     },
   });
 
@@ -53,7 +66,8 @@ export function DiscoveryPage() {
   });
 
   const current = scan.data;
-  const progress = current?.progress ?? (create.isPending ? 1 : 0);
+  const operationStatus = operation.data?.status ?? current?.status;
+  const progress = operation.data?.progress ?? current?.progress ?? (create.isPending ? 1 : 0);
 
   return (
     <INNOPage
@@ -64,10 +78,10 @@ export function DiscoveryPage() {
         <INNOButton
           type="button"
           busy={create.isPending}
-          disabled={ranges.length === 0 || current?.status === 'running'}
+          disabled={ranges.length === 0 || operationStatus === 'queued' || operationStatus === 'running'}
           onClick={() => create.mutate()}
         >
-          {current?.status === 'running' ? 'Scanning…' : 'Run Scan'}
+          {operationStatus === 'queued' || operationStatus === 'running' ? 'Scanning…' : 'Run Scan'}
         </INNOButton>
       ) : undefined}
     >
@@ -76,7 +90,7 @@ export function DiscoveryPage() {
         <section className="prod-panel">
           <div className="prod-panel-head">
             <div><h3>Run scan</h3><p>Private/loopback IPv4 only · maximum 512 addresses per scan.</p></div>
-            {current ? <INNOStatus tone={current.status === 'succeeded' ? 'success' : current.status === 'failed' ? 'danger' : 'info'}>{current.status}</INNOStatus> : null}
+            {operationStatus ? <INNOStatus tone={operationStatus === 'succeeded' ? 'success' : operationStatus === 'failed' ? 'danger' : 'info'}>{operationStatus}</INNOStatus> : null}
           </div>
           <div className="editor-form">
             <label className="field-block field-wide">
@@ -86,7 +100,7 @@ export function DiscoveryPage() {
                 value={rangeInput}
                 onChange={(event) => setRangeInput(event.target.value)}
                 placeholder={'Example: 10.20.1.0/24\n10.20.3.0/24'}
-                disabled={!canManage || create.isPending || current?.status === 'running'}
+                disabled={!canManage || create.isPending || operationStatus === 'queued' || operationStatus === 'running'}
               />
               <small>Public ranges are rejected server-side.</small>
             </label>
@@ -95,7 +109,7 @@ export function DiscoveryPage() {
         </section>
 
         <section className="prod-panel">
-          <div className="prod-panel-head"><div><h3>Current scan</h3><p>Durable operation progress from the Devices service.</p></div></div>
+          <div className="prod-panel-head"><div><h3>Current scan</h3><p>Canonical progress from the shared INNO.One operation resource.</p></div></div>
           {!current ? (
             <div className="compact-empty">No scan started in this session.</div>
           ) : (
@@ -108,6 +122,11 @@ export function DiscoveryPage() {
                 <div><b>{current.devicesFound}</b><span>Devices found</span></div>
                 <div><b>{current.unmanagedCount}</b><span>Unmanaged</span></div>
               </div>
+              {operation.data ? (
+                <div className="table-meta">
+                  Operation {operation.data.operationId} · {operation.data.originModule}
+                </div>
+              ) : null}
               <div className="table-meta">{current.ranges.join(' · ')}</div>
             </div>
           )}

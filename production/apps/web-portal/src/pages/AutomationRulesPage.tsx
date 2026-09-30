@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { getAutomationRules } from '../api/client';
 import { usePermission } from '../app/ProfileContext';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -119,7 +119,7 @@ export function AutomationRulesPage() {
                       <td>{rule.primaryAction}</td>
                       <td><INNOStatus tone={rule.status === 'active' ? 'success' : 'neutral'}>{rule.status === 'active' ? 'Active' : 'Paused'}</INNOStatus></td>
                       <td>{formatRelative(rule.lastExecutedAt)}</td>
-                      <td className="action-column"><Link className="device-row-action" to={'/helpdesk/automation/' + rule.id} aria-label={'Open ' + rule.name}><span aria-hidden="true">›</span></Link></td>
+                      <td className="action-column"><Link className="device-row-action" to={'/helpdesk/automation/' + rule.id} aria-label={'Open ' + rule.name}><INNOIcon token="action.next" size={14} /></Link></td>
                     </tr>
                   ))}
                 </tbody>

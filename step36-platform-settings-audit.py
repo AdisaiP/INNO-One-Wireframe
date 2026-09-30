@@ -93,7 +93,7 @@ for marker in [
 
 for marker in [
     "admin.settings.manage",
-    'to="/admin/settings">Platform Settings</NavLink>',
+    'to="/admin/settings"><SideNavLabel token="section.settings">Platform Settings</SideNavLabel></NavLink>',
 ]:
     if marker not in shell:
         issues.append("shell " + marker)

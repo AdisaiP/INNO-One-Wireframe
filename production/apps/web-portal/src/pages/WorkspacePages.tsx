@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
+  INNOIcon,
   INNOPage,
   INNOState,
   INNOStatus,
@@ -129,13 +130,15 @@ export function WorkspaceHomePage() {
             <span>{data.attentionTotal} attention items</span>
           </div>
         </div>
-        <div className="workspace-welcome-mark" aria-hidden="true">I1</div>
+        <div className="workspace-welcome-art" aria-hidden="true">
+          <img src="/illustrations/workspace-welcome.svg" alt="" />
+        </div>
       </section>
 
       <section className="workspace-section">
         <div className="workspace-section-head">
-          <div><h2>Your Apps</h2><p>Apps available to your current role.</p></div>
-          <Link to="/apps">All apps →</Link>
+          <h2>Your Apps</h2>
+          <Link to="/apps">All apps <INNOIcon token="action.next" size={13} /></Link>
         </div>
         {data.apps.length ? (
           <div className="workspace-app-grid">
@@ -143,7 +146,6 @@ export function WorkspaceHomePage() {
               <Link className="workspace-app-card" to={app.route} key={app.id}>
                 <span className={'workspace-app-mark module-' + app.id}>{moduleMark(app.id)}</span>
                 <span><b>{app.name}</b><small>Open {app.name}</small></span>
-                <span aria-hidden="true">→</span>
               </Link>
             ))}
           </div>

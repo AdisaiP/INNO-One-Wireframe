@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 import {
+  INNOIcon,
   INNOButton,
   INNOCollection,
   INNOCollectionHeader,
@@ -141,7 +142,7 @@ export function AdminAccessScopesPage() {
             <INNOTableWrap width="wide">
               <table>
                 <thead><tr><th>Subject</th><th>Role</th><th>Scope</th><th>Resources</th><th>Status</th><th className="action-column">Action</th></tr></thead>
-                <tbody>{filtered.map((item) => <tr key={item.id} className={item.id === selectedId ? 'selected-row' : undefined}><td><b>{item.subjectName}</b></td><td>{item.roleName}</td><td>{item.scopeType}</td><td>{item.resources.length ? item.resources.map((resource) => resource.id).join(', ') : 'All'}</td><td><INNOStatus tone={item.status === 'active' ? 'success' : 'neutral'}>{item.status}</INNOStatus></td><td className="action-column"><button type="button" className="device-row-action" aria-label={'Open assignment for ' + item.subjectName} onClick={() => selectAssignment(item)}>›</button></td></tr>)}</tbody>
+                <tbody>{filtered.map((item) => <tr key={item.id} className={item.id === selectedId ? 'selected-row' : undefined}><td><b>{item.subjectName}</b></td><td>{item.roleName}</td><td>{item.scopeType}</td><td>{item.resources.length ? item.resources.map((resource) => resource.id).join(', ') : 'All'}</td><td><INNOStatus tone={item.status === 'active' ? 'success' : 'neutral'}>{item.status}</INNOStatus></td><td className="action-column"><button type="button" className="device-row-action" aria-label={'Open assignment for ' + item.subjectName} onClick={() => selectAssignment(item)}><INNOIcon token="action.next" size={14} /></button></td></tr>)}</tbody>
               </table>
             </INNOTableWrap>
           ) : null}

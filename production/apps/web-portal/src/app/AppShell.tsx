@@ -1,5 +1,6 @@
-import { type FormEvent, useEffect, useState } from 'react';
+import { type FormEvent, type ReactNode, useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { INNOIcon, type INNOIconToken } from '@inno/ui';
 import { logout } from '../auth/keycloak';
 import { PRODUCT_BRAND } from './branding';
 import { usePermission, useProfile } from './ProfileContext';
@@ -13,20 +14,17 @@ function initials(name: string): string {
     .join('');
 }
 
-type ShellIconName = 'home' | 'apps' | 'devices' | 'assets' | 'helpdesk' | 'admin' | 'profile' | 'search' | 'menu' | 'bell';
+function NavIcon({ token }: { token: INNOIconToken }) {
+  return <INNOIcon token={token} size={18} />;
+}
 
-function ShellIcon({ name }: { name: ShellIconName }) {
-  const common = { width: 18, height: 18, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.9 } as const;
-  if (name === 'home') return <svg {...common} aria-hidden="true"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10M9 20v-6h6v6"/></svg>;
-  if (name === 'apps') return <svg {...common} aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg>;
-  if (name === 'devices') return <svg {...common} aria-hidden="true"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 22h8M12 18v4"/></svg>;
-  if (name === 'assets') return <svg {...common} aria-hidden="true"><path d="m12 3 8 4.5-8 4.5-8-4.5L12 3Z"/><path d="m4 12 8 4.5 8-4.5M4 16.5 12 21l8-4.5"/></svg>;
-  if (name === 'helpdesk') return <svg {...common} aria-hidden="true"><path d="M4 13a8 8 0 0 1 16 0v5a2 2 0 0 1-2 2h-3"/><path d="M4 14h3v5H5a1 1 0 0 1-1-1v-4ZM20 14h-3v5h2a1 1 0 0 0 1-1v-4Z"/></svg>;
-  if (name === 'admin') return <svg {...common} aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.1A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.1A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.1A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.15.37.39.7.7.94.31.24.69.38 1.08.4H21v4h-.1a1.7 1.7 0 0 0-1.5.66Z"/></svg>;
-  if (name === 'profile') return <svg {...common} aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></svg>;
-  if (name === 'bell') return <svg {...common} aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>;
-  if (name === 'menu') return <svg {...common} aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>;
-  return <svg {...common} aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>;
+function SideNavLabel({ token, children }: { token: INNOIconToken; children: ReactNode }) {
+  return (
+    <span className="prod-side-link-content">
+      <INNOIcon token={token} size={15} />
+      <span>{children}</span>
+    </span>
+  );
 }
 
 export function AppShell() {
@@ -59,9 +57,11 @@ export function AppShell() {
   const location = useLocation();
   const navigate = useNavigate();
   const [sideOpen, setSideOpen] = useState(false);
+  const [sideCollapsed, setSideCollapsed] = useState(() => window.localStorage.getItem('inno.ui.sidebar.collapsed') === '1');
   const [shellSearch, setShellSearch] = useState('');
   const inApps = location.pathname === '/apps';
-  const inAdmin = location.pathname === '/admin' || location.pathname.startsWith('/admin/');
+  const inDesignSystem = location.pathname.startsWith('/internal/design-system');
+  const inAdmin = location.pathname === '/admin' || location.pathname.startsWith('/admin/') || inDesignSystem;
   const inAdminApps = location.pathname.startsWith('/admin/apps');
   const inDevices = location.pathname.startsWith('/devices');
   const inDeviceDetail = /^\/devices\/[^/]+$/.test(location.pathname)
@@ -77,7 +77,30 @@ export function AppShell() {
   const inWorkspace = location.pathname === '/' || location.pathname.startsWith('/workspace/');
   const inAccount = inProfile || inNotifications;
   const homePath = canWorkspace ? '/' : canViewDevices ? '/devices' : canViewHelpdesk ? '/helpdesk' : canViewAssets ? '/assets' : '/profile';
-  useEffect(() => setSideOpen(false), [location.pathname]);
+  const designSystemHash = location.hash || '#foundations';
+  const contextLabel = inWorkspace || inSearch ? 'Workspace'
+    : inAccount ? 'Account'
+      : inDesignSystem ? 'Design System'
+        : inAdmin ? 'Admin Center'
+          : inApps ? 'Apps'
+          : inAssets ? 'Assets'
+            : inHelpdesk ? 'Helpdesk'
+              : inDevices ? 'Devices'
+                : 'INNO.One';
+
+  useEffect(() => setSideOpen(false), [location.pathname, location.hash]);
+
+  useEffect(() => {
+    window.localStorage.setItem('inno.ui.sidebar.collapsed', sideCollapsed ? '1' : '0');
+  }, [sideCollapsed]);
+
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') setSideOpen(false);
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   useEffect(() => {
     if (inSearch) {
@@ -92,20 +115,33 @@ export function AppShell() {
     navigate('/search?q=' + encodeURIComponent(query));
   }
 
+  function openContextNavigation() {
+    if (window.matchMedia('(max-width: 1180px)').matches) {
+      setSideOpen(true);
+      return;
+    }
+    setSideCollapsed(false);
+  }
+
+  function closeContextNavigation() {
+    if (window.matchMedia('(max-width: 1180px)').matches) {
+      setSideOpen(false);
+      return;
+    }
+    setSideCollapsed(true);
+  }
+
   return (
-    <div className="inno-production-shell">
+    <div className={'inno-production-shell' + (sideCollapsed ? ' side-collapsed' : '') + (sideOpen ? ' side-open' : '')}>
       <header className="prod-header">
         <NavLink className="prod-brand" to={homePath}>
           <span className="prod-logo-mark">{PRODUCT_BRAND.compactMark}</span>
           <span className="prod-brand-name">{PRODUCT_BRAND.productNamePrefix}<b>{PRODUCT_BRAND.productNameEmphasis}</b></span>
         </NavLink>
         <div className="prod-header-center">
-          <button className="prod-context-toggle" type="button" onClick={() => setSideOpen((value) => !value)} aria-expanded={sideOpen} aria-label="Toggle contextual navigation">
-            <ShellIcon name="menu" />
-          </button>
           {canUseSearch ? (
             <form className="prod-global-search" role="search" onSubmit={submitSearch}>
-              <ShellIcon name="search" />
+              <NavIcon token="action.search" />
               <input
                 value={shellSearch}
                 onChange={(event) => setShellSearch(event.target.value)}
@@ -124,7 +160,7 @@ export function AppShell() {
               aria-label="Open Notifications"
               title="Notifications"
             >
-              <ShellIcon name="bell" />
+              <NavIcon token="section.notifications" />
             </NavLink>
           ) : null}
           <NavLink className="prod-user" to="/profile" aria-label="Open Profile & Settings">
@@ -143,128 +179,157 @@ export function AppShell() {
       <div className="prod-shell-body">
         <aside className="prod-rail" aria-label="App navigation">
           {canWorkspace ? (
-            <NavLink className={inWorkspace ? 'active' : ''} to="/" aria-label="Workspace Home" title="Workspace Home"><ShellIcon name="home" /></NavLink>
+            <NavLink className={inWorkspace ? 'active' : ''} to="/" aria-label="Workspace Home" title="Workspace Home"><NavIcon token="nav.workspace" /></NavLink>
           ) : null}
           {canViewApps ? (
-            <NavLink className={inApps ? 'active' : ''} to="/apps" aria-label="Apps" title="Apps"><ShellIcon name="apps" /></NavLink>
+            <NavLink className={inApps ? 'active' : ''} to="/apps" aria-label="Apps" title="Apps"><NavIcon token="nav.apps" /></NavLink>
           ) : null}
           {canViewDevices ? (
-            <NavLink className={inDevices ? 'active' : ''} to="/devices" aria-label="Devices" title="Devices"><ShellIcon name="devices" /></NavLink>
+            <NavLink className={inDevices ? 'active' : ''} to="/devices" aria-label="Devices" title="Devices"><NavIcon token="nav.devices" /></NavLink>
           ) : null}
           {canViewAssets ? (
-            <NavLink className={inAssets ? 'active' : ''} to="/assets" aria-label="Assets" title="Assets"><ShellIcon name="assets" /></NavLink>
+            <NavLink className={inAssets ? 'active' : ''} to="/assets" aria-label="Assets" title="Assets"><NavIcon token="nav.assets" /></NavLink>
           ) : null}
           {canViewHelpdesk ? (
-            <NavLink className={inHelpdesk ? 'active' : ''} to="/helpdesk" aria-label="Helpdesk" title="Helpdesk"><ShellIcon name="helpdesk" /></NavLink>
+            <NavLink className={inHelpdesk ? 'active' : ''} to="/helpdesk" aria-label="Helpdesk" title="Helpdesk"><NavIcon token="nav.helpdesk" /></NavLink>
           ) : null}
           <span className="grow" />
           {canAdmin ? (
-            <NavLink className={inAdmin ? 'active' : ''} to="/admin" aria-label="Admin Center" title="Admin Center"><ShellIcon name="admin" /></NavLink>
+            <NavLink className={inAdmin ? 'active' : ''} to="/admin" aria-label="Admin Center" title="Admin Center"><NavIcon token="nav.admin" /></NavLink>
           ) : null}
-          <NavLink className={inAccount ? 'active' : ''} to="/profile" aria-label="Profile & Settings" title="Profile & Settings"><ShellIcon name="profile" /></NavLink>
+          <NavLink className={inAccount ? 'active' : ''} to="/profile" aria-label="Profile & Settings" title="Profile & Settings"><NavIcon token="section.profile" /></NavLink>
         </aside>
 
         {sideOpen ? <button className="prod-side-backdrop" type="button" aria-label="Close contextual navigation" onClick={() => setSideOpen(false)} /> : null}
 
         <aside
           className={`prod-side${sideOpen ? ' open' : ''}`}
-          aria-label={inWorkspace ? 'Workspace navigation' : inSearch ? 'Search navigation' : inAccount ? 'Account navigation' : inAdmin ? 'Admin navigation' : inApps ? 'Apps navigation' : inAssets ? 'Assets navigation' : inHelpdesk ? 'Helpdesk navigation' : inDevices ? 'Devices navigation' : 'Workspace context'}
+          aria-label={inWorkspace ? 'Workspace navigation' : inSearch ? 'Search navigation' : inAccount ? 'Account navigation' : inDesignSystem ? 'Design System navigation' : inAdmin ? 'Admin navigation' : inApps ? 'Apps navigation' : inAssets ? 'Assets navigation' : inHelpdesk ? 'Helpdesk navigation' : inDevices ? 'Devices navigation' : 'Workspace context'}
         >
+          <button
+            className="prod-side-collapse"
+            type="button"
+            onClick={closeContextNavigation}
+            aria-label={sideOpen ? 'Close contextual navigation' : 'Collapse contextual navigation'}
+            title={sideOpen ? 'Close navigation' : 'Collapse sidebar'}
+          >
+            <NavIcon token={sideOpen ? 'action.close' : 'action.collapse'} />
+          </button>
           {inWorkspace ? (
             <>
               <div className="prod-side-title">Workspace</div>
               <div className="prod-side-section">Start</div>
-              <NavLink end to="/">Home</NavLink>
-              {canViewApps ? <NavLink to="/apps">Apps</NavLink> : null}
-              {canUseSearch ? <NavLink to="/search">Search</NavLink> : null}
+              <NavLink end to="/"><SideNavLabel token="nav.workspace">Home</SideNavLabel></NavLink>
+              {canViewApps ? <NavLink to="/apps"><SideNavLabel token="nav.apps">Apps</SideNavLabel></NavLink> : null}
+              {canUseSearch ? <NavLink to="/search"><SideNavLabel token="action.search">Search</SideNavLabel></NavLink> : null}
               <div className="prod-side-section">My Workspace</div>
-              <NavLink to="/workspace/continue">Continue Working</NavLink>
-              <NavLink to="/workspace/attention">Needs Attention</NavLink>
-              <NavLink to="/workspace/recent">Recent</NavLink>
+              <NavLink to="/workspace/continue"><SideNavLabel token="section.continue">Continue Working</SideNavLabel></NavLink>
+              <NavLink to="/workspace/attention"><SideNavLabel token="section.attention">Needs Attention</SideNavLabel></NavLink>
+              <NavLink to="/workspace/recent"><SideNavLabel token="section.recent">Recent</SideNavLabel></NavLink>
               <div className="prod-side-section">Account</div>
-              {canViewNotifications ? <NavLink to="/notifications">Notifications</NavLink> : null}
-              <NavLink to="/profile">Profile & Settings</NavLink>
+              {canViewNotifications ? <NavLink to="/notifications"><SideNavLabel token="section.notifications">Notifications</SideNavLabel></NavLink> : null}
+              <NavLink to="/profile"><SideNavLabel token="section.profile">Profile & Settings</SideNavLabel></NavLink>
             </>
           ) : inSearch ? (
             <>
               <div className="prod-side-title">Workspace</div>
               <div className="prod-side-section">Discover</div>
-              <NavLink end to="/search">Search</NavLink>
-              {canViewApps ? <NavLink to="/apps">Apps</NavLink> : null}
+              <NavLink end to="/search"><SideNavLabel token="action.search">Search</SideNavLabel></NavLink>
+              {canViewApps ? <NavLink to="/apps"><SideNavLabel token="nav.apps">Apps</SideNavLabel></NavLink> : null}
             </>
           ) : inAccount ? (
             <>
               <div className="prod-side-title">Account</div>
               <div className="prod-side-section">Workspace</div>
-              {canViewNotifications ? <NavLink to="/notifications">Notifications</NavLink> : null}
-              <NavLink to="/profile">Profile & Settings</NavLink>
+              {canViewNotifications ? <NavLink to="/notifications"><SideNavLabel token="section.notifications">Notifications</SideNavLabel></NavLink> : null}
+              <NavLink to="/profile"><SideNavLabel token="section.profile">Profile & Settings</SideNavLabel></NavLink>
+            </>
+          ) : inDesignSystem ? (
+            <>
+              <div className="prod-side-title">Design System</div>
+              <div className="prod-side-section">Release</div>
+              <a className={designSystemHash === '#freeze' ? 'active' : ''} href="#freeze"><SideNavLabel token="section.security">Frozen Contract</SideNavLabel></a>
+              <div className="prod-side-section">Foundations</div>
+              <a className={designSystemHash === '#foundations' ? 'active' : ''} href="#foundations"><SideNavLabel token="section.branding">Foundations</SideNavLabel></a>
+              <a className={designSystemHash === '#buttons' ? 'active' : ''} href="#buttons"><SideNavLabel token="section.automation">Actions</SideNavLabel></a>
+              <a className={designSystemHash === '#forms' ? 'active' : ''} href="#forms"><SideNavLabel token="section.customFields">Forms</SideNavLabel></a>
+              <a className={designSystemHash === '#data' ? 'active' : ''} href="#data"><SideNavLabel token="section.inventory">Data Table</SideNavLabel></a>
+              <a className={designSystemHash === '#hierarchy' ? 'active' : ''} href="#hierarchy"><SideNavLabel token="section.organization">Hierarchy</SideNavLabel></a>
+              <div className="prod-side-section">Feedback</div>
+              <a className={designSystemHash === '#states' ? 'active' : ''} href="#states"><SideNavLabel token="status.info">States</SideNavLabel></a>
+              <a className={designSystemHash === '#interactions' ? 'active' : ''} href="#interactions"><SideNavLabel token="section.automation">Interactions</SideNavLabel></a>
+              <a className={designSystemHash === '#overlays' ? 'active' : ''} href="#overlays"><SideNavLabel token="nav.apps">Dialog & Sheet</SideNavLabel></a>
+              <a className={designSystemHash === '#responsive' ? 'active' : ''} href="#responsive"><SideNavLabel token="nav.devices">Responsive</SideNavLabel></a>
+              <a className={designSystemHash === '#navigation' ? 'active' : ''} href="#navigation"><SideNavLabel token="section.groups">Navigation</SideNavLabel></a>
+              <a className={designSystemHash === '#icons' ? 'active' : ''} href="#icons"><SideNavLabel token="section.modules">Icons</SideNavLabel></a>
+              <a className={designSystemHash === '#guidelines' ? 'active' : ''} href="#guidelines"><SideNavLabel token="section.settings">Implementation Map</SideNavLabel></a>
             </>
           ) : inAdmin ? (
             <>
               <div className="prod-side-title">Admin Center</div>
               <div className="prod-side-section">Workspace</div>
-              <NavLink end to="/admin">Overview</NavLink>
+              <NavLink end to="/admin"><SideNavLabel token="section.overview">Overview</SideNavLabel></NavLink>
               {(canAdminOrganization || canAdminLocations || canAdminPositions || canAdminUsers) ? <div className="prod-side-section">Organization</div> : null}
-              {canAdminOrganization ? <NavLink to="/admin/organization">Structure</NavLink> : null}
-              {canAdminLocations ? <NavLink to="/admin/locations">Locations</NavLink> : null}
-              {canAdminPositions ? <NavLink to="/admin/positions">Positions</NavLink> : null}
-              {canAdminUsers ? <NavLink to="/admin/users">Users</NavLink> : null}
+              {canAdminOrganization ? <NavLink to="/admin/organization"><SideNavLabel token="section.organization">Structure</SideNavLabel></NavLink> : null}
+              {canAdminLocations ? <NavLink to="/admin/locations"><SideNavLabel token="section.locations">Locations</SideNavLabel></NavLink> : null}
+              {canAdminPositions ? <NavLink to="/admin/positions"><SideNavLabel token="section.positions">Positions</SideNavLabel></NavLink> : null}
+              {canAdminUsers ? <NavLink to="/admin/users"><SideNavLabel token="section.users">Users</SideNavLabel></NavLink> : null}
               {(canAdminRoles || canAdminScopes) ? <div className="prod-side-section">Access</div> : null}
-              {canAdminRoles ? <NavLink to="/admin/roles">Roles & Permissions</NavLink> : null}
-              {canAdminScopes ? <NavLink to="/admin/access-scopes">Access Scopes</NavLink> : null}
+              {canAdminRoles ? <NavLink to="/admin/roles"><SideNavLabel token="section.roles">Roles & Permissions</SideNavLabel></NavLink> : null}
+              {canAdminScopes ? <NavLink to="/admin/access-scopes"><SideNavLabel token="section.accessScopes">Access Scopes</SideNavLabel></NavLink> : null}
               {(canAdminIntegrations || canAdminSecurity || canAdminAudit || canAdminBranding || canAdminSettings || canAdminApps) ? <div className="prod-side-section">Platform</div> : null}
-              {canAdminIntegrations ? <NavLink to="/admin/integrations">Integrations</NavLink> : null}
-              {canAdminSecurity ? <NavLink to="/admin/security">Security</NavLink> : null}
-              {canAdminAudit ? <NavLink to="/admin/audit">Audit Log</NavLink> : null}
-              {canAdminBranding ? <NavLink to="/admin/branding">Branding</NavLink> : null}
-              {canAdminSettings ? <NavLink to="/admin/settings">Platform Settings</NavLink> : null}
-              {canAdminApps ? <NavLink to="/admin/apps">Apps & Modules</NavLink> : null}
+              {canAdminIntegrations ? <NavLink to="/admin/integrations"><SideNavLabel token="section.integrations">Integrations</SideNavLabel></NavLink> : null}
+              {canAdminSecurity ? <NavLink to="/admin/security"><SideNavLabel token="section.security">Security</SideNavLabel></NavLink> : null}
+              {canAdminAudit ? <NavLink to="/admin/audit"><SideNavLabel token="section.audit">Audit Log</SideNavLabel></NavLink> : null}
+              {canAdminBranding ? <NavLink to="/admin/branding"><SideNavLabel token="section.branding">Branding</SideNavLabel></NavLink> : null}
+              {canAdminSettings ? <NavLink to="/admin/settings"><SideNavLabel token="section.settings">Platform Settings</SideNavLabel></NavLink> : null}
+              {canAdminApps ? <NavLink to="/admin/apps"><SideNavLabel token="section.modules">Apps & Modules</SideNavLabel></NavLink> : null}
             </>
           ) : inApps ? (
             <>
               <div className="prod-side-title">Apps</div>
               <div className="prod-side-section">Launcher</div>
-              <NavLink end to="/apps">All Apps</NavLink>
-              {canAdminApps ? <NavLink to="/admin/apps">Apps & Modules</NavLink> : null}
+              <NavLink end to="/apps"><SideNavLabel token="nav.apps">All Apps</SideNavLabel></NavLink>
+              {canAdminApps ? <NavLink to="/admin/apps"><SideNavLabel token="section.modules">Apps & Modules</SideNavLabel></NavLink> : null}
             </>
           ) : inAssets ? (
             <>
               <div className="prod-side-title">Assets</div>
               <div className="prod-side-section">Inventory</div>
-              <NavLink end to="/assets">Overview</NavLink>
-              <NavLink to="/assets/inventory" className={({ isActive }) => isActive || inAssetDetail ? 'active' : ''}>Asset Inventory</NavLink>
+              <NavLink end to="/assets"><SideNavLabel token="section.overview">Overview</SideNavLabel></NavLink>
+              <NavLink to="/assets/inventory" className={({ isActive }) => isActive || inAssetDetail ? 'active' : ''}><SideNavLabel token="section.inventory">Asset Inventory</SideNavLabel></NavLink>
               <div className="prod-side-section">Management</div>
-              <NavLink to="/assets/software-baselines">Software Baselines</NavLink>
-              {canManageAssetLicenses ? <NavLink to="/assets/software-licenses">Software Licenses</NavLink> : null}
-              <NavLink to="/assets/contracts">Contracts & Warranty</NavLink>
-              <NavLink to="/assets/custom-fields">Custom Fields</NavLink>
-              {canPrintAssetQr ? <NavLink to="/assets/qr-labels">QR Labels</NavLink> : null}
+              <NavLink to="/assets/software-baselines"><SideNavLabel token="section.policies">Software Baselines</SideNavLabel></NavLink>
+              {canManageAssetLicenses ? <NavLink to="/assets/software-licenses"><SideNavLabel token="section.licenses">Software Licenses</SideNavLabel></NavLink> : null}
+              <NavLink to="/assets/contracts"><SideNavLabel token="section.contracts">Contracts & Warranty</SideNavLabel></NavLink>
+              <NavLink to="/assets/custom-fields"><SideNavLabel token="section.customFields">Custom Fields</SideNavLabel></NavLink>
+              {canPrintAssetQr ? <NavLink to="/assets/qr-labels"><SideNavLabel token="section.qr">QR Labels</SideNavLabel></NavLink> : null}
               <div className="prod-side-section">Ownership</div>
-              <NavLink end to="/assets/ownership">Ownership & Users</NavLink>
-              <NavLink to="/assets/owners">User Profiles</NavLink>
-              <NavLink to="/assets/ownership/submissions">Agent Submissions</NavLink>
+              <NavLink end to="/assets/ownership"><SideNavLabel token="section.ownership">Ownership & Users</SideNavLabel></NavLink>
+              <NavLink to="/assets/owners"><SideNavLabel token="section.userProfiles">User Profiles</SideNavLabel></NavLink>
+              <NavLink to="/assets/ownership/submissions"><SideNavLabel token="section.submissions">Agent Submissions</SideNavLabel></NavLink>
             </>
           ) : inHelpdesk ? (
             <>
               <div className="prod-side-title">Helpdesk</div>
               <div className="prod-side-section">Workspace</div>
-              <NavLink end to="/helpdesk">Overview</NavLink>
-              <NavLink end to="/helpdesk/tickets" className={({ isActive }) => isActive || inTicketWorkspace ? 'active' : ''}>Tickets</NavLink>
-              <NavLink to="/helpdesk/assigned">Assigned to Me</NavLink>
-              <NavLink to="/helpdesk/team">Team Queue</NavLink>
+              <NavLink end to="/helpdesk"><SideNavLabel token="section.overview">Overview</SideNavLabel></NavLink>
+              <NavLink end to="/helpdesk/tickets" className={({ isActive }) => isActive || inTicketWorkspace ? 'active' : ''}><SideNavLabel token="section.tickets">Tickets</SideNavLabel></NavLink>
+              <NavLink to="/helpdesk/assigned"><SideNavLabel token="section.assigned">Assigned to Me</SideNavLabel></NavLink>
+              <NavLink to="/helpdesk/team"><SideNavLabel token="section.team">Team Queue</SideNavLabel></NavLink>
               <div className="prod-side-section">Manage</div>
-              <NavLink to="/helpdesk/sla">SLA & Escalation</NavLink>
-              {canManageSla ? <NavLink to="/helpdesk/calendar">Business Calendar</NavLink> : null}
-              {canViewAutomation ? <NavLink to="/helpdesk/automation">Automation</NavLink> : null}
+              <NavLink to="/helpdesk/sla"><SideNavLabel token="section.sla">SLA & Escalation</SideNavLabel></NavLink>
+              {canManageSla ? <NavLink to="/helpdesk/calendar"><SideNavLabel token="section.calendar">Business Calendar</SideNavLabel></NavLink> : null}
+              {canViewAutomation ? <NavLink to="/helpdesk/automation"><SideNavLabel token="section.automation">Automation</SideNavLabel></NavLink> : null}
             </>
           ) : inDevices ? (
             <>
               <div className="prod-side-title">Devices</div>
               <div className="prod-side-section">Workspace</div>
-              <NavLink end to="/devices" className={({ isActive }) => isActive || inDeviceDetail ? 'active' : ''}>Devices</NavLink>
-              <NavLink to="/devices/discovery">Discovery</NavLink>
-              <NavLink to="/devices/groups">Device Groups</NavLink>
-              {canDeployDevices ? <NavLink to="/devices/add">Agent Deployment</NavLink> : null}
+              <NavLink end to="/devices" className={({ isActive }) => isActive || inDeviceDetail ? 'active' : ''}><SideNavLabel token="nav.devices">Devices</SideNavLabel></NavLink>
+              <NavLink to="/devices/discovery"><SideNavLabel token="section.discovery">Discovery</SideNavLabel></NavLink>
+              <NavLink to="/devices/groups"><SideNavLabel token="section.groups">Device Groups</SideNavLabel></NavLink>
+              {canDeployDevices ? <NavLink to="/devices/add"><SideNavLabel token="section.deployment">Agent Deployment</SideNavLabel></NavLink> : null}
             </>
           ) : (
             <>
@@ -276,6 +341,16 @@ export function AppShell() {
         </aside>
 
         <div className="prod-main">
+          <button
+            className="prod-context-reveal"
+            type="button"
+            onClick={openContextNavigation}
+            aria-expanded={sideOpen || !sideCollapsed}
+            aria-label={'Open ' + contextLabel + ' navigation'}
+          >
+            <NavIcon token={sideCollapsed ? 'action.expand' : 'action.menu'} />
+            <span>{contextLabel}</span>
+          </button>
           <Outlet />
         </div>
       </div>

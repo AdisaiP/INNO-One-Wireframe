@@ -1,9 +1,28 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOCollection, INNOCollectionHeader, INNOPage, INNOState } from '@inno/ui';
+import { INNOIcon, INNOPage, INNOState, type INNOIconToken } from '@inno/ui';
 import { getAdminOverview } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
+
+function AdminTile({
+  to,
+  icon,
+  title,
+  description,
+}: {
+  to: string;
+  icon: INNOIconToken;
+  title: string;
+  description: string;
+}) {
+  return (
+    <Link className="admin-overview-card" to={to}>
+      <span className="admin-overview-icon" aria-hidden="true"><INNOIcon token={icon} size={16} /></span>
+      <span className="admin-overview-copy"><b>{title}</b><small>{description}</small></span>
+    </Link>
+  );
+}
 
 export function AdminOverviewPage() {
   const canViewIntegrations = usePermission('admin.integrations.view');
@@ -34,26 +53,29 @@ export function AdminOverviewPage() {
             <div><span>Access assignments</span><b>{query.data.accessAssignments}</b><small>Role + scope bindings</small></div>
           </div>
 
-          <INNOCollection>
-            <INNOCollectionHeader
-              title="Administration areas"
-              description="Open one focused administration job at a time."
-            />
+          <div className="admin-overview-group">
+            <div className="admin-overview-group-title">Organization & access</div>
             <div className="admin-overview-grid">
-              <Link className="admin-overview-card" to="/admin/organization"><b>Organization Structure</b><span>Manage organization units and hierarchy.</span></Link>
-              <Link className="admin-overview-card" to="/admin/locations"><b>Locations</b><span>Maintain reusable location hierarchy.</span></Link>
-              <Link className="admin-overview-card" to="/admin/positions"><b>Positions</b><span>Maintain canonical job positions.</span></Link>
-              <Link className="admin-overview-card" to="/admin/users"><b>Users</b><span>Browse and maintain organization profiles.</span></Link>
-              <Link className="admin-overview-card" to="/admin/roles"><b>Roles & Permissions</b><span>Inspect centralized RBAC permissions.</span></Link>
-              <Link className="admin-overview-card" to="/admin/access-scopes"><b>Access Scopes</b><span>Manage role + resource-scope bindings.</span></Link>
-              {canViewIntegrations ? <Link className="admin-overview-card" to="/admin/integrations"><b>Integrations</b><span>Monitor platform integration health and run safe connection tests.</span></Link> : null}
-              {canViewSecurity ? <Link className="admin-overview-card" to="/admin/security"><b>Security</b><span>Inspect identity, transport, authorization, and audit posture.</span></Link> : null}
-              {canViewAudit ? <Link className="admin-overview-card" to="/admin/audit"><b>Audit Log</b><span>Search immutable privileged and operational history.</span></Link> : null}
-              {canManageBranding ? <Link className="admin-overview-card" to="/admin/branding"><b>Branding</b><span>Inspect the effective product identity and frozen brand tokens.</span></Link> : null}
-              {canManageSettings ? <Link className="admin-overview-card" to="/admin/settings"><b>Platform Settings</b><span>Inspect effective global platform conventions and deployment-managed values.</span></Link> : null}
-              {canViewApps ? <Link className="admin-overview-card" to="/admin/apps"><b>Apps & Modules</b><span>Manage installed module availability.</span></Link> : null}
+              <AdminTile to="/admin/organization" icon="section.organization" title="Organization Structure" description="Manage organization units and hierarchy." />
+              <AdminTile to="/admin/locations" icon="section.locations" title="Locations" description="Maintain reusable location hierarchy." />
+              <AdminTile to="/admin/positions" icon="section.positions" title="Positions" description="Maintain canonical job positions." />
+              <AdminTile to="/admin/users" icon="section.users" title="Users" description="Browse and maintain organization profiles." />
+              <AdminTile to="/admin/roles" icon="section.roles" title="Roles & Permissions" description="Inspect centralized RBAC permissions." />
+              <AdminTile to="/admin/access-scopes" icon="section.accessScopes" title="Access Scopes" description="Manage role + resource-scope bindings." />
             </div>
-          </INNOCollection>
+          </div>
+
+          <div className="admin-overview-group">
+            <div className="admin-overview-group-title">Platform</div>
+            <div className="admin-overview-grid">
+              {canViewIntegrations ? <AdminTile to="/admin/integrations" icon="section.integrations" title="Integrations" description="Monitor integration health and run safe connection tests." /> : null}
+              {canViewSecurity ? <AdminTile to="/admin/security" icon="section.security" title="Security" description="Inspect identity, transport, authorization, and audit posture." /> : null}
+              {canViewAudit ? <AdminTile to="/admin/audit" icon="section.audit" title="Audit Log" description="Search immutable privileged and operational history." /> : null}
+              {canManageBranding ? <AdminTile to="/admin/branding" icon="section.branding" title="Branding" description="Inspect effective product identity and frozen brand tokens." /> : null}
+              {canManageSettings ? <AdminTile to="/admin/settings" icon="section.settings" title="Platform Settings" description="Inspect effective global platform conventions and deployment-managed values." /> : null}
+              {canViewApps ? <AdminTile to="/admin/apps" icon="section.modules" title="Apps & Modules" description="Manage installed module availability." /> : null}
+            </div>
+          </div>
 
           {query.data.positions === 0 || query.data.roles === 0 ? (
             <INNOState

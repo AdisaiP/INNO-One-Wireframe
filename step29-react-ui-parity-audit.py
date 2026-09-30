@@ -77,7 +77,7 @@ if assets_validation.get('browserQa') != 'passed' or assets_validation.get('brow
 if assets_validation.get('browserQaChecks') != 141:
     issues.append('assets browser qa count')
 
-for marker in ['ShellIcon','prod-global-search','prod-context-toggle','prod-side-backdrop']:
+for marker in ['SideNavLabel','INNOIcon','prod-global-search','prod-side-collapse','prod-context-reveal','prod-side-backdrop']:
     if marker not in shell: issues.append('shell marker '+marker)
 for stale in ['aria-label="Devices">D</NavLink>','aria-label="Assets">A</NavLink>','aria-label="Helpdesk">H</NavLink>']:
     if stale in shell: issues.append('letter rail '+stale)
@@ -134,7 +134,7 @@ for marker in ['description="Generate a time-limited enrollment link','INNOEdito
     if marker not in agent_deployment: issues.append('agent deployment parity '+marker)
 for legacy in ['page-helper','className="editor-footer"']:
     if legacy in agent_deployment: issues.append('agent deployment legacy '+legacy)
-for marker in ['icon={<span aria-hidden="true">▣</span>}','INNOCollection className="device-software-card"','INNOSearchField','INNOSelectField','INNOTableWrap']:
+for marker in ['icon={<INNOIcon token="nav.devices" size={20} />}','INNOCollection className="device-software-card"','INNOSearchField','INNOSelectField','INNOTableWrap']:
     if marker not in device_detail: issues.append('device detail parity '+marker)
 for marker in ['inDeviceDetail','isActive || inDeviceDetail']:
     if marker not in shell: issues.append('device detail navigation '+marker)
