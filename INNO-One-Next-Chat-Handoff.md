@@ -1,9 +1,9 @@
 > [!IMPORTANT]
 > **Current production override — 2026-09-30**
 >
-> **Step 42.2A Application Shell & Scroll Ownership is complete** on `ux/step42.2-design-system-baseline`.
+> **Step 42.2B Surface / Card Hierarchy is complete** on `ux/step42.2-design-system-baseline`.
 >
-> Read `INNO-One-Step42.2A-Next-Chat-Handoff.md` first. The Production shell now owns the viewport, `.prod-main` owns page scrolling, desktop Rail/Context Sidebar remain stable shell chrome, and 1024/768 retain the fixed off-canvas Context Sidebar. Dedicated scroll QA is 12/12, Design System browser QA is 56/56, broad Production regression is 1323/1323 across 49 routes, the static chain is 44/44, and web typecheck/build are green. The next UX slice is **Step 42.2B — Surface / Card Hierarchy**. Meeting remains deferred. **Do not merge or deploy unless explicitly requested.**
+> Read `INNO-One-Step42.2B-Next-Chat-Handoff.md` first. Production now follows a Page → Section/Collection → Inset hierarchy: standard Section/Collection surfaces use border + white surface + 12px radius without card shadow, while inset summary content uses a subtle borderless 8px surface. Overlay/focus shadows remain intact and collection-local states remain flat. Dedicated surface QA is 117/117, Step 42.2A scroll QA is 12/12, Design System browser QA is 56/56, broad Production regression is 1305/1305 across 48 routes on the final rerun, the static chain is 45/45, and build/typecheck are green. The next UX slice is **Step 42.2C — List / Collection Pages**. Meeting remains deferred. **Do not merge or deploy unless explicitly requested.**
 
 > [!IMPORTANT]
 > **Current production override — 2026-09-29**

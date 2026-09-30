@@ -348,7 +348,7 @@
   border: 1px solid var(--ds-border);
   border-radius: 12px;
   background: #fff;
-  box-shadow: 0 1px 2px rgba(20, 27, 40, .035);
+  box-shadow: none;
 }
 
 .prod-panel-head,
@@ -719,9 +719,9 @@
 
 .summary-grid > div {
   padding: 12px;
-  border: 1px solid var(--ds-border);
-  border-radius: 9px;
-  background: #fff;
+  border: 0;
+  border-radius: 8px;
+  background: var(--ds-surface-subtle);
 }
 
 .summary-grid span {
@@ -3236,7 +3236,7 @@
   border: 1px solid var(--ds-border);
   border-radius: var(--ds-radius-md);
   background: var(--ds-surface);
-  box-shadow: var(--ds-shadow-sm);
+  box-shadow: none;
 }
 .branding-preview-mark {
   flex: 0 0 auto;
@@ -3397,7 +3397,7 @@
   border: 1px solid var(--ds-border);
   border-radius: var(--ds-radius-lg);
   background: var(--ds-surface);
-  box-shadow: var(--ds-shadow-sm);
+  box-shadow: none;
 }
 .notification-stat-strip > div {
   min-width: 0;
@@ -3430,7 +3430,7 @@
   border: 1px solid var(--ds-border);
   border-radius: var(--ds-radius-lg);
   background: var(--ds-surface);
-  box-shadow: var(--ds-shadow-sm);
+  box-shadow: none;
 }
 .notification-row {
   position: relative;
@@ -4239,4 +4239,35 @@
     left: var(--prod-rail-w);
     height: calc(100dvh - var(--prod-header-h));
   }
+}
+
+/* Step 42.2B: Page -> Section/Collection -> Inset surface hierarchy. */
+.inno-production-shell {
+  --prod-surface-page: transparent;
+  --prod-surface-section: #fff;
+  --prod-surface-collection: #fff;
+  --prod-surface-inset: var(--ds-surface-subtle);
+  --prod-surface-border: var(--ds-border);
+  --prod-surface-radius: 12px;
+  --prod-inset-radius: 8px;
+}
+.prod-main { background: var(--ds-bg); }
+.prod-panel {
+  border-color: var(--prod-surface-border);
+  border-radius: var(--prod-surface-radius);
+  background: var(--prod-surface-section);
+  box-shadow: none;
+}
+.collection-card,
+.inno-production-shell .inno-collection {
+  border-color: var(--prod-surface-border);
+  border-radius: var(--prod-surface-radius);
+  background: var(--prod-surface-collection);
+  box-shadow: none;
+}
+.summary-grid > div {
+  border: 0;
+  border-radius: var(--prod-inset-radius);
+  background: var(--prod-surface-inset);
+  box-shadow: none;
 }

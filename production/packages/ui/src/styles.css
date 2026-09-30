@@ -247,7 +247,7 @@ body { margin: 0; font-family: var(--ds-font); background: var(--ds-bg); color: 
   border: 1px solid var(--ds-border);
   border-radius: var(--ds-radius-lg);
   background: #fff;
-  box-shadow: var(--ds-shadow-sm);
+  box-shadow: none;
 }
 .inno-collection-head {
   display: flex;
