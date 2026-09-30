@@ -449,6 +449,38 @@ body { margin: 0; font-family: var(--ds-font); background: var(--ds-bg); color: 
 .inno-resource-meta { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-top: 4px; color: var(--ds-muted); font-size: 11px; line-height: 1.45; }
 .inno-resource-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
+.inno-resource-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  overflow: hidden;
+  margin-bottom: 16px;
+  border: 1px solid var(--ds-border);
+  border-radius: 11px;
+  background: #fff;
+}
+.inno-resource-summary-item {
+  min-width: 0;
+  padding: 13px 15px;
+  border-right: 1px solid var(--ds-border);
+}
+.inno-resource-summary-item:last-child { border-right: 0; }
+.inno-resource-summary-item span,
+.inno-resource-summary-item small {
+  display: block;
+  overflow-wrap: anywhere;
+  color: var(--ds-muted);
+  font-size: 10px;
+  line-height: 1.4;
+}
+.inno-resource-summary-item b {
+  display: block;
+  margin: 4px 0 3px;
+  overflow-wrap: anywhere;
+  color: var(--ds-text);
+  font-size: 15px;
+  line-height: 1.35;
+}
+
 .inno-surface-tabs {
   display: flex;
   align-items: center;
@@ -541,6 +573,9 @@ body { margin: 0; font-family: var(--ds-font); background: var(--ds-bg); color: 
   .inno-resource-head { flex-direction: column; align-items: stretch; }
   .inno-page-actions,
   .inno-resource-actions { width: 100%; justify-content: flex-start; }
+  .inno-resource-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .inno-resource-summary-item:nth-child(2n) { border-right: 0; }
+  .inno-resource-summary-item:nth-child(-n + 2) { border-bottom: 1px solid var(--ds-border); }
   .inno-editor-footer { flex-wrap: wrap; }
   .inno-editor-footer-note { max-width: 100%; }
   .inno-collection-toolbar { align-items: stretch; }
@@ -553,6 +588,10 @@ body { margin: 0; font-family: var(--ds-font); background: var(--ds-bg); color: 
   .inno-page-head h1 { font-size: 21px; }
   .inno-page-actions,
   .inno-resource-actions { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 3px; }
+  .inno-resource-summary { grid-template-columns: 1fr; }
+  .inno-resource-summary-item,
+  .inno-resource-summary-item:nth-child(2n) { border-right: 0; border-bottom: 1px solid var(--ds-border); }
+  .inno-resource-summary-item:last-child { border-bottom: 0; }
   .inno-page-actions .inno-btn,
   .inno-resource-actions .inno-btn { flex: none; }
   .inno-editor-footer { align-items: stretch; flex-direction: column; }

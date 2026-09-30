@@ -496,6 +496,31 @@ export function INNOResourceHeader({
   );
 }
 
+export function INNOResourceSummary({
+  children,
+  className,
+}: PropsWithChildren<{ className?: string }>) {
+  return <div className={cx('inno-resource-summary', className)}>{children}</div>;
+}
+
+export function INNOResourceSummaryItem({
+  label,
+  value,
+  detail,
+}: {
+  label: ReactNode;
+  value: ReactNode;
+  detail?: ReactNode;
+}) {
+  return (
+    <div className="inno-resource-summary-item">
+      <span>{label}</span>
+      <b>{value}</b>
+      {detail ? <small>{detail}</small> : null}
+    </div>
+  );
+}
+
 export function INNOPagination({
   page,
   totalPages,

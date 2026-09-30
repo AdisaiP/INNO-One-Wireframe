@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
-import { INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOIcon, INNOResourceHeader, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOSurfaceTabs, INNOTableWrap } from '@inno/ui';
+import { INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOIcon, INNOResourceHeader, INNOResourceSummary, INNOResourceSummaryItem, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOSurfaceTabs, INNOTableWrap } from '@inno/ui';
 import { getDevice, getDeviceSoftwareInventory } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 
@@ -81,12 +81,12 @@ export function DeviceDetailPage() {
         </div>
       ) : null}
 
-      <div className="stat-strip production-stat-strip">
-        <div><span>CPU</span><b>{metric(device.cpuPercent, '%')}</b><small>{device.isOffline ? 'cached' : 'current snapshot'}</small></div>
-        <div><span>Memory</span><b>{device.memoryUsedGb != null && device.memoryTotalGb != null ? `${device.memoryUsedGb} / ${device.memoryTotalGb} GB` : '—'}</b><small>normalized inventory</small></div>
-        <div><span>Disk</span><b>{device.diskUsedGb != null && device.diskTotalGb != null ? `${device.diskUsedGb} / ${device.diskTotalGb} GB` : '—'}</b><small>used / total</small></div>
-        <div><span>Last seen</span><b>{lastSeen(device.lastSeenAt)}</b><small>{device.agentVersion ? `Agent ${device.agentVersion}` : 'Agent version unknown'}</small></div>
-      </div>
+      <INNOResourceSummary>
+        <INNOResourceSummaryItem label="CPU" value={metric(device.cpuPercent, '%')} detail={device.isOffline ? 'cached' : 'current snapshot'} />
+        <INNOResourceSummaryItem label="Memory" value={device.memoryUsedGb != null && device.memoryTotalGb != null ? `${device.memoryUsedGb} / ${device.memoryTotalGb} GB` : '—'} detail="normalized inventory" />
+        <INNOResourceSummaryItem label="Disk" value={device.diskUsedGb != null && device.diskTotalGb != null ? `${device.diskUsedGb} / ${device.diskTotalGb} GB` : '—'} detail="used / total" />
+        <INNOResourceSummaryItem label="Last seen" value={lastSeen(device.lastSeenAt)} detail={device.agentVersion ? `Agent ${device.agentVersion}` : 'Agent version unknown'} />
+      </INNOResourceSummary>
 
       <INNOSurfaceTabs
         ariaLabel="Device detail sections"

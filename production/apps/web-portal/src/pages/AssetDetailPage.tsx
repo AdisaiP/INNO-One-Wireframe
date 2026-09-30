@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterNote, INNOEditorFooterStart, INNOIcon, INNOResourceHeader, INNOState, INNOStatus, INNOSurfaceTabs, INNOTableWrap } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterNote, INNOEditorFooterStart, INNOIcon, INNOResourceHeader, INNOResourceSummary, INNOResourceSummaryItem, INNOState, INNOStatus, INNOSurfaceTabs, INNOTableWrap } from '@inno/ui';
 import { changeAssetOwnership, getAsset, getAssetOwners, updateAsset } from '../api/client';
 import type { AssetCustomFieldValue } from '../api/types';
 import { usePermission } from '../app/ProfileContext';
@@ -86,6 +86,7 @@ export function AssetDetailPage() {
   const query = useQuery({ queryKey: ['assets', 'detail', assetId], queryFn: () => getAsset(assetId), enabled: Boolean(assetId) });
   const owners = useQuery({ queryKey: ['assets', 'owners', 'picker'], queryFn: () => getAssetOwners({ pageSize: 100 }), enabled: canManage });
   const [activeTab, setActiveTab] = useState<'overview' | 'custom' | 'ownership'>('overview');
+  const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ name: '', category: '', lifecycleStatus: '', purchasePrice: '' });
   const [ownerId, setOwnerId] = useState('');
   const [customValues, setCustomValues] = useState<Record<string, unknown>>({});
@@ -133,6 +134,7 @@ export function AssetDetailPage() {
       customFields: customPayload(),
     }),
     onSuccess: async () => {
+      setEditing(false);
       setSaveError('');
       setCustomErrors({});
       setSavedMessage('Asset saved.');
@@ -175,6 +177,27 @@ export function AssetDetailPage() {
     onError: (error: Error) => setSaveError(error.message),
   });
 
+  function cancelEditing() {
+    if (query.data) {
+      setForm({
+        name: query.data.name,
+        category: query.data.category,
+        lifecycleStatus: query.data.status,
+        purchasePrice: query.data.purchasePrice?.toString() ?? '',
+      });
+      setOwnerId(query.data.owner?.id ?? '');
+      setCustomValues(Object.fromEntries(
+        query.data.customFields.map((field) => [
+          field.fieldKey,
+          field.value ?? (field.fieldType === 'boolean' ? false : ''),
+        ]),
+      ));
+    }
+    setCustomErrors({});
+    setSaveError('');
+    setEditing(false);
+  }
+
   if (query.isPending) return <div className="page-loading-wrap"><LoadingState label="Loading asset…" /></div>;
   if (query.isError) return <div className="page-error-wrap"><ErrorState error={query.error} retry={() => void query.refetch()} /></div>;
 
@@ -187,15 +210,20 @@ export function AssetDetailPage() {
         title={asset.assetTag}
         status={<INNOStatus tone={asset.status === 'in_use' ? 'success' : asset.status === 'repair' ? 'warning' : 'neutral'}>{statusLabel(asset.status)}</INNOStatus>}
         meta={<><span>{asset.name}</span><span>·</span><span>{[asset.brand, asset.model].filter(Boolean).join(' ') || asset.category}</span><span>·</span><span>{asset.serialNumber ?? 'No serial'}</span></>}
-        actions={asset.linkedDevice ? <Link className="inno-link-button secondary" to={'/devices/' + asset.linkedDevice.id}>Open Device</Link> : undefined}
+        actions={(asset.linkedDevice || (canManage && !editing)) ? (
+          <>
+            {asset.linkedDevice ? <Link className="inno-link-button secondary" to={'/devices/' + asset.linkedDevice.id}>Open Device</Link> : null}
+            {canManage && !editing ? <INNOButton variant="secondary" onClick={() => { setActiveTab('overview'); setEditing(true); }}>Edit Asset</INNOButton> : null}
+          </>
+        ) : undefined}
       />
 
-      <div className="production-stat-strip">
-        <div><span>Purchase price</span><b>{money(asset.purchasePrice)}</b><small>Registered {new Date(asset.registeredAt).toLocaleDateString()}</small></div>
-        <div><span>Owner</span><b>{asset.owner?.name ?? 'Unassigned'}</b><small>{asset.organization?.name ?? 'No organization'}</small></div>
-        <div><span>Warranty</span><b>{asset.warrantyEndAt ? new Date(asset.warrantyEndAt).toLocaleDateString() : '—'}</b><small>{asset.warrantyEndAt && new Date(asset.warrantyEndAt) > new Date() ? 'Active' : 'No active warranty'}</small></div>
-        <div><span>Source</span><b>{asset.source.replaceAll('_', ' ')}</b><small>Updated {new Date(asset.updatedAt).toLocaleString()}</small></div>
-      </div>
+      <INNOResourceSummary>
+        <INNOResourceSummaryItem label="Purchase price" value={money(asset.purchasePrice)} detail={'Registered ' + new Date(asset.registeredAt).toLocaleDateString()} />
+        <INNOResourceSummaryItem label="Owner" value={asset.owner?.name ?? 'Unassigned'} detail={asset.organization?.name ?? 'No organization'} />
+        <INNOResourceSummaryItem label="Warranty" value={asset.warrantyEndAt ? new Date(asset.warrantyEndAt).toLocaleDateString() : '—'} detail={asset.warrantyEndAt && new Date(asset.warrantyEndAt) > new Date() ? 'Active' : 'No active warranty'} />
+        <INNOResourceSummaryItem label="Source" value={asset.source.replaceAll('_', ' ')} detail={'Updated ' + new Date(asset.updatedAt).toLocaleString()} />
+      </INNOResourceSummary>
 
       <INNOSurfaceTabs
         ariaLabel="Asset detail sections"
@@ -204,7 +232,7 @@ export function AssetDetailPage() {
         items={[
           { id: 'overview', label: 'Overview' },
           { id: 'custom', label: 'Custom Fields' },
-          { id: 'ownership', label: 'Ownership' },
+          ...(!editing ? [{ id: 'ownership', label: 'Ownership' }] : []),
         ]}
       />
 
@@ -214,7 +242,7 @@ export function AssetDetailPage() {
         <div className="device-overview-grid">
         <section className="prod-panel">
           <div className="prod-panel-head"><div><h3>Asset information</h3><p>Canonical inventory record owned by Assets.</p></div></div>
-          {canManage ? (
+          {canManage && editing ? (
             <div className="editor-form">
               <div className="editor-grid">
                 <label className="field-block field-wide"><span>Asset name</span><input value={form.name} onChange={(e) => setForm((v) => ({ ...v, name: e.target.value }))} /></label>
@@ -233,7 +261,7 @@ export function AssetDetailPage() {
         <div className="panel-stack">
           <section className="prod-panel">
             <div className="prod-panel-head"><div><h3>Current owner</h3><p>Ownership is a business relationship, not an identity record.</p></div></div>
-            {canManage ? <div className="settings-stack">
+            {canManage && editing ? <div className="settings-stack">
               <label className="field-block"><span>Assigned user</span><select value={ownerId} onChange={(e) => setOwnerId(e.target.value)}><option value="">Unassigned</option>{owners.data?.items.map((owner) => <option key={owner.id} value={owner.id}>{owner.fullName} · {owner.employeeId}</option>)}</select></label>
               <INNOButton variant="secondary" busy={ownerMutation.isPending} disabled={ownerId === (asset.owner?.id ?? '')} onClick={() => ownerMutation.mutate()}>Change owner</INNOButton>
             </div> : <div className="settings-row"><div><b>{asset.owner?.name ?? 'Unassigned'}</b><span>{asset.organization?.name ?? 'No organization'}</span></div></div>}
@@ -258,7 +286,7 @@ export function AssetDetailPage() {
 
         {asset.customFields.length === 0 ? (
           <div className="compact-empty">No active custom fields are configured.</div>
-        ) : canManage ? (
+        ) : canManage && editing ? (
           <div className="editor-form">
             <div className="editor-grid">
               {asset.customFields.map((field) => (
@@ -293,9 +321,10 @@ export function AssetDetailPage() {
       </section>
       </div>
 
-      {canManage && activeTab !== 'ownership' ? (
+      {canManage && editing && activeTab !== 'ownership' ? (
         <INNOEditorFooter>
           <INNOEditorFooterStart>
+            <INNOButton variant="secondary" disabled={saveMutation.isPending} onClick={cancelEditing}>Cancel</INNOButton>
             <INNOEditorFooterNote>Asset and custom-field changes are audited and version checked.</INNOEditorFooterNote>
           </INNOEditorFooterStart>
           <INNOEditorFooterEnd>

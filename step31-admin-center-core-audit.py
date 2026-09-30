@@ -178,7 +178,11 @@ for page in [
     "AdminAccessScopesPage.tsx",
 ]:
     page_text = read("production/apps/web-portal/src/pages/" + page)
-    if "INNOPage" not in page_text:
+    if page == "AdminUserDetailPage.tsx":
+        for marker in ["resource-breadcrumb", "INNOResourceHeader", "INNOResourceSummary", "INNOSurfaceTabs"]:
+            if marker not in page_text:
+                issues.append("resource detail shell " + page + " " + marker)
+    elif "INNOPage" not in page_text:
         issues.append("page shell " + page)
     if "alert(" in page_text or "confirm(" in page_text or "prompt(" in page_text:
         issues.append("native dialog " + page)

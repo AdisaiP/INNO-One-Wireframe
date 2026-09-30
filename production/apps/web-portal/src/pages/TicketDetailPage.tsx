@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
-import { INNOButton, INNOEditorFooter, INNOIcon, INNOPage, INNOResourceHeader, INNOState, INNOStatus } from '@inno/ui';
+import { INNOButton, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOIcon, INNOResourceHeader, INNOResourceSummary, INNOResourceSummaryItem, INNOState, INNOStatus, INNOSurfaceTabs } from '@inno/ui';
 import {
   getTicket,
   reassignTicket,
@@ -27,6 +27,7 @@ export function TicketDetailPage() {
   const canReply = usePermission('helpdesk.ticket.reply');
   const canAssign = usePermission('helpdesk.ticket.assign');
   const canResolve = usePermission('helpdesk.ticket.resolve');
+  const [activeTab, setActiveTab] = useState<'conversation' | 'activity' | 'details'>('conversation');
   const [replyBody, setReplyBody] = useState('');
   const [visibility, setVisibility] = useState<'public' | 'internal'>('public');
   const [showAssign, setShowAssign] = useState(false);
@@ -114,16 +115,12 @@ export function TicketDetailPage() {
 
       {actionError ? <div className="form-error ticket-action-error" role="alert">{actionError}</div> : null}
 
-      <div className="production-stat-strip helpdesk-detail-stats">
-        <div><span>Priority</span><b>{ticket.priority}</b><small>Urgency: {ticket.urgency}</small></div>
-        <div><span>Assignee</span><b>{ticket.assignee?.name ?? ticket.team ?? 'Unassigned'}</b><small>{ticket.team ?? 'No queue'}</small></div>
-        <div>
-          <span>SLA</span>
-          <b>{ticket.sla ? ticket.sla.elapsedPercent + '% elapsed' : '—'}</b>
-          <small>{ticket.sla?.state ?? 'No SLA'}</small>
-        </div>
-        <div><span>Requester</span><b>{ticket.requester.name}</b><small>{ticket.organization?.name ?? '—'}</small></div>
-      </div>
+      <INNOResourceSummary>
+        <INNOResourceSummaryItem label="Priority" value={ticket.priority} detail={'Urgency: ' + ticket.urgency} />
+        <INNOResourceSummaryItem label="Assignee" value={ticket.assignee?.name ?? ticket.team ?? 'Unassigned'} detail={ticket.team ?? 'No queue'} />
+        <INNOResourceSummaryItem label="SLA" value={ticket.sla ? ticket.sla.elapsedPercent + '% elapsed' : '—'} detail={ticket.sla?.state ?? 'No SLA'} />
+        <INNOResourceSummaryItem label="Requester" value={ticket.requester.name} detail={ticket.organization?.name ?? '—'} />
+      </INNOResourceSummary>
 
       {showAssign ? (
         <section className="prod-panel ticket-assign-panel">
@@ -151,16 +148,31 @@ export function TicketDetailPage() {
               </label>
             </div>
             <INNOEditorFooter>
-              <INNOButton variant="secondary" onClick={() => setShowAssign(false)}>Cancel</INNOButton>
-              <INNOButton busy={assignMutation.isPending} onClick={() => assignMutation.mutate()}>Reassign</INNOButton>
+              <INNOEditorFooterStart>
+                <INNOButton variant="secondary" disabled={assignMutation.isPending} onClick={() => setShowAssign(false)}>Cancel</INNOButton>
+              </INNOEditorFooterStart>
+              <INNOEditorFooterEnd>
+                <INNOButton busy={assignMutation.isPending} onClick={() => assignMutation.mutate()}>Reassign</INNOButton>
+              </INNOEditorFooterEnd>
             </INNOEditorFooter>
           </div>
         </section>
       ) : null}
 
-      <div className="ticket-detail-grid">
+      <INNOSurfaceTabs
+        ariaLabel="Ticket detail sections"
+        activeId={activeTab}
+        onChange={(id) => setActiveTab(id as 'conversation' | 'activity' | 'details')}
+        items={[
+          { id: 'conversation', label: 'Conversation' },
+          { id: 'activity', label: 'Activity' },
+          { id: 'details', label: 'Details' },
+        ]}
+      />
+
+      <div className="ticket-detail-tabs">
         <div className="panel-stack">
-          <section className="prod-panel">
+          <section className="prod-panel" hidden={activeTab !== 'conversation'}>
             <div className="prod-panel-head">
               <div><h3>Conversation</h3><p>Requester and support updates.</p></div>
               <INNOStatus>{ticket.messages.length} messages</INNOStatus>
@@ -213,7 +225,7 @@ export function TicketDetailPage() {
             </div>
           </section>
 
-          <section className="prod-panel">
+          <section className="prod-panel" hidden={activeTab !== 'activity'}>
             <div className="prod-panel-head"><div><h3>Activity</h3><p>Ticket status and assignment history.</p></div></div>
             <div className="ticket-activity-list">
               {ticket.activities.map((activity) => (
@@ -230,7 +242,7 @@ export function TicketDetailPage() {
           </section>
         </div>
 
-        <aside className="panel-stack">
+        <aside className="panel-stack" hidden={activeTab !== 'details'}>
           <section className="prod-panel">
             <div className="prod-panel-head"><div><h3>Properties</h3><p>Canonical ticket context.</p></div></div>
             <div className="production-kv-grid ticket-properties">
