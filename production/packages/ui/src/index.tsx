@@ -210,6 +210,7 @@ export function INNOState({
   meta,
   kind = 'empty',
   compact = false,
+  banner = false,
 }: {
   title: string;
   description?: string;
@@ -217,8 +218,9 @@ export function INNOState({
   meta?: ReactNode;
   kind?: INNOStateKind;
   compact?: boolean;
+  banner?: boolean;
 }) {
-  const role = kind === 'error' ? 'alert' : kind === 'loading' ? 'status' : undefined;
+  const role = kind === 'error' ? 'alert' : 'status';
   const iconToken: INNOIconToken =
     kind === 'loading' ? 'status.loading'
       : kind === 'error' ? 'status.error'
@@ -229,19 +231,47 @@ export function INNOState({
                 : 'status.empty';
   return (
     <section
-      className={cx('inno-state', compact && 'compact', kind !== 'empty' && kind)}
+      className={cx('inno-state', compact && 'compact', banner && 'banner', kind !== 'empty' && kind)}
       data-state={kind}
       role={role}
       aria-live={kind === 'loading' ? 'polite' : undefined}
+      aria-label={kind === 'loading' ? 'Loading content' : undefined}
+      aria-busy={kind === 'loading' || undefined}
     >
+      {kind === 'loading' ? <span className="inno-sr-only">Loading content</span> : null}
       <span className="inno-state-icon" aria-hidden="true"><INNOIcon token={iconToken} size={18} /></span>
-      <div>
+      <div className="inno-state-copy">
         <h4>{title}</h4>
         {description ? <p>{description}</p> : null}
         {meta ? <div className="inno-state-meta">{meta}</div> : null}
       </div>
       {action ? <div className="inno-state-actions">{action}</div> : null}
     </section>
+  );
+}
+
+export function INNOCollectionState({
+  title,
+  description,
+  action,
+  meta,
+  kind = 'empty',
+}: {
+  title: string;
+  description?: string;
+  action?: ReactNode;
+  meta?: ReactNode;
+  kind?: Extract<INNOStateKind, 'empty' | 'no-results' | 'loading' | 'error' | 'permission'>;
+}) {
+  return (
+    <div className="inno-collection-state">
+      <INNOState compact kind={kind} title={title} description={description} action={action} meta={meta} />
+      {kind === 'no-results' ? (
+        <div className="inno-pagination inno-pagination--state" data-inno-empty="true">
+          <span>0 matching results</span>
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -540,16 +570,18 @@ export function INNOPagination({
   const end = totalItems === 0 ? 0 : Math.min(page * pageSize, totalItems);
   return (
     <div className="inno-pagination" data-inno-empty={totalItems === 0 || undefined}>
-      <span>Showing {start}–{end} of {totalItems}</span>
-      <div className="inno-pagination-actions">
-        <INNOButton variant="secondary" disabled={page <= 1} onClick={() => onPageChange(page - 1)}>
-          Previous
-        </INNOButton>
-        <span>Page {page} of {safePages}</span>
-        <INNOButton variant="secondary" disabled={page >= safePages} onClick={() => onPageChange(page + 1)}>
-          Next
-        </INNOButton>
-      </div>
+      <span>{totalItems === 0 ? '0 matching results' : `Showing ${start}–${end} of ${totalItems}`}</span>
+      {totalItems > 0 ? (
+        <div className="inno-pagination-actions">
+          <INNOButton variant="secondary" disabled={page <= 1} onClick={() => onPageChange(page - 1)}>
+            Previous
+          </INNOButton>
+          <span>Page {page} of {safePages}</span>
+          <INNOButton variant="secondary" disabled={page >= safePages} onClick={() => onPageChange(page + 1)}>
+            Next
+          </INNOButton>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import {
   INNOIcon,
   INNOCollection,
   INNOCollectionHeader,
+  INNOCollectionState,
   INNOCollectionToolbar,
   INNOPage,
   INNOPagination,
@@ -19,7 +20,7 @@ import {
   getAdminAuditDetail,
   getAdminAuditFacets,
 } from '../api/client';
-import { ErrorState, LoadingState } from '../components/Feedback';
+import { CollectionErrorState, CollectionLoadingState, ErrorState, LoadingState } from '../components/Feedback';
 
 function formatWhen(value: string) {
   return new Intl.DateTimeFormat(undefined, {
@@ -220,16 +221,14 @@ export function AdminAuditPage() {
             ) : null}
           </div>
 
-          {list.isPending ? <div className="collection-state"><LoadingState label="Loading audit records…" /></div> : null}
-          {list.isError ? <div className="collection-state"><ErrorState error={list.error} retry={() => void list.refetch()} /></div> : null}
+          {list.isPending ? <CollectionLoadingState label="Loading audit records…" /> : null}
+          {list.isError ? <CollectionErrorState error={list.error} retry={() => void list.refetch()} /> : null}
           {list.data?.items.length === 0 ? (
-            <div className="collection-state">
-              <INNOState
-                kind={hasFilters ? 'no-results' : 'empty'}
-                title={hasFilters ? 'No matching audit records' : 'No audit records'}
-                description={hasFilters ? 'Adjust the search or filters.' : 'Audit facts will appear after privileged or auditable activity occurs.'}
-              />
-            </div>
+            <INNOCollectionState
+              kind={hasFilters ? 'no-results' : 'empty'}
+              title={hasFilters ? 'No matching audit records' : 'No audit records'}
+              description={hasFilters ? 'Adjust the search or filters.' : 'Audit facts will appear after privileged or auditable activity occurs.'}
+            />
           ) : null}
 
           {list.data?.items.length ? (

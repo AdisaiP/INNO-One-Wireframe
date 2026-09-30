@@ -93,7 +93,7 @@ deadline = time.time() + 35
 logged_in = False
 while time.time() < deadline:
     href = ev("location.href") or ""
-    if "172.10.1.58:8080" in href and ev("!!document.querySelector('#kc-login')"):
+    if ("172.10.1.58:8080" in href or "localhost:8080" in href) and ev("!!document.querySelector('#kc-login')"):
         ev(
             "document.querySelector('#username').value='adisai';"
             + "document.querySelector('#password').value=" + json.dumps(password) + ";"

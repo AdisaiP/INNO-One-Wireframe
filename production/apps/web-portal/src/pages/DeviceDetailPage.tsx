@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
-import { INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOIcon, INNOResourceHeader, INNOResourceSummary, INNOResourceSummaryItem, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOSurfaceTabs, INNOTableWrap } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNOIcon, INNOResourceHeader, INNOResourceSummary, INNOResourceSummaryItem, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOSurfaceTabs, INNOTableWrap } from '@inno/ui';
 import { getDevice, getDeviceSoftwareInventory } from '../api/client';
-import { ErrorState, LoadingState } from '../components/Feedback';
+import { CollectionErrorState, CollectionLoadingState, ErrorState, LoadingState } from '../components/Feedback';
 
 function metric(value?: number | null, suffix = '') {
   return value == null ? '—' : `${value}${suffix}`;
@@ -75,10 +75,12 @@ export function DeviceDetailPage() {
       />
 
       {device.isOffline ? (
-        <div className="offline-banner" role="status">
-          <b>Resource offline</b>
-          <span>Showing the latest cached inventory. Last seen {lastSeen(device.lastSeenAt)}.</span>
-        </div>
+        <INNOState
+          banner
+          kind="offline"
+          title="Resource offline"
+          description={'Showing the latest cached inventory. Last seen ' + lastSeen(device.lastSeenAt) + '. Live-only actions are unavailable until the device reconnects.'}
+        />
       ) : null}
 
       <INNOResourceSummary>
@@ -185,13 +187,18 @@ export function DeviceDetailPage() {
           </INNOCollectionToolbar>
         ) : null}
         {softwareQuery.isPending ? (
-          <div className="collection-state"><LoadingState label="Loading installed software…" /></div>
+          <CollectionLoadingState label="Loading installed software…" />
         ) : softwareQuery.isError ? (
-          <div className="collection-state"><ErrorState error={softwareQuery.error} retry={() => void softwareQuery.refetch()} /></div>
+          <CollectionErrorState error={softwareQuery.error} retry={() => void softwareQuery.refetch()} />
         ) : softwareQuery.data.inventoryStatus === 'not_reported' ? (
-          <div className="collection-state"><INNOState kind="empty" title="Software inventory not reported" description="No software observation has been reported. Baseline evaluation remains unknown." /></div>
+          <INNOCollectionState kind="empty" title="Software inventory not reported" description="No software observation has been reported. Baseline evaluation remains unknown." />
         ) : visibleSoftware.length === 0 ? (
-          <div className="collection-state"><INNOState kind="no-results" title="No installed software found" description="Try another software name or publisher." /></div>
+          <INNOCollectionState
+            kind="no-results"
+            title="No installed software found"
+            description="Try another software name or publisher."
+            action={<INNOButton variant="secondary" onClick={() => { setSoftwareSearch(''); setPublisher('all'); }}>Clear filters</INNOButton>}
+          />
         ) : (
           <>
             <div className="software-evidence-bar">

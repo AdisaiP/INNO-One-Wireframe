@@ -145,6 +145,7 @@ export function InternalDesignSystemPage() {
   const [columnsOpen, setColumnsOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [partialResolved, setPartialResolved] = useState(false);
 
   const filteredRows = useMemo(() => {
     const needle = search.trim().toLowerCase();
@@ -505,13 +506,24 @@ export function InternalDesignSystemPage() {
           </DSCard>
 
           <DSCard title="Partial failure">
-            <div className="internal-ds-alert internal-ds-alert--warning">
-              <INNOIcon token="status.warning" size={15} />
-              <div><b>8 of 10 devices updated</b><p>Keep successful work. Retry only the 2 failed devices.</p></div>
-            </div>
-            <div className="internal-ds-stack internal-ds-stack--top">
-              <INNOButton type="button" variant="secondary" onClick={() => setFeedback('Retry failed items')}>Retry failed</INNOButton>
-            </div>
+            <INNOState
+              banner
+              kind="partial"
+              title={partialResolved ? 'Retry completed' : '8 succeeded, 2 failed'}
+              description={partialResolved
+                ? 'The failed items were retried without repeating the 8 successful updates.'
+                : 'Successful work is preserved. Retry only the 2 failed devices.'}
+              meta={partialResolved ? '10 of 10 devices updated' : '8 of 10 devices updated'}
+              action={!partialResolved ? (
+                <INNOButton
+                  type="button"
+                  variant="secondary"
+                  onClick={() => { setPartialResolved(true); setFeedback('Retry completed'); }}
+                >
+                  Retry failed
+                </INNOButton>
+              ) : undefined}
+            />
           </DSCard>
 
           <DSCard title="State usage rules">
@@ -521,16 +533,22 @@ export function InternalDesignSystemPage() {
               ['Loading', 'Keep the owning layout stable while data is loading.'],
               ['Error', 'Explain failure and expose retry only when meaningful.'],
               ['Permission', 'Access restriction is not an application error.'],
+              ['Module Disabled', 'Explain that an administrator must enable the module and provide a safe route away.'],
               ['Offline', 'Keep cached resource detail visible under connectivity status when possible.'],
+              ['Partial Failure', 'Preserve successful work and retry only failed items when retry is supported.'],
             ]} />
           </DSCard>
 
-          <DSCard title="Full-page state previews">
+          <DSCard title="Canonical state previews">
             <div className="internal-ds-state-preview-grid">
-              <INNOState compact kind="empty" title="No devices yet" description="New devices appear here after enrollment." />
-              <INNOState compact kind="no-results" title="No results" description="Change search or filters." />
-              <INNOState compact kind="error" title="Unable to load" description="Retry when the service is available." />
-              <INNOState compact kind="permission" title="Permission required" description="Request access from an administrator." />
+              <INNOState compact kind="empty" title="Nothing here yet" description="New records will appear here when they exist." />
+              <INNOState compact kind="no-results" title="No results" description="Change search or clear the filters." />
+              <INNOState compact kind="loading" title="Loading content" description="Please wait while the latest data loads." />
+              <INNOState compact kind="error" title="Unable to load content" description="Try again when the service is available." action={<INNOButton type="button" variant="secondary" onClick={() => setFeedback('Retry requested')}>Try again</INNOButton>} />
+              <INNOState compact kind="permission" title="You do not have access" description="Your current role does not include permission to view this resource." />
+              <INNOState compact kind="disabled" title="Module is not available" description="An administrator must enable this module before it can be used." />
+              <INNOState compact kind="offline" title="Resource offline" description="Cached information remains visible while live-only actions are unavailable." />
+              <INNOState compact kind="partial" title="8 succeeded, 2 failed" description="Preserve successful work and retry only failed items." />
             </div>
           </DSCard>
         </div>

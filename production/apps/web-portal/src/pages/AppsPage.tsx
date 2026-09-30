@@ -3,12 +3,13 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
   INNOIcon,
+  INNOButton,
   INNOCollection,
   INNOCollectionHeader,
+  INNOCollectionState,
   INNOCollectionToolbar,
   INNOPage,
   INNOSearchField,
-  INNOState,
 } from '@inno/ui';
 import { getPlatformApps } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -62,15 +63,14 @@ export function AppsPage() {
           </INNOCollectionToolbar>
 
           {apps.length === 0 ? (
-            <div className="collection-state">
-              <INNOState
-                kind={search ? 'no-results' : 'empty'}
-                title={search ? 'No apps match your search' : 'No apps available'}
-                description={search
-                  ? 'Try another keyword.'
-                  : 'Apps appear here only when installed, enabled and permitted.'}
-              />
-            </div>
+            <INNOCollectionState
+              kind={search ? 'no-results' : 'empty'}
+              title={search ? 'No apps match your search' : 'No apps available'}
+              description={search
+                ? 'Try another keyword.'
+                : 'Apps appear here only when installed, enabled and permitted.'}
+              action={search ? <INNOButton variant="secondary" onClick={() => setSearch('')}>Clear search</INNOButton> : undefined}
+            />
           ) : (
             <div className="production-app-grid">
               {apps.map((app) => (

@@ -1,9 +1,9 @@
 import { useDeferredValue, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOIcon, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarSpacer } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNOIcon, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOStatus, INNOTableWrap, INNOToolbarSpacer } from '@inno/ui';
 import { getDevices } from '../api/client';
-import { ErrorState, LoadingState } from '../components/Feedback';
+import { CollectionErrorState, CollectionLoadingState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
 
 function formatLastSeen(value?: string | null): string {
@@ -131,24 +131,22 @@ export function DevicesPage() {
         </INNOCollectionToolbar>
 
         {query.isPending ? (
-          <div className="collection-state"><LoadingState label="Loading devices…" /></div>
+          <CollectionLoadingState label="Loading devices…" />
         ) : query.isError ? (
-          <div className="collection-state"><ErrorState error={query.error} retry={() => void query.refetch()} /></div>
+          <CollectionErrorState error={query.error} retry={() => void query.refetch()} />
         ) : query.data.items.length === 0 ? (
-          <div className="collection-state">
-            <INNOState
-              kind={search || status !== 'all' || os !== 'all' ? 'no-results' : 'empty'}
-              title={search || status !== 'all' || os !== 'all' ? 'No devices found' : 'No devices in scope'}
-              description={search || status !== 'all' || os !== 'all'
-                ? 'Try another search or clear the filters.'
-                : 'No managed endpoint is visible inside your effective resource scope.'}
-              action={search || status !== 'all' || os !== 'all' ? (
-                <INNOButton variant="secondary" onClick={() => { setSearch(''); setStatus('all'); setOs('all'); }}>
-                  Clear filters
-                </INNOButton>
-              ) : undefined}
-            />
-          </div>
+          <INNOCollectionState
+            kind={search || status !== 'all' || os !== 'all' ? 'no-results' : 'empty'}
+            title={search || status !== 'all' || os !== 'all' ? 'No devices found' : 'No devices in scope'}
+            description={search || status !== 'all' || os !== 'all'
+              ? 'Try another search or clear the filters.'
+              : 'No managed endpoint is visible inside your effective resource scope.'}
+            action={search || status !== 'all' || os !== 'all' ? (
+              <INNOButton variant="secondary" onClick={() => { setSearch(''); setStatus('all'); setOs('all'); }}>
+                Clear filters
+              </INNOButton>
+            ) : undefined}
+          />
         ) : (
           <>
             <INNOTableWrap width="xwide">

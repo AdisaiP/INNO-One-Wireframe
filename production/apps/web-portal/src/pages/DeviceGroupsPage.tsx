@@ -1,9 +1,9 @@
 import { useDeferredValue, useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarMeta, INNOToolbarSpacer } from '@inno/ui';
+import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOStatus, INNOTableWrap, INNOToolbarMeta, INNOToolbarSpacer } from '@inno/ui';
 import { createDeviceGroup, getDeviceGroups } from '../api/client';
-import { ErrorState, LoadingState } from '../components/Feedback';
+import { CollectionErrorState, CollectionLoadingState, ErrorState } from '../components/Feedback';
 import { usePermission, useProfile } from '../app/ProfileContext';
 
 export function DeviceGroupsPage() {
@@ -125,17 +125,18 @@ export function DeviceGroupsPage() {
         </INNOCollectionToolbar>
 
         {groups.isPending ? (
-          <div className="collection-state"><LoadingState label="Loading device groups…" /></div>
+          <CollectionLoadingState label="Loading device groups…" />
         ) : groups.isError ? (
-          <div className="collection-state"><ErrorState error={groups.error} retry={() => void groups.refetch()} /></div>
+          <CollectionErrorState error={groups.error} retry={() => void groups.refetch()} />
         ) : groups.data.items.length === 0 ? (
-          <div className="collection-state">
-            <INNOState
-              kind={search || type !== 'all' ? 'no-results' : 'empty'}
-              title={search || type !== 'all' ? 'No groups found' : 'No device groups in scope'}
-              description={search || type !== 'all' ? 'Try another search or filter.' : 'Create a static group to organize managed endpoints.'}
-            />
-          </div>
+          <INNOCollectionState
+            kind={search || type !== 'all' ? 'no-results' : 'empty'}
+            title={search || type !== 'all' ? 'No groups found' : 'No device groups in scope'}
+            description={search || type !== 'all' ? 'Try another search or filter.' : 'Create a static group to organize managed endpoints.'}
+            action={search || type !== 'all' ? (
+              <INNOButton variant="secondary" onClick={() => { setSearch(''); setType('all'); }}>Clear filters</INNOButton>
+            ) : undefined}
+          />
         ) : (
           <>
             <INNOTableWrap width="xwide">

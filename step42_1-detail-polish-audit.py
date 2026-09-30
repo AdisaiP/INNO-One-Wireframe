@@ -59,12 +59,14 @@ for marker in [
 ]:
     require(ui_css, marker, "flat state")
 
-# Collection-local empty state must not become a nested card.
-require(tickets, "compact", "ticket empty state")
+# Collection-local empty state must stay flat and owned by the shared collection-state primitive.
+require(tickets, "INNOCollectionState", "ticket empty state")
 require(tickets, "No tickets in this queue", "ticket empty state")
-require(shell_css, ".collection-state > .inno-state.compact", "collection local state")
-require(shell_css, "border: 0;", "collection local state")
-require(shell_css, "background: transparent;", "collection local state")
+require(ui, "export function INNOCollectionState(", "collection local state")
+require(ui_css, ".inno-collection-state", "collection local state")
+require(ui_css, ".inno-state.compact", "collection local state")
+require(ui_css, "border: 0;", "collection local state")
+require(ui_css, "background: transparent;", "collection local state")
 
 # Canonical editor footer.
 for marker in [

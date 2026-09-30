@@ -1,10 +1,10 @@
 import { useDeferredValue, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarMeta, INNOToolbarSpacer } from '@inno/ui';
+import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOStatus, INNOTableWrap, INNOToolbarMeta, INNOToolbarSpacer } from '@inno/ui';
 import { getTicketStatuses, getTickets } from '../api/client';
 import { usePermission } from '../app/ProfileContext';
-import { ErrorState, LoadingState } from '../components/Feedback';
+import { CollectionErrorState, CollectionLoadingState } from '../components/Feedback';
 
 export type TicketQueueMode = 'all' | 'mine' | 'team';
 
@@ -85,25 +85,22 @@ export function TicketsPage({ mode = 'all' }: { mode?: TicketQueueMode }) {
         </INNOCollectionToolbar>
 
         {query.isPending ? (
-          <div className="collection-state"><LoadingState label="Loading tickets…" /></div>
+          <CollectionLoadingState label="Loading tickets…" />
         ) : query.isError ? (
-          <div className="collection-state"><ErrorState error={query.error} retry={() => void query.refetch()} /></div>
+          <CollectionErrorState error={query.error} retry={() => void query.refetch()} />
         ) : query.data.items.length === 0 ? (
-          <div className="collection-state">
-            <INNOState
-              compact
-              kind={search || status !== 'all' || priority !== 'all' ? 'no-results' : 'empty'}
-              title={search || status !== 'all' || priority !== 'all' ? 'No tickets found' : 'No tickets in this queue'}
-              description={search || status !== 'all' || priority !== 'all'
-                ? 'Try another search or clear the filters.'
-                : 'There is no current work in this scoped queue.'}
-              action={search || status !== 'all' || priority !== 'all' ? (
-                <INNOButton variant="secondary" onClick={() => { setSearch(''); setStatus('all'); setPriority('all'); }}>
-                  Clear filters
-                </INNOButton>
-              ) : undefined}
-            />
-          </div>
+          <INNOCollectionState
+            kind={search || status !== 'all' || priority !== 'all' ? 'no-results' : 'empty'}
+            title={search || status !== 'all' || priority !== 'all' ? 'No tickets found' : 'No tickets in this queue'}
+            description={search || status !== 'all' || priority !== 'all'
+              ? 'Try another search or clear the filters.'
+              : 'There is no current work in this scoped queue.'}
+            action={search || status !== 'all' || priority !== 'all' ? (
+              <INNOButton variant="secondary" onClick={() => { setSearch(''); setStatus('all'); setPriority('all'); }}>
+                Clear filters
+              </INNOButton>
+            ) : undefined}
+          />
         ) : mode === 'all' ? (
           <>
             <INNOTableWrap width="xwide">

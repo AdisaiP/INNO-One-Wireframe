@@ -6,6 +6,7 @@ import {
   INNOButton,
   INNOCollection,
   INNOCollectionHeader,
+  INNOCollectionState,
   INNOCollectionToolbar,
   INNOEditorFooter,
   INNOPage,
@@ -26,7 +27,7 @@ import {
   updateAdminAccessAssignment,
 } from '../api/client';
 import type { AdminAccessAssignment, AdminAccessEvaluation } from '../api/types';
-import { ErrorState, LoadingState } from '../components/Feedback';
+import { CollectionErrorState, CollectionLoadingState, ErrorState, LoadingState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
 
 export function AdminAccessScopesPage() {
@@ -135,9 +136,20 @@ export function AdminAccessScopesPage() {
             <INNOSearchField label="Search assignments" value={search} onChange={setSearch} placeholder="Search user, role or scope…" />
             <INNOSelectField label="Role filter" value={roleFilter} onChange={setRoleFilter}><option value="all">Role: All</option>{roles.data?.map((role) => <option key={role.id} value={role.id}>{role.name}</option>)}</INNOSelectField>
           </INNOCollectionToolbar>
-          {assignments.isPending ? <div className="collection-state"><LoadingState label="Loading access assignments…" /></div> : null}
-          {assignments.isError ? <div className="collection-state"><ErrorState error={assignments.error} retry={() => void assignments.refetch()} /></div> : null}
-          {assignments.data && filtered.length === 0 ? <div className="collection-state"><INNOState kind={search || roleFilter !== 'all' ? 'no-results' : 'empty'} title="No assignments found" description="The current API contract does not define assignment creation, so only existing assignments are shown." /></div> : null}
+          {assignments.isPending ? <CollectionLoadingState label="Loading access assignments…" /> : null}
+          {assignments.isError ? <CollectionErrorState error={assignments.error} retry={() => void assignments.refetch()} /> : null}
+          {assignments.data && filtered.length === 0 ? (
+            <INNOCollectionState
+              kind={search || roleFilter !== 'all' ? 'no-results' : 'empty'}
+              title={search || roleFilter !== 'all' ? 'No assignments found' : 'No access assignments'}
+              description={search || roleFilter !== 'all'
+                ? 'Try another search or clear the filters.'
+                : 'The current API contract does not define assignment creation, so only existing assignments are shown.'}
+              action={search || roleFilter !== 'all'
+                ? <INNOButton variant="secondary" onClick={() => { setSearch(''); setRoleFilter('all'); }}>Clear filters</INNOButton>
+                : undefined}
+            />
+          ) : null}
           {filtered.length ? (
             <INNOTableWrap width="wide" stickyAction>
               <table>

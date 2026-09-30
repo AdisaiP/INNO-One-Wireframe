@@ -1,9 +1,9 @@
 import { useDeferredValue, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarMeta, INNOToolbarSpacer } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOStatus, INNOTableWrap, INNOToolbarMeta, INNOToolbarSpacer } from '@inno/ui';
 import { getAssets } from '../api/client';
-import { ErrorState, LoadingState } from '../components/Feedback';
+import { CollectionErrorState, CollectionLoadingState } from '../components/Feedback';
 
 function statusLabel(value: string) { return value.replaceAll('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase()); }
 
@@ -54,22 +54,20 @@ export function AssetInventoryPage() {
         </INNOCollectionToolbar>
 
         {query.isPending ? (
-          <div className="collection-state"><LoadingState label="Loading assets…" /></div>
+          <CollectionLoadingState label="Loading assets…" />
         ) : query.isError ? (
-          <div className="collection-state"><ErrorState error={query.error} retry={() => void query.refetch()} /></div>
+          <CollectionErrorState error={query.error} retry={() => void query.refetch()} />
         ) : query.data.items.length === 0 ? (
-          <div className="collection-state">
-            <INNOState
-              kind={search || category !== 'all' || status !== 'all' ? 'no-results' : 'empty'}
-              title={search || category !== 'all' || status !== 'all' ? 'No assets found' : 'No assets in scope'}
-              description={search || category !== 'all' || status !== 'all'
-                ? 'Try another search or clear the filters.'
-                : 'No registered asset is visible inside your effective resource scope.'}
-              action={search || category !== 'all' || status !== 'all'
-                ? <INNOButton variant="secondary" onClick={() => { setSearch(''); setCategory('all'); setStatus('all'); }}>Clear filters</INNOButton>
-                : undefined}
-            />
-          </div>
+          <INNOCollectionState
+            kind={search || category !== 'all' || status !== 'all' ? 'no-results' : 'empty'}
+            title={search || category !== 'all' || status !== 'all' ? 'No assets found' : 'No assets in scope'}
+            description={search || category !== 'all' || status !== 'all'
+              ? 'Try another search or clear the filters.'
+              : 'No registered asset is visible inside your effective resource scope.'}
+            action={search || category !== 'all' || status !== 'all'
+              ? <INNOButton variant="secondary" onClick={() => { setSearch(''); setCategory('all'); setStatus('all'); }}>Clear filters</INNOButton>
+              : undefined}
+          />
         ) : (
           <>
             <INNOTableWrap width="xwide">

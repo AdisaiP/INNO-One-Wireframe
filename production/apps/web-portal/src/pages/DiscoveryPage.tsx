@@ -1,13 +1,13 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOPage, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNOPage, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import {
   createDiscoveryScan,
   getDiscoveryResults,
   getDiscoveryScan,
   getOperation,
 } from '../api/client';
-import { ErrorState, LoadingState } from '../components/Feedback';
+import { CollectionErrorState, CollectionLoadingState, ErrorState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
 
 function splitRanges(value: string): string[] {
@@ -149,19 +149,24 @@ export function DiscoveryPage() {
         </INNOCollectionToolbar>
 
         {!scanId ? (
-          <div className="collection-state"><INNOState kind="empty" title="Run discovery to see results" description="Start a scan above using one or more approved private CIDR ranges." /></div>
+          <INNOCollectionState kind="empty" title="Run discovery to see results" description="Start a scan above using one or more approved private CIDR ranges." />
         ) : scan.isPending || current?.status === 'queued' || current?.status === 'running' ? (
-          <div className="collection-state"><LoadingState label="Discovery scan in progress…" /></div>
+          <CollectionLoadingState label="Discovery scan in progress…" />
         ) : scan.isError ? (
-          <div className="collection-state"><ErrorState error={scan.error} retry={() => void scan.refetch()} /></div>
+          <CollectionErrorState error={scan.error} retry={() => void scan.refetch()} />
         ) : current?.status === 'failed' ? (
-          <div className="collection-state"><INNOState kind="error" title="Discovery scan failed" description={current.errorCode ?? 'The scan could not be completed.'} /></div>
+          <INNOCollectionState kind="error" title="Discovery scan failed" description="The scan could not be completed. Review the scan settings and try again." />
         ) : results.isPending ? (
-          <div className="collection-state"><LoadingState label="Loading discovery results…" /></div>
+          <CollectionLoadingState label="Loading discovery results…" />
         ) : results.isError ? (
-          <div className="collection-state"><ErrorState error={results.error} retry={() => void results.refetch()} /></div>
+          <CollectionErrorState error={results.error} retry={() => void results.refetch()} />
         ) : results.data.items.length === 0 ? (
-          <div className="collection-state"><INNOState kind={search || resultStatus !== 'all' ? 'no-results' : 'empty'} title={search ? 'No discovery results found' : 'No endpoints matched'} description="No reachable endpoints match the current result filter." /></div>
+          <INNOCollectionState
+            kind={search || resultStatus !== 'all' ? 'no-results' : 'empty'}
+            title={search || resultStatus !== 'all' ? 'No discovery results found' : 'No endpoints matched'}
+            description={search || resultStatus !== 'all' ? 'Try another search or clear the filters.' : 'No reachable endpoints were returned by this scan.'}
+            action={search || resultStatus !== 'all' ? <INNOButton variant="secondary" onClick={() => { setSearch(''); setResultStatus('all'); }}>Clear filters</INNOButton> : undefined}
+          />
         ) : (
           <INNOTableWrap width="wide">
             <table>

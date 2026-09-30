@@ -606,23 +606,6 @@
   font-size: 11px;
 }
 
-.offline-banner {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  margin-bottom: 14px;
-  padding: 11px 13px;
-  border: 1px solid #f0deb5;
-  border-radius: 9px;
-  background: #fffaf0;
-  color: #70501d;
-  font-size: 11px;
-}
-
-.offline-banner span {
-  color: #7c6b4b;
-}
-
 .production-stat-strip {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -993,10 +976,6 @@
     grid-template-columns: 105px minmax(0, 1fr);
   }
 
-  .offline-banner {
-    align-items: flex-start;
-    flex-direction: column;
-  }
 }
 
 /* Step 16 · Devices Management */

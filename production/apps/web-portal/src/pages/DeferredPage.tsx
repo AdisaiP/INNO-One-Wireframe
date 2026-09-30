@@ -1,4 +1,6 @@
+import { Link } from 'react-router-dom';
 import { INNOPage, INNOState, type INNOStateKind } from '@inno/ui';
+import { ModuleDisabledState, PermissionState } from '../components/Feedback';
 
 export function DeferredPage({
   name,
@@ -7,27 +9,34 @@ export function DeferredPage({
   name: string;
   kind?: Extract<INNOStateKind, 'permission' | 'disabled' | 'no-results'>;
 }) {
-  const copy = kind === 'permission'
-    ? {
-        eyebrow: 'Access',
-        title: 'Permission denied',
-        description: 'Your account does not have permission to open this route.',
-      }
-    : kind === 'no-results'
-      ? {
-          eyebrow: 'Navigation',
-          title: 'Page not found',
-          description: 'The requested route does not exist in the current INNO.One production surface.',
-        }
-      : {
-          eyebrow: 'Production implementation',
-          title: 'Module not available yet',
-          description: 'This route boundary is reserved by the production skeleton and stays out of normal navigation until its frozen UI job and runtime contract are implemented.',
-        };
+  if (kind === 'permission') {
+    return (
+      <INNOPage eyebrow="Access" title={name}>
+        <PermissionState
+          action={<Link className="inno-link-button secondary" to="/">Back to Workspace</Link>}
+        />
+      </INNOPage>
+    );
+  }
+
+  if (kind === 'disabled') {
+    return (
+      <INNOPage eyebrow="Availability" title={name}>
+        <ModuleDisabledState
+          action={<Link className="inno-link-button secondary" to="/apps">Open Apps</Link>}
+        />
+      </INNOPage>
+    );
+  }
 
   return (
-    <INNOPage eyebrow={copy.eyebrow} title={name}>
-      <INNOState kind={kind} title={copy.title} description={copy.description} />
+    <INNOPage eyebrow="Navigation" title={name}>
+      <INNOState
+        kind="no-results"
+        title="Page not found"
+        description="The requested route does not exist in the current INNO.One production surface."
+        action={<Link className="inno-link-button secondary" to="/">Back to Workspace</Link>}
+      />
     </INNOPage>
   );
 }

@@ -75,6 +75,12 @@ def click_text(label):
       return true;
     })(%s)""" % json.dumps(label))
 
+def wait_tab(label, timeout=8):
+    return wait_for("""(label=>[...document.querySelectorAll('.inno-surface-tabs button')].some(e=>e.textContent.trim()===label && !e.hidden))(%s)""" % json.dumps(label), timeout)
+
+def wait_action(label, timeout=8):
+    return wait_for("""(label=>[...document.querySelectorAll('button,a')].some(e=>e.textContent.trim()===label && !e.hidden && e.offsetParent!==null))(%s)""" % json.dumps(label), timeout)
+
 def click_tab(label):
     return ev("""(label=>{
       const el=[...document.querySelectorAll('.inno-surface-tabs button')].find(e=>e.textContent.trim()===label && !e.hidden);
@@ -163,7 +169,8 @@ tab_cases = [
     ("ticket","Activity","Activity"),
 ]
 for name,tab_label,content in tab_cases:
-    check("tab route ready " + name, nav(routes[name]))
+    route_ready = nav(routes[name]) and bool(wait_tab(tab_label))
+    check("tab route ready " + name, route_ready)
     check("tab click " + name + " " + tab_label, bool(click_tab(tab_label)))
     time.sleep(.15)
     active = ev("document.querySelector('.inno-surface-tabs button.active')?.textContent?.trim()||''")
@@ -178,11 +185,13 @@ for name,edit_label,save_label in [
     ("asset","Edit Asset","Save Asset"),
     ("device-group","Edit Group","Save Changes"),
 ]:
-    check("edit route ready " + name, nav(routes[name]))
+    route_ready = nav(routes[name]) and bool(wait_action(edit_label))
+    check("edit route ready " + name, route_ready)
     visible_editor = ev("!![...document.querySelectorAll('.editor-form')].find(e=>e.offsetParent!==null)")
     check("default detail not editor " + name, not bool(visible_editor), str(visible_editor))
     check("open edit " + name, bool(click_text(edit_label)))
-    check("editor footer appears " + name, bool(wait_for("!!document.querySelector('.inno-editor-footer')")))
+    footer_ready = bool(wait_for("!!document.querySelector('.inno-editor-footer')"))
+    check("editor footer appears " + name, footer_ready)
     footer = ev("""(()=>{
       const f=document.querySelector('.inno-editor-footer');
       return {
@@ -202,8 +211,9 @@ for name,edit_label,save_label in [
     time.sleep(.15)
     check("detail tabs restored " + name, bool(ev("!!document.querySelector('.inno-surface-tabs')")))
 
-check("ticket operation route ready", nav(routes["ticket"]))
-if click_text("Reassign"):
+ticket_ready = nav(routes["ticket"]) and bool(wait_action("Reassign"))
+check("ticket operation route ready", ticket_ready)
+if ticket_ready and click_text("Reassign"):
     check("ticket reassign footer appears", bool(wait_for("!!document.querySelector('.ticket-assign-panel .inno-editor-footer')")))
     own = ev("""(()=>{
       const p=document.querySelector('.ticket-assign-panel');

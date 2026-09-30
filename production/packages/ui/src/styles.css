@@ -537,6 +537,24 @@ body { margin: 0; font-family: var(--ds-font); background: var(--ds-bg); color: 
   text-align: center;
 }
 .inno-state.compact { min-height: 150px; padding: 22px 16px; border: 0; border-radius: 0; background: transparent; }
+.inno-state.banner {
+  min-height: 0;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 11px 13px;
+  border: 1px solid var(--ds-border);
+  border-radius: 10px;
+  background: #fff;
+  text-align: left;
+  margin-bottom: 14px;
+}
+.inno-state.banner .inno-state-icon { width: 32px; height: 32px; border-radius: 8px; flex: none; }
+.inno-state.banner .inno-state-copy { min-width: 0; flex: 1; }
+.inno-state.banner h4 { margin-top: 1px; }
+.inno-state.banner p { max-width: none; margin: 3px 0 0; }
+.inno-state.banner .inno-state-actions { margin: 0 0 0 auto; align-self: center; flex: none; }
 .inno-state-icon {
 
   width: 42px;
@@ -560,6 +578,13 @@ body { margin: 0; font-family: var(--ds-font); background: var(--ds-bg); color: 
 .inno-state.partial .inno-state-icon { background: var(--ds-warning-soft); color: var(--ds-warning); }
 
 .inno-state.loading .inno-state-icon { color: var(--ds-primary); }
+.inno-state.loading .inno-state-icon .inno-icon { animation: inno-state-spin .9s linear infinite; }
+@keyframes inno-state-spin { to { transform: rotate(360deg); } }
+
+.inno-collection-state { background: #fff; }
+.inno-collection-state .inno-state { min-height: 138px; }
+.inno-pagination--state { min-height: 44px; }
+.inno-pagination--state > span { font-weight: 600; }
 
 @media (max-width: 1366px) {
   .inno-page { padding: 24px 16px 32px; }
@@ -578,6 +603,8 @@ body { margin: 0; font-family: var(--ds-font); background: var(--ds-bg); color: 
   .inno-resource-summary-item:nth-child(-n + 2) { border-bottom: 1px solid var(--ds-border); }
   .inno-editor-footer { flex-wrap: wrap; }
   .inno-editor-footer-note { max-width: 100%; }
+  .inno-state.banner { align-items: flex-start; flex-wrap: wrap; }
+  .inno-state.banner .inno-state-actions { width: 100%; margin-left: 0; align-self: stretch; }
   .inno-collection-toolbar { align-items: stretch; }
   .inno-search { flex: 1 1 100%; min-width: 100%; }
   .inno-toolbar-spacer { display: none; }

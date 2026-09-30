@@ -1,9 +1,9 @@
 import { useDeferredValue, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOPage, INNOSearchField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarMeta, INNOToolbarSpacer } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNOPage, INNOSearchField, INNOStatus, INNOTableWrap, INNOToolbarMeta, INNOToolbarSpacer } from '@inno/ui';
 import { getAssetOwners } from '../api/client';
-import { ErrorState, LoadingState } from '../components/Feedback';
+import { CollectionErrorState, CollectionLoadingState } from '../components/Feedback';
 
 export function AssetOwnersPage() {
   const [search, setSearch] = useState('');
@@ -27,11 +27,16 @@ export function AssetOwnersPage() {
           <INNOToolbarMeta>Authorization filtered server-side</INNOToolbarMeta>
         </INNOCollectionToolbar>
         {query.isPending ? (
-          <div className="collection-state"><LoadingState label="Loading users…" /></div>
+          <CollectionLoadingState label="Loading users…" />
         ) : query.isError ? (
-          <div className="collection-state"><ErrorState error={query.error} retry={() => void query.refetch()} /></div>
+          <CollectionErrorState error={query.error} retry={() => void query.refetch()} />
         ) : query.data.items.length === 0 ? (
-          <div className="collection-state"><INNOState kind={search ? 'no-results' : 'empty'} title={search ? 'No users found' : 'No users in scope'} description={search ? 'Try another name, employee ID or email.' : 'No Platform users with visible Asset ownership are available.'} /></div>
+          <INNOCollectionState
+            kind={search ? 'no-results' : 'empty'}
+            title={search ? 'No users found' : 'No users in scope'}
+            description={search ? 'Try another name, employee ID or email.' : 'No Platform users with visible Asset ownership are available.'}
+            action={search ? <INNOButton variant="secondary" onClick={() => setSearch('')}>Clear search</INNOButton> : undefined}
+          />
         ) : (
           <INNOTableWrap width="wide">
             <table>

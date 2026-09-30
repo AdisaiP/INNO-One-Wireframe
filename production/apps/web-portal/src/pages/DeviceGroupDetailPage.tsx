@@ -1,9 +1,9 @@
 import { useDeferredValue, useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
-import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOResourceHeader, INNOResourceSummary, INNOResourceSummaryItem, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOSurfaceTabs, INNOTableWrap } from '@inno/ui';
+import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOResourceHeader, INNOResourceSummary, INNOResourceSummaryItem, INNOSearchField, INNOSelectField, INNOStatus, INNOSurfaceTabs, INNOTableWrap } from '@inno/ui';
 import { getDeviceGroup, getDeviceGroupMembers, updateDeviceGroup } from '../api/client';
-import { ErrorState, LoadingState } from '../components/Feedback';
+import { CollectionErrorState, CollectionLoadingState, ErrorState, LoadingState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
 
 function formatLastSeen(value?: string | null) {
@@ -166,11 +166,18 @@ export function DeviceGroupDetailPage() {
         </INNOCollectionToolbar>
 
         {members.isPending ? (
-          <div className="collection-state"><LoadingState label="Loading group members…" /></div>
+          <CollectionLoadingState label="Loading group members…" />
         ) : members.isError ? (
-          <div className="collection-state"><ErrorState error={members.error} retry={() => void members.refetch()} /></div>
+          <CollectionErrorState error={members.error} retry={() => void members.refetch()} />
         ) : members.data.items.length === 0 ? (
-          <div className="collection-state"><INNOState kind={search || memberStatus !== 'all' ? 'no-results' : 'empty'} title={search || memberStatus !== 'all' ? 'No group members found' : 'No members yet'} description="Membership updates as managed endpoints synchronize into this group." /></div>
+          <INNOCollectionState
+            kind={search || memberStatus !== 'all' ? 'no-results' : 'empty'}
+            title={search || memberStatus !== 'all' ? 'No group members found' : 'No members yet'}
+            description={search || memberStatus !== 'all' ? 'Try another search or clear the filters.' : 'Membership updates as managed endpoints synchronize into this group.'}
+            action={search || memberStatus !== 'all'
+              ? <INNOButton variant="secondary" onClick={() => { setSearch(''); setMemberStatus('all'); }}>Clear filters</INNOButton>
+              : undefined}
+          />
         ) : (
           <INNOTableWrap width="wide">
             <table>

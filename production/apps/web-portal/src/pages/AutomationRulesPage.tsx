@@ -1,10 +1,10 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { getAutomationRules } from '../api/client';
 import { usePermission } from '../app/ProfileContext';
-import { ErrorState, LoadingState } from '../components/Feedback';
+import { CollectionErrorState, CollectionLoadingState } from '../components/Feedback';
 
 function formatRelative(value?: string | null) {
   if (!value) return 'Never';
@@ -89,22 +89,20 @@ export function AutomationRulesPage() {
         </INNOCollectionToolbar>
 
         {query.isPending ? (
-          <div className="collection-state"><LoadingState label="Loading automation rules…" /></div>
+          <CollectionLoadingState label="Loading automation rules…" />
         ) : query.isError ? (
-          <div className="collection-state"><ErrorState error={query.error} retry={() => void query.refetch()} /></div>
+          <CollectionErrorState error={query.error} retry={() => void query.refetch()} />
         ) : query.data.items.length === 0 ? (
-          <div className="collection-state">
-            <INNOState
-              kind={search || status !== 'all' || type !== 'all' ? 'no-results' : 'empty'}
-              title={search || status !== 'all' || type !== 'all' ? 'No automation rules found' : 'No automation rules yet'}
-              description={search || status !== 'all' || type !== 'all'
-                ? 'Try another search or clear the filters.'
-                : 'Create the first rule when automation is ready for this workspace.'}
-              action={search || status !== 'all' || type !== 'all'
-                ? <INNOButton variant="secondary" onClick={() => { setSearch(''); setStatus('all'); setType('all'); }}>Clear filters</INNOButton>
-                : undefined}
-            />
-          </div>
+          <INNOCollectionState
+            kind={search || status !== 'all' || type !== 'all' ? 'no-results' : 'empty'}
+            title={search || status !== 'all' || type !== 'all' ? 'No automation rules found' : 'No automation rules yet'}
+            description={search || status !== 'all' || type !== 'all'
+              ? 'Try another search or clear the filters.'
+              : 'Create the first rule when automation is ready for this workspace.'}
+            action={search || status !== 'all' || type !== 'all'
+              ? <INNOButton variant="secondary" onClick={() => { setSearch(''); setStatus('all'); setType('all'); }}>Clear filters</INNOButton>
+              : undefined}
+          />
         ) : (
           <>
             <INNOTableWrap width="xwide">

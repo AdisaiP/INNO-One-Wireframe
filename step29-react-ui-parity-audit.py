@@ -255,9 +255,19 @@ for legacy in ['page-helper','prod-tag','collection-card','production-table-wrap
 for marker in ['description="Your workspace profile and organization-managed sign-in."','INNOStatus tone="success"','Personal preferences are not exposed']:
     if marker not in profile_page: issues.append('profile parity '+marker)
 
-for marker in ["kind = 'disabled'","kind?: Extract<INNOStateKind, 'permission' | 'disabled' | 'no-results'>",
-               "kind={kind}",'Permission denied','Module not available yet','Page not found']:
-    if marker not in deferred_page: issues.append('deferred state '+marker)
+for marker in [
+    "kind = 'disabled'",
+    "kind?: Extract<INNOStateKind, 'permission' | 'disabled' | 'no-results'>",
+    "<PermissionState",
+    "<ModuleDisabledState",
+    "You do not have access",
+    "Module is not available",
+    "Page not found",
+    "Back to Workspace",
+    "Open Apps",
+]:
+    source = deferred_page + feedback
+    if marker not in source: issues.append('deferred state '+marker)
 
 if app_root.count('kind="permission"') < 20:
     issues.append('permission fallbacks incomplete')

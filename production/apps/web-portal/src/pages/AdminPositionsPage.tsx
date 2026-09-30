@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOPage, INNOSearchField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOPage, INNOSearchField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { createAdminPosition, getAdminPositions, updateAdminPosition } from '../api/client';
-import { ErrorState, LoadingState } from '../components/Feedback';
+import { CollectionErrorState, CollectionLoadingState, ErrorState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
 
 export function AdminPositionsPage() {
@@ -49,15 +49,22 @@ export function AdminPositionsPage() {
         <INNOCollection>
           <INNOCollectionHeader title="Positions" description="Reusable organization position master." meta={query.data ? <INNOStatus>{query.data.length} positions</INNOStatus> : undefined} />
           <INNOCollectionToolbar><INNOSearchField label="Search positions" value={search} onChange={setSearch} placeholder="Search position or code…" /></INNOCollectionToolbar>
-          {query.isPending ? <div className="collection-state"><LoadingState label="Loading positions…" /></div> : null}
-          {query.isError ? <div className="collection-state"><ErrorState error={query.error} retry={() => void query.refetch()} /></div> : null}
+          {query.isPending ? <CollectionLoadingState label="Loading positions…" /> : null}
+          {query.isError ? <CollectionErrorState error={query.error} retry={() => void query.refetch()} /> : null}
           {items.length ? (
             <INNOTableWrap stickyAction>
               <table><thead><tr><th>Position</th><th>Code</th><th>Status</th><th className="action-column">Action</th></tr></thead>
                 <tbody>{items.map((item) => <tr key={item.id} className={item.id === selectedId ? 'selected-row' : undefined}><td><b>{item.name}</b></td><td>{item.code}</td><td><INNOStatus tone={item.status === 'active' ? 'success' : 'neutral'}>{item.status}</INNOStatus></td><td className="action-column"><button type="button" className="inno-row-action" aria-label={'Select ' + item.name} onClick={() => { setCreateMode(false); setSelectedId(item.id); }}>Select</button></td></tr>)}</tbody>
               </table>
             </INNOTableWrap>
-          ) : query.data ? <div className="collection-state"><INNOState kind={search ? 'no-results' : 'empty'} title="No positions found" description={search ? 'Try another search.' : 'Create the first position.'} /></div> : null}
+          ) : query.data ? (
+            <INNOCollectionState
+              kind={search ? 'no-results' : 'empty'}
+              title={search ? 'No positions found' : 'Nothing here yet'}
+              description={search ? 'Try another search.' : 'Create the first position.'}
+              action={search ? <INNOButton variant="secondary" onClick={() => setSearch('')}>Clear search</INNOButton> : undefined}
+            />
+          ) : null}
         </INNOCollection>
         <section className="prod-panel admin-editor-panel">
           <div className="prod-panel-head"><div><h3>{createMode ? 'New Position' : selected?.name ?? 'Position details'}</h3><p>{createMode ? 'Create a reusable organization position.' : selected ? 'Edit this position.' : 'Select a row to inspect or edit.'}</p></div></div>

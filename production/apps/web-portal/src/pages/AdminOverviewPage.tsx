@@ -80,9 +80,9 @@ export function AdminOverviewPage() {
           {query.data.positions === 0 || query.data.roles === 0 ? (
             <INNOState
               kind="partial"
-              compact
+              banner
               title="Administration masters need attention"
-              description="Positions and roles should be configured before assigning users and resource scopes."
+              description="Existing administration data remains available. Configure positions and roles before assigning users and resource scopes."
             />
           ) : null}
         </>

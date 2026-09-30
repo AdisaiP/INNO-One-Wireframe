@@ -5,6 +5,7 @@ import {
   INNOButton,
   INNOCollection,
   INNOCollectionHeader,
+  INNOCollectionState,
   INNOCollectionToolbar,
   INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart,
   INNOPage,
@@ -23,7 +24,7 @@ import {
   updateAdminOrganizationUnit,
 } from '../api/client';
 import type { AdminHierarchyItem } from '../api/types';
-import { ErrorState, LoadingState } from '../components/Feedback';
+import { CollectionErrorState, CollectionLoadingState, ErrorState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
 
 type Kind = 'organization' | 'location';
@@ -114,10 +115,15 @@ export function AdminHierarchyPage({ kind }: { kind: Kind }) {
           <INNOCollectionToolbar>
             <INNOSearchField label={'Search ' + title.toLowerCase()} value={search} onChange={setSearch} placeholder="Search name or code…" />
           </INNOCollectionToolbar>
-          {query.isPending ? <div className="collection-state"><LoadingState label={'Loading ' + title.toLowerCase() + '…'} /></div> : null}
-          {query.isError ? <div className="collection-state"><ErrorState error={query.error} retry={() => void query.refetch()} /></div> : null}
+          {query.isPending ? <CollectionLoadingState label={'Loading ' + title.toLowerCase() + '…'} /> : null}
+          {query.isError ? <CollectionErrorState error={query.error} retry={() => void query.refetch()} /> : null}
           {query.data && items.length === 0 ? (
-            <div className="collection-state"><INNOState kind={search ? 'no-results' : 'empty'} title="No records found" description={search ? 'Try another search.' : 'Create the first record when you are ready.'} /></div>
+            <INNOCollectionState
+              kind={search ? 'no-results' : 'empty'}
+              title={search ? 'No records found' : 'Nothing here yet'}
+              description={search ? 'Try another search.' : 'Create the first record when you are ready.'}
+              action={search ? <INNOButton variant="secondary" onClick={() => setSearch('')}>Clear search</INNOButton> : undefined}
+            />
           ) : null}
           {items.length > 0 ? (
             <INNOTableWrap stickyAction>

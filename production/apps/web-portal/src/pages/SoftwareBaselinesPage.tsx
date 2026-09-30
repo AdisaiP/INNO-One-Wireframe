@@ -1,9 +1,9 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOPage, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOPage, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { createSoftwareBaseline, evaluateSoftwareBaseline, getSoftwareBaselineResults, getSoftwareBaselines, updateSoftwareBaseline } from '../api/client';
 import type { SoftwareBaselineItem, SoftwareBaselineRequest } from '../api/types';
-import { ErrorState, LoadingState } from '../components/Feedback';
+import { CollectionErrorState, CollectionLoadingState, ErrorState, LoadingState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
 
 const blank: SoftwareBaselineRequest = {
@@ -159,7 +159,14 @@ export function SoftwareBaselinesPage() {
             </tr>)}</tbody>
           </table></INNOTableWrap>
         ) : (
-          <div className="collection-state"><INNOState kind={search || status !== 'all' ? 'no-results' : 'empty'} title={search || status !== 'all' ? 'No matching baselines' : 'No software baselines yet'} description={search || status !== 'all' ? 'Try another search or status.' : 'Create the first baseline when required software policy is ready.'} /></div>
+          <INNOCollectionState
+            kind={search || status !== 'all' ? 'no-results' : 'empty'}
+            title={search || status !== 'all' ? 'No matching baselines' : 'No software baselines yet'}
+            description={search || status !== 'all' ? 'Try another search or clear the filters.' : 'Create the first baseline when required software policy is ready.'}
+            action={search || status !== 'all'
+              ? <INNOButton variant="secondary" onClick={() => { setSearch(''); setStatus('all'); }}>Clear filters</INNOButton>
+              : undefined}
+          />
         )}
       </INNOCollection>
 
@@ -172,9 +179,9 @@ export function SoftwareBaselinesPage() {
           ) : undefined}
         />
         {resultsQuery.isPending ? (
-          <div className="collection-state"><LoadingState label="Loading baseline results…" /></div>
+          <CollectionLoadingState label="Loading baseline results…" />
         ) : resultsQuery.isError ? (
-          <div className="collection-state"><ErrorState error={resultsQuery.error} retry={() => void resultsQuery.refetch()} /></div>
+          <CollectionErrorState error={resultsQuery.error} retry={() => void resultsQuery.refetch()} />
         ) : (
           <>
             <div className="baseline-result-summary">

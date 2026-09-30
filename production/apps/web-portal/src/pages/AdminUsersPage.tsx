@@ -6,13 +6,13 @@ import {
   INNOButton,
   INNOCollection,
   INNOCollectionHeader,
+  INNOCollectionState,
   INNOCollectionToolbar,
   INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart,
   INNOPage,
   INNOPagination,
   INNOSearchField,
   INNOSelectField,
-  INNOState,
   INNOStatus,
   INNOTableWrap,
 } from '@inno/ui';
@@ -23,7 +23,7 @@ import {
   getAdminPositions,
   getAdminUsers,
 } from '../api/client';
-import { ErrorState, LoadingState } from '../components/Feedback';
+import { CollectionErrorState, CollectionLoadingState, ErrorState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
 
 const blankForm = {
@@ -133,9 +133,20 @@ export function AdminUsersPage() {
           <INNOSelectField label="Organization unit" value={organizationId} onChange={setOrganizationId}><option value="all">Unit: All</option>{organizations.data?.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</INNOSelectField>
         </INNOCollectionToolbar>
 
-        {users.isPending ? <div className="collection-state"><LoadingState label="Loading users…" /></div> : null}
-        {users.isError ? <div className="collection-state"><ErrorState error={users.error} retry={() => void users.refetch()} /></div> : null}
-        {users.data?.items.length === 0 ? <div className="collection-state"><INNOState kind={search || status !== 'all' || organizationId !== 'all' ? 'no-results' : 'empty'} title="No users found" description="Try another search or filter." /></div> : null}
+        {users.isPending ? <CollectionLoadingState label="Loading users…" /> : null}
+        {users.isError ? <CollectionErrorState error={users.error} retry={() => void users.refetch()} /> : null}
+        {users.data?.items.length === 0 ? (
+          <INNOCollectionState
+            kind={search || status !== 'all' || organizationId !== 'all' ? 'no-results' : 'empty'}
+            title={search || status !== 'all' || organizationId !== 'all' ? 'No users found' : 'No users in scope'}
+            description={search || status !== 'all' || organizationId !== 'all'
+              ? 'Try another search or clear the filters.'
+              : 'No organization profile is currently visible in your scope.'}
+            action={search || status !== 'all' || organizationId !== 'all'
+              ? <INNOButton variant="secondary" onClick={() => { setSearch(''); setStatus('all'); setOrganizationId('all'); }}>Clear filters</INNOButton>
+              : undefined}
+          />
+        ) : null}
         {users.data?.items.length ? (
           <>
             <INNOTableWrap width="wide">

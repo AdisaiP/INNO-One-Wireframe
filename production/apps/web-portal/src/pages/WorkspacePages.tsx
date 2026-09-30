@@ -201,10 +201,10 @@ export function WorkspaceHomePage() {
       </section>
       {data.partialFailures.length ? (
         <INNOState
-          compact
+          banner
           kind="partial"
           title="Some workspace signals are temporarily unavailable"
-          description={'Could not load attention data from: ' + data.partialFailures.join(', ')}
+          description={'Available workspace data is preserved. Unavailable providers: ' + data.partialFailures.join(', ')}
         />
       ) : null}
     </div>
@@ -255,10 +255,10 @@ export function WorkspaceAttentionPage() {
           </section>
           {query.data.partialFailures.length ? (
             <INNOState
-              compact
+              banner
               kind="partial"
               title="Partial workspace data"
-              description={'Unavailable providers: ' + query.data.partialFailures.join(', ')}
+              description={'Available attention items are preserved. Unavailable providers: ' + query.data.partialFailures.join(', ')}
             />
           ) : null}
         </>

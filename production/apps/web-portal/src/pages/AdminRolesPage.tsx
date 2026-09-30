@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOIcon, INNOPage, INNOSearchField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNOIcon, INNOPage, INNOSearchField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { getAdminPermissions, getAdminRoles } from '../api/client';
-import { ErrorState, LoadingState } from '../components/Feedback';
+import { CollectionErrorState, CollectionLoadingState, ErrorState, LoadingState } from '../components/Feedback';
 
 export function AdminRolesPage() {
   const [search, setSearch] = useState('');
@@ -61,9 +61,16 @@ export function AdminRolesPage() {
         <INNOCollectionToolbar>
           <INNOSearchField label="Search permissions" value={search} onChange={setSearch} placeholder="Search permission, module or description…" />
         </INNOCollectionToolbar>
-        {permissions.isPending ? <div className="collection-state"><LoadingState label="Loading permissions…" /></div> : null}
-        {permissions.isError ? <div className="collection-state"><ErrorState error={permissions.error} retry={() => void permissions.refetch()} /></div> : null}
-        {permissions.data && filtered.length === 0 ? <div className="collection-state"><INNOState kind="no-results" title="No permissions found" description="Try another search." /></div> : null}
+        {permissions.isPending ? <CollectionLoadingState label="Loading permissions…" /> : null}
+        {permissions.isError ? <CollectionErrorState error={permissions.error} retry={() => void permissions.refetch()} /> : null}
+        {permissions.data && filtered.length === 0 ? (
+          <INNOCollectionState
+            kind={search ? 'no-results' : 'empty'}
+            title={search ? 'No permissions found' : 'Nothing here yet'}
+            description={search ? 'Try another search.' : 'No permissions are available in the current catalog.'}
+            action={search ? <INNOButton variant="secondary" onClick={() => setSearch('')}>Clear search</INNOButton> : undefined}
+          />
+        ) : null}
         {filtered.length ? (
           <INNOTableWrap width="xwide">
             <table className="admin-permission-matrix">
