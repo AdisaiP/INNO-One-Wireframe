@@ -1,9 +1,9 @@
 > [!IMPORTANT]
 > **Current production override — 2026-09-30**
 >
-> **Step 42.2C List / Collection Pages is complete** on `ux/step42.2c-list-collections`.
+> **Step 42.2D Create / Edit / Settings Pages is complete** on `ux/step42.2d-editor-settings`.
 >
-> Read `INNO-One-Step42.2C-Next-Chat-Handoff.md` first. Production list pages now share the same Collection Heading → Search/Filters/Meta → Table/List → State/Pagination anatomy, use shared toolbar metadata, named `Open` / `Select` row actions, and preserve responsive horizontal table scrolling with accessible Action ownership. Dedicated Step 42.2C browser QA is 213/213, Step 42.2B surface QA is 117/117, Step 42.2A scroll QA is 12/12, Design System browser QA is 56/56, broad Production regression is 1323/1323 across 49 routes, the static chain is 46/46, and build/typecheck are green. Step 42.2B and earlier are already merged to `main` at `8e5be5e`; Step 42.2C is not merged yet. The next UX slice is **Step 42.2D — Create / Edit / Settings Pages**. Meeting remains deferred. **Do not merge or deploy unless explicitly requested.**
+> Read `INNO-One-Step42.2D-Next-Chat-Handoff.md` first. Production P04/P05 editors now use a shared `INNOEditorFooter` anatomy with explicit Start / End / Note ownership: Cancel/Discard/supporting notes stay on the left and Save/Create stays on the right. Profile has a real dirty-state Discard flow, Device Group/Admin User inline-create Cancel actions moved out of the Page Header into their editor footer, and obsolete page-local footer CSS was removed. Dedicated Step 42.2D browser QA is 183/183, Step 42.2C is 213/213, Step 42.2B is 117/117, Step 42.2A is 12/12, Design System browser QA is 56/56, broad Production regression is 1366/1366 across 51 routes, the static chain is 47/47, and build/typecheck are green. `main` still contains Step 42.2B and earlier at `8e5be5e`; Step 42.2C and Step 42.2D are not merged yet. The next UX slice is **Step 42.2E — Resource Detail**. Meeting remains deferred. **Do not merge or deploy unless explicitly requested.**
 
 > [!IMPORTANT]
 > **Current production override — 2026-09-29**

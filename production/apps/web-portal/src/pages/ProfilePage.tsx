@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { INNOButton, INNOPage, INNOStatus } from '@inno/ui';
+import { INNOButton, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOPage, INNOStatus } from '@inno/ui';
 import { updateCurrentProfile } from '../api/client';
 import { useProfile } from '../app/ProfileContext';
 
@@ -30,6 +30,11 @@ export function ProfilePage() {
     event.preventDefault();
     if (!dirty || mutation.isPending) return;
     mutation.mutate({ phone, office });
+  }
+
+  function discardChanges() {
+    setPhone(profile.phone ?? '');
+    setOffice(profile.office ?? '');
   }
 
   return (
@@ -114,15 +119,24 @@ export function ProfilePage() {
                 <div className="profile-save-success" role="status">Profile saved.</div>
               ) : null}
 
-              <div className="profile-edit-actions">
-                <INNOButton
-                  type="submit"
-                  busy={mutation.isPending}
-                  disabled={!dirty || mutation.isPending}
-                >
-                  Save profile
-                </INNOButton>
-              </div>
+              <INNOEditorFooter>
+                <INNOEditorFooterStart>
+                  {dirty ? (
+                    <INNOButton type="button" variant="secondary" disabled={mutation.isPending} onClick={discardChanges}>
+                      Discard changes
+                    </INNOButton>
+                  ) : null}
+                </INNOEditorFooterStart>
+                <INNOEditorFooterEnd>
+                  <INNOButton
+                    type="submit"
+                    busy={mutation.isPending}
+                    disabled={!dirty || mutation.isPending}
+                  >
+                    Save profile
+                  </INNOButton>
+                </INNOEditorFooterEnd>
+              </INNOEditorFooter>
             </form>
           </section>
         </div>

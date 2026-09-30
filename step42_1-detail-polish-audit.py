@@ -11,6 +11,7 @@ shell_css = read("production/apps/web-portal/src/shell.css")
 ui = read("production/packages/ui/src/index.tsx")
 ui_css = read("production/packages/ui/src/styles.css")
 tickets = read("production/apps/web-portal/src/pages/TicketsPage.tsx")
+contracts = read("production/apps/web-portal/src/pages/ContractsWarrantyPage.tsx")
 
 def require(text: str, marker: str, label: str):
     if marker not in text:
@@ -79,7 +80,9 @@ require(shell_css, "border-radius: 12px;", "standalone footer")
 require(shell_css, ".qr-action-footer { margin-top: 14px; }", "QR footer")
 require(shell_css, ".license-stat-strip { margin-bottom: 16px; }", "license stats")
 require(shell_css, ".contract-stat-strip { margin-bottom: 16px; }", "contract stats")
-require(shell_css, ".contract-record-footer", "contract footer")
+require(contracts, "<INNOEditorFooter>", "contract footer")
+require(contracts, "<INNOEditorFooterStart>", "contract footer")
+require(contracts, "<INNOEditorFooterEnd>", "contract footer")
 
 print("step42_1_detail_polish=wireframe-micro-fidelity")
 print("context_navigation=desktop-collapse+tablet-hamburger")

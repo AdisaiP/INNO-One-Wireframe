@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarMeta, INNOToolbarSpacer } from '@inno/ui';
+import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarMeta, INNOToolbarSpacer } from '@inno/ui';
 import { createDeviceGroup, getDeviceGroups } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import { usePermission, useProfile } from '../app/ProfileContext';
@@ -54,9 +54,9 @@ export function DeviceGroupsPage() {
       eyebrow="Devices"
       title="Device Groups"
       description="Manage static endpoint groups and keep their membership synchronized with the remote device engine."
-      actions={canManage ? (
-        <INNOButton type="button" onClick={() => setShowCreate((value) => !value)}>
-          {showCreate ? 'Cancel' : 'New Device Group'}
+      actions={canManage && !showCreate ? (
+        <INNOButton type="button" onClick={() => setShowCreate(true)}>
+          New Device Group
         </INNOButton>
       ) : undefined}
     >
@@ -97,7 +97,12 @@ export function DeviceGroupsPage() {
             </div>
             {create.isError ? <ErrorState error={create.error} /> : null}
             <INNOEditorFooter>
-              <INNOButton type="submit" busy={create.isPending} disabled={!name.trim()}>Create Group</INNOButton>
+              <INNOEditorFooterStart>
+                <INNOButton type="button" variant="secondary" disabled={create.isPending} onClick={() => setShowCreate(false)}>Cancel</INNOButton>
+              </INNOEditorFooterStart>
+              <INNOEditorFooterEnd>
+                <INNOButton type="submit" busy={create.isPending} disabled={!name.trim()}>Create Group</INNOButton>
+              </INNOEditorFooterEnd>
             </INNOEditorFooter>
           </form>
         </section>

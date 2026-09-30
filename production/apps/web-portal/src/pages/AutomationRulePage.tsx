@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { INNOButton, INNOEditorFooter, INNOPage, INNOState, INNOStatus } from '@inno/ui';
+import { INNOButton, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOPage, INNOState, INNOStatus } from '@inno/ui';
 import {
   createAutomationRule,
   getAutomationRule,
@@ -214,15 +214,19 @@ export function AutomationRulePage() {
             </section>
           ) : null}
 
-          <INNOEditorFooter className="standalone-editor-footer">
-            <Link className="inno-link-button secondary" to="/helpdesk/automation">Cancel</Link>
-            <INNOButton
-              busy={mutation.isPending}
-              disabled={!form.name.trim() || !form.conditionValue.trim() || !form.actionValue.trim()}
-              onClick={() => mutation.mutate()}
-            >
-              Save Rule
-            </INNOButton>
+          <INNOEditorFooter>
+            <INNOEditorFooterStart>
+              <Link className="inno-link-button secondary" to="/helpdesk/automation">Cancel</Link>
+            </INNOEditorFooterStart>
+            <INNOEditorFooterEnd>
+              <INNOButton
+                busy={mutation.isPending}
+                disabled={!form.name.trim() || !form.conditionValue.trim() || !form.actionValue.trim()}
+                onClick={() => mutation.mutate()}
+              >
+                Save Rule
+              </INNOButton>
+            </INNOEditorFooterEnd>
           </INNOEditorFooter>
         </div>
 

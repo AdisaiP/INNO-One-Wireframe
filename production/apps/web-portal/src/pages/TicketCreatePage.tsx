@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
-import { INNOButton, INNOEditorFooter, INNOIcon, INNOPage, INNOStatus } from '@inno/ui';
+import { INNOButton, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOIcon, INNOPage, INNOStatus } from '@inno/ui';
 import { createTicket, getDevices, getTicketCategories } from '../api/client';
 import { usePermission, useProfile } from '../app/ProfileContext';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -205,8 +205,12 @@ export function TicketCreatePage() {
             </details>
 
             <INNOEditorFooter>
-              <INNOButton variant="secondary" onClick={() => navigate('/helpdesk')}>Cancel</INNOButton>
-              <INNOButton busy={mutation.isPending} onClick={submit}>Create Ticket</INNOButton>
+              <INNOEditorFooterStart>
+                <INNOButton variant="secondary" onClick={() => navigate('/helpdesk')}>Cancel</INNOButton>
+              </INNOEditorFooterStart>
+              <INNOEditorFooterEnd>
+                <INNOButton busy={mutation.isPending} onClick={submit}>Create Ticket</INNOButton>
+              </INNOEditorFooterEnd>
             </INNOEditorFooter>
           </div>
 

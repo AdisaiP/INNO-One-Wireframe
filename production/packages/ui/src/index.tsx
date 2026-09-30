@@ -444,6 +444,27 @@ export function INNOEditorFooter({
   return <footer className={cx('inno-editor-footer', className)}>{children}</footer>;
 }
 
+export function INNOEditorFooterStart({
+  children,
+  className,
+}: PropsWithChildren<{ className?: string }>) {
+  return <div className={cx('inno-editor-footer-start', className)}>{children}</div>;
+}
+
+export function INNOEditorFooterEnd({
+  children,
+  className,
+}: PropsWithChildren<{ className?: string }>) {
+  return <div className={cx('inno-editor-footer-end', className)}>{children}</div>;
+}
+
+export function INNOEditorFooterNote({
+  children,
+  className,
+}: PropsWithChildren<{ className?: string }>) {
+  return <span className={cx('inno-editor-footer-note', className)}>{children}</span>;
+}
+
 export function INNOResourceHeader({
   title,
   icon,

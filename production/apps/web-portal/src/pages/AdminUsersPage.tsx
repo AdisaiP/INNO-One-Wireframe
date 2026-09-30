@@ -7,7 +7,7 @@ import {
   INNOCollection,
   INNOCollectionHeader,
   INNOCollectionToolbar,
-  INNOEditorFooter,
+  INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart,
   INNOPage,
   INNOPagination,
   INNOSearchField,
@@ -88,9 +88,9 @@ export function AdminUsersPage() {
       eyebrow="Admin Center · Organization"
       title="Users"
       description="Browse organization profiles separately from authentication identity."
-      actions={canManage ? (
-        <INNOButton type="button" onClick={() => setShowCreate((value) => !value)}>
-          {showCreate ? 'Cancel' : 'New User'}
+      actions={canManage && !showCreate ? (
+        <INNOButton type="button" onClick={() => setShowCreate(true)}>
+          New User
         </INNOButton>
       ) : undefined}
     >
@@ -109,7 +109,14 @@ export function AdminUsersPage() {
               <label className="field-block"><span>Status</span><select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}><option value="active">Active</option><option value="inactive">Inactive</option></select></label>
             </div>
             {create.isError ? <ErrorState error={create.error} /> : null}
-            <INNOEditorFooter><INNOButton type="submit" busy={create.isPending} disabled={!form.keycloakSubject.trim() || !form.employeeId.trim() || !form.fullName.trim() || !form.email.trim()}>Create User</INNOButton></INNOEditorFooter>
+            <INNOEditorFooter>
+              <INNOEditorFooterStart>
+                <INNOButton type="button" variant="secondary" disabled={create.isPending} onClick={() => setShowCreate(false)}>Cancel</INNOButton>
+              </INNOEditorFooterStart>
+              <INNOEditorFooterEnd>
+                <INNOButton type="submit" busy={create.isPending} disabled={!form.keycloakSubject.trim() || !form.employeeId.trim() || !form.fullName.trim() || !form.email.trim()}>Create User</INNOButton>
+              </INNOEditorFooterEnd>
+            </INNOEditorFooter>
           </form>
         </section>
       ) : null}

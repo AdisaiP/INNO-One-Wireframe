@@ -1,6 +1,6 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOPage, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOPage, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { createSoftwareBaseline, evaluateSoftwareBaseline, getSoftwareBaselineResults, getSoftwareBaselines, updateSoftwareBaseline } from '../api/client';
 import type { SoftwareBaselineItem, SoftwareBaselineRequest } from '../api/types';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -233,8 +233,12 @@ export function SoftwareBaselinesPage() {
           </label>
         </div>
         {canManage ? <INNOEditorFooter>
-          <INNOButton variant="secondary" onClick={() => { setCreating(false); setSelectedId(''); }}>Cancel</INNOButton>
-          <INNOButton busy={save.isPending} onClick={() => void save.mutate()}>Save Baseline</INNOButton>
+          <INNOEditorFooterStart>
+            <INNOButton variant="secondary" onClick={() => { setCreating(false); setSelectedId(''); }}>Cancel</INNOButton>
+          </INNOEditorFooterStart>
+          <INNOEditorFooterEnd>
+            <INNOButton busy={save.isPending} onClick={() => void save.mutate()}>Save Baseline</INNOButton>
+          </INNOEditorFooterEnd>
         </INNOEditorFooter> : null}
       </INNOCollection> : null}
     </INNOPage>

@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterNote, INNOEditorFooterStart, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { getAssetContracts, updateAssetContract } from '../api/client';
 import { usePermission } from '../app/ProfileContext';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -285,9 +285,13 @@ export function ContractsWarrantyPage() {
                   <label className="field-block field-wide"><span>Contact email</span><input type="email" value={form.contactEmail} onChange={(event) => setForm((c) => ({ ...c, contactEmail: event.target.value }))} /></label>
                 </div>
               </div>
-              <INNOEditorFooter className="contract-record-footer">
-                <span className="editor-footer-note">Saving is audited. Entering the 90-day window emits expiration events for covered Assets.</span>
-                <INNOButton busy={saveMutation.isPending} onClick={save}>Save Contract</INNOButton>
+              <INNOEditorFooter>
+                <INNOEditorFooterStart>
+                  <INNOEditorFooterNote>Saving is audited. Entering the 90-day window emits expiration events for covered Assets.</INNOEditorFooterNote>
+                </INNOEditorFooterStart>
+                <INNOEditorFooterEnd>
+                  <INNOButton busy={saveMutation.isPending} onClick={save}>Save Contract</INNOButton>
+                </INNOEditorFooterEnd>
               </INNOEditorFooter>
             </div>
           ) : null}

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOPage, INNOSearchField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOPage, INNOSearchField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { createAdminPosition, getAdminPositions, updateAdminPosition } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
@@ -70,8 +70,12 @@ export function AdminPositionsPage() {
               </div>
               {mutation.isError ? <ErrorState error={mutation.error} /> : null}
               <INNOEditorFooter>
-                {createMode ? <INNOButton type="button" variant="secondary" onClick={() => setCreateMode(false)}>Cancel</INNOButton> : null}
-                <INNOButton type="submit" busy={mutation.isPending} disabled={!canManage || !form.code.trim() || !form.name.trim()}>Save</INNOButton>
+                <INNOEditorFooterStart>
+                  {createMode ? <INNOButton type="button" variant="secondary" onClick={() => setCreateMode(false)}>Cancel</INNOButton> : null}
+                </INNOEditorFooterStart>
+                <INNOEditorFooterEnd>
+                  <INNOButton type="submit" busy={mutation.isPending} disabled={!canManage || !form.code.trim() || !form.name.trim()}>Save</INNOButton>
+                </INNOEditorFooterEnd>
               </INNOEditorFooter>
             </form>
           ) : <div className="collection-state"><INNOState title="Select a position" description="Choose a row to edit it." /></div>}

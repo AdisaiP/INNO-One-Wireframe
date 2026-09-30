@@ -835,11 +835,6 @@
   gap: 12px;
 }
 
-.profile-edit-actions {
-  display: flex;
-  justify-content: flex-end;
-}
-
 .profile-save-error,
 .profile-save-success {
   padding: 9px 10px;
@@ -1700,12 +1695,6 @@
   width: 100%;
   min-height: 34px;
 }
-.footer-helper {
-  max-width: 62%;
-  color: var(--ds-muted);
-  font-size: 9px;
-  line-height: 1.45;
-}
 .sla-monitor-list {
   display: grid;
 }
@@ -1896,9 +1885,6 @@
   }
   .automation-condition {
     grid-template-columns: 1fr;
-  }
-  .footer-helper {
-    max-width: none;
   }
 }
 
@@ -2175,13 +2161,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.license-record-footer {
-  align-items: center;
-  margin-top: 14px;
-}
-.license-record-footer .editor-footer-note {
-  margin-right: auto;
-}
 .supporting-table th,
 .supporting-table td {
   padding-block: 8px;
@@ -2204,11 +2183,6 @@
     border-bottom: 1px solid #eef1f4;
   }
   .license-record-summary > div:last-child { border-bottom: 0; }
-  .license-record-footer {
-    align-items: stretch;
-    flex-direction: column;
-  }
-  .license-record-footer .editor-footer-note { margin-right: 0; }
 }
 
 
@@ -2266,12 +2240,6 @@
   margin-top: 2px;
   border-top: 1px solid #eef1f4;
 }
-.contract-record-footer {
-  align-items: center;
-  margin-top: 14px;
-}
-.contract-record-footer .editor-footer-note { margin-right: auto; }
-
 @media (max-width: 1024px) {
   .contract-detail-grid { grid-template-columns: 1fr; }
 }
@@ -2285,11 +2253,6 @@
     border-bottom: 1px solid #eef1f4;
   }
   .contract-kv-grid > div:last-child { border-bottom: 0; }
-  .contract-record-footer {
-    align-items: stretch;
-    flex-direction: column;
-  }
-  .contract-record-footer .editor-footer-note { margin-right: 0; }
 }
 
 /* Step 26 · Software baseline definitions */

@@ -6,7 +6,7 @@ import {
   INNOCollection,
   INNOCollectionHeader,
   INNOCollectionToolbar,
-  INNOEditorFooter,
+  INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart,
   INNOPage,
   INNOSearchField,
   INNOSelectField,
@@ -171,8 +171,12 @@ export function AdminHierarchyPage({ kind }: { kind: Kind }) {
               </div>
               {mutation.isError ? <ErrorState error={mutation.error} /> : null}
               <INNOEditorFooter>
-                {createMode ? <INNOButton type="button" variant="secondary" onClick={() => setCreateMode(false)}>Cancel</INNOButton> : null}
-                <INNOButton type="submit" busy={mutation.isPending} disabled={!canManage || !form.code.trim() || !form.name.trim()}>Save</INNOButton>
+                <INNOEditorFooterStart>
+                  {createMode ? <INNOButton type="button" variant="secondary" onClick={() => setCreateMode(false)}>Cancel</INNOButton> : null}
+                </INNOEditorFooterStart>
+                <INNOEditorFooterEnd>
+                  <INNOButton type="submit" busy={mutation.isPending} disabled={!canManage || !form.code.trim() || !form.name.trim()}>Save</INNOButton>
+                </INNOEditorFooterEnd>
               </INNOEditorFooter>
             </form>
           ) : (

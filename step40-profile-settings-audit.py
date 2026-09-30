@@ -90,12 +90,15 @@ for forbidden in [
 for marker in [
     ".profile-edit-form",
     ".profile-edit-grid",
-    ".profile-edit-actions",
     ".profile-save-error",
     ".profile-save-success",
 ]:
     if marker not in styles:
         issues.append("profile style " + marker)
+
+for marker in ["INNOEditorFooter", "INNOEditorFooterStart", "INNOEditorFooterEnd", "Discard changes", "Save profile"]:
+    if marker not in page:
+        issues.append("profile editor footer " + marker)
 
 if 'path="profile"' not in root:
     issues.append("profile route missing")

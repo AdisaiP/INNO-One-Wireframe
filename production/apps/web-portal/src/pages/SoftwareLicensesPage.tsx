@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOIcon, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarMeta, INNOToolbarSpacer } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterNote, INNOEditorFooterStart, INNOIcon, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarMeta, INNOToolbarSpacer } from '@inno/ui';
 import { getSoftwareLicenses, updateSoftwareLicense } from '../api/client';
 import type { SoftwareLicenseItem } from '../api/types';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -382,11 +382,15 @@ export function SoftwareLicensesPage() {
               <div><span>Contract</span><b>{selected.contractReference ?? '—'}</b></div>
             </div>
 
-            <INNOEditorFooter className="license-record-footer">
-              <span className="editor-footer-note">
-                Saving is audited. Crossing into overuse emits a compliance event.
-              </span>
-              <INNOButton busy={saveMutation.isPending} onClick={save}>Save License</INNOButton>
+            <INNOEditorFooter>
+              <INNOEditorFooterStart>
+                <INNOEditorFooterNote>
+                  Saving is audited. Crossing into overuse emits a compliance event.
+                </INNOEditorFooterNote>
+              </INNOEditorFooterStart>
+              <INNOEditorFooterEnd>
+                <INNOButton busy={saveMutation.isPending} onClick={save}>Save License</INNOButton>
+              </INNOEditorFooterEnd>
             </INNOEditorFooter>
           </div>
         </section>

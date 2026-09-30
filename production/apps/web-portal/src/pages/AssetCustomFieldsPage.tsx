@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOEditorFooter, INNOPage, INNOStatus } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterNote, INNOEditorFooterStart, INNOPage, INNOStatus } from '@inno/ui';
 import { getAssetCustomFields, updateAssetCustomFields } from '../api/client';
 import type { AssetCustomFieldDefinition } from '../api/types';
 import { usePermission } from '../app/ProfileContext';
@@ -283,17 +283,21 @@ export function AssetCustomFieldsPage() {
         </div>
 
         {canManage ? (
-          <INNOEditorFooter className="standalone-editor-footer">
-            <span className="editor-footer-note">
-              Existing field keys cannot be removed or renamed. Set unused fields to Draft.
-            </span>
-            <INNOButton
-              busy={saveMutation.isPending}
-              disabled={!dirty || validationErrors.size > 0}
-              onClick={() => saveMutation.mutate()}
-            >
-              Save Schema
-            </INNOButton>
+          <INNOEditorFooter>
+            <INNOEditorFooterStart>
+              <INNOEditorFooterNote>
+                Existing field keys cannot be removed or renamed. Set unused fields to Draft.
+              </INNOEditorFooterNote>
+            </INNOEditorFooterStart>
+            <INNOEditorFooterEnd>
+              <INNOButton
+                busy={saveMutation.isPending}
+                disabled={!dirty || validationErrors.size > 0}
+                onClick={() => saveMutation.mutate()}
+              >
+                Save Schema
+              </INNOButton>
+            </INNOEditorFooterEnd>
           </INNOEditorFooter>
         ) : null}
       </INNOCollection>

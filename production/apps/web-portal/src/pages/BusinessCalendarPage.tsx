@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOButton, INNOEditorFooter, INNOPage, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOButton, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterNote, INNOEditorFooterStart, INNOPage, INNOStatus, INNOTableWrap } from '@inno/ui';
 import {
   getBusinessCalendar,
   updateBusinessCalendar,
@@ -188,9 +188,13 @@ export function BusinessCalendarPage() {
             </section>
 
             {canManage ? (
-              <INNOEditorFooter className="standalone-editor-footer">
-                <span className="footer-helper">Saving recalculates due dates for active tickets that use this calendar.</span>
-                <INNOButton busy={mutation.isPending} onClick={() => mutation.mutate()}>Save Calendar</INNOButton>
+              <INNOEditorFooter>
+                <INNOEditorFooterStart>
+                  <INNOEditorFooterNote>Saving recalculates due dates for active tickets that use this calendar.</INNOEditorFooterNote>
+                </INNOEditorFooterStart>
+                <INNOEditorFooterEnd>
+                  <INNOButton busy={mutation.isPending} onClick={() => mutation.mutate()}>Save Calendar</INNOButton>
+                </INNOEditorFooterEnd>
               </INNOEditorFooter>
             ) : null}
           </div>

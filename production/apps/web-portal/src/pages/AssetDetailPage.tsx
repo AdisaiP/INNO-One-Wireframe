@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOEditorFooter, INNOIcon, INNOResourceHeader, INNOState, INNOStatus, INNOSurfaceTabs, INNOTableWrap } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterNote, INNOEditorFooterStart, INNOIcon, INNOResourceHeader, INNOState, INNOStatus, INNOSurfaceTabs, INNOTableWrap } from '@inno/ui';
 import { changeAssetOwnership, getAsset, getAssetOwners, updateAsset } from '../api/client';
 import type { AssetCustomFieldValue } from '../api/types';
 import { usePermission } from '../app/ProfileContext';
@@ -294,9 +294,13 @@ export function AssetDetailPage() {
       </div>
 
       {canManage && activeTab !== 'ownership' ? (
-        <INNOEditorFooter className="standalone-editor-footer">
-          <span className="editor-footer-note">Asset and custom-field changes are audited and version checked.</span>
-          <INNOButton busy={saveMutation.isPending} disabled={!form.name.trim()} onClick={saveAsset}>Save Asset</INNOButton>
+        <INNOEditorFooter>
+          <INNOEditorFooterStart>
+            <INNOEditorFooterNote>Asset and custom-field changes are audited and version checked.</INNOEditorFooterNote>
+          </INNOEditorFooterStart>
+          <INNOEditorFooterEnd>
+            <INNOButton busy={saveMutation.isPending} disabled={!form.name.trim()} onClick={saveAsset}>Save Asset</INNOButton>
+          </INNOEditorFooterEnd>
         </INNOEditorFooter>
       ) : null}
 

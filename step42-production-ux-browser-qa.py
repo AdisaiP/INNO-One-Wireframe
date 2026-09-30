@@ -193,20 +193,22 @@ dynamic_routes = set()
 
 def collect_dynamic(cdp, route):
     selectors = {
-        "/admin/users": "a[href^='/admin/users/']",
-        "/devices": "a[href^='/devices/']:not([href='/devices/discovery']):not([href='/devices/groups']):not([href='/devices/add'])",
-        "/devices/groups": "a[href^='/devices/groups/']",
-        "/assets/inventory": "a[href^='/assets/']:not([href='/assets/inventory']):not([href='/assets/ownership']):not([href='/assets/owners'])",
-        "/assets/owners": "a[href^='/assets/owners/']",
-        "/helpdesk/tickets": "a[href^='/helpdesk/tickets/']:not([href='/helpdesk/tickets/new'])",
-        "/helpdesk/automation": "a[href^='/helpdesk/automation/']:not([href='/helpdesk/automation/new'])",
+        "/admin/users": ".inno-collection tbody a[href^='/admin/users/']",
+        "/devices": ".inno-collection tbody a[href^='/devices/']:not([href='/devices/discovery']):not([href='/devices/groups']):not([href='/devices/add'])",
+        "/devices/groups": ".inno-collection tbody a[href^='/devices/groups/']",
+        "/assets/inventory": ".inno-collection tbody a[href^='/assets/']:not([href='/assets/inventory']):not([href='/assets/ownership']):not([href='/assets/owners'])",
+        "/assets/owners": ".inno-collection tbody a[href^='/assets/owners/']",
+        "/helpdesk/tickets": ".inno-collection tbody a[href^='/helpdesk/tickets/']:not([href='/helpdesk/tickets/new'])",
+        "/helpdesk/automation": ".inno-collection tbody a[href^='/helpdesk/automation/']:not([href='/helpdesk/automation/new'])",
     }
     selector = selectors.get(route)
     if not selector:
         return
-    href = cdp.eval(
+    expression = (
         "document.querySelector(" + json.dumps(selector) + ")?.getAttribute('href')||''"
     )
+    href = wait_eval(cdp, expression, timeout=5) or ""
+    check("dynamic route discovered " + route, bool(href), selector)
     if href and ":" not in href:
         dynamic_routes.add(href)
 
