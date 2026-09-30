@@ -77,16 +77,18 @@ export function AppShell() {
   const inWorkspace = location.pathname === '/' || location.pathname.startsWith('/workspace/');
   const inAccount = inProfile || inNotifications;
   const homePath = canWorkspace ? '/' : canViewDevices ? '/devices' : canViewHelpdesk ? '/helpdesk' : canViewAssets ? '/assets' : '/profile';
+  const designSystemHash = location.hash || '#foundations';
   const contextLabel = inWorkspace || inSearch ? 'Workspace'
     : inAccount ? 'Account'
-      : inAdmin ? 'Admin Center'
-        : inApps ? 'Apps'
+      : inDesignSystem ? 'Design System'
+        : inAdmin ? 'Admin Center'
+          : inApps ? 'Apps'
           : inAssets ? 'Assets'
             : inHelpdesk ? 'Helpdesk'
               : inDevices ? 'Devices'
                 : 'INNO.One';
 
-  useEffect(() => setSideOpen(false), [location.pathname]);
+  useEffect(() => setSideOpen(false), [location.pathname, location.hash]);
 
   useEffect(() => {
     window.localStorage.setItem('inno.ui.sidebar.collapsed', sideCollapsed ? '1' : '0');
@@ -202,7 +204,7 @@ export function AppShell() {
 
         <aside
           className={`prod-side${sideOpen ? ' open' : ''}`}
-          aria-label={inWorkspace ? 'Workspace navigation' : inSearch ? 'Search navigation' : inAccount ? 'Account navigation' : inAdmin ? 'Admin navigation' : inApps ? 'Apps navigation' : inAssets ? 'Assets navigation' : inHelpdesk ? 'Helpdesk navigation' : inDevices ? 'Devices navigation' : 'Workspace context'}
+          aria-label={inWorkspace ? 'Workspace navigation' : inSearch ? 'Search navigation' : inAccount ? 'Account navigation' : inDesignSystem ? 'Design System navigation' : inAdmin ? 'Admin navigation' : inApps ? 'Apps navigation' : inAssets ? 'Assets navigation' : inHelpdesk ? 'Helpdesk navigation' : inDevices ? 'Devices navigation' : 'Workspace context'}
         >
           <button
             className="prod-side-collapse"
@@ -241,6 +243,26 @@ export function AppShell() {
               <div className="prod-side-section">Workspace</div>
               {canViewNotifications ? <NavLink to="/notifications"><SideNavLabel token="section.notifications">Notifications</SideNavLabel></NavLink> : null}
               <NavLink to="/profile"><SideNavLabel token="section.profile">Profile & Settings</SideNavLabel></NavLink>
+            </>
+          ) : inDesignSystem ? (
+            <>
+              <div className="prod-side-title">Design System</div>
+              <div className="prod-side-section">Release</div>
+              <a className={designSystemHash === '#freeze' ? 'active' : ''} href="#freeze"><SideNavLabel token="section.security">Frozen Contract</SideNavLabel></a>
+              <div className="prod-side-section">Foundations</div>
+              <a className={designSystemHash === '#foundations' ? 'active' : ''} href="#foundations"><SideNavLabel token="section.branding">Foundations</SideNavLabel></a>
+              <a className={designSystemHash === '#buttons' ? 'active' : ''} href="#buttons"><SideNavLabel token="section.automation">Actions</SideNavLabel></a>
+              <a className={designSystemHash === '#forms' ? 'active' : ''} href="#forms"><SideNavLabel token="section.customFields">Forms</SideNavLabel></a>
+              <a className={designSystemHash === '#data' ? 'active' : ''} href="#data"><SideNavLabel token="section.inventory">Data Table</SideNavLabel></a>
+              <a className={designSystemHash === '#hierarchy' ? 'active' : ''} href="#hierarchy"><SideNavLabel token="section.organization">Hierarchy</SideNavLabel></a>
+              <div className="prod-side-section">Feedback</div>
+              <a className={designSystemHash === '#states' ? 'active' : ''} href="#states"><SideNavLabel token="status.info">States</SideNavLabel></a>
+              <a className={designSystemHash === '#interactions' ? 'active' : ''} href="#interactions"><SideNavLabel token="section.automation">Interactions</SideNavLabel></a>
+              <a className={designSystemHash === '#overlays' ? 'active' : ''} href="#overlays"><SideNavLabel token="nav.apps">Dialog & Sheet</SideNavLabel></a>
+              <a className={designSystemHash === '#responsive' ? 'active' : ''} href="#responsive"><SideNavLabel token="nav.devices">Responsive</SideNavLabel></a>
+              <a className={designSystemHash === '#navigation' ? 'active' : ''} href="#navigation"><SideNavLabel token="section.groups">Navigation</SideNavLabel></a>
+              <a className={designSystemHash === '#icons' ? 'active' : ''} href="#icons"><SideNavLabel token="section.modules">Icons</SideNavLabel></a>
+              <a className={designSystemHash === '#guidelines' ? 'active' : ''} href="#guidelines"><SideNavLabel token="section.settings">Implementation Map</SideNavLabel></a>
             </>
           ) : inAdmin ? (
             <>

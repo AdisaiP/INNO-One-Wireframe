@@ -1,6 +1,5 @@
 from pathlib import Path
 import hashlib
-import re
 
 ROOT = Path(__file__).resolve().parent
 FROZEN = ROOT / "production/design-system/frozen/v1.26"
@@ -27,7 +26,6 @@ required = [
     "README.md",
     "manifest.sha256",
 ]
-
 for name in required:
     if not (FROZEN / name).is_file():
         issues.append("missing frozen reference: " + name)
@@ -69,28 +67,54 @@ for file_path in [page, page_css, app_root, app_shell]:
     if not file_path.is_file():
         issues.append("production design-system file missing: " + str(file_path.relative_to(ROOT)))
 
+section_ids = [
+    "freeze", "foundations", "buttons", "forms", "data", "hierarchy",
+    "states", "interactions", "overlays", "responsive", "navigation",
+    "icons", "guidelines",
+]
+
 if page.is_file():
     text = page.read_text(encoding="utf-8")
     for marker in [
-        'title="Production Design System"',
-        'id="foundations"',
-        'id="actions"',
-        'id="forms"',
-        'id="data"',
-        'id="states"',
-        'id="patterns"',
-        'id="navigation"',
-        'id="responsive"',
-        'P02',
-        'P03',
-        'P04',
-        'production/design-system/frozen/v1.26',
+        'Design System V1.26',
+        'UI Contract 1.20.0 is frozen',
+        'Frozen UI contract',
+        'What is frozen',
+        'Source of truth',
+        'React consumes the contract, not prototype internals.',
+        'Hierarchy components',
+        'Interaction standards',
+        'Dialog & overlays',
+        'Navigation architecture',
+        'Icon vocabulary',
+        'Implementation map',
         'INNOCollection',
-        'INNOResourceHeader',
+        'INNOState',
         'INNOEditorFooter',
+        'INNOIcon',
     ]:
         if marker not in text:
             issues.append("React design-system marker missing: " + marker)
+    for section_id in section_ids:
+        if f'id="{section_id}"' not in text:
+            issues.append("React design-system section missing: " + section_id)
+
+if page_css.is_file():
+    css = page_css.read_text(encoding="utf-8")
+    for marker in [
+        ".internal-ds-section",
+        "margin: 28px 0",
+        ".internal-ds-grid",
+        "grid-template-columns: repeat(2, minmax(0, 1fr))",
+        ".internal-ds-card",
+        "padding: 18px",
+        ".internal-ds-freeze-banner",
+        ".internal-ds-freeze-grid",
+        ".internal-ds-rules",
+        ".internal-ds-responsive-table",
+    ]:
+        if marker not in css:
+            issues.append("React design-system fidelity CSS missing: " + marker)
 
 if app_root.is_file():
     text = app_root.read_text(encoding="utf-8")
@@ -103,8 +127,17 @@ if app_root.is_file():
 
 if app_shell.is_file():
     text = app_shell.read_text(encoding="utf-8")
-    if "inDesignSystem" not in text:
-        issues.append("internal design-system route does not inherit Admin shell ownership")
+    for marker in [
+        "inDesignSystem",
+        "designSystemHash",
+        "'Design System'",
+        '<div className="prod-side-title">Design System</div>',
+        'href="#freeze"',
+        'href="#foundations"',
+        'href="#guidelines"',
+    ]:
+        if marker not in text:
+            issues.append("Design System shell ownership marker missing: " + marker)
     if 'to="/internal/design-system"' in text:
         issues.append("internal design-system leaked into normal shell navigation")
 
@@ -112,12 +145,15 @@ for source in WEB.rglob("*"):
     if source.suffix not in {".ts", ".tsx", ".css"}:
         continue
     text = source.read_text(encoding="utf-8", errors="replace")
-    if "design-system/frozen/v1.26" in text and source != page:
-        issues.append("runtime source imports or references frozen prototype: " + str(source.relative_to(ROOT)))
+    if "@import" in text and "design-system/frozen/v1.26" in text:
+        issues.append("runtime source imports frozen prototype CSS: " + str(source.relative_to(ROOT)))
+    if "production/design-system/frozen/v1.26" in text and source != page:
+        issues.append("runtime source references frozen prototype unexpectedly: " + str(source.relative_to(ROOT)))
 
-print("step42_2_scope=production-design-system-baseline")
+print("step42_2_scope=production-design-system-fidelity")
 print("frozen_reference=production/design-system/frozen/v1.26")
 print("react_reference=/internal/design-system")
+print("section_parity=13")
 print("documentation_version=V1.26")
 print("ui_contract=1.20.0")
 print("issues=" + str(len(issues)))
