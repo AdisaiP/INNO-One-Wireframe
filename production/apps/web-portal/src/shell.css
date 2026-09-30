@@ -4065,7 +4065,7 @@
 }
 .prod-side-collapse > .inno-icon { transform: translateX(-3px); }
 
-.prod-main { position: relative; }
+.prod-main { position: relative; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 .prod-context-reveal {
   display: none;
   align-items: center;
@@ -4225,23 +4225,18 @@
 }
 
 
-/* Step 42.1 micro-fidelity: shell body already starts below the sticky 56px header. */
-.prod-rail {
-  position: sticky;
-  top: 0;
-}
-.prod-side {
-  position: sticky;
-  top: 0;
-}
+/* Step 42.2A: application shell owns the viewport; main content owns page scroll. */
+.inno-production-shell { height: 100vh; height: 100dvh; min-height: 0; display: grid; grid-template-rows: var(--prod-header-h) minmax(0, 1fr); overflow: hidden; }
+.prod-header { position: relative; top: auto; }
+.prod-shell-body { height: 100%; min-height: 0; overflow: hidden; }
+.prod-rail { position: relative; top: auto; height: 100%; min-height: 0; overflow-y: auto; }
+.prod-side { position: relative; top: auto; height: 100%; min-height: 0; overflow-y: auto; }
 @media (max-width: 1180px) {
-  .prod-rail {
-    position: sticky;
-    top: 0;
-  }
+  .prod-rail { position: relative; top: auto; height: 100%; }
   .prod-side {
     position: fixed;
     top: var(--prod-header-h);
     left: var(--prod-rail-w);
+    height: calc(100dvh - var(--prod-header-h));
   }
 }

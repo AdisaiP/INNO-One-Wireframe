@@ -1,9 +1,9 @@
 > [!IMPORTANT]
-> **Current production override — 2026-09-29**
+> **Current production override — 2026-09-30**
 >
-> **Step 42.2-0 Production Design System Baseline is complete** on `ux/step42.2-design-system-baseline`.
+> **Step 42.2A Application Shell & Scroll Ownership is complete** on `ux/step42.2-design-system-baseline`.
 >
-> Read `INNO-One-Step42.2-0-Next-Chat-Handoff.md` first. The frozen V1.26 / UI Contract 1.20.0 reference is now snapshotted under `production/design-system/frozen/v1.26` with SHA-256 integrity manifest, and Production React has an admin-gated, hidden, lazy-loaded `/internal/design-system` reference route using real `@inno/ui` primitives. Dedicated Design System browser QA is 39/39, broad Production browser regression is 1287/1287, the final static chain is 44/44, and build/typecheck are green. The next UX slice is **Step 42.2A — Application Shell & Scroll Ownership**. Meeting remains deferred. **Do not merge or deploy unless explicitly requested.**
+> Read `INNO-One-Step42.2A-Next-Chat-Handoff.md` first. The Production shell now owns the viewport, `.prod-main` owns page scrolling, desktop Rail/Context Sidebar remain stable shell chrome, and 1024/768 retain the fixed off-canvas Context Sidebar. Dedicated scroll QA is 12/12, Design System browser QA is 56/56, broad Production regression is 1323/1323 across 49 routes, the static chain is 44/44, and web typecheck/build are green. The next UX slice is **Step 42.2B — Surface / Card Hierarchy**. Meeting remains deferred. **Do not merge or deploy unless explicitly requested.**
 
 > [!IMPORTANT]
 > **Current production override — 2026-09-29**

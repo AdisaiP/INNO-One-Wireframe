@@ -36,9 +36,11 @@ forbid(shell, 'className="prod-context-toggle"', "global header")
 require(shell_css, ".prod-context-toggle { display: none !important; }", "global header")
 require(shell_css, ".inno-production-shell.side-collapsed", "desktop collapse")
 require(shell_css, "@media (max-width: 1180px)", "overlay breakpoint")
-require(shell_css, "/* Step 42.1 micro-fidelity: shell body already starts below the sticky 56px header. */", "shell top correction")
-require(shell_css, "position: sticky;", "shell sticky rails")
-require(shell_css, "top: 0;", "shell top correction")
+require(shell_css, "/* Step 42.2A: application shell owns the viewport; main content owns page scroll. */", "shell scroll ownership")
+require(shell_css, "height: 100dvh;", "shell viewport ownership")
+require(shell_css, ".prod-shell-body { height: 100%; min-height: 0; overflow: hidden; }", "shell body ownership")
+require(shell_css, "overflow-y: auto; overscroll-behavior: contain;", "main scroll ownership")
+require(shell_css, "position: fixed;", "responsive contextual sidebar")
 # Frozen page / collection / state density.
 for marker in [
     ".inno-page { padding: 24px 16px 32px; }",
