@@ -270,6 +270,38 @@ body { margin: 0; font-family: var(--ds-font); background: var(--ds-bg); color: 
   background: #fff;
 }
 .inno-toolbar-spacer { flex: 1; }
+.inno-toolbar-meta {
+  margin-left: auto;
+  color: var(--ds-muted);
+  font-size: 10px;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+.inno-row-action {
+  min-width: 40px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--ds-primary);
+  font: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+}
+.inno-row-action:hover { background: var(--ds-primary-soft); border-color: #d7e2f8; }
+.inno-table-wrap th.action-column,
+.inno-table-wrap td.action-column { text-align: right; white-space: nowrap; }
+.inno-table-wrap .num { text-align: right; font-variant-numeric: tabular-nums; }
+.inno-table-wrap--sticky-action th.action-column { position: sticky; right: 0; z-index: 3; background: #fafbfc; }
+.inno-table-wrap--sticky-action td.action-column { position: sticky; right: 0; z-index: 2; background: #fff; }
+.inno-table-wrap--sticky-action tbody tr:hover td.action-column { background: #fafcff; }
 
 .inno-search { position: relative; min-width: min(360px, 100%); flex: 0 1 360px; }
 .inno-icon {
@@ -513,6 +545,11 @@ body { margin: 0; font-family: var(--ds-font); background: var(--ds-bg); color: 
 .inno-table-wrap--xwide > table { min-width: 960px; }
 
 @media (max-width: 850px) {
+  .inno-toolbar-meta { width: 100%; margin-left: 0; white-space: normal; }
+  .inno-select { flex: 1 1 160px; min-width: 150px; }
   .inno-table-wrap--wide > table { min-width: 720px; }
   .inno-table-wrap--xwide > table { min-width: 900px; }
+  .inno-table-wrap th.action-column { position: sticky; right: 0; z-index: 3; background: #fafbfc; }
+  .inno-table-wrap td.action-column { position: sticky; right: 0; z-index: 2; background: #fff; }
+  .inno-table-wrap tbody tr:hover td.action-column { background: #fafcff; }
 }

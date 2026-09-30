@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarSpacer } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarMeta, INNOToolbarSpacer } from '@inno/ui';
 import { getAssets } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 
@@ -50,7 +50,7 @@ export function AssetInventoryPage() {
             <option value="retired">Retired</option>
           </INNOSelectField>
           <INNOToolbarSpacer />
-          <span className="collection-scope">Authorization filtered server-side</span>
+          <INNOToolbarMeta>Authorization filtered server-side</INNOToolbarMeta>
         </INNOCollectionToolbar>
 
         {query.isPending ? (
@@ -86,7 +86,7 @@ export function AssetInventoryPage() {
                     <td>{asset.location ?? asset.organization ?? '—'}</td>
                     <td>{new Date(asset.registeredAt).toLocaleDateString()}</td>
                     <td><INNOStatus>{statusLabel(asset.status)}</INNOStatus></td>
-                    <td className="action-column"><Link className="open-resource" to={'/assets/' + asset.id}>Open</Link></td>
+                    <td className="action-column"><Link className="inno-row-action" to={'/assets/' + asset.id} aria-label={'Open ' + asset.assetTag}>Open</Link></td>
                   </tr>
                 ))}</tbody>
               </table>

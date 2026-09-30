@@ -234,7 +234,7 @@ export function AdminAuditPage() {
 
           {list.data?.items.length ? (
             <>
-              <INNOTableWrap width="xwide">
+              <INNOTableWrap width="xwide" stickyAction>
                 <table>
                   <thead>
                     <tr>
@@ -271,11 +271,11 @@ export function AdminAuditPage() {
                         <td className="action-column">
                           <button
                             type="button"
-                            className="device-row-action"
+                            className="inno-row-action"
                             aria-label={'Open audit record ' + item.auditId}
                             onClick={() => selectAudit(item.auditId)}
                           >
-                            <INNOIcon token="action.next" size={14} />
+                            Open
                           </button>
                         </td>
                       </tr>

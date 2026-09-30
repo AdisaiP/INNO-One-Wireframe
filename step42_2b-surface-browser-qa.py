@@ -93,7 +93,11 @@ for width in (1366, 1024, 768):
     viewport(width)
     for route in routes:
         check(f"{width} ready {route}", nav(route))
+        surface_deadline = time.time() + 10
         m = surface_metrics()
+        while time.time() < surface_deadline and (not m or m["count"] == 0):
+            time.sleep(.15)
+            m = surface_metrics()
         check(f"{width} standard surfaces exist {route}", m and m["count"] > 0, str(m))
         check(f"{width} standard surfaces have no shadow {route}", m and m["shadowed"] == 0, str(m))
         check(f"{width} no nested standard surfaces {route}", m and m["nested"] == 0, str(m))

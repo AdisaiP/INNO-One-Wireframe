@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarSpacer } from '@inno/ui';
+import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarMeta, INNOToolbarSpacer } from '@inno/ui';
 import { getTicketStatuses, getTickets } from '../api/client';
 import { usePermission } from '../app/ProfileContext';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -81,7 +81,7 @@ export function TicketsPage({ mode = 'all' }: { mode?: TicketQueueMode }) {
             <option value="P4">P4 · Low</option>
           </INNOSelectField>
           <INNOToolbarSpacer />
-          <span className="collection-scope">Authorization filtered server-side</span>
+          <INNOToolbarMeta>Authorization filtered server-side</INNOToolbarMeta>
         </INNOCollectionToolbar>
 
         {query.isPending ? (
@@ -123,7 +123,7 @@ export function TicketsPage({ mode = 'all' }: { mode?: TicketQueueMode }) {
                       <td>{ticket.assignee ?? ticket.team ?? 'Unassigned'}</td>
                       <td><span className={'sla-chip ' + (ticket.slaState ?? 'active')}>{ticket.slaState ?? '—'}</span>{ticket.slaState ? <div className="table-meta">{ticket.slaElapsedPercent}% elapsed</div> : null}</td>
                       <td>{formatRelative(ticket.updatedAt)}</td>
-                      <td className="action-column"><Link className="device-row-action" to={'/helpdesk/tickets/' + ticket.id} aria-label={'Open ' + ticket.ticketNumber}><INNOIcon token="action.next" size={14} /></Link></td>
+                      <td className="action-column"><Link className="inno-row-action" to={'/helpdesk/tickets/' + ticket.id} aria-label={'Open ' + ticket.ticketNumber}>Open</Link></td>
                     </tr>
                   ))}
                 </tbody>

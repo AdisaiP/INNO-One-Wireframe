@@ -420,13 +420,18 @@ export function INNOToolbarSpacer() {
   return <span className="inno-toolbar-spacer" aria-hidden="true" />;
 }
 
+export function INNOToolbarMeta({ children }: PropsWithChildren) {
+  return <span className="inno-toolbar-meta">{children}</span>;
+}
+
 export function INNOTableWrap({
   children,
   className,
   width = 'auto',
-}: PropsWithChildren<{ className?: string; width?: 'auto' | 'wide' | 'xwide' }>) {
+  stickyAction = false,
+}: PropsWithChildren<{ className?: string; width?: 'auto' | 'wide' | 'xwide'; stickyAction?: boolean }>) {
   return (
-    <div className={cx('inno-table-wrap', width !== 'auto' && 'inno-table-wrap--' + width, className)} tabIndex={0}>
+    <div className={cx('inno-table-wrap', width !== 'auto' && 'inno-table-wrap--' + width, stickyAction && 'inno-table-wrap--sticky-action', className)} tabIndex={0}>
       {children}
     </div>
   );

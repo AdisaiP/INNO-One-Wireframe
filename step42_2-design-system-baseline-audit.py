@@ -54,8 +54,15 @@ if manifest.is_file():
         if not file_path.is_file():
             issues.append("manifest file missing: " + name)
             continue
-        current = hashlib.sha256(file_path.read_bytes()).hexdigest()
-        if current != digest:
+        data = file_path.read_bytes()
+        current = hashlib.sha256(data).hexdigest()
+        # The frozen manifest was generated from the Windows CRLF source snapshot,
+        # while Git can materialize the same frozen text with LF line endings.
+        # Accept only byte-exact content or the CRLF-canonical equivalent so
+        # semantic edits still invalidate the integrity guard.
+        canonical_crlf = data.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
+        canonical = hashlib.sha256(canonical_crlf).hexdigest()
+        if current != digest and canonical != digest:
             issues.append("frozen manifest mismatch: " + name)
 
 page = WEB / "pages/InternalDesignSystemPage.tsx"

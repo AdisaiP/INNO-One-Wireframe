@@ -181,9 +181,7 @@ export function DevicesPage() {
                       {columns.group ? <td>{device.group ?? device.organization ?? '—'}</td> : null}
                       {columns.lastSeen ? <td>{formatLastSeen(device.lastSeenAt)}</td> : null}
                       <td className="action-column">
-                        <Link className="device-row-action" to={`/devices/${device.id}`} aria-label={`Open ${device.name}`} title="Open device">
-                          <INNOIcon token="action.next" size={14} />
-                        </Link>
+                        <Link className="inno-row-action" to={`/devices/${device.id}`} aria-label={`Open ${device.name}`}>Open</Link>
                       </td>
                     </tr>
                   ))}

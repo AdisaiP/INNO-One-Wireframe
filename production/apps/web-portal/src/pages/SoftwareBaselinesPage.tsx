@@ -155,7 +155,7 @@ export function SoftwareBaselinesPage() {
               <td>{item.requiredPackages.length}</td>
               <td><INNOStatus tone={item.status === 'active' ? 'success' : 'neutral'}>{item.status}</INNOStatus></td>
               <td><INNOStatus tone={item.evaluationStatus === 'current' ? 'success' : item.evaluationStatus === 'stale' ? 'warning' : 'neutral'}>{item.evaluationStatus.replaceAll('_', ' ')}</INNOStatus></td>
-              <td className="action-column"><button type="button" className="device-row-action" aria-label={'Open ' + item.name} onClick={() => { setCreating(false); setSelectedId(item.id); }}><INNOIcon token="action.next" size={14} /></button></td>
+              <td className="action-column"><button type="button" className="inno-row-action" aria-label={'Select ' + item.name} onClick={() => { setCreating(false); setSelectedId(item.id); }}>Select</button></td>
             </tr>)}</tbody>
           </table></INNOTableWrap>
         ) : (

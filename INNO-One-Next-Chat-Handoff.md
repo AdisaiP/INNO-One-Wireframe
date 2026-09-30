@@ -1,9 +1,9 @@
 > [!IMPORTANT]
 > **Current production override — 2026-09-30**
 >
-> **Step 42.2B Surface / Card Hierarchy is complete** on `ux/step42.2-design-system-baseline`.
+> **Step 42.2C List / Collection Pages is complete** on `ux/step42.2c-list-collections`.
 >
-> Read `INNO-One-Step42.2B-Next-Chat-Handoff.md` first. Production now follows a Page → Section/Collection → Inset hierarchy: standard Section/Collection surfaces use border + white surface + 12px radius without card shadow, while inset summary content uses a subtle borderless 8px surface. Overlay/focus shadows remain intact and collection-local states remain flat. Dedicated surface QA is 117/117, Step 42.2A scroll QA is 12/12, Design System browser QA is 56/56, broad Production regression is 1305/1305 across 48 routes on the final rerun, the static chain is 45/45, and build/typecheck are green. The next UX slice is **Step 42.2C — List / Collection Pages**. Meeting remains deferred. **Do not merge or deploy unless explicitly requested.**
+> Read `INNO-One-Step42.2C-Next-Chat-Handoff.md` first. Production list pages now share the same Collection Heading → Search/Filters/Meta → Table/List → State/Pagination anatomy, use shared toolbar metadata, named `Open` / `Select` row actions, and preserve responsive horizontal table scrolling with accessible Action ownership. Dedicated Step 42.2C browser QA is 213/213, Step 42.2B surface QA is 117/117, Step 42.2A scroll QA is 12/12, Design System browser QA is 56/56, broad Production regression is 1323/1323 across 49 routes, the static chain is 46/46, and build/typecheck are green. Step 42.2B and earlier are already merged to `main` at `8e5be5e`; Step 42.2C is not merged yet. The next UX slice is **Step 42.2D — Create / Edit / Settings Pages**. Meeting remains deferred. **Do not merge or deploy unless explicitly requested.**
 
 > [!IMPORTANT]
 > **Current production override — 2026-09-29**

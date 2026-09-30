@@ -28,7 +28,13 @@ checks = 0
 for width in (1366, 1024, 768):
     call("Emulation.setDeviceMetricsOverride", {"width": width, "height": 900, "deviceScaleFactor": 1, "mobile": False})
     call("Page.navigate", {"url": URL})
-    time.sleep(1.0)
+    deadline = time.time() + 12
+    while time.time() < deadline:
+        ready = ev("!!document.querySelector('.internal-ds-section') && document.querySelector('.prod-main')?.scrollHeight > document.querySelector('.prod-main')?.clientHeight")
+        if ready:
+            time.sleep(.2)
+            break
+        time.sleep(.15)
     data = ev("""(()=>{const m=document.querySelector('.prod-main'),r=document.querySelector('.prod-rail'),s=document.querySelector('.prod-side');const b={windowY:scrollY,docH:document.documentElement.scrollHeight,docC:document.documentElement.clientHeight,mainTop:m?.scrollTop||0,mainH:m?.scrollHeight||0,mainC:m?.clientHeight||0,railY:r?.getBoundingClientRect().top||0,sideY:s?.getBoundingClientRect().top||0,sidePos:s?getComputedStyle(s).position:''};if(m)m.scrollTop=400;const a={windowY:scrollY,mainTop:m?.scrollTop||0,railY:r?.getBoundingClientRect().top||0,sideY:s?.getBoundingClientRect().top||0};return {b,a};})()""")
     tests = {
         "document does not own scroll": data["b"]["docH"] <= data["b"]["docC"] + 2 and data["a"]["windowY"] == 0,

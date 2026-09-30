@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOPage, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarSpacer } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOPage, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarMeta, INNOToolbarSpacer } from '@inno/ui';
 import { decideOwnershipSubmission, getOwnershipSubmissions } from '../api/client';
 import { usePermission } from '../app/ProfileContext';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -34,7 +34,7 @@ export function AssetOwnershipSubmissionsPage() {
           <option value="rejected">Rejected</option>
         </INNOSelectField>
         <INNOToolbarSpacer />
-        <span className="collection-scope">Endpoint Agent is not embedded in Web</span>
+        <INNOToolbarMeta>Endpoint Agent is not embedded in Web</INNOToolbarMeta>
       </INNOCollectionToolbar>
       {decision.isError ? <div className="form-error" role="alert">{decision.error.message}</div> : null}
       {query.isPending ? (

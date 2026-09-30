@@ -119,7 +119,7 @@ export function AutomationRulesPage() {
                       <td>{rule.primaryAction}</td>
                       <td><INNOStatus tone={rule.status === 'active' ? 'success' : 'neutral'}>{rule.status === 'active' ? 'Active' : 'Paused'}</INNOStatus></td>
                       <td>{formatRelative(rule.lastExecutedAt)}</td>
-                      <td className="action-column"><Link className="device-row-action" to={'/helpdesk/automation/' + rule.id} aria-label={'Open ' + rule.name}><INNOIcon token="action.next" size={14} /></Link></td>
+                      <td className="action-column"><Link className="inno-row-action" to={'/helpdesk/automation/' + rule.id} aria-label={'Open ' + rule.name}>Open</Link></td>
                     </tr>
                   ))}
                 </tbody>

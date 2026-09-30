@@ -142,7 +142,7 @@ export function AdminUsersPage() {
                     <td>{user.position?.name ?? '—'}</td>
                     <td>{user.location?.name ?? '—'}</td>
                     <td><INNOStatus tone={user.status === 'active' ? 'success' : 'neutral'}>{user.status}</INNOStatus></td>
-                    <td className="action-column"><Link className="device-row-action" to={'/admin/users/' + user.id} aria-label={'Open ' + user.fullName}><INNOIcon token="action.next" size={14} /></Link></td>
+                    <td className="action-column"><Link className="inno-row-action" to={'/admin/users/' + user.id} aria-label={'Open ' + user.fullName}>Open</Link></td>
                   </tr>
                 ))}</tbody>
               </table>

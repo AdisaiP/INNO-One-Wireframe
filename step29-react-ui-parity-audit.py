@@ -115,7 +115,7 @@ if "'permission'" not in feedback or "'error'" not in feedback: issues.append('e
 
 if manifest.get('devicesParityRoutes') != ['/devices','/devices/discovery','/devices/groups','/devices/groups/:groupId','/devices/add','/devices/:deviceId']:
     issues.append('devices parity routes')
-for marker in ['to="/devices/discovery"','to="/devices/add"','device-columns-menu','DeviceTypeGlyph','device-row-action']:
+for marker in ['to="/devices/discovery"','to="/devices/add"','device-columns-menu','DeviceTypeGlyph','inno-row-action']:
     if marker not in devices: issues.append('devices parity '+marker)
 for marker in ['actions={canManage','INNOCollection','INNOCollectionToolbar','INNOTableWrap']:
     if marker not in discovery: issues.append('discovery parity '+marker)

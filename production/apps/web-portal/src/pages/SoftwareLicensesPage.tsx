@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOIcon, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarSpacer } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOIcon, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarMeta, INNOToolbarSpacer } from '@inno/ui';
 import { getSoftwareLicenses, updateSoftwareLicense } from '../api/client';
 import type { SoftwareLicenseItem } from '../api/types';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -184,7 +184,7 @@ export function SoftwareLicensesPage() {
             {query.data?.vendors.map((value) => <option key={value} value={value}>{value}</option>)}
           </INNOSelectField>
           <INNOToolbarSpacer />
-          <span className="collection-scope">License manager permission required</span>
+          <INNOToolbarMeta>License manager permission required</INNOToolbarMeta>
         </INNOCollectionToolbar>
 
         {query.isPending ? (
@@ -248,8 +248,8 @@ export function SoftwareLicensesPage() {
                       </td>
                       <td className="numeric-column">{money(item.estimatedGapCost, item.currency)}</td>
                       <td className="action-column">
-                        <button type="button" className="device-row-action" aria-label={'Open ' + item.productName} onClick={() => setSelectedId(item.id)}>
-                          <INNOIcon token="action.next" size={14} />
+                        <button type="button" className="inno-row-action" aria-label={'Select ' + item.productName} onClick={() => setSelectedId(item.id)}>
+                          Select
                         </button>
                       </td>
                     </tr>
@@ -307,7 +307,7 @@ export function SoftwareLicensesPage() {
                         <td><INNOStatus>{allocation.status}</INNOStatus></td>
                         <td className="action-column">
                           {allocation.assetId
-                            ? <Link className="open-resource" to={'/assets/' + allocation.assetId}>Open</Link>
+                            ? <Link className="inno-row-action" to={'/assets/' + allocation.assetId} aria-label="Open asset">Open</Link>
                             : <span className="table-meta">Aggregate</span>}
                         </td>
                       </tr>

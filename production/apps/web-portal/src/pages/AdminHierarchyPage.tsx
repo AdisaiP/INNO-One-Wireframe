@@ -120,7 +120,7 @@ export function AdminHierarchyPage({ kind }: { kind: Kind }) {
             <div className="collection-state"><INNOState kind={search ? 'no-results' : 'empty'} title="No records found" description={search ? 'Try another search.' : 'Create the first record when you are ready.'} /></div>
           ) : null}
           {items.length > 0 ? (
-            <INNOTableWrap>
+            <INNOTableWrap stickyAction>
               <table>
                 <thead><tr><th>Name</th><th>Code</th><th>Parent</th><th>Status</th><th className="action-column">Action</th></tr></thead>
                 <tbody>
@@ -132,7 +132,7 @@ export function AdminHierarchyPage({ kind }: { kind: Kind }) {
                         <td>{item.code}</td>
                         <td>{parent?.name ?? '—'}</td>
                         <td><INNOStatus tone={item.status === 'active' ? 'success' : 'neutral'}>{item.status}</INNOStatus></td>
-                        <td className="action-column"><button type="button" className="device-row-action" aria-label={'Open ' + item.name} onClick={() => setSelectedId(item.id)}><INNOIcon token="action.next" size={14} /></button></td>
+                        <td className="action-column"><button type="button" className="inno-row-action" aria-label={'Select ' + item.name} onClick={() => setSelectedId(item.id)}>Select</button></td>
                       </tr>
                     );
                   })}

@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarSpacer } from '@inno/ui';
+import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarMeta, INNOToolbarSpacer } from '@inno/ui';
 import { createDeviceGroup, getDeviceGroups } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import { usePermission, useProfile } from '../app/ProfileContext';
@@ -116,7 +116,7 @@ export function DeviceGroupsPage() {
             <option value="static">Static</option>
           </INNOSelectField>
           <INNOToolbarSpacer />
-          <span className="collection-scope">Dynamic groups are hidden until the rule engine is implemented</span>
+          <INNOToolbarMeta>Dynamic groups are hidden until the rule engine is implemented</INNOToolbarMeta>
         </INNOCollectionToolbar>
 
         {groups.isPending ? (
@@ -150,7 +150,7 @@ export function DeviceGroupsPage() {
                       <td>{group.members}</td>
                       <td>{group.online}</td>
                       <td><INNOStatus tone={group.syncStatus === 'synced' ? 'success' : 'neutral'}>{group.syncStatus}</INNOStatus></td>
-                      <td className="action-column"><Link className="device-row-action" to={'/devices/groups/' + group.id} aria-label={'Open ' + group.name}><INNOIcon token="action.next" size={14} /></Link></td>
+                      <td className="action-column"><Link className="inno-row-action" to={'/devices/groups/' + group.id} aria-label={'Open ' + group.name}>Open</Link></td>
                     </tr>
                   ))}
                 </tbody>

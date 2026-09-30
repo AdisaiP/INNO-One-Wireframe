@@ -139,10 +139,10 @@ export function AdminAccessScopesPage() {
           {assignments.isError ? <div className="collection-state"><ErrorState error={assignments.error} retry={() => void assignments.refetch()} /></div> : null}
           {assignments.data && filtered.length === 0 ? <div className="collection-state"><INNOState kind={search || roleFilter !== 'all' ? 'no-results' : 'empty'} title="No assignments found" description="The current API contract does not define assignment creation, so only existing assignments are shown." /></div> : null}
           {filtered.length ? (
-            <INNOTableWrap width="wide">
+            <INNOTableWrap width="wide" stickyAction>
               <table>
                 <thead><tr><th>Subject</th><th>Role</th><th>Scope</th><th>Resources</th><th>Status</th><th className="action-column">Action</th></tr></thead>
-                <tbody>{filtered.map((item) => <tr key={item.id} className={item.id === selectedId ? 'selected-row' : undefined}><td><b>{item.subjectName}</b></td><td>{item.roleName}</td><td>{item.scopeType}</td><td>{item.resources.length ? item.resources.map((resource) => resource.id).join(', ') : 'All'}</td><td><INNOStatus tone={item.status === 'active' ? 'success' : 'neutral'}>{item.status}</INNOStatus></td><td className="action-column"><button type="button" className="device-row-action" aria-label={'Open assignment for ' + item.subjectName} onClick={() => selectAssignment(item)}><INNOIcon token="action.next" size={14} /></button></td></tr>)}</tbody>
+                <tbody>{filtered.map((item) => <tr key={item.id} className={item.id === selectedId ? 'selected-row' : undefined}><td><b>{item.subjectName}</b></td><td>{item.roleName}</td><td>{item.scopeType}</td><td>{item.resources.length ? item.resources.map((resource) => resource.id).join(', ') : 'All'}</td><td><INNOStatus tone={item.status === 'active' ? 'success' : 'neutral'}>{item.status}</INNOStatus></td><td className="action-column"><button type="button" className="inno-row-action" aria-label={'Select assignment for ' + item.subjectName} onClick={() => selectAssignment(item)}>Select</button></td></tr>)}</tbody>
               </table>
             </INNOTableWrap>
           ) : null}

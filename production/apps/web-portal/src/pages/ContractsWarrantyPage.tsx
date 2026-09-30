@@ -204,7 +204,7 @@ export function ContractsWarrantyPage() {
                       <td>{item.serviceType}</td>
                       <td className="numeric-column">{item.coveredAssets.length}</td>
                       <td><INNOStatus tone={item.status === 'expired' ? 'danger' : item.status === 'expiring' ? 'warning' : 'success'}>{statusLabel(item.status)}</INNOStatus></td>
-                      <td className="action-column"><button type="button" className="device-row-action" aria-label={'Open ' + item.contractNumber} onClick={() => setSelectedId(item.id)}><INNOIcon token="action.next" size={14} /></button></td>
+                      <td className="action-column"><button type="button" className="inno-row-action" aria-label={'Select ' + item.contractNumber} onClick={() => setSelectedId(item.id)}>Select</button></td>
                     </tr>
                   ))}
                 </tbody>
@@ -256,7 +256,7 @@ export function ContractsWarrantyPage() {
                         <td>{asset.brandModel || '—'}</td>
                         <td>{asset.owner ?? 'Unassigned'}</td>
                         <td><INNOStatus tone="success">{statusLabel(asset.coverageStatus)}</INNOStatus></td>
-                        <td className="action-column"><Link className="open-resource" to={'/assets/' + asset.id}>Open</Link></td>
+                        <td className="action-column"><Link className="inno-row-action" to={'/assets/' + asset.id} aria-label={'Open ' + asset.assetTag}>Open</Link></td>
                       </tr>
                     ))}
                   </tbody>

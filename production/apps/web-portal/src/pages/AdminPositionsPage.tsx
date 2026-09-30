@@ -52,9 +52,9 @@ export function AdminPositionsPage() {
           {query.isPending ? <div className="collection-state"><LoadingState label="Loading positions…" /></div> : null}
           {query.isError ? <div className="collection-state"><ErrorState error={query.error} retry={() => void query.refetch()} /></div> : null}
           {items.length ? (
-            <INNOTableWrap>
+            <INNOTableWrap stickyAction>
               <table><thead><tr><th>Position</th><th>Code</th><th>Status</th><th className="action-column">Action</th></tr></thead>
-                <tbody>{items.map((item) => <tr key={item.id} className={item.id === selectedId ? 'selected-row' : undefined}><td><b>{item.name}</b></td><td>{item.code}</td><td><INNOStatus tone={item.status === 'active' ? 'success' : 'neutral'}>{item.status}</INNOStatus></td><td className="action-column"><button type="button" className="device-row-action" aria-label={'Open ' + item.name} onClick={() => { setCreateMode(false); setSelectedId(item.id); }}><INNOIcon token="action.next" size={14} /></button></td></tr>)}</tbody>
+                <tbody>{items.map((item) => <tr key={item.id} className={item.id === selectedId ? 'selected-row' : undefined}><td><b>{item.name}</b></td><td>{item.code}</td><td><INNOStatus tone={item.status === 'active' ? 'success' : 'neutral'}>{item.status}</INNOStatus></td><td className="action-column"><button type="button" className="inno-row-action" aria-label={'Select ' + item.name} onClick={() => { setCreateMode(false); setSelectedId(item.id); }}>Select</button></td></tr>)}</tbody>
               </table>
             </INNOTableWrap>
           ) : query.data ? <div className="collection-state"><INNOState kind={search ? 'no-results' : 'empty'} title="No positions found" description={search ? 'Try another search.' : 'Create the first position.'} /></div> : null}
