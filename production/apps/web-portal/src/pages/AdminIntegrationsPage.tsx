@@ -4,6 +4,8 @@ import {
   INNOCollection,
   INNOCollectionHeader,
   INNOPage,
+  INNOPurposeNote,
+  INNORowActions,
   INNOState,
   INNOStatus,
   INNOTableWrap,
@@ -90,8 +92,8 @@ export function AdminIntegrationsPage() {
             <div><span>Disabled</span><b>{disabled}</b><small>Disabled by environment</small></div>
           </div>
 
-          <INNOState
-            compact
+          <INNOPurposeNote
+            tone="info"
             title="Configuration remains deployment-managed"
             description="This page exposes health and safe connection tests only. Credentials, secrets, TLS overrides, and provider configuration are never returned by the Admin API."
           />
@@ -154,15 +156,16 @@ export function AdminIntegrationsPage() {
                           </td>
                           <td className="action-column">
                             {canManage && item.canTest ? (
-                              <INNOButton
-                                type="button"
-                                variant="secondary"
-                                busy={testing}
-                                disabled={test.isPending}
-                                onClick={() => test.mutate(item.id)}
-                              >
-                                Test
-                              </INNOButton>
+                              <INNORowActions
+                                ariaLabel={'Actions for ' + item.name}
+                                items={[{
+                                  id: 'test',
+                                  label: 'Test',
+                                  busy: testing,
+                                  disabled: test.isPending && !testing,
+                                  onSelect: () => test.mutate(item.id),
+                                }]}
+                              />
                             ) : (
                               <span className="table-meta">
                                 {item.canTest ? 'View only' : 'Unavailable'}

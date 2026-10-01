@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { INNOButton, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOPage, INNOStatus } from '@inno/ui';
+import { INNOButton, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOPage, INNOPurposeNote, INNOStatus } from '@inno/ui';
 import { updateCurrentProfile } from '../api/client';
 import { useProfile } from '../app/ProfileContext';
 
@@ -165,18 +165,14 @@ export function ProfilePage() {
               <INNOStatus>{profile.permissions.length} permissions</INNOStatus>
             </div>
           </div>
-          <div className="purpose-note">
-            <b>Organization-managed fields stay read only.</b>
-            <span>
-              Name, email, employee ID, organization, position, location, roles and sign-in state are not editable from this page.
-            </span>
-          </div>
-          <div className="purpose-note">
-            <b>Personal preferences are not exposed in this production slice.</b>
-            <span>
-              Notification read state is persisted. Email, desktop, density and language preferences remain unavailable until their persistence contract is defined.
-            </span>
-          </div>
+          <INNOPurposeNote
+            title="Organization-managed fields stay read only."
+            description="Name, email, employee ID, organization, position, location, roles and sign-in state are not editable from this page."
+          />
+          <INNOPurposeNote
+            title="Personal preferences are not exposed in this production slice."
+            description="Notification read state is persisted. Email, desktop, density and language preferences remain unavailable until their persistence contract is defined."
+          />
         </section>
       </div>
     </INNOPage>

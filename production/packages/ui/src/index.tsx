@@ -1,4 +1,5 @@
-import type { ButtonHTMLAttributes, ChangeEvent, PropsWithChildren, ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type ButtonHTMLAttributes, type ChangeEvent, type PropsWithChildren, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import {
   ArrowLeft,
   Bell,
@@ -467,11 +468,356 @@ export function INNOTableWrap({
   );
 }
 
+export type INNORowActionItem = {
+  id: string;
+  label: string;
+  onSelect: () => void;
+  tone?: 'default' | 'danger';
+  disabled?: boolean;
+  busy?: boolean;
+  icon?: ReactNode;
+};
+
+export function INNORowActions({
+  items,
+  ariaLabel = 'Row actions',
+}: {
+  items: INNORowActionItem[];
+  ariaLabel?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [menuPosition, setMenuPosition] = useState<{ top: number; right: number } | null>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const enabledItems = items.filter((item) => !item.disabled && !item.busy);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const trigger = triggerRef.current;
+    if (!trigger) return;
+    const triggerRect = trigger.getBoundingClientRect();
+    setMenuPosition({
+      top: triggerRect.bottom + 4,
+      right: Math.max(8, window.innerWidth - triggerRect.right),
+    });
+
+    function closeAndRestoreFocus() {
+      setOpen(false);
+      triggerRef.current?.focus();
+    }
+
+    function onPointerDown(event: PointerEvent) {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (!menuRef.current?.contains(target) && !triggerRef.current?.contains(target)) {
+        setOpen(false);
+      }
+    }
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      closeAndRestoreFocus();
+    }
+
+    function onViewportChange() {
+      setOpen(false);
+    }
+
+    window.addEventListener('pointerdown', onPointerDown);
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('resize', onViewportChange);
+    window.addEventListener('scroll', onViewportChange, true);
+    return () => {
+      window.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('resize', onViewportChange);
+      window.removeEventListener('scroll', onViewportChange, true);
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open || !menuPosition || !menuRef.current || !triggerRef.current) return;
+
+    const firstItem = menuRef.current.querySelector<HTMLButtonElement>('[role="menuitem"]:not(:disabled)');
+    const frame = window.requestAnimationFrame(() => firstItem?.focus());
+
+    const menuRect = menuRef.current.getBoundingClientRect();
+    if (menuRect.bottom > window.innerHeight - 8) {
+      const triggerRect = triggerRef.current.getBoundingClientRect();
+      const nextTop = Math.max(8, triggerRect.top - menuRect.height - 4);
+      if (Math.abs(nextTop - menuPosition.top) > 1) {
+        setMenuPosition((current) => current ? { ...current, top: nextTop } : current);
+      }
+    }
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [open, menuPosition]);
+
+  if (!items.length) return null;
+
+  if (items.length === 1) {
+    const item = items[0];
+    const contextualLabel = ariaLabel === 'Row actions' ? item.label : ariaLabel + ': ' + item.label;
+    return (
+      <button
+        type="button"
+        className={cx('inno-row-action', item.tone === 'danger' && 'is-danger')}
+        disabled={item.disabled || item.busy}
+        aria-busy={item.busy || undefined}
+        aria-label={contextualLabel}
+        onClick={item.onSelect}
+      >
+        {item.busy ? <span className="inno-btn-spinner" aria-hidden="true" /> : item.icon}
+        <span>{item.label}</span>
+      </button>
+    );
+  }
+
+  function select(item: INNORowActionItem) {
+    setOpen(false);
+    triggerRef.current?.focus();
+    item.onSelect();
+  }
+
+  function handleMenuKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp' && event.key !== 'Home' && event.key !== 'End') return;
+    const focusable = Array.from(
+      menuRef.current?.querySelectorAll<HTMLButtonElement>('[role="menuitem"]:not(:disabled)') ?? [],
+    );
+    if (!focusable.length) return;
+    event.preventDefault();
+    const current = focusable.indexOf(document.activeElement as HTMLButtonElement);
+    if (event.key === 'Home') focusable[0]?.focus();
+    else if (event.key === 'End') focusable[focusable.length - 1]?.focus();
+    else if (event.key === 'ArrowDown') focusable[(current + 1 + focusable.length) % focusable.length]?.focus();
+    else focusable[(current - 1 + focusable.length) % focusable.length]?.focus();
+  }
+
+  const menu = open && menuPosition ? createPortal(
+    <div
+      ref={menuRef}
+      className="inno-row-actions-menu"
+      role="menu"
+      aria-label={ariaLabel}
+      style={{ top: menuPosition.top, right: menuPosition.right }}
+      onKeyDown={handleMenuKeyDown}
+    >
+      {items.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          role="menuitem"
+          className={cx('inno-row-actions-item', item.tone === 'danger' && 'is-danger')}
+          disabled={item.disabled || item.busy}
+          aria-busy={item.busy || undefined}
+          onClick={() => select(item)}
+        >
+          {item.busy ? <span className="inno-btn-spinner" aria-hidden="true" /> : item.icon}
+          <span>{item.label}</span>
+        </button>
+      ))}
+    </div>,
+    document.body,
+  ) : null;
+
+  return (
+    <div className="inno-row-actions">
+      <button
+        ref={triggerRef}
+        type="button"
+        className="inno-row-actions-trigger"
+        aria-label={ariaLabel}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+      >
+        <INNOIcon token="action.more" size={16} />
+      </button>
+      {menu}
+      <span className="inno-sr-only">{enabledItems.length} available actions</span>
+    </div>
+  );
+}
+
+function useOverlayFocus(
+  open: boolean,
+  rootRef: { current: HTMLElement | null },
+  onClose: () => void,
+) {
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
+
+  useEffect(() => {
+    if (!open) return;
+
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const frame = window.requestAnimationFrame(() => {
+      const root = rootRef.current;
+      const autofocus = root?.querySelector<HTMLElement>('[data-autofocus]');
+      const firstFocusable = root?.querySelector<HTMLElement>(
+        'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])',
+      );
+      (autofocus ?? firstFocusable ?? root)?.focus();
+    });
+
+    function onKeyDown(event: KeyboardEvent) {
+      const root = rootRef.current;
+      if (!root) return;
+
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeRef.current();
+        return;
+      }
+
+      if (event.key !== 'Tab') return;
+      const focusable = Array.from(root.querySelectorAll<HTMLElement>(
+        'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])',
+      )).filter((item) => item.getClientRects().length > 0);
+
+      if (!focusable.length) {
+        event.preventDefault();
+        root.focus();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      document.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = previousOverflow;
+      previous?.focus();
+    };
+  }, [open, rootRef]);
+}
+
+type INNOOverlayProps = PropsWithChildren<{
+  open: boolean;
+  title: ReactNode;
+  description?: ReactNode;
+  onClose: () => void;
+  footer?: ReactNode;
+  closeLabel?: string;
+  closeOnBackdrop?: boolean;
+  size?: 'sm' | 'md' | 'lg';
+  className?: string;
+}>;
+
+function INNOOverlayFrame({
+  kind,
+  open,
+  title,
+  description,
+  onClose,
+  footer,
+  closeLabel = 'Close',
+  closeOnBackdrop = true,
+  size = 'md',
+  className,
+  children,
+}: INNOOverlayProps & { kind: 'dialog' | 'drawer' }) {
+  const rootRef = useRef<HTMLElement>(null);
+  const titleId = useId();
+  const descriptionId = useId();
+  useOverlayFocus(open, rootRef, onClose);
+
+  if (!open) return null;
+
+  return createPortal(
+    <div
+      className={cx('inno-overlay', 'inno-overlay--' + kind)}
+      onMouseDown={(event) => {
+        if (closeOnBackdrop && event.target === event.currentTarget) onClose();
+      }}
+    >
+      <section
+        ref={rootRef}
+        className={cx('inno-overlay-panel', 'inno-' + kind, 'inno-' + kind + '--' + size, className)}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={description ? descriptionId : undefined}
+        tabIndex={-1}
+      >
+        <header className="inno-overlay-head">
+          <div>
+            <h2 id={titleId}>{title}</h2>
+            {description ? <p id={descriptionId}>{description}</p> : null}
+          </div>
+          <button type="button" className="inno-overlay-close" aria-label={closeLabel} onClick={onClose}>
+            <INNOIcon token="action.close" size={16} />
+          </button>
+        </header>
+        <div className="inno-overlay-body">{children}</div>
+        {footer ? <footer className="inno-overlay-footer">{footer}</footer> : null}
+      </section>
+    </div>,
+    document.body,
+  );
+}
+
+export function INNODialog(props: INNOOverlayProps) {
+  return <INNOOverlayFrame {...props} kind="dialog" />;
+}
+
+export function INNODrawer(props: INNOOverlayProps) {
+  return <INNOOverlayFrame {...props} kind="drawer" />;
+}
+
+export function INNOPurposeNote({
+  title,
+  description,
+  actions,
+  tone = 'neutral',
+  className,
+}: {
+  title: ReactNode;
+  description?: ReactNode;
+  actions?: ReactNode;
+  tone?: 'neutral' | 'info' | 'warning';
+  className?: string;
+}) {
+  return (
+    <aside className={cx('inno-purpose-note', 'inno-purpose-note--' + tone, className)}>
+      <div className="inno-purpose-note-copy">
+        <strong>{title}</strong>
+        {description ? <p>{description}</p> : null}
+      </div>
+      {actions ? <div className="inno-purpose-note-actions">{actions}</div> : null}
+    </aside>
+  );
+}
+
+export function INNOInfoCallout(props: Omit<Parameters<typeof INNOPurposeNote>[0], 'tone'>) {
+  return <INNOPurposeNote {...props} tone="info" />;
+}
+
 export function INNOEditorFooter({
   children,
   className,
-}: PropsWithChildren<{ className?: string }>) {
-  return <footer className={cx('inno-editor-footer', className)}>{children}</footer>;
+  docked = false,
+}: PropsWithChildren<{ className?: string; docked?: boolean }>) {
+  return (
+    <footer className={cx('inno-editor-footer', docked && 'is-docked', className)}>
+      {children}
+    </footer>
+  );
 }
 
 export function INNOEditorFooterStart({

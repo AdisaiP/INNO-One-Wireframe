@@ -355,9 +355,9 @@
 .collection-head {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--ds-space-3);
   align-items: flex-start;
-  padding: 12px 16px;
+  padding: var(--ds-surface-padding-y) var(--ds-surface-padding-x);
   border-bottom: 1px solid #edf0f3;
 }
 
@@ -786,26 +786,6 @@
   font-size: 10px;
 }
 
-.purpose-note {
-  display: grid;
-  gap: 4px;
-  margin: 10px 14px 14px;
-  padding: 11px 12px;
-  border: 1px solid #d8e3fb;
-  border-radius: 9px;
-  background: #f5f8ff;
-}
-
-.purpose-note b {
-  font-size: 10px;
-}
-
-.purpose-note span {
-  color: #63728a;
-  font-size: 9px;
-  line-height: 1.5;
-}
-
 .profile-edit-form {
   display: grid;
   gap: 14px;
@@ -989,13 +969,13 @@
 .page-intro-row .page-helper { margin-bottom: 0; }
 
 .create-panel { margin-bottom: 16px; }
-.editor-form { padding: 15px 16px 0; }
+.editor-form { padding: var(--ds-space-4) var(--ds-surface-padding-x) 0; }
 .editor-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: var(--ds-space-3);
 }
-.field-block { display: grid; gap: 6px; min-width: 0; }
+.field-block { display: grid; gap: var(--ds-field-gap); min-width: 0; }
 .field-block > span {
   color: #596579;
   font-size: 10px;
@@ -1015,7 +995,7 @@
   outline: none;
 }
 .field-block input,
-.field-block select { height: 38px; padding: 0 10px; }
+.field-block select { height: var(--ds-control-h); padding: 0 10px; }
 .field-block textarea { padding: 9px 10px; resize: vertical; }
 .field-block input:focus,
 .field-block select:focus,
@@ -1062,14 +1042,6 @@
 }
 .deployment-card { padding: 16px; }
 .deployment-card .editor-form { padding: 0; }
-.deployment-card .inno-editor-footer {
-  position: static;
-  justify-content: flex-start;
-  margin-top: 12px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-}
 .deployment-section-title {
   margin: 0 0 8px;
 }
@@ -1363,13 +1335,6 @@
 .ticket-create-advanced > summary > span:first-of-type { flex: 1; }
 .ticket-create-advanced-body {
   padding: 0 12px 12px;
-}
-.ticket-create-main > .inno-editor-footer {
-  margin-top: 14px;
-  padding: 10px 12px;
-  border: 1px solid var(--ds-border);
-  border-radius: 12px;
-  background: #fff;
 }
 .form-error {
   margin-bottom: 12px;
@@ -1748,11 +1713,6 @@
 .calendar-note {
   margin: 12px 16px 16px;
 }
-.standalone-editor-footer {
-  border: 1px solid #e2e7ed;
-  border-radius: 12px;
-  background: #fff;
-}
 .automation-condition {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 150px minmax(0, 1fr);
@@ -1986,8 +1946,6 @@
   font-size: 9px;
   line-height: 1.45;
 }
-.qr-action-footer { margin-top: 14px; }
-.qr-action-footer .editor-footer-note { margin-right: auto; }
 .qr-print-area { display: none; }
 
 @media (max-width: 1024px) {
@@ -1998,11 +1956,6 @@
 @media (max-width: 768px) {
   .qr-flow-strip { grid-template-columns: 1fr 1fr; }
   .asset-qr-preview-grid { grid-template-columns: 1fr; }
-  .qr-action-footer {
-    align-items: stretch;
-    flex-direction: column;
-  }
-  .qr-action-footer .editor-footer-note { margin-right: 0; }
 }
 
 @media print {
@@ -2237,15 +2190,6 @@
   gap: 14px;
   padding: 16px;
 }
-.baseline-editor-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  padding: 12px 16px;
-  border-top: 1px solid var(--ds-border);
-  background: #fafbfc;
-}
-
 /* Step 27 · Devices software inventory evidence */
 .device-software-card { margin-top: 16px; }
 .software-evidence-bar {

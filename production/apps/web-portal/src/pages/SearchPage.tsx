@@ -7,6 +7,7 @@ import {
   INNOCollectionHeader,
   INNOCollectionToolbar,
   INNOPage,
+  INNOPurposeNote,
   INNOSearchField,
   INNOState,
   INNOStatus,
@@ -140,8 +141,7 @@ export function SearchPage() {
         ) : null}
       </INNOCollection>
 
-      <INNOState
-        compact
+      <INNOPurposeNote
         title="Authorization stays authoritative"
         description="Global Search only orchestrates module-owned providers. Opening a result runs the destination route’s normal authorization again."
       />

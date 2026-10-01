@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOButton, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterNote, INNOEditorFooterStart, INNOPage, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOButton, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterNote, INNOEditorFooterStart, INNOPage, INNOPurposeNote, INNOStatus, INNOTableWrap } from '@inno/ui';
 import {
   getBusinessCalendar,
   updateBusinessCalendar,
@@ -167,7 +167,7 @@ export function BusinessCalendarPage() {
                 <div><h3>Holiday exceptions</h3><p>These dates are removed from SLA timer calculations.</p></div>
                 <INNOStatus>{query.data.holidays.length} dates</INNOStatus>
               </div>
-              <INNOTableWrap width="wide">
+              <INNOTableWrap>
                 <table>
                   <thead><tr><th>Date</th><th>Holiday</th><th>Type</th></tr></thead>
                   <tbody>
@@ -181,10 +181,11 @@ export function BusinessCalendarPage() {
                   </tbody>
                 </table>
               </INNOTableWrap>
-              <div className="purpose-note calendar-note">
-                <b>Holiday maintenance remains read-only in this slice.</b>
-                <span>Step 18 implements working-time calculation against seeded holidays without introducing an uncontracted holiday-import workflow.</span>
-              </div>
+              <INNOPurposeNote
+                className="calendar-note"
+                title="Holiday maintenance remains read-only in this slice."
+                description="Step 18 implements working-time calculation against seeded holidays without introducing an uncontracted holiday-import workflow."
+              />
             </section>
 
             {canManage ? (
@@ -212,10 +213,10 @@ export function BusinessCalendarPage() {
                 <div className="kv-row"><span>Holiday exceptions</span><b>{query.data.holidays.length}</b></div>
               </div>
             </section>
-            <div className="purpose-note">
-              <b>This page owns working time only.</b>
-              <span>Response targets, pause rules and escalation levels remain in SLA & Escalation.</span>
-            </div>
+            <INNOPurposeNote
+              title="This page owns working time only."
+              description="Response targets, pause rules and escalation levels remain in SLA & Escalation."
+            />
           </aside>
         </div>
       ) : null}

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOButton, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterNote, INNOEditorFooterStart, INNOPage, INNOState, INNOStatus } from '@inno/ui';
+import { INNOButton, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterNote, INNOEditorFooterStart, INNOPage, INNOPurposeNote, INNOState, INNOStatus } from '@inno/ui';
 import {
   getSlaMonitor,
   getSlaPolicies,
@@ -319,10 +319,10 @@ export function HelpdeskSlaPage() {
                 </div>
               )}
             </section>
-            <div className="purpose-note">
-              <b>Business time is authoritative.</b>
-              <span>Weekends, configured holidays and requester-wait pauses do not consume the SLA target.</span>
-            </div>
+            <INNOPurposeNote
+              title="Business time is authoritative."
+              description="Weekends, configured holidays and requester-wait pauses do not consume the SLA target."
+            />
           </aside>
         </div>
       ) : null}

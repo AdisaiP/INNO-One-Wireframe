@@ -1,9 +1,16 @@
 > [!IMPORTANT]
-> **Current production override — 2026-10-01 — Step 44A**
+> **Current production override — 2026-10-01 — Step 44B**
+>
+> **Step 44B Shared Interaction Foundations is complete** on `ux/step44b-shared-interaction-foundations`.
+>
+> Read `INNO-One-Step44B-Next-Chat-Handoff.md` first. Step 44B implements shared Product foundations for the Step 44A remediation matrix: `INNORowActions`, `INNODialog`, `INNODrawer`, `INNOPurposeNote/INNOInfoCallout`, integrated editor actions with opt-in docking, and shared spacing ownership. Passive explanatory copy is no longer modeled as application state; legacy floating footer chrome and known spacing overrides were removed. Dedicated QA is **65/65 static and 65/65 browser**; Step 42.2G is **77/77**; Design System browser is **56/56**; broad Production regression is **1366/1366 across 51 routes**; the current static chain is **54/54**; UI/Web builds pass. Step 44A now reports **6 remaining gap classes**. Next is **Step 44C — Hierarchy Component Parity**. Frozen Design System V1.26 / UI Contract 1.20.0 remain unchanged. **Do not merge or deploy unless explicitly requested.**
+>
+> [!IMPORTANT]
+> **Previous production override — 2026-10-01 — Step 44A**
 >
 > **Step 44A Screen Interaction Architecture Audit is complete** on `ux/step44a-screen-interaction-architecture`.
 >
-> Read `INNO-One-Step44A-Next-Chat-Handoff.md` first. Step 44A reclassifies all 51 concrete Production routes by P01–P10 interaction architecture and freezes the correct route/modal/drawer/master-detail/tree/treegrid/builder decisions before visual remediation. The source audit confirms all 9 reported gap classes in current Production: side-card form/detail misuse, floating-card editor footer appearance, explanatory `INNOState` misuse, row-action inconsistency, spacing drift, missing hero illustration parity, missing Workflow Canvas foundation, missing Tree/TreeGrid production wrappers, and Assets User Profiles IA ambiguity. Dedicated Step 44A QA is **60/60 with 0 failures**; 4 routes are Critical and 11 are High priority. Step 44B is **Shared Interaction Foundations**. Frozen Design System V1.26 / UI Contract 1.20.0 remain unchanged. **Do not merge or deploy unless explicitly requested.**
+> Read `INNO-One-Step44A-Next-Chat-Handoff.md` first. Step 44A reclassifies all 51 concrete Production routes by P01–P10 interaction architecture and freezes the correct route/modal/drawer/master-detail/tree/treegrid/builder decisions before visual remediation. The source audit confirms all 9 reported gap classes in current Production: side-card form/detail misuse, floating-card editor footer appearance, explanatory `INNOState` misuse, row-action inconsistency, spacing drift, missing hero illustration parity, missing Workflow Canvas foundation, missing Tree/TreeGrid production wrappers, and Assets User Profiles IA ambiguity. Dedicated Step 44A QA is **60/60 with 0 failures**; 4 routes are Critical and 11 are High priority. Frozen Design System V1.26 / UI Contract 1.20.0 remain unchanged. **Do not merge or deploy unless explicitly requested.**
 >
 > [!IMPORTANT]
 > **Previous production override — 2026-10-01 — Step 43**

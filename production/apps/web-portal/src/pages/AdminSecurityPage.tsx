@@ -4,6 +4,7 @@ import {
   INNOCollection,
   INNOCollectionHeader,
   INNOPage,
+  INNOPurposeNote,
   INNOState,
   INNOStatus,
   INNOTableWrap,
@@ -94,8 +95,7 @@ export function AdminSecurityPage() {
             </div>
           </div>
 
-          <INNOState
-            compact
+          <INNOPurposeNote
             title="Security policy changes are not exposed yet"
             description="The current contracts reserve Security permissions but do not freeze mutable MFA, password, session, or identity-provider policy resources. This step reports only runtime posture that can be verified safely."
           />

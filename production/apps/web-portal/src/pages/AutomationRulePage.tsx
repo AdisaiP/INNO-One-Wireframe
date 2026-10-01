@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { INNOButton, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOPage, INNOState, INNOStatus } from '@inno/ui';
+import { INNOButton, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOPage, INNOPurposeNote, INNOState, INNOStatus } from '@inno/ui';
 import {
   createAutomationRule,
   getAutomationRule,
@@ -255,10 +255,10 @@ export function AutomationRulePage() {
             </section>
           ) : null}
 
-          <div className="purpose-note">
-            <b>Automation is bounded to contracted actions.</b>
-            <span>Step 18 implements team assignment, priority classification and SLA escalation actions only.</span>
-          </div>
+          <INNOPurposeNote
+            title="Automation is bounded to contracted actions."
+            description="Step 18 implements team assignment, priority classification and SLA escalation actions only."
+          />
         </aside>
       </div>
     </INNOPage>

@@ -147,8 +147,15 @@ if not logged_in:
 def route_ready(cdp):
     return bool(wait_eval(
         cdp,
-        "!!document.querySelector('.inno-page, .page-loading-wrap, .page-error-wrap, .boot-screen')",
-        timeout=12,
+        """(()=> {
+          const shell=document.querySelector('.inno-production-shell');
+          const main=document.querySelector('.prod-main');
+          const page=document.querySelector('.inno-page,.workspace-home-page');
+          return !!shell && !!main && !!page
+            && main.getBoundingClientRect().width > 0
+            && !document.querySelector('.boot-screen,.page-loading-wrap');
+        })()""",
+        timeout=20,
     ))
 
 def metrics(cdp):
@@ -156,7 +163,7 @@ def metrics(cdp):
       const side=[...document.querySelectorAll('.prod-side a')];
       const rail=[...document.querySelectorAll('.prod-rail a')];
       const main=document.querySelector('.prod-main');
-      const page=document.querySelector('.inno-page');
+      const page=document.querySelector('.inno-page,.workspace-home-page');
       const h1=document.querySelector('h1')?.textContent?.trim()||'';
       const sideMissing=side.filter(a=>!a.querySelector('.inno-icon[data-icon-token]')).map(a=>a.textContent.trim());
       const railMissing=rail.filter(a=>!a.querySelector('.inno-icon[data-icon-token]')).map(a=>a.getAttribute('aria-label')||'');

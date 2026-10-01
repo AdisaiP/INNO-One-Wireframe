@@ -47,7 +47,7 @@ for marker in [
     ".inno-page { padding: 24px 16px 32px; }",
     ".inno-page { padding: 16px 12px 32px; }",
     ".inno-page { padding: 12px 8px 24px; }",
-    "padding: 12px 16px;",
+    "padding: var(--ds-surface-padding-y) var(--ds-surface-padding-x);",
     "border-bottom: 1px solid #edf0f3;",
     ".inno-state.compact { min-height: 150px; padding: 22px 16px;",
 ]:
@@ -68,18 +68,26 @@ require(ui_css, ".inno-state.compact", "collection local state")
 require(ui_css, "border: 0;", "collection local state")
 require(ui_css, "background: transparent;", "collection local state")
 
-# Canonical editor footer.
+# Canonical editor footer. Step 44B supersedes the old floating-card footer
+# while preserving section ownership and opt-in docking for long dirty editors.
 for marker in [
-    "min-height: 58px;",
-    "margin-top: 14px;",
-    "padding: 10px 12px;",
-    "border-radius: 12px;",
+    "min-height: 50px;",
+    "margin-top: var(--ds-space-4);",
+    "border-top: 1px solid var(--ds-border);",
+    "border-radius: 0;",
+    "background: transparent;",
+    "box-shadow: none;",
+    ".inno-editor-footer.is-docked",
 ]:
     require(ui_css, marker, "editor footer")
 
-require(shell_css, ".standalone-editor-footer {", "standalone footer")
-require(shell_css, "border-radius: 12px;", "standalone footer")
-require(shell_css, ".qr-action-footer { margin-top: 14px; }", "QR footer")
+forbid(shell_css, ".standalone-editor-footer {", "standalone footer")
+forbid(shell_css, ".qr-action-footer {", "QR footer")
+qr = read("production/apps/web-portal/src/pages/AssetQrLabelsPage.tsx")
+require(qr, "<INNOEditorFooter>", "QR footer")
+require(qr, "<INNOEditorFooterStart>", "QR footer")
+require(qr, "<INNOEditorFooterEnd>", "QR footer")
+require(qr, "<INNOEditorFooterNote>", "QR footer")
 require(shell_css, ".license-stat-strip { margin-bottom: 16px; }", "license stats")
 require(shell_css, ".contract-stat-strip { margin-bottom: 16px; }", "contract stats")
 require(contracts, "<INNOEditorFooter>", "contract footer")

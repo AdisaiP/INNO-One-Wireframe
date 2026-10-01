@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import QRCode from 'qrcode';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOPage, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarSpacer } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterNote, INNOEditorFooterStart, INNOPage, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarSpacer } from '@inno/ui';
 import { createAssetQrLabel, getAssets } from '../api/client';
 import type { AssetListItem, AssetQrLabel } from '../api/types';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -331,21 +331,25 @@ export function AssetQrLabelsPage() {
         </div>
       </section>
 
-      <INNOEditorFooter className="standalone-editor-footer qr-action-footer">
-        <span className="editor-footer-note">
-          Regenerating replaces each selected Asset’s previous active QR label.
-        </span>
-        <INNOButton
-          variant="secondary"
-          busy={generateMutation.isPending}
-          disabled={selected.size === 0}
-          onClick={() => generateMutation.mutate()}
-        >
-          {generatedForSelection.length > 0 ? 'Regenerate Preview' : 'Generate Preview'}
-        </INNOButton>
-        <INNOButton disabled={!canPrint || generateMutation.isPending} onClick={() => window.print()}>
-          Print Selected
-        </INNOButton>
+      <INNOEditorFooter>
+        <INNOEditorFooterStart>
+          <INNOEditorFooterNote>
+            Regenerating replaces each selected Asset’s previous active QR label.
+          </INNOEditorFooterNote>
+        </INNOEditorFooterStart>
+        <INNOEditorFooterEnd>
+          <INNOButton
+            variant="secondary"
+            busy={generateMutation.isPending}
+            disabled={selected.size === 0}
+            onClick={() => generateMutation.mutate()}
+          >
+            {generatedForSelection.length > 0 ? 'Regenerate Preview' : 'Generate Preview'}
+          </INNOButton>
+          <INNOButton disabled={!canPrint || generateMutation.isPending} onClick={() => window.print()}>
+            Print Selected
+          </INNOButton>
+        </INNOEditorFooterEnd>
       </INNOEditorFooter>
 
       <div className="qr-print-area" aria-hidden="true">

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { INNOButton, INNOEditorFooter, INNOPage, INNOState, INNOStatus } from '@inno/ui';
+import { INNOButton, INNOEditorFooter, INNOPage, INNOPurposeNote, INNOState, INNOStatus } from '@inno/ui';
 import { createAgentInstaller, getDeviceGroups } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 
@@ -105,10 +105,10 @@ export function AgentDeploymentPage() {
             </div>
             <a className="inno-link-button" href={generate.data.enrollmentUrl} target="_blank" rel="noreferrer">Open Enrollment</a>
           </div>
-          <div className="purpose-note">
-            <b>Vendor IDs stay private.</b>
-            <span>This authorized link is time-limited. INNO.One public resource identifiers never expose the MeshCentral group or node ID.</span>
-          </div>
+          <INNOPurposeNote
+            title="Vendor IDs stay private."
+            description="This authorized link is time-limited. INNO.One public resource identifiers never expose the MeshCentral group or node ID."
+          />
         </section>
       ) : null}
     </INNOPage>

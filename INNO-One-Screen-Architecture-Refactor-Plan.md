@@ -432,3 +432,57 @@ failures=0
 ```
 
 Remediation sequence is frozen as Step 44B–44H in the Step 44A document.
+
+
+---
+
+## Step 44B Shared Interaction Foundations checkpoint — 2026-10-01
+
+Step 44B implements the shared Product primitives required by the Step 44A remediation matrix before route-specific refactors begin.
+
+Implemented in `@inno/ui`:
+
+- `INNORowActions`
+- `INNODialog`
+- `INNODrawer`
+- `INNOPurposeNote`
+- `INNOInfoCallout`
+- integrated `INNOEditorFooter` with opt-in docking
+- shared surface / form / table spacing tokens
+
+Step 44B also removes page-local floating footer chrome, migrates passive policy/explanation copy away from `INNOState`, removes legacy `.purpose-note` markup, normalizes common control height to 36px and proves portal/focus behavior through dedicated browser QA.
+
+Step 44A gap status after this checkpoint:
+
+```text
+original modeled gap classes = 9
+current remaining gap classes = 6
+```
+
+Remediated at the shared-foundation level:
+
+- editor footer floating-card appearance
+- explanatory state misuse
+- baseline spacing drift
+
+Still intentionally scheduled later:
+
+- permanent side-card form/detail architecture
+- row-action inconsistency across legacy pages
+- hero illustration parity
+- Tree / TreeGrid production parity
+- Dynamic Workflow Canvas foundation
+- Assets User Profiles information architecture
+
+QA baseline:
+
+```text
+Step44B static = 65/65
+Step44B browser = 65/65
+Step42.2G responsive = 77/77
+Design System browser = 56/56
+Broad Production = 51 routes / 1366 checks / 0 failures
+Current static chain = 54/54
+```
+
+Next: **Step 44C — Hierarchy Component Parity**.

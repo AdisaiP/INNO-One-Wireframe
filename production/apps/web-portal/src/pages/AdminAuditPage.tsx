@@ -9,6 +9,7 @@ import {
   INNOCollectionToolbar,
   INNOPage,
   INNOPagination,
+  INNOPurposeNote,
   INNOSearchField,
   INNOSelectField,
   INNOState,
@@ -150,8 +151,7 @@ export function AdminAuditPage() {
       title="Audit Log"
       description="Read the immutable audit ledger across platform and module boundaries."
     >
-      <INNOState
-        compact
+      <INNOPurposeNote
         title="Audit records are read-only"
         description="This view shows persisted audit facts exactly as stored. It does not infer canonical envelope fields that are not present in the current ledger."
       />

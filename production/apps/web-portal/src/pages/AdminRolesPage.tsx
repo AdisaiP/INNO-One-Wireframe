@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNOIcon, INNOPage, INNOSearchField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNOIcon, INNOPage, INNOPurposeNote, INNOSearchField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { getAdminPermissions, getAdminRoles } from '../api/client';
 import { CollectionErrorState, CollectionLoadingState, ErrorState, LoadingState } from '../components/Feedback';
 
@@ -25,8 +25,7 @@ export function AdminRolesPage() {
       title="Roles & Permissions"
       description="Inspect centralized RBAC while modules continue to own their permission contracts."
     >
-      <INNOState
-        compact
+      <INNOPurposeNote
         title="Role definitions are read-only in this phase"
         description="The current API contract exposes role and permission catalogs, but does not define role create/update operations. No fake Edit action is shown."
       />

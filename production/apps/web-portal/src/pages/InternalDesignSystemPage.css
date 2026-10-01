@@ -938,103 +938,15 @@
   opacity: .92;
 }
 
-.internal-ds-overlay {
-  position: fixed;
-  z-index: 1200;
-  inset: 0;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding-top: 11vh;
-  background: rgba(16, 24, 40, .34);
-  backdrop-filter: blur(2px);
-}
-
-.internal-ds-dialog {
-  width: min(520px, calc(100vw - 32px));
-  overflow: hidden;
-  border: 1px solid var(--ds-border);
-  border-radius: 14px;
-  background: #fff;
-  box-shadow: var(--ds-shadow-md);
-}
-
-.internal-ds-dialog > header,
-.internal-ds-dialog > footer {
-  padding: 16px 18px;
-}
-
-.internal-ds-dialog > header {
-  border-bottom: 1px solid var(--ds-border);
-}
-
-.internal-ds-dialog > header h3,
-.internal-ds-sheet header h3 {
-  margin: 0;
-  font-size: 15px;
-}
-
-.internal-ds-dialog > header p,
-.internal-ds-sheet header p {
-  margin: 4px 0 0;
-  color: var(--ds-muted);
-  font-size: 10px;
-}
-
-.internal-ds-dialog-body {
-  padding: 18px;
-}
-
 .internal-ds-dialog-field {
   display: grid;
   gap: 5px;
-}
-
-.internal-ds-dialog > footer,
-.internal-ds-sheet > footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  border-top: 1px solid var(--ds-border);
-}
-
-.internal-ds-sheet-backdrop {
-  position: fixed;
-  z-index: 1190;
-  inset: 0;
-  border: 0;
-  background: rgba(16, 24, 40, .24);
-}
-
-.internal-ds-sheet {
-  width: min(420px, calc(100vw - 24px));
-  height: 100vh;
-  position: fixed;
-  z-index: 1200;
-  top: 0;
-  right: 0;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  border-left: 1px solid var(--ds-border);
-  background: #fff;
-  box-shadow: -18px 0 50px rgba(16, 24, 40, .16);
-}
-
-.internal-ds-sheet > header {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  align-items: flex-start;
-  padding: 16px 18px;
-  border-bottom: 1px solid var(--ds-border);
 }
 
 .internal-ds-sheet-body {
   display: grid;
   align-content: start;
   gap: 14px;
-  overflow: auto;
-  padding: 18px;
 }
 
 .internal-ds-sheet-body label {
@@ -1045,10 +957,6 @@
 .internal-ds-sheet-body textarea {
   min-height: 96px;
   resize: vertical;
-}
-
-.internal-ds-sheet > footer {
-  padding: 14px 18px;
 }
 
 @media (max-width: 1366px) {

@@ -4,9 +4,13 @@ import {
   INNOButton,
   INNOCollection,
   INNOCollectionToolbar,
+  INNODialog,
+  INNODrawer,
   INNOEditorFooter,
   INNOIcon,
+  INNOInfoCallout,
   INNOPagination,
+  INNORowActions,
   INNOSearchField,
   INNOSelectField,
   INNOState,
@@ -421,7 +425,16 @@ export function InternalDesignSystemPage() {
                       <td>{row.user}</td>
                       <td>{row.os}</td>
                       <td>{row.seen}</td>
-                      <td><button className="internal-ds-icon-button" type="button" aria-label={'More actions for ' + row.name}><INNOIcon token="action.more" size={14} /></button></td>
+                      <td className="action-column">
+                        <INNORowActions
+                          ariaLabel={'Actions for ' + row.name}
+                          items={[
+                            { id: 'open', label: 'Open', onSelect: () => setFeedback('Open ' + row.name) },
+                            { id: 'edit', label: 'Edit', onSelect: () => setFeedback('Edit ' + row.name) },
+                            { id: 'remove', label: 'Remove', tone: 'danger', onSelect: () => setFeedback('Remove ' + row.name) },
+                          ]}
+                        />
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -774,10 +787,10 @@ export function InternalDesignSystemPage() {
           <DSCard title="Implementation handoff">
             <p className="internal-ds-card-note">The frozen written specification is stored next to the prototype for development handoff.</p>
             <pre className="internal-ds-codebox">{"INNO-One-Design-System-V1-Frozen.md\nINNO-One-Final-Visual-QA-Baseline.md\nINNO-One-Action-Layout-Contract.md\ndesign-system.html"}</pre>
-            <div className="internal-ds-alert internal-ds-alert--inside">
-              <INNOIcon token="status.info" size={15} />
-              <div><b>Prototype → backend completion</b><p>The frozen contract defines UI behavior and component ownership only. It does not imply APIs, persistence, permissions or integrations are implemented.</p></div>
-            </div>
+            <INNOInfoCallout
+              title="Prototype → backend completion"
+              description="The frozen contract defines UI behavior and component ownership only. It does not imply APIs, persistence, permissions or integrations are implemented."
+            />
           </DSCard>
         </div>
       </DSSection>
@@ -788,40 +801,39 @@ export function InternalDesignSystemPage() {
         </div>
       ) : null}
 
-      {dialogOpen ? (
-        <div className="internal-ds-overlay" role="presentation" onMouseDown={(event) => { if (event.currentTarget === event.target) setDialogOpen(false); }}>
-          <div className="internal-ds-dialog" role="dialog" aria-modal="true" aria-labelledby="ds-dialog-title">
-            <header>
-              <h3 id="ds-dialog-title">Move devices to group</h3>
-              <p>This pattern becomes the shared React dialog implementation.</p>
-            </header>
-            <div className="internal-ds-dialog-body">
-              <label className="internal-ds-dialog-field"><span>Destination group</span><select defaultValue="hr"><option value="hr">HR / Bangkok</option><option value="finance">Finance</option><option value="it">IT Operations</option></select></label>
-            </div>
-            <footer>
-              <INNOButton type="button" variant="secondary" onClick={() => setDialogOpen(false)}>Cancel</INNOButton>
-              <INNOButton type="button" onClick={() => { setDialogOpen(false); setFeedback('Devices moved successfully'); }}>Move Devices</INNOButton>
-            </footer>
-          </div>
-        </div>
-      ) : null}
+      <INNODialog
+        open={dialogOpen}
+        title="Move devices to group"
+        description="Focused CRUD tasks keep the underlying collection context without turning the page into permanent master-detail."
+        onClose={() => setDialogOpen(false)}
+        size="sm"
+        footer={(
+          <>
+            <INNOButton type="button" variant="secondary" onClick={() => setDialogOpen(false)}>Cancel</INNOButton>
+            <INNOButton type="button" onClick={() => { setDialogOpen(false); setFeedback('Devices moved successfully'); }}>Move Devices</INNOButton>
+          </>
+        )}
+      >
+        <label className="internal-ds-dialog-field"><span>Destination group</span><select data-autofocus defaultValue="hr"><option value="hr">HR / Bangkok</option><option value="finance">Finance</option><option value="it">IT Operations</option></select></label>
+      </INNODialog>
 
-      {sheetOpen ? (
-        <>
-          <button className="internal-ds-sheet-backdrop" type="button" aria-label="Close sheet" onClick={() => setSheetOpen(false)} />
-          <aside className="internal-ds-sheet" aria-label="Edit resource sheet">
-            <header><div><h3>Edit device owner</h3><p>Contextual edit keeps the parent page visible.</p></div><button className="internal-ds-icon-button" type="button" aria-label="Close sheet" onClick={() => setSheetOpen(false)}><INNOIcon token="action.close" /></button></header>
-            <div className="internal-ds-sheet-body">
-              <label><span>Owner</span><select defaultValue="somchai"><option value="somchai">Somchai Prasert</option><option value="ploy">Ploy K.</option></select></label>
-              <label><span>Reason</span><textarea rows={4} defaultValue="Ownership correction" /></label>
-            </div>
-            <footer>
-              <INNOButton type="button" variant="secondary" onClick={() => setSheetOpen(false)}>Cancel</INNOButton>
-              <INNOButton type="button" onClick={() => { setSheetOpen(false); setFeedback('Owner updated'); }}>Save changes</INNOButton>
-            </footer>
-          </aside>
-        </>
-      ) : null}
+      <INNODrawer
+        open={sheetOpen}
+        title="Edit device owner"
+        description="Contextual inspection or compact editing keeps the parent resource visible."
+        onClose={() => setSheetOpen(false)}
+        footer={(
+          <>
+            <INNOButton type="button" variant="secondary" onClick={() => setSheetOpen(false)}>Cancel</INNOButton>
+            <INNOButton type="button" onClick={() => { setSheetOpen(false); setFeedback('Owner updated'); }}>Save changes</INNOButton>
+          </>
+        )}
+      >
+        <div className="internal-ds-sheet-body">
+          <label><span>Owner</span><select data-autofocus defaultValue="somchai"><option value="somchai">Somchai Prasert</option><option value="ploy">Ploy K.</option></select></label>
+          <label><span>Reason</span><textarea rows={4} defaultValue="Ownership correction" /></label>
+        </div>
+      </INNODrawer>
     </main>
   );
 }

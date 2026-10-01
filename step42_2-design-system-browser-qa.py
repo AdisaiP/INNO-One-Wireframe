@@ -167,17 +167,17 @@ check("context menu demo closes after action", ev("!document.querySelector('#int
 
 ev("""[...document.querySelectorAll('#overlays button')].find(b=>b.textContent.includes('Open Dialog'))?.click()""")
 time.sleep(.1)
-check("dialog demo opens", ev("!!document.querySelector('.internal-ds-dialog[role=dialog]')"))
-ev("""[...document.querySelectorAll('.internal-ds-dialog button')].find(b=>b.textContent.includes('Cancel'))?.click()""")
+check("dialog demo opens", ev("!!document.querySelector('.inno-dialog[role=dialog]')"))
+ev("""[...document.querySelectorAll('.inno-dialog button')].find(b=>b.textContent.includes('Cancel'))?.click()""")
 time.sleep(.1)
-check("dialog demo closes", ev("!document.querySelector('.internal-ds-dialog')"))
+check("dialog demo closes", ev("!document.querySelector('.inno-dialog')"))
 
 ev("""[...document.querySelectorAll('#overlays button')].find(b=>b.textContent.includes('Open Sheet'))?.click()""")
 time.sleep(.1)
-check("sheet demo opens", ev("!!document.querySelector('.internal-ds-sheet')"))
-ev("""document.querySelector('.internal-ds-sheet button[aria-label="Close sheet"]')?.click()""")
+check("sheet demo opens", ev("!!document.querySelector('.inno-drawer[role=dialog]')"))
+ev("""document.querySelector('.inno-drawer .inno-overlay-close')?.click()""")
 time.sleep(.1)
-check("sheet demo closes", ev("!document.querySelector('.internal-ds-sheet')"))
+check("sheet demo closes", ev("!document.querySelector('.inno-drawer')"))
 
 ev("""[...document.querySelectorAll('#buttons button')].find(b=>b.textContent.includes('Primary'))?.click()""")
 time.sleep(.1)
