@@ -1,9 +1,16 @@
 > [!IMPORTANT]
-> **Current production override — 2026-10-01 — Step 43**
+> **Current production override — 2026-10-01 — Step 44A**
+>
+> **Step 44A Screen Interaction Architecture Audit is complete** on `ux/step44a-screen-interaction-architecture`.
+>
+> Read `INNO-One-Step44A-Next-Chat-Handoff.md` first. Step 44A reclassifies all 51 concrete Production routes by P01–P10 interaction architecture and freezes the correct route/modal/drawer/master-detail/tree/treegrid/builder decisions before visual remediation. The source audit confirms all 9 reported gap classes in current Production: side-card form/detail misuse, floating-card editor footer appearance, explanatory `INNOState` misuse, row-action inconsistency, spacing drift, missing hero illustration parity, missing Workflow Canvas foundation, missing Tree/TreeGrid production wrappers, and Assets User Profiles IA ambiguity. Dedicated Step 44A QA is **60/60 with 0 failures**; 4 routes are Critical and 11 are High priority. Step 44B is **Shared Interaction Foundations**. Frozen Design System V1.26 / UI Contract 1.20.0 remain unchanged. **Do not merge or deploy unless explicitly requested.**
+>
+> [!IMPORTANT]
+> **Previous production override — 2026-10-01 — Step 43**
 >
 > **Step 43 Inventory Query is complete** on `implementation/step43-inventory-query`.
 >
-> Read `INNO-One-Step43-Next-Chat-Handoff.md` first. Step 43 implements real Saved Queries → Query Builder → shared Operation polling → materialized Results at `/devices/query`, backed only by the existing Devices software inventory source. Runtime Implementation Contract is 0.32.0; frozen Design System V1.26 / UI Contract 1.20.0 / API Contract 0.5.0 / Data Model Contract 0.6.0 are unchanged. Dedicated QA is 69/69 static, 35/35 runtime and 32/32 browser; Step 42.2G remains 77/77; broad Production regression final rerun is 1366/1366 across 51 existing routes; Web/UI builds and Platform API Release build pass. The repository does not currently define a frozen Step 44, so do not invent the next slice. Meeting remains deferred. **Do not merge or deploy unless explicitly requested.**
+> Read `INNO-One-Step43-Next-Chat-Handoff.md` first. Step 43 implements real Saved Queries → Query Builder → shared Operation polling → materialized Results at `/devices/query`, backed only by the existing Devices software inventory source. Runtime Implementation Contract is 0.32.0; frozen Design System V1.26 / UI Contract 1.20.0 / API Contract 0.5.0 / Data Model Contract 0.6.0 are unchanged. Dedicated QA is 69/69 static, 35/35 runtime and 32/32 browser; Step 42.2G remains 77/77; broad Production regression final rerun is 1366/1366 across 51 existing routes; Web/UI builds and Platform API Release build pass. Meeting remains deferred. **Do not merge or deploy unless explicitly requested.**
 >
 > [!IMPORTANT]
 > **Previous production override — 2026-10-01 — Step 42.2H**

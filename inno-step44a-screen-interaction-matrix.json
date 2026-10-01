@@ -1,0 +1,554 @@
+{
+  "schemaVersion": 1,
+  "step": "44A",
+  "title": "Screen Interaction Architecture Matrix",
+  "status": "frozen-for-remediation",
+  "baseline": {
+    "productionCommit": "bdf3cca",
+    "designSystem": "V1.26",
+    "uiContract": "1.20.0",
+    "routeCount": 51
+  },
+  "decisionRules": {
+    "P01": "Overview: summarize a module/domain; navigate to owned jobs.",
+    "P02": "List: browse/search/filter many records; create in page header; row actions operate or navigate.",
+    "P03": "Resource Detail: inspect one resource; resource-level actions in resource header.",
+    "P04": "Create/Edit: dedicated form when more than five fields, multiple sections, deep-linking, or unsaved navigation matters.",
+    "P05": "Settings: configure one domain/settings section at a time.",
+    "P06": "Builder: construct a query/report/workflow; builder owns Run/Save.",
+    "P07": "Monitor/Operations: monitor live/running state, health, or operational queues.",
+    "P08": "Wizard: fixed multi-step operation.",
+    "P09": "Master-Detail: list/tree selection and detail/editor are one continuous job; do not use merely to avoid creating routes.",
+    "P10": "History/Log: immutable/past events; detail may use drawer."
+  },
+  "formSurfaceRules": {
+    "1-5-simple-fields": "modal-or-drawer",
+    "6-12-fields": "dedicated-route",
+    "multi-section-or-conditional": "dedicated-route",
+    "fixed-sequence": "wizard",
+    "selected-record-context-is-primary-job": "master-detail",
+    "read-only-row-inspection": "drawer-allowed"
+  },
+  "routes": [
+    {
+      "route": "workspace/continue",
+      "page": "WorkspaceContinuePage",
+      "pattern": "P02",
+      "surface": "list",
+      "wireframe": "workspace-continue.html",
+      "remediation": "keep",
+      "priority": "low"
+    },
+    {
+      "route": "workspace/attention",
+      "page": "WorkspaceAttentionPage",
+      "pattern": "P02",
+      "surface": "operational-list",
+      "wireframe": "workspace-attention.html",
+      "remediation": "keep",
+      "priority": "low"
+    },
+    {
+      "route": "workspace/recent",
+      "page": "WorkspaceRecentPage",
+      "pattern": "P10",
+      "surface": "history-list",
+      "wireframe": "workspace-recent.html",
+      "remediation": "keep",
+      "priority": "low"
+    },
+    {
+      "route": "profile",
+      "page": "ProfilePage",
+      "pattern": "P05",
+      "surface": "settings-page",
+      "wireframe": "profile.html",
+      "remediation": "keep; editor actions remain section-owned",
+      "priority": "low"
+    },
+    {
+      "route": "notifications",
+      "page": "NotificationsPage",
+      "pattern": "P10",
+      "surface": "activity-list",
+      "wireframe": "notifications.html",
+      "remediation": "keep; use detail navigation, not side editor",
+      "priority": "low"
+    },
+    {
+      "route": "search",
+      "page": "SearchPage",
+      "pattern": "P02",
+      "surface": "search-results",
+      "wireframe": "—",
+      "remediation": "keep",
+      "priority": "low"
+    },
+    {
+      "route": "apps",
+      "page": "AppsPage",
+      "pattern": "P02",
+      "surface": "launcher-grid",
+      "wireframe": "app-launcher-v2.html",
+      "remediation": "restore page hero illustration and preserve launcher job",
+      "priority": "medium"
+    },
+    {
+      "route": "admin",
+      "page": "AdminOverviewPage",
+      "pattern": "P01",
+      "surface": "overview",
+      "wireframe": "admin.html",
+      "remediation": "keep",
+      "priority": "low"
+    },
+    {
+      "route": "admin/organization",
+      "page": "AdminOrganizationPage",
+      "pattern": "P09",
+      "surface": "hierarchy-master-detail",
+      "wireframe": "organization.html",
+      "remediation": "replace flat table with real hierarchy control; editor may stay adjacent because hierarchy selection + edit is one job",
+      "priority": "critical",
+      "specialComponent": "INNOTree"
+    },
+    {
+      "route": "admin/locations",
+      "page": "AdminLocationsPage",
+      "pattern": "P09",
+      "surface": "hierarchy-master-detail",
+      "wireframe": "organization-locations.html",
+      "remediation": "replace flat table with real hierarchy control; editor may stay adjacent",
+      "priority": "critical",
+      "specialComponent": "INNOTree"
+    },
+    {
+      "route": "admin/positions",
+      "page": "AdminPositionsPage",
+      "pattern": "P02",
+      "surface": "list+modal",
+      "wireframe": "organization-positions.html",
+      "remediation": "remove permanent side editor; create/edit in focused dialog because form is short",
+      "priority": "high",
+      "specialComponent": "INNODialog"
+    },
+    {
+      "route": "admin/users",
+      "page": "AdminUsersPage",
+      "pattern": "P02",
+      "surface": "list",
+      "wireframe": "users.html",
+      "remediation": "list only; create/edit navigates to dedicated route",
+      "priority": "high"
+    },
+    {
+      "route": "admin/users/:userId",
+      "page": "AdminUserDetailPage",
+      "pattern": "P03",
+      "surface": "detail-route",
+      "wireframe": "user-detail.html",
+      "remediation": "detail only; complex profile editing belongs on dedicated P04 route",
+      "priority": "high"
+    },
+    {
+      "route": "admin/roles",
+      "page": "AdminRolesPage",
+      "pattern": "P09",
+      "surface": "master-detail",
+      "wireframe": "roles-permissions-v2.html",
+      "remediation": "keep master-detail only if role selection and permission matrix are one job",
+      "priority": "medium"
+    },
+    {
+      "route": "admin/access-scopes",
+      "page": "AdminAccessScopesPage",
+      "pattern": "P02",
+      "surface": "list",
+      "wireframe": "access-scopes.html",
+      "remediation": "split assignment editor to P04 route; restore hierarchy browser as TreeGrid utility; effective access may use drawer",
+      "priority": "critical",
+      "specialComponent": "INNOTreeGrid"
+    },
+    {
+      "route": "admin/integrations",
+      "page": "AdminIntegrationsPage",
+      "pattern": "P07",
+      "surface": "health-monitor",
+      "wireframe": "—",
+      "remediation": "keep health monitor; replace explanatory INNOState with passive info note/callout",
+      "priority": "high"
+    },
+    {
+      "route": "admin/security",
+      "page": "AdminSecurityPage",
+      "pattern": "P05",
+      "surface": "settings-page",
+      "wireframe": "—",
+      "remediation": "keep; section-local settings only",
+      "priority": "low"
+    },
+    {
+      "route": "admin/audit",
+      "page": "AdminAuditPage",
+      "pattern": "P10",
+      "surface": "history-table+drawer",
+      "wireframe": "—",
+      "remediation": "keep history table; use drawer for read-only event inspection when needed",
+      "priority": "medium",
+      "specialComponent": "INNODrawer"
+    },
+    {
+      "route": "admin/branding",
+      "page": "AdminBrandingPage",
+      "pattern": "P05",
+      "surface": "settings-page",
+      "wireframe": "—",
+      "remediation": "keep editor; normalize action footer and spacing",
+      "priority": "medium"
+    },
+    {
+      "route": "admin/settings",
+      "page": "AdminPlatformSettingsPage",
+      "pattern": "P05",
+      "surface": "settings-page",
+      "wireframe": "—",
+      "remediation": "keep editor; normalize action footer and spacing",
+      "priority": "medium"
+    },
+    {
+      "route": "admin/apps",
+      "page": "AdminAppsPage",
+      "pattern": "P09",
+      "surface": "master-detail",
+      "wireframe": "modules.html",
+      "remediation": "keep registry master-detail; technical manifest stays secondary inspect state",
+      "priority": "medium"
+    },
+    {
+      "route": "devices",
+      "page": "DevicesPage",
+      "pattern": "P02",
+      "surface": "primary-table",
+      "wireframe": "devices.html",
+      "remediation": "keep",
+      "priority": "low"
+    },
+    {
+      "route": "devices/discovery",
+      "page": "DiscoveryPage",
+      "pattern": "P07",
+      "surface": "operations-monitor",
+      "wireframe": "device-discovery.html",
+      "remediation": "keep scan/operation monitor; create operation stays focused",
+      "priority": "medium"
+    },
+    {
+      "route": "devices/query",
+      "page": "InventoryQueryPage",
+      "pattern": "P06",
+      "surface": "builder",
+      "wireframe": "device-query.html",
+      "remediation": "keep builder-centric layout; selected result detail may use drawer",
+      "priority": "low",
+      "specialComponent": "INNODrawer"
+    },
+    {
+      "route": "devices/groups",
+      "page": "DeviceGroupsPage",
+      "pattern": "P02",
+      "surface": "list",
+      "wireframe": "device-groups.html",
+      "remediation": "keep list; open detail route",
+      "priority": "low"
+    },
+    {
+      "route": "devices/groups/:groupId",
+      "page": "DeviceGroupDetailPage",
+      "pattern": "P03",
+      "surface": "detail-route",
+      "wireframe": "device-group-detail.html",
+      "remediation": "keep resource detail; small metadata edits may use modal, membership stays section-owned",
+      "priority": "medium"
+    },
+    {
+      "route": "devices/add",
+      "page": "AgentDeploymentPage",
+      "pattern": "P08",
+      "surface": "wizard",
+      "wireframe": "device-add.html",
+      "remediation": "keep fixed-step flow; retain hero illustration",
+      "priority": "medium",
+      "specialComponent": "INNOStepper"
+    },
+    {
+      "route": "devices/:deviceId",
+      "page": "DeviceDetailPage",
+      "pattern": "P03",
+      "surface": "detail-route",
+      "wireframe": "device-detail-v2.html",
+      "remediation": "keep tabbed resource detail",
+      "priority": "low"
+    },
+    {
+      "route": "assets",
+      "page": "AssetsOverviewPage",
+      "pattern": "P01",
+      "surface": "overview",
+      "wireframe": "assets-overview.html",
+      "remediation": "restore asset hero illustration",
+      "priority": "high"
+    },
+    {
+      "route": "assets/inventory",
+      "page": "AssetInventoryPage",
+      "pattern": "P02",
+      "surface": "primary-table",
+      "wireframe": "asset-inventory.html",
+      "remediation": "keep list/table; create/edit asset uses dedicated route when full metadata form is required",
+      "priority": "medium"
+    },
+    {
+      "route": "assets/ownership",
+      "page": "AssetOwnershipPage",
+      "pattern": "P01",
+      "surface": "overview",
+      "wireframe": "asset-ownership.html",
+      "remediation": "rename information architecture around Asset Ownership; do not present duplicate generic user management",
+      "priority": "high"
+    },
+    {
+      "route": "assets/owners",
+      "page": "AssetOwnersPage",
+      "pattern": "P02",
+      "surface": "list",
+      "wireframe": "asset-users.html",
+      "remediation": "rename to Asset Owners or Ownership Profiles; list only",
+      "priority": "high"
+    },
+    {
+      "route": "assets/owners/:userId",
+      "page": "AssetOwnerDetailPage",
+      "pattern": "P03",
+      "surface": "detail-route",
+      "wireframe": "asset-user-detail.html",
+      "remediation": "ownership-specific profile/detail only; identity user administration remains Admin",
+      "priority": "high"
+    },
+    {
+      "route": "assets/ownership/submissions",
+      "page": "AssetOwnershipSubmissionsPage",
+      "pattern": "P02",
+      "surface": "review-queue+drawer",
+      "wireframe": "asset-ownership-submissions.html",
+      "remediation": "queue remains list; submission inspection/review may use drawer if focused and short",
+      "priority": "medium",
+      "specialComponent": "INNODrawer"
+    },
+    {
+      "route": "assets/custom-fields",
+      "page": "AssetCustomFieldsPage",
+      "pattern": "P05",
+      "surface": "settings-list+modal",
+      "wireframe": "asset-custom-fields.html",
+      "remediation": "use focused dialog for short field definition create/edit; no permanent side editor",
+      "priority": "high",
+      "specialComponent": "INNODialog"
+    },
+    {
+      "route": "assets/qr-labels",
+      "page": "AssetQrLabelsPage",
+      "pattern": "P08",
+      "surface": "wizard",
+      "wireframe": "asset-qr.html",
+      "remediation": "use stepper for selection/options/review/print when sequential",
+      "priority": "medium",
+      "specialComponent": "INNOStepper"
+    },
+    {
+      "route": "assets/software-baselines",
+      "page": "SoftwareBaselinesPage",
+      "pattern": "P09",
+      "surface": "master-detail",
+      "wireframe": "—",
+      "remediation": "retain only if selected baseline definition is one continuous job; otherwise split once definition exceeds compact scope",
+      "priority": "medium"
+    },
+    {
+      "route": "assets/software-licenses",
+      "page": "SoftwareLicensesPage",
+      "pattern": "P09",
+      "surface": "master-detail",
+      "wireframe": "software-licenses.html",
+      "remediation": "license product + allocations may remain master-detail; row actions normalized",
+      "priority": "medium"
+    },
+    {
+      "route": "assets/contracts",
+      "page": "ContractsWarrantyPage",
+      "pattern": "P02",
+      "surface": "list-to-detail/edit",
+      "wireframe": "contracts-warranty.html",
+      "remediation": "remove complex permanent side editor; list -> P03 detail / P04 edit route",
+      "priority": "critical"
+    },
+    {
+      "route": "assets/:assetId",
+      "page": "AssetDetailPage",
+      "pattern": "P03",
+      "surface": "detail-route",
+      "wireframe": "asset-detail.html",
+      "remediation": "keep tabbed resource detail",
+      "priority": "low"
+    },
+    {
+      "route": "helpdesk",
+      "page": "HelpdeskOverviewPage",
+      "pattern": "P01",
+      "surface": "overview",
+      "wireframe": "helpdesk.html",
+      "remediation": "keep",
+      "priority": "low"
+    },
+    {
+      "route": "helpdesk/tickets",
+      "page": "TicketsPage",
+      "pattern": "P02",
+      "surface": "operational-list",
+      "wireframe": "helpdesk-tickets.html",
+      "remediation": "keep",
+      "priority": "low"
+    },
+    {
+      "route": "helpdesk/assigned",
+      "page": "TicketsPage",
+      "pattern": "P02",
+      "surface": "operational-list",
+      "wireframe": "helpdesk-assigned.html",
+      "remediation": "keep filtered queue",
+      "priority": "low"
+    },
+    {
+      "route": "helpdesk/team",
+      "page": "TicketsPage",
+      "pattern": "P02",
+      "surface": "operational-list",
+      "wireframe": "helpdesk-team.html",
+      "remediation": "keep filtered queue",
+      "priority": "low"
+    },
+    {
+      "route": "helpdesk/tickets/new",
+      "page": "TicketCreatePage",
+      "pattern": "P04",
+      "surface": "create-route",
+      "wireframe": "ticket-new.html",
+      "remediation": "keep dedicated create form; action footer visually belongs to form, not floating card",
+      "priority": "high"
+    },
+    {
+      "route": "helpdesk/tickets/:ticketId",
+      "page": "TicketDetailPage",
+      "pattern": "P03",
+      "surface": "detail-route",
+      "wireframe": "ticket-detail.html",
+      "remediation": "keep resource detail",
+      "priority": "low"
+    },
+    {
+      "route": "helpdesk/sla",
+      "page": "HelpdeskSlaPage",
+      "pattern": "P05",
+      "surface": "settings",
+      "wireframe": "helpdesk-sla.html",
+      "remediation": "keep SLA policy/settings ownership; split complex policy editor if field count grows beyond compact form",
+      "priority": "medium"
+    },
+    {
+      "route": "helpdesk/calendar",
+      "page": "BusinessCalendarPage",
+      "pattern": "P05",
+      "surface": "settings-page",
+      "wireframe": "helpdesk-calendar.html",
+      "remediation": "keep page; integrate save bar with owning editor surface and normalize panel spacing",
+      "priority": "high"
+    },
+    {
+      "route": "helpdesk/automation",
+      "page": "AutomationRulesPage",
+      "pattern": "P02",
+      "surface": "list",
+      "wireframe": "helpdesk-automation.html",
+      "remediation": "keep simple-rule list; Dynamic Workflow is a separate future product capability",
+      "priority": "medium"
+    },
+    {
+      "route": "helpdesk/automation/new",
+      "page": "AutomationRulePage",
+      "pattern": "P04",
+      "surface": "edit-route",
+      "wireframe": "helpdesk-automation-rule.html",
+      "remediation": "keep simple Trigger→Condition→Action editor; do not force React Flow",
+      "priority": "medium"
+    },
+    {
+      "route": "helpdesk/automation/:ruleId",
+      "page": "AutomationRulePage",
+      "pattern": "P04",
+      "surface": "edit-route",
+      "wireframe": "helpdesk-automation-rule.html",
+      "remediation": "keep simple rule editor; branching workflow must use separate P06 canvas when implemented",
+      "priority": "medium"
+    }
+  ],
+  "crossCutting": {
+    "rowActions": {
+      "target": "INNORowActions",
+      "rule": "Single common action uses one canonical compact action. Multiple actions collapse into a More menu; destructive action is last and visually separated.",
+      "currentProblem": "Production mixes Select/Open/Test buttons and links with page-specific semantics."
+    },
+    "editorFooter": {
+      "target": "integrated editor action bar",
+      "rule": "Default footer is in normal flow and visually attached to the owning editor. It may dock only after dirty state on long editors. It must not look like an unrelated floating card."
+    },
+    "passiveExplanations": {
+      "rule": "INNOState is reserved for actual state. Policy/explanatory copy uses PurposeNote/InfoCallout or is removed when redundant.",
+      "knownViolation": "AdminIntegrationsPage deployment-managed explanation"
+    },
+    "spacing": {
+      "rule": "Card, section, field, input, button and table spacing must come from shared tokens/components; page CSS may not redefine baseline dimensions without an explicit exception."
+    },
+    "illustrations": {
+      "restoreCandidates": [
+        "apps",
+        "assets",
+        "devices/add"
+      ],
+      "deferredCandidates": [
+        "knowledge-base",
+        "meeting"
+      ],
+      "rule": "Hero illustrations are selective module/workspace orientation aids, not decoration on every page."
+    },
+    "specialComponents": {
+      "tree": "INNOTree; production implementation must exist before hierarchy remediation.",
+      "treeGrid": "INNOTreeGrid; default direction is TanStack Table expandable rows, not Syncfusion/AG Grid by default.",
+      "orgChart": "INNOOrgChart only for reporting-line visualization.",
+      "workflowCanvas": "INNOWorkflowCanvas = React Flow + ELK.js only for real editable branching Dynamic Workflow.",
+      "currentGap": "Frozen design contract names these components but @inno/ui does not implement Tree/TreeGrid/OrgChart/WorkflowCanvas yet."
+    },
+    "assetInformationArchitecture": {
+      "identityOwner": "Admin Center > Users",
+      "assetOwner": "Assets > Ownership > Asset Owners / Ownership Profiles",
+      "rule": "Assets may own asset-ownership metadata and Agent-submitted ownership fields, but must not appear to duplicate platform identity user administration."
+    }
+  },
+  "remediationSequence": [
+    "44B Shared interaction foundations: Row Actions, Dialog/Drawer, integrated editor action bar, PurposeNote/InfoCallout, spacing tokens.",
+    "44C Hierarchy parity: implement INNOTree/INNOTreeGrid production wrappers; remediate Organization, Locations, Access Scope architecture.",
+    "44D Form/detail route remediation: Positions, Users edit/create, Access Scopes, Contracts, Custom Fields, affected master-detail pages.",
+    "44E Visual parity: restore approved hero illustrations and normalize card/input/button/table spacing.",
+    "44F Assets information architecture rename/ownership boundary cleanup.",
+    "44G Dynamic Workflow foundation: only if branching workflow scope is explicitly approved; add React Flow + ELK behind INNOWorkflowCanvas.",
+    "44H Full route visual QA and regression freeze."
+  ]
+}

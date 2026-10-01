@@ -381,3 +381,54 @@ Status: ✅ Completed for the current application shell.
 - Detail breadcrumb ownership was updated to the canonical parent list routes.
 - Application-shell hash routes are no longer generated. Design System anchors remain intentional documentation navigation.
 - Static regression validates zero application hash links and zero missing local route targets.
+
+
+---
+
+## Step 44A Production Screen Interaction Architecture checkpoint — 2026-10-01
+
+Step 44A re-audits the **51 concrete Production React routes** against the P01–P10 screen patterns instead of treating visual consistency as proof that the interaction model is correct.
+
+Canonical machine-readable decision matrix:
+
+```text
+inno-step44a-screen-interaction-matrix.json
+```
+
+Canonical Step 44A narrative:
+
+```text
+INNO-One-Step44A-Screen-Interaction-Architecture.md
+```
+
+Regression guard:
+
+```text
+step44a-screen-interaction-architecture-audit.py
+```
+
+Key corrections frozen by Step 44A:
+
+- Organization / Locations remain true P09 hierarchy master-detail, but Production must use real hierarchy components instead of flat tables.
+- Positions becomes P02 list + focused modal because the edit form is short.
+- Users keeps P02 list + P03 detail, with complex create/edit moving to P04 routes.
+- Access Scopes becomes P02 assignments + P04 editor + TreeGrid browser; effective-access inspection may use a drawer.
+- Contracts & Warranty must leave the current large inline/permanent editor and become P02 list → P03 detail / P04 edit.
+- `INNOState` may not be used as a decorative/explanatory block.
+- editor action bars must visually belong to the editor and may dock only for dirty long forms.
+- table row actions move toward one shared `INNORowActions` contract.
+- hierarchy and workflow special components named by Design System V1.26 must be implemented behind INNO wrappers before dependent Product pages claim parity.
+- Assets keeps ownership-specific people data but must not appear to duplicate Admin Center identity-user administration.
+
+Step 44A audit baseline:
+
+```text
+routes=51
+critical=4
+high=11
+reported gap classes=9/9
+checks=60
+failures=0
+```
+
+Remediation sequence is frozen as Step 44B–44H in the Step 44A document.
