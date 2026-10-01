@@ -1,0 +1,29 @@
+{
+  "implementationContract": "0.32.0",
+  "status": "complete; runtime, browser, regression and build QA passed",
+  "operations": [
+    "devices.inventory_queries.list",
+    "devices.inventory_queries.save",
+    "devices.inventory_queries.run",
+    "devices.inventory_query_results.list",
+    "platform.operations.get"
+  ],
+  "webRoutes": ["/devices/query"],
+  "persistence": [
+    "devices.inventory_queries",
+    "devices.inventory_query_runs",
+    "devices.inventory_query_results"
+  ],
+  "permissions": {
+    "list": "devices.view",
+    "save": "devices.manage",
+    "run": "devices.view",
+    "results": "devices.view"
+  },
+  "inventorySource": "Devices Step 27 software inventory",
+  "supportedFacts": ["software"],
+  "sharedOperationPolling": true,
+  "reactFlow": false,
+  "frozenDesignSystem": "V1.26",
+  "frozenUiContract": "1.20.0"
+}

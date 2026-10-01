@@ -38,6 +38,7 @@ import { DeviceGroupDetailPage } from '../pages/DeviceGroupDetailPage';
 import { DeviceGroupsPage } from '../pages/DeviceGroupsPage';
 import { DevicesPage } from '../pages/DevicesPage';
 import { DiscoveryPage } from '../pages/DiscoveryPage';
+import { InventoryQueryPage } from '../pages/InventoryQueryPage';
 import { DeferredPage } from '../pages/DeferredPage';
 import { HelpdeskOverviewPage } from '../pages/HelpdeskOverviewPage';
 import { HelpdeskSlaPage } from '../pages/HelpdeskSlaPage';
@@ -145,6 +146,7 @@ export function AppRoot() {
 
           <Route path="devices" element={canViewDevices ? <DevicesPage /> : <DeferredPage name="Devices" kind="permission" />} />
           <Route path="devices/discovery" element={canViewDevices ? <DiscoveryPage /> : <DeferredPage name="Discovery" kind="permission" />} />
+          <Route path="devices/query" element={canViewDevices ? <InventoryQueryPage /> : <DeferredPage name="Inventory Query" kind="permission" />} />
           <Route path="devices/groups" element={canViewDevices ? <DeviceGroupsPage /> : <DeferredPage name="Device Groups" kind="permission" />} />
           <Route path="devices/groups/:groupId" element={canViewDevices ? <DeviceGroupDetailPage /> : <DeferredPage name="Device Group" kind="permission" />} />
           <Route path="devices/add" element={canDeployDevices ? <AgentDeploymentPage /> : <DeferredPage name="Agent Deployment" kind="permission" />} />

@@ -121,3 +121,53 @@ public sealed class DeviceInstalledSoftware
     public string? Publisher { get; set; }
     public string? Architecture { get; set; }
 }
+
+
+public sealed class InventoryQuery
+{
+    public Guid Id { get; set; }
+    public Guid CreatedByUserId { get; set; }
+    public required string Name { get; set; }
+    public required string FactType { get; set; }
+    public required string Field { get; set; }
+    public required string Operator { get; set; }
+    public required string Value { get; set; }
+    public required string ScopeType { get; set; }
+    public Guid? ScopeId { get; set; }
+    public required string Status { get; set; }
+    public long Version { get; set; } = 1;
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
+}
+
+public sealed class InventoryQueryRun
+{
+    public Guid Id { get; set; }
+    public Guid OperationId { get; set; }
+    public Guid RequestedByUserId { get; set; }
+    public Guid? SavedQueryId { get; set; }
+    public required string DefinitionJson { get; set; }
+    public required string AccessScopeJson { get; set; }
+    public required string Status { get; set; }
+    public int Progress { get; set; }
+    public int DevicesEvaluated { get; set; }
+    public int MatchCount { get; set; }
+    public string? ErrorCode { get; set; }
+    public DateTimeOffset? StartedAt { get; set; }
+    public DateTimeOffset? CompletedAt { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
+}
+
+public sealed class InventoryQueryResult
+{
+    public Guid Id { get; set; }
+    public Guid RunId { get; set; }
+    public Guid DeviceId { get; set; }
+    public required string FactType { get; set; }
+    public required string FactName { get; set; }
+    public string? FactVersion { get; set; }
+    public string? FactPublisher { get; set; }
+    public required string MatchedValue { get; set; }
+    public DateTimeOffset ObservedAt { get; set; }
+}

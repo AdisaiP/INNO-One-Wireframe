@@ -197,8 +197,13 @@ if 'DesignSystem = "V1.26"' not in versions:
     issues.append("design system drift")
 if 'UiContract = "1.20.0"' not in versions:
     issues.append("UI contract drift")
-if 'ImplementationContract = "0.31.0"' not in versions:
-    issues.append("implementation contract should remain 0.31.0")
+implementation_match = re.search(
+    r'ImplementationContract = "(\d+)\.(\d+)\.(\d+)"',
+    versions,
+)
+implementation_version = tuple(map(int, implementation_match.groups())) if implementation_match else (0, 0, 0)
+if implementation_version < (0, 31, 0):
+    issues.append("implementation contract must remain at least 0.31.0")
 
 print("step42_1_scope=wireframe-fidelity")
 print("step42_1_desktop=1366-canonical")
@@ -206,7 +211,7 @@ print("step42_1_responsive=1024,768")
 print("step42_1_backend=unchanged")
 print("step42_1_design_system=V1.26")
 print("step42_1_ui_contract=1.20.0")
-print("step42_1_implementation_contract=0.31.0")
+print("step42_1_implementation_contract_min=0.31.0")
 print("issues=" + str(len(issues)))
 for issue in issues:
     print("ISSUE: " + issue)

@@ -1,0 +1,244 @@
+.inventory-query-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, 0.34fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+  margin-bottom: 16px;
+}
+
+.inventory-query-support,
+.inventory-query-builder {
+  min-width: 0;
+}
+
+.inventory-query-support .inno-collection {
+  margin-bottom: 0;
+}
+
+.inventory-saved-list {
+  display: grid;
+  gap: 1px;
+  padding: 8px;
+  border-top: 1px solid var(--inno-border, #e4e8ef);
+}
+
+.inventory-saved-item {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  padding: 10px;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+
+.inventory-saved-item:hover {
+  background: #f7f9fc;
+}
+
+.inventory-saved-item.active {
+  background: #edf4ff;
+  box-shadow: inset 3px 0 0 #2f6fec;
+}
+
+.inventory-saved-item > span:first-child {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.inventory-saved-item b,
+.inventory-saved-item small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inventory-saved-item small,
+.inventory-saved-meta {
+  color: #667085;
+  font-size: 12px;
+}
+.inventory-saved-meta {
+  flex: 0 0 auto;
+  padding-top: 2px;
+}
+
+.inventory-fact-coverage {
+  padding: 0;
+}
+
+.inventory-fact-coverage .prod-panel-head {
+  padding: 16px 18px 12px;
+}
+
+.inventory-fact-coverage > .table-meta {
+  display: block;
+  margin: 0;
+  padding: 0 18px 16px;
+}
+
+.inventory-fact-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 18px 10px;
+  padding: 12px;
+  border: 1px solid #dfe5ef;
+  border-radius: 9px;
+  background: #f9fbff;
+}
+
+.inventory-fact-row span {
+  color: #475467;
+}
+.inventory-query-builder {
+  padding: 0;
+}
+
+.inventory-query-builder > .prod-panel-head {
+  padding: 18px 18px 12px;
+}
+
+.inventory-builder-body {
+  padding: 0 18px 18px;
+}
+
+.inventory-condition-row {
+  display: grid;
+  grid-template-columns: minmax(130px, 0.7fr) minmax(140px, 0.8fr) minmax(150px, 0.9fr) minmax(190px, 1.35fr);
+  gap: 12px;
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid #dfe5ef;
+  border-radius: 10px;
+  background: #fbfcfe;
+}
+
+.inventory-value-field {
+  min-width: 0;
+}
+
+.inventory-query-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 11px 13px;
+  border-radius: 8px;
+  background: #101828;
+  color: #f8fafc;
+  overflow: hidden;
+}
+
+.inventory-query-preview > span {
+  flex: 0 0 auto;
+  color: #98a2b3;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.inventory-query-preview code {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: inherit;
+}
+
+.inventory-operation {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid #cfe0ff;
+  border-radius: 9px;
+  background: #f5f8ff;
+}
+
+.inventory-operation > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.inventory-operation small {
+  color: #667085;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inventory-query-results {
+  margin-top: 0;
+}
+
+@media (max-width: 1180px) {
+  .inventory-query-layout {
+    grid-template-columns: minmax(220px, 0.31fr) minmax(0, 1fr);
+  }
+
+  .inventory-condition-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .inventory-saved-item {
+    display: grid;
+  }
+}
+
+@media (max-width: 850px) {
+  .inventory-query-layout {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .inventory-query-builder {
+    order: 1;
+    width: 100%;
+  }
+
+  .inventory-query-support {
+    order: 2;
+    width: 100%;
+  }
+  .inventory-query-results {
+    margin-top: 0;
+  }
+
+  .inventory-saved-item {
+    display: flex;
+  }
+}
+
+@media (max-width: 680px) {
+  .inventory-condition-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .inventory-query-preview {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .inventory-query-preview code {
+    width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .inventory-fact-row,
+  .inventory-operation > div:first-child,
+  .inventory-saved-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

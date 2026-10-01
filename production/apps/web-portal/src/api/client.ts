@@ -58,6 +58,11 @@ import type {
   WorkspaceContinueResponse,
   WorkspaceHomeResponse,
   HelpdeskOverview,
+  InventoryQueryDefinition,
+  InventoryQueryItem,
+  InventoryQueryListResponse,
+  InventoryQueryOperationAccepted,
+  InventoryQueryResultItem,
   OperationAccepted,
   OperationStatus,
   PlatformNotificationItem,
@@ -619,6 +624,52 @@ export async function getOperation(operationId: string): Promise<OperationStatus
     '/operations/' + encodeURIComponent(operationId),
   );
   return response.data;
+}
+
+export async function getInventoryQueries(search = ''): Promise<InventoryQueryListResponse> {
+  const params = new URLSearchParams();
+  if (search.trim()) params.set('search', search.trim());
+  const suffix = params.size ? '?' + params.toString() : '';
+  return request<InventoryQueryListResponse>('/devices/inventory-queries' + suffix);
+}
+
+export async function saveInventoryQuery(
+  name: string,
+  definition: InventoryQueryDefinition,
+): Promise<InventoryQueryItem> {
+  const response = await request<ResourceEnvelope<InventoryQueryItem>>(
+    '/devices/inventory-queries',
+    { method: 'POST', ...jsonRequest({ name, ...definition }) },
+  );
+  return response.data;
+}
+
+export async function runInventoryQuery(input: {
+  savedQueryId?: string;
+  definition?: InventoryQueryDefinition;
+}): Promise<InventoryQueryOperationAccepted> {
+  const body = input.savedQueryId
+    ? { savedQueryId: input.savedQueryId }
+    : input.definition ?? {};
+  return request<InventoryQueryOperationAccepted>(
+    '/devices/inventory-queries/runs',
+    { method: 'POST', ...jsonRequest(body) },
+  );
+}
+
+export async function getInventoryQueryResults(
+  runId: string,
+  query: { page?: number; pageSize?: number; search?: string } = {},
+): Promise<PagedResponse<InventoryQueryResultItem>> {
+  const params = new URLSearchParams({
+    page: String(query.page ?? 1),
+    pageSize: String(query.pageSize ?? 50),
+  });
+  if (query.search?.trim()) params.set('search', query.search.trim());
+  return request<PagedResponse<InventoryQueryResultItem>>(
+    '/devices/inventory-queries/runs/' + encodeURIComponent(runId)
+      + '/results?' + params.toString(),
+  );
 }
 
 export async function getDiscoveryScan(scanId: string): Promise<DiscoveryScan> {

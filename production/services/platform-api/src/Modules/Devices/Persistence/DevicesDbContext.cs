@@ -15,6 +15,9 @@ public sealed class DevicesDbContext(DbContextOptions<DevicesDbContext> options)
     public DbSet<DiscoveryResult> DiscoveryResults => Set<DiscoveryResult>();
     public DbSet<DeviceSoftwareInventorySnapshot> SoftwareInventorySnapshots => Set<DeviceSoftwareInventorySnapshot>();
     public DbSet<DeviceInstalledSoftware> InstalledSoftware => Set<DeviceInstalledSoftware>();
+    public DbSet<InventoryQuery> InventoryQueries => Set<InventoryQuery>();
+    public DbSet<InventoryQueryRun> InventoryQueryRuns => Set<InventoryQueryRun>();
+    public DbSet<InventoryQueryResult> InventoryQueryResults => Set<InventoryQueryResult>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -128,6 +131,48 @@ public sealed class DevicesDbContext(DbContextOptions<DevicesDbContext> options)
             entity.Property(x => x.DiscoveryMethod).HasMaxLength(64);
             entity.Property(x => x.ManagementStatus).HasMaxLength(32);
             entity.HasOne<DiscoveryScan>().WithMany().HasForeignKey(x => x.ScanId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<InventoryQuery>(entity =>
+        {
+            entity.ToTable("inventory_queries");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => new { x.CreatedByUserId, x.Name }).IsUnique();
+            entity.HasIndex(x => new { x.Status, x.UpdatedAt });
+            entity.Property(x => x.Name).HasMaxLength(160);
+            entity.Property(x => x.FactType).HasMaxLength(32);
+            entity.Property(x => x.Field).HasMaxLength(64);
+            entity.Property(x => x.Operator).HasMaxLength(64);
+            entity.Property(x => x.Value).HasMaxLength(500);
+            entity.Property(x => x.ScopeType).HasMaxLength(32);
+            entity.Property(x => x.Status).HasMaxLength(32);
+        });
+
+        modelBuilder.Entity<InventoryQueryRun>(entity =>
+        {
+            entity.ToTable("inventory_query_runs");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => x.OperationId).IsUnique();
+            entity.HasIndex(x => new { x.Status, x.CreatedAt });
+            entity.Property(x => x.DefinitionJson).HasColumnType("jsonb");
+            entity.Property(x => x.AccessScopeJson).HasColumnType("jsonb");
+            entity.Property(x => x.Status).HasMaxLength(32);
+            entity.Property(x => x.ErrorCode).HasMaxLength(128);
+            entity.HasOne<InventoryQuery>().WithMany().HasForeignKey(x => x.SavedQueryId).OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<InventoryQueryResult>(entity =>
+        {
+            entity.ToTable("inventory_query_results");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => new { x.RunId, x.DeviceId });
+            entity.Property(x => x.FactType).HasMaxLength(32);
+            entity.Property(x => x.FactName).HasMaxLength(300);
+            entity.Property(x => x.FactVersion).HasMaxLength(120);
+            entity.Property(x => x.FactPublisher).HasMaxLength(200);
+            entity.Property(x => x.MatchedValue).HasMaxLength(600);
+            entity.HasOne<InventoryQueryRun>().WithMany().HasForeignKey(x => x.RunId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<Device>().WithMany().HasForeignKey(x => x.DeviceId).OnDelete(DeleteBehavior.Cascade);
         });
 
         base.OnModelCreating(modelBuilder);

@@ -65,7 +65,7 @@ export function AppShell() {
   const inAdminApps = location.pathname.startsWith('/admin/apps');
   const inDevices = location.pathname.startsWith('/devices');
   const inDeviceDetail = /^\/devices\/[^/]+$/.test(location.pathname)
-    && !['/devices/discovery', '/devices/groups', '/devices/add'].includes(location.pathname);
+    && !['/devices/discovery', '/devices/query', '/devices/groups', '/devices/add'].includes(location.pathname);
   const inAssets = location.pathname.startsWith('/assets');
   const inAssetDetail = /^\/assets\/[^/]+$/.test(location.pathname)
     && !['/assets/inventory', '/assets/ownership', '/assets/owners', '/assets/custom-fields', '/assets/qr-labels', '/assets/software-baselines', '/assets/software-licenses', '/assets/contracts'].includes(location.pathname);
@@ -328,6 +328,7 @@ export function AppShell() {
               <div className="prod-side-section">Workspace</div>
               <NavLink end to="/devices" className={({ isActive }) => isActive || inDeviceDetail ? 'active' : ''}><SideNavLabel token="nav.devices">Devices</SideNavLabel></NavLink>
               <NavLink to="/devices/discovery"><SideNavLabel token="section.discovery">Discovery</SideNavLabel></NavLink>
+              <NavLink to="/devices/query"><SideNavLabel token="section.query">Inventory Query</SideNavLabel></NavLink>
               <NavLink to="/devices/groups"><SideNavLabel token="section.groups">Device Groups</SideNavLabel></NavLink>
               {canDeployDevices ? <NavLink to="/devices/add"><SideNavLabel token="section.deployment">Agent Deployment</SideNavLabel></NavLink> : null}
             </>

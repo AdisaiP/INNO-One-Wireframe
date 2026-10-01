@@ -1,5 +1,6 @@
 from pathlib import Path
 import json
+import re
 
 ROOT = Path(__file__).resolve().parent
 issues = []
@@ -114,15 +115,20 @@ if 'DesignSystem = "V1.26"' not in versions:
     issues.append("design system drift")
 if 'UiContract = "1.20.0"' not in versions:
     issues.append("UI contract drift")
-if 'ImplementationContract = "0.31.0"' not in versions:
-    issues.append("implementation contract should remain 0.31.0 for UX-only Step 42")
+implementation_match = re.search(
+    r'ImplementationContract = "(\d+)\.(\d+)\.(\d+)"',
+    versions,
+)
+implementation_version = tuple(map(int, implementation_match.groups())) if implementation_match else (0, 0, 0)
+if implementation_version < (0, 31, 0):
+    issues.append("implementation contract must remain at least 0.31.0 after UX-only Step 42")
 print("step42_scope=production-ux-reconciliation")
 print("step42_icons=semantic-lucide-shared-layer")
 print("step42_flow=react-flow-reserved-for-branching-workflow")
 print("step42_helpdesk_automation=bounded-trigger-condition-action-no-react-flow")
 print("step42_design_system=V1.26")
 print("step42_ui_contract=1.20.0")
-print("step42_implementation_contract=0.31.0")
+print("step42_implementation_contract_min=0.31.0")
 print("issues=" + str(len(issues)))
 for issue in issues:
     print("ISSUE: " + issue)

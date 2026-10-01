@@ -107,6 +107,7 @@ api.MapAdminSettingsEndpoints();
 api.MapDevicesEndpoints();
 api.MapDeviceManagementEndpoints();
 api.MapDeviceSoftwareInventoryEndpoints();
+api.MapInventoryQueryEndpoints();
 api.MapAssetsEndpoints();
 api.MapAssetsCustomFieldEndpoints();
 api.MapAssetsQrEndpoints();

@@ -442,6 +442,55 @@ export interface OperationStatus {
   expiresAt?: string | null;
 }
 
+export interface InventoryQueryDefinition {
+  factType: 'software';
+  field: 'name' | 'version' | 'publisher';
+  operator: 'contains' | 'equals' | 'version_less_than';
+  value: string;
+  scopeType: 'all' | 'group';
+  scopeId?: string | null;
+}
+
+export interface InventoryQueryItem {
+  id: string;
+  name: string;
+  definition: InventoryQueryDefinition;
+  lastMatchCount?: number | null;
+  lastRunAt?: string | null;
+  updatedAt: string;
+}
+
+export interface InventoryQueryListResponse {
+  items: InventoryQueryItem[];
+  totalItems: number;
+}
+
+export interface InventoryQueryOperationAccepted {
+  operationId: string;
+  status: OperationState;
+  statusUrl: string;
+  progress: number;
+  resource: {
+    runId: string;
+    savedQueryId?: string | null;
+  };
+}
+
+export interface InventoryQueryResultItem {
+  id: string;
+  deviceId: string;
+  deviceName: string;
+  user?: string | null;
+  ipAddress?: string | null;
+  factType: string;
+  factName: string;
+  factVersion?: string | null;
+  factPublisher?: string | null;
+  matchedValue: string;
+  observedAt: string;
+  lastSeenAt?: string | null;
+}
+
 export interface AgentInstaller {
   id: string;
   groupId: string;
