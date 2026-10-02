@@ -3,7 +3,6 @@ import {
   INNOCollection,
   INNOCollectionHeader,
   INNOPage,
-  INNOPurposeNote,
   INNOStatus,
 } from '@inno/ui';
 import {
@@ -36,13 +35,8 @@ export function AdminBrandingPage() {
     <INNOPage
       eyebrow="Admin Center · Platform"
       title="Branding"
-      description="Inspect the effective INNO.One product identity and frozen design-system brand tokens from one source of truth."
+      description="Inspect the effective INNO.One product identity and read-only brand tokens used by the Web Portal."
     >
-      <INNOPurposeNote
-        title="Brand customization is not editable yet"
-        description="The current contracts reserve admin.branding.manage but do not define a persisted branding resource, logo upload contract, color override model, or audited update API. This page therefore previews only the effective product brand already used by the Web Portal."
-      />
-
       <div className="branding-foundation-layout">
         <INNOCollection>
           <INNOCollectionHeader
@@ -114,10 +108,6 @@ export function AdminBrandingPage() {
         </INNOCollection>
       </div>
 
-      <INNOPurposeNote
-        title="Future customization boundary"
-        description="Before logo upload, product-name overrides, organization colors, or login-page branding become editable, define the branding resource schema, allowed asset formats, token constraints, ETag concurrency behavior, and privileged audit events."
-      />
     </INNOPage>
   );
 }

@@ -10,7 +10,7 @@ import requests
 import websocket
 
 ROOT = Path(__file__).resolve().parent
-PORT = 9238
+PORT = int(os.environ.get("STEP38_CDP_PORT", "9238"))
 WIDTHS = tuple(int(value) for value in os.environ.get("STEP38_QA_WIDTHS", "1366,1024,768").split(",") if value.strip())
 OUT = ROOT / ("qa-step38-browser-" + "-".join(str(value) for value in WIDTHS))
 REALM = ROOT / "production/infrastructure/docker/keycloak/realm-inno-one.json"
@@ -159,10 +159,14 @@ for width in WIDTHS:
         "Global Search",
         "DESKTOP-HR-014",
         "Device",
-        "Authorization stays authoritative",
-        "Global Search only orchestrates module-owned providers.",
     ):
         check("Search content " + text_value + " " + str(width), text_value in body)
+
+    check(
+        "Search redundant authorization callout removed " + str(width),
+        "Authorization stays authoritative" not in body
+        and "Global Search only orchestrates module-owned providers." not in body,
+    )
 
     check(
         "Search device route " + str(width),

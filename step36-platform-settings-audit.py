@@ -104,9 +104,8 @@ if 'to="/admin/settings"' not in overview:
 for marker in [
     'title="Platform Settings"',
     "Refresh Settings",
-    "Platform settings are deployment-managed",
+    "deployment-managed values",
     "Effective Platform Settings",
-    "Future mutation boundary",
     "getAdminPlatformSettings",
     "platform-setting-value",
 ]:

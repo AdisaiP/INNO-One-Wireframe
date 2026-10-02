@@ -111,25 +111,25 @@ if not authenticated:
 
 c.ev("localStorage.setItem('inno.ui.sidebar.collapsed','0')")
 
-# Production proof: policy copy + single row action + responsive behavior.
+# Production proof: concise policy boundary + single row action + responsive behavior.
 for width in WIDTHS:
     c.viewport(width)
     check(f"{width} integrations route ready", spa_nav(c, "/admin/integrations", ".inno-page"))
     check(f"{width} integrations data settled", bool(wait(
         c,
-        "!!document.querySelector('.inno-purpose-note') && !!document.querySelector('.inno-row-action')",
+        "!!document.querySelector('.inno-row-action') && (document.querySelector('.inno-page-sub')?.textContent||'').includes('deployment-managed')",
         10,
     )))
     metrics = c.ev("""(()=> {
       const note=document.querySelector('.inno-purpose-note');
       const action=document.querySelector('.inno-row-action');
+      const sub=document.querySelector('.inno-page-sub');
       const state=[...document.querySelectorAll('.inno-state')].find(
         e=>(e.textContent||'').includes('Configuration remains deployment-managed'));
-      const nr=note?.getBoundingClientRect();
       const ar=action?.getBoundingClientRect();
       return {
         note:!!note,
-        noteH:Math.round(nr?.height||0),
+        boundaryInDescription:(sub?.textContent||'').includes('deployment-managed'),
         action:!!action,
         actionText:(action?.textContent||'').trim(),
         actionH:Math.round(ar?.height||0),
@@ -137,7 +137,8 @@ for width in WIDTHS:
         overflow:document.documentElement.scrollWidth>innerWidth+2
       };
     })()""")
-    check(f"{width} integrations purpose note mounted", metrics["note"], metrics)
+    check(f"{width} integrations redundant purpose note removed", not metrics["note"], metrics)
+    check(f"{width} integrations boundary lives in page description", metrics["boundaryInDescription"], metrics)
     check(f"{width} deployment copy is not application state", not metrics["misuse"], metrics)
     check(f"{width} test uses canonical row action",
           metrics["action"] and metrics["actionText"] == "Test" and metrics["actionH"] == 32, metrics)

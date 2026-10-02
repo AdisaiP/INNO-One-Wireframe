@@ -211,7 +211,9 @@ for width in WIDTHS:
         c.shot(f"{width}__devices.png")
 c.viewport(1366)
 nav(c, "/devices")
-device_href = wait(c, """(()=>document.querySelector("a[href^='/devices/dev_']")?.getAttribute('href')||'')()""", 8)
+action_ready = wait(c, "!!document.querySelector('.inno-collection tbody .action-column .inno-row-action')", 8)
+device_clicked = c.ev("""(()=>{const b=document.querySelector('.inno-collection tbody .action-column .inno-row-action');if(!b)return false;b.click();return true})()""") if action_ready else False
+device_href = wait(c, "location.pathname.startsWith('/devices/') && location.pathname!='/devices' ? location.pathname : ''", 5) if device_clicked else None
 check("device detail discovered", bool(device_href), device_href)
 
 for width in WIDTHS:

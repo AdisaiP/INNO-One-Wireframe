@@ -4,7 +4,6 @@ import {
   INNOCollection,
   INNOCollectionHeader,
   INNOPage,
-  INNOPurposeNote,
   INNOState,
   INNOStatus,
   INNOTableWrap,
@@ -55,7 +54,7 @@ export function AdminSecurityPage() {
     <INNOPage
       eyebrow="Admin Center · Security"
       title="Security"
-      description="Inspect runtime security posture without exposing credentials or inventing policy settings that are not part of the current contract."
+      description="Inspect runtime security posture and verified controls. Policy configuration remains deployment-managed."
       actions={(
         <INNOButton
           type="button"
@@ -94,11 +93,6 @@ export function AdminSecurityPage() {
               <small>Checks that could not run</small>
             </div>
           </div>
-
-          <INNOPurposeNote
-            title="Security policy changes are not exposed yet"
-            description="The current contracts reserve Security permissions but do not freeze mutable MFA, password, session, or identity-provider policy resources. This step reports only runtime posture that can be verified safely."
-          />
 
           <INNOCollection>
             <INNOCollectionHeader

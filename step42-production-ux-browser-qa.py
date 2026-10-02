@@ -199,25 +199,30 @@ manifest = {"routes": {}, "checks": 0, "failures": []}
 dynamic_routes = set()
 
 def collect_dynamic(cdp, route):
-    selectors = {
-        "/admin/users": ".inno-collection tbody a[href^='/admin/users/']",
-        "/devices": ".inno-collection tbody a[href^='/devices/']:not([href='/devices/discovery']):not([href='/devices/groups']):not([href='/devices/add'])",
-        "/devices/groups": ".inno-collection tbody a[href^='/devices/groups/']",
-        "/assets/inventory": ".inno-collection tbody a[href^='/assets/']:not([href='/assets/inventory']):not([href='/assets/ownership']):not([href='/assets/owners'])",
-        "/assets/owners": ".inno-collection tbody a[href^='/assets/owners/']",
-        "/helpdesk/tickets": ".inno-collection tbody a[href^='/helpdesk/tickets/']:not([href='/helpdesk/tickets/new'])",
-        "/helpdesk/automation": ".inno-collection tbody a[href^='/helpdesk/automation/']:not([href='/helpdesk/automation/new'])",
-        "/admin/access-scopes": ".inno-collection tbody a[href^='/admin/access-scopes/'][href$='/edit']",
-        "/assets/contracts": ".inno-collection tbody a[href^='/assets/contracts/']",
+    action_routes = {
+        "/admin/users",
+        "/devices",
+        "/devices/groups",
+        "/assets/inventory",
+        "/assets/owners",
+        "/helpdesk/tickets",
+        "/helpdesk/automation",
+        "/admin/access-scopes",
+        "/assets/contracts",
     }
-    selector = selectors.get(route)
-    if not selector:
+    if route not in action_routes:
         return
-    expression = (
-        "document.querySelector(" + json.dumps(selector) + ")?.getAttribute('href')||''"
-    )
-    href = wait_eval(cdp, expression, timeout=5) or ""
-    check("dynamic route discovered " + route, bool(href), selector)
+    ready = wait_eval(cdp, "!!document.querySelector('.inno-collection tbody .action-column .inno-row-action')", timeout=5)
+    check("dynamic route action ready " + route, bool(ready))
+    if not ready:
+        return
+    clicked = cdp.eval("""(()=>{const b=document.querySelector('.inno-collection tbody .action-column .inno-row-action');if(!b)return false;b.click();return true})()""")
+    href = wait_eval(
+        cdp,
+        "location.pathname!=="+json.dumps(route)+" ? location.pathname : ''",
+        timeout=5,
+    ) if clicked else ""
+    check("dynamic route discovered " + route, bool(href), href or "shared row action did not navigate")
     if href and ":" not in href:
         dynamic_routes.add(href)
         if route in ("/admin/users", "/assets/contracts") and not href.endswith("/edit"):

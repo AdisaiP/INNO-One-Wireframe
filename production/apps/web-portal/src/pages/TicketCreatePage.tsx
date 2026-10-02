@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
-import { INNOButton, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOIcon, INNOPage, INNOPurposeNote, INNOStatus } from '@inno/ui';
+import { INNOButton, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOIcon, INNOPage, INNOStatus } from '@inno/ui';
 import { createTicket, getDevices, getTicketCategories } from '../api/client';
 import { usePermission, useProfile } from '../app/ProfileContext';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -227,10 +227,6 @@ export function TicketCreatePage() {
                 <div className="kv-row"><span>Employee ID</span><b>{profile.employeeId}</b></div>
               </div>
             </section>
-            <INNOPurposeNote
-              title="Related context stays canonical."
-              description="The ticket stores stable Device/User references only. Device inventory remains owned by the Devices module."
-            />
           </aside>
         </div>
       ) : null}

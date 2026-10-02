@@ -6,6 +6,7 @@ import {
 } from '@inno/ui';
 import { getAssetContract } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
+import { RouterRowAction } from '../components/RouterRowAction';
 import { usePermission } from '../app/ProfileContext';
 
 function displayDate(value: string) {
@@ -68,7 +69,7 @@ export function ContractDetailPage() {
                   <td>{asset.brandModel || '—'}</td>
                   <td>{asset.owner ?? 'Unassigned'}</td>
                   <td><INNOStatus tone="success">{statusLabel(asset.coverageStatus)}</INNOStatus></td>
-                  <td className="action-column"><Link className="inno-row-action" to={'/assets/' + asset.id}>Open</Link></td>
+                  <td className="action-column"><RouterRowAction to={'/assets/' + asset.id} ariaLabel={'Open ' + asset.assetTag} /></td>
                 </tr>
               ))}</tbody>
             </table>

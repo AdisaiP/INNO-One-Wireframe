@@ -5,6 +5,7 @@ import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollect
 import { getTicketStatuses, getTickets } from '../api/client';
 import { usePermission } from '../app/ProfileContext';
 import { CollectionErrorState, CollectionLoadingState } from '../components/Feedback';
+import { RouterRowAction } from '../components/RouterRowAction';
 
 export type TicketQueueMode = 'all' | 'mine' | 'team';
 
@@ -120,7 +121,7 @@ export function TicketsPage({ mode = 'all' }: { mode?: TicketQueueMode }) {
                       <td>{ticket.assignee ?? ticket.team ?? 'Unassigned'}</td>
                       <td><span className={'sla-chip ' + (ticket.slaState ?? 'active')}>{ticket.slaState ?? '—'}</span>{ticket.slaState ? <div className="table-meta">{ticket.slaElapsedPercent}% elapsed</div> : null}</td>
                       <td>{formatRelative(ticket.updatedAt)}</td>
-                      <td className="action-column"><Link className="inno-row-action" to={'/helpdesk/tickets/' + ticket.id} aria-label={'Open ' + ticket.ticketNumber}>Open</Link></td>
+                      <td className="action-column"><RouterRowAction to={'/helpdesk/tickets/' + ticket.id} ariaLabel={'Open ' + ticket.ticketNumber} /></td>
                     </tr>
                   ))}
                 </tbody>

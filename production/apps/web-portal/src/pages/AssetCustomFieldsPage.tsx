@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   INNOButton, INNOCollection, INNOCollectionHeader, INNODialog, INNOPage,
-  INNOStatus, INNOTableWrap,
+  INNORowActions, INNOStatus, INNOTableWrap,
 } from '@inno/ui';
 import { getAssetCustomFields, updateAssetCustomFields } from '../api/client';
 import type { AssetCustomFieldDefinition } from '../api/types';
@@ -119,7 +119,7 @@ export function AssetCustomFieldsPage() {
                 <td>{field.showInAgent ? 'Shown' : 'Hidden'}</td>
                 <td><INNOStatus tone={field.status === 'active' ? 'success' : 'neutral'}>{field.status}</INNOStatus></td>
                 <td className="action-column">
-                  {canManage ? <button type="button" className="inno-row-action" onClick={() => openEdit(index)} aria-label={'Edit ' + field.label}>Edit</button> : <span className="table-meta">View only</span>}
+                  {canManage ? <INNORowActions ariaLabel={'Custom field ' + field.label} items={[{ id: 'edit', label: 'Edit', onSelect: () => openEdit(index) }]} /> : <span className="table-meta">View only</span>}
                 </td>
               </tr>
             ))}</tbody>

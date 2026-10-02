@@ -10,7 +10,7 @@ import requests
 import websocket
 
 ROOT = Path(__file__).resolve().parent
-PORT = 9236
+PORT = int(os.environ.get("STEP36_CDP_PORT", "9236"))
 WIDTHS = tuple(int(value) for value in os.environ.get("STEP36_QA_WIDTHS", "1366").split(",") if value.strip())
 OUT = ROOT / ("qa-step36-browser-" + "-".join(str(value) for value in WIDTHS))
 REALM = ROOT / "production/infrastructure/docker/keycloak/realm-inno-one.json"
@@ -219,13 +219,18 @@ for width in WIDTHS:
         "ETag / If-Match",
         "ISO 8601 with timezone",
         "V1.26",
-        "0.26.0",
-        "Future mutation boundary",
+        "0.32.0",
+        "Sensitive deployment configuration is intentionally excluded.",
     ):
         check(
             "Settings content " + text_value + " " + str(width),
             text_value in body,
         )
+
+    check(
+        "Settings redundant future-boundary callout removed " + str(width),
+        "Future mutation boundary" not in body,
+    )
 
     check(
         "Settings refresh action " + str(width),
@@ -250,8 +255,9 @@ if 1366 in WIDTHS:
     wait_eval(c, "document.querySelectorAll('tbody tr').length===14", timeout=12)
 
     check(
-        "Settings read-only notice visible",
-        "Platform settings are deployment-managed" in c.eval("document.body.innerText"),
+        "Settings deployment-managed boundary stays concise",
+        "deployment-managed values" in c.eval("document.body.innerText")
+        and not c.eval("!!document.querySelector('.inno-purpose-note')"),
     )
     check(
         "Settings environment visible",

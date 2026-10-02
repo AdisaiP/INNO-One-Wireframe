@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState,
-  INNOCollectionToolbar, INNODialog, INNOPage, INNOSearchField,
+  INNOCollectionToolbar, INNODialog, INNOPage, INNORowActions, INNOSearchField,
   INNOStatus, INNOTableWrap,
 } from '@inno/ui';
 import { createAdminPosition, getAdminPositions, updateAdminPosition } from '../api/client';
@@ -90,7 +90,7 @@ export function AdminPositionsPage() {
                   <td><INNOStatus tone={item.status === 'active' ? 'success' : 'neutral'}>{item.status}</INNOStatus></td>
                   <td className="action-column">
                     {canManage
-                      ? <button type="button" className="inno-row-action" aria-label={'Edit ' + item.name} onClick={() => openEdit(item)}>Edit</button>
+                      ? <INNORowActions ariaLabel={'Position ' + item.name} items={[{ id: 'edit', label: 'Edit', onSelect: () => openEdit(item) }]} />
                       : <span className="table-meta">View only</span>}
                   </td>
                 </tr>

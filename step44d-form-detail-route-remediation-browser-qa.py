@@ -79,7 +79,8 @@ for w in WIDTHS:
     if w==1366: c.shot("1366__user-create.png")
 
 c.viewport(1366); nav(c,"/admin/users")
-user_href=wait(c,"document.querySelector('.inno-table-wrap tbody .inno-row-action')?.getAttribute('href')",10)
+user_clicked=c.ev("""(()=>{const b=document.querySelector('.inno-table-wrap tbody .inno-row-action');if(!b)return false;b.click();return true})()""")
+user_href=wait(c,"location.pathname.startsWith('/admin/users/') && !location.pathname.endsWith('/edit') ? location.pathname : ''",5) if user_clicked else None
 check("user detail route discovered", bool(user_href), user_href or "")
 if user_href:
     check("user detail ready", nav(c,user_href,".inno-resource-head"))
@@ -98,7 +99,8 @@ for w in WIDTHS:
     check(f"{w} access list no document overflow", no_overflow(c))
 
 c.viewport(1366); nav(c,"/admin/access-scopes")
-access_href=wait(c,"document.querySelector('.inno-table-wrap tbody .inno-row-action')?.getAttribute('href')",10)
+access_clicked=c.ev("""(()=>{const b=document.querySelector('.inno-table-wrap tbody .inno-row-action');if(!b)return false;b.click();return true})()""")
+access_href=wait(c,"location.pathname.startsWith('/admin/access-scopes/') && location.pathname.endsWith('/edit') ? location.pathname : ''",5) if access_clicked else None
 check("access edit route discovered", bool(access_href), access_href or "")
 if access_href:
     for w in WIDTHS:
@@ -127,7 +129,8 @@ for w in WIDTHS:
     check(f"{w} contracts no document overflow", no_overflow(c))
 
 c.viewport(1366); nav(c,"/assets/contracts")
-contract_href=wait(c,"document.querySelector('.inno-table-wrap tbody .inno-row-action')?.getAttribute('href')",10)
+contract_clicked=c.ev("""(()=>{const b=document.querySelector('.inno-table-wrap tbody .inno-row-action');if(!b)return false;b.click();return true})()""")
+contract_href=wait(c,"location.pathname.startsWith('/assets/contracts/') && !location.pathname.endsWith('/edit') ? location.pathname : ''",5) if contract_clicked else None
 check("contract detail route discovered", bool(contract_href), contract_href or "")
 if contract_href:
     for w in WIDTHS:

@@ -116,7 +116,7 @@ if "'permission'" not in feedback or "'error'" not in feedback: issues.append('e
 
 if manifest.get('devicesParityRoutes') != ['/devices','/devices/discovery','/devices/groups','/devices/groups/:groupId','/devices/add','/devices/:deviceId']:
     issues.append('devices parity routes')
-for marker in ['to="/devices/discovery"','to="/devices/add"','device-columns-menu','DeviceTypeGlyph','inno-row-action']:
+for marker in ['to="/devices/discovery"','to="/devices/add"','device-columns-menu','DeviceTypeGlyph','RouterRowAction']:
     if marker not in devices: issues.append('devices parity '+marker)
 for marker in ['actions={canManage','INNOCollection','INNOCollectionToolbar','INNOTableWrap']:
     if marker not in discovery: issues.append('discovery parity '+marker)
@@ -254,7 +254,7 @@ if state_policy.get('unknownRoutes') != 'no-results':
 
 for legacy in ['page-helper','prod-tag','collection-card','production-table-wrap','className="editor-footer"']:
     if legacy in profile_page: issues.append('profile legacy '+legacy)
-for marker in ['description="Your workspace profile and organization-managed sign-in."','INNOStatus tone="success"','Personal preferences are not exposed']:
+for marker in ['description="Your workspace profile and organization-managed sign-in."','INNOStatus tone="success"','Organization-managed fields stay read only.']:
     if marker not in profile_page: issues.append('profile parity '+marker)
 
 for marker in [

@@ -36,10 +36,11 @@ export function AppsPage() {
     <INNOPage
       eyebrow="Workspace"
       title="Apps"
-      description="Applications currently installed, enabled and permitted for your account."
+      description="Apps available to your organization and role."
       actions={canManageApps
         ? <Link className="inno-link-button secondary" to="/admin/apps">Manage Apps</Link>
         : undefined}
+      illustration={<img src="/illustrations/apps-ecosystem.svg" alt="" />}
     >
       {query.isPending ? <LoadingState label="Loading apps…" /> : null}
       {query.isError

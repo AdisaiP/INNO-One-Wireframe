@@ -140,7 +140,7 @@ for marker in [
     'title="Security"',
     "Refresh Posture",
     "Security Posture",
-    "Security policy changes are not exposed yet",
+    "Policy configuration remains deployment-managed.",
     "Observed value",
     "Needs attention",
 ]:

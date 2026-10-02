@@ -1,6 +1,6 @@
 import { useDeferredValue, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { RouterRowAction } from '../components/RouterRowAction';
 import {
   INNOButton,
   INNOCollection,
@@ -497,7 +497,7 @@ export function InventoryQueryPage() {
                     <td>{item.factPublisher ?? '—'}</td>
                     <td>{new Date(item.observedAt).toLocaleString()}</td>
                     <td className="action-column">
-                      <Link className="inno-row-action" to={'/devices/' + item.deviceId}>Open</Link>
+                      <RouterRowAction to={'/devices/' + item.deviceId} ariaLabel={'Open ' + item.deviceName} />
                     </td>
                   </tr>
                 ))}

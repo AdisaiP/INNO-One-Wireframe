@@ -124,17 +124,20 @@ call("Page.navigate", {"url": "http://localhost:5180/"})
 check("authenticated session", bool(wait_for("!!document.querySelector('.inno-production-shell')")))
 
 sources = {
-    "admin-user": ("/admin/users", ".inno-collection tbody a[href^='/admin/users/']"),
-    "device": ("/devices", ".inno-collection tbody a[href^='/devices/']:not([href='/devices/discovery']):not([href='/devices/groups']):not([href='/devices/add'])"),
-    "device-group": ("/devices/groups", ".inno-collection tbody a[href^='/devices/groups/']"),
-    "asset": ("/assets/inventory", ".inno-collection tbody a[href^='/assets/']:not([href='/assets/inventory']):not([href='/assets/ownership']):not([href='/assets/owners'])"),
-    "asset-owner": ("/assets/owners", ".inno-collection tbody a[href^='/assets/owners/']"),
-    "ticket": ("/helpdesk/tickets", ".inno-collection tbody a[href^='/helpdesk/tickets/']:not([href='/helpdesk/tickets/new'])"),
+    "admin-user": "/admin/users",
+    "device": "/devices",
+    "device-group": "/devices/groups",
+    "asset": "/assets/inventory",
+    "asset-owner": "/assets/owners",
+    "ticket": "/helpdesk/tickets",
 }
 routes = {}
-for name,(source,selector) in sources.items():
+for name,source in sources.items():
     check("source ready " + name, nav(source))
-    href = wait_for("document.querySelector(" + json.dumps(selector) + ")?.getAttribute('href')||''")
+    action_ready = wait_for("!!document.querySelector('.inno-collection tbody .action-column .inno-row-action')")
+    check("shared detail action ready " + name, bool(action_ready))
+    clicked = ev("""(()=>{const b=document.querySelector('.inno-collection tbody .action-column .inno-row-action');if(!b)return false;b.click();return true})()""") if action_ready else False
+    href = wait_for("location.pathname!=="+json.dumps(source)+" ? location.pathname : ''") if clicked else None
     check("detail discovered " + name, bool(href), str(href))
     if href:
         routes[name] = href

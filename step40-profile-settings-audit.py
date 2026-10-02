@@ -73,7 +73,6 @@ for marker in [
     "Phone",
     "Office",
     "Organization-managed fields stay read only.",
-    "Personal preferences are not exposed in this production slice.",
     "updateCurrentProfile",
 ]:
     if marker not in page:

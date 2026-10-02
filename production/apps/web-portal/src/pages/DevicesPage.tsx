@@ -5,6 +5,7 @@ import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, 
 import { getDevices } from '../api/client';
 import { CollectionErrorState, CollectionLoadingState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
+import { RouterRowAction } from '../components/RouterRowAction';
 
 function formatLastSeen(value?: string | null): string {
   if (!value) return '—';
@@ -179,7 +180,7 @@ export function DevicesPage() {
                       {columns.group ? <td>{device.group ?? device.organization ?? '—'}</td> : null}
                       {columns.lastSeen ? <td>{formatLastSeen(device.lastSeenAt)}</td> : null}
                       <td className="action-column">
-                        <Link className="inno-row-action" to={`/devices/${device.id}`} aria-label={`Open ${device.name}`}>Open</Link>
+                        <RouterRowAction to={`/devices/${device.id}`} ariaLabel={`Open ${device.name}`} />
                       </td>
                     </tr>
                   ))}

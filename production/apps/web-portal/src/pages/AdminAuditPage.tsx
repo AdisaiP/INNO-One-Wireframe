@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 import {
   INNOIcon,
+  INNORowActions,
   INNOCollection,
   INNOCollectionHeader,
   INNOCollectionState,
@@ -268,14 +269,10 @@ export function AdminAuditPage() {
                           <span className="audit-opaque-id">{item.correlationId ?? '—'}</span>
                         </td>
                         <td className="action-column">
-                          <button
-                            type="button"
-                            className="inno-row-action"
-                            aria-label={'Open audit record ' + item.auditId}
-                            onClick={() => selectAudit(item.auditId)}
-                          >
-                            Open
-                          </button>
+                          <INNORowActions
+                            ariaLabel={'Audit record ' + item.auditId}
+                            items={[{ id: 'open', label: 'Open', onSelect: () => selectAudit(item.auditId) }]}
+                          />
                         </td>
                       </tr>
                     ))}

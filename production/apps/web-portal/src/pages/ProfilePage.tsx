@@ -169,10 +169,6 @@ export function ProfilePage() {
             title="Organization-managed fields stay read only."
             description="Name, email, employee ID, organization, position, location, roles and sign-in state are not editable from this page."
           />
-          <INNOPurposeNote
-            title="Personal preferences are not exposed in this production slice."
-            description="Notification read state is persisted. Email, desktop, density and language preferences remain unavailable until their persistence contract is defined."
-          />
         </section>
       </div>
     </INNOPage>

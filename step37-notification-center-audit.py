@@ -142,8 +142,8 @@ for marker in [
     if marker not in styles:
         issues.append("styles " + marker)
 
-if "Notification read state is persisted" not in profile:
-    issues.append("profile notification copy")
+if "Email notifications" in profile or "Desktop notifications" in profile:
+    issues.append("profile invents uncontracted notification preferences")
 if "design-system.html" not in frozen or "visual reference and usage rules" not in frozen:
     issues.append("frozen design system source")
 if "Mark all read" not in prototype or "You" not in prototype:

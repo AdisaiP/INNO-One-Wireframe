@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOButton, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterNote, INNOEditorFooterStart, INNOPage, INNOPurposeNote, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOButton, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterNote, INNOEditorFooterStart, INNOPage, INNOStatus, INNOTableWrap } from '@inno/ui';
 import {
   getBusinessCalendar,
   updateBusinessCalendar,
@@ -164,7 +164,7 @@ export function BusinessCalendarPage() {
 
             <section className="prod-panel">
               <div className="prod-panel-head">
-                <div><h3>Holiday exceptions</h3><p>These dates are removed from SLA timer calculations.</p></div>
+                <div><h3>Holiday exceptions</h3><p>Read-only dates removed from SLA timer calculations.</p></div>
                 <INNOStatus>{query.data.holidays.length} dates</INNOStatus>
               </div>
               <INNOTableWrap>
@@ -181,11 +181,7 @@ export function BusinessCalendarPage() {
                   </tbody>
                 </table>
               </INNOTableWrap>
-              <INNOPurposeNote
-                className="calendar-note"
-                title="Holiday maintenance remains read-only in this slice."
-                description="Step 18 implements working-time calculation against seeded holidays without introducing an uncontracted holiday-import workflow."
-              />
+
             </section>
 
             {canManage ? (
@@ -213,10 +209,7 @@ export function BusinessCalendarPage() {
                 <div className="kv-row"><span>Holiday exceptions</span><b>{query.data.holidays.length}</b></div>
               </div>
             </section>
-            <INNOPurposeNote
-              title="This page owns working time only."
-              description="Response targets, pause rules and escalation levels remain in SLA & Escalation."
-            />
+
           </aside>
         </div>
       ) : null}

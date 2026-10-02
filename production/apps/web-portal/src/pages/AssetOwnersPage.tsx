@@ -1,6 +1,6 @@
 import { useDeferredValue, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { RouterRowAction } from '../components/RouterRowAction';
 import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNOPage, INNOSearchField, INNOStatus, INNOTableWrap, INNOToolbarMeta, INNOToolbarSpacer } from '@inno/ui';
 import { getAssetOwners } from '../api/client';
 import { CollectionErrorState, CollectionLoadingState } from '../components/Feedback';
@@ -41,7 +41,7 @@ export function AssetOwnersPage() {
           <INNOTableWrap width="wide">
             <table>
               <thead><tr><th>User</th><th>Employee ID</th><th>Organization</th><th>Owned assets</th><th>Last ownership change</th><th className="action-column">Action</th></tr></thead>
-              <tbody>{query.data.items.map((owner) => <tr key={owner.id}><td><b>{owner.fullName}</b><div className="table-meta">{owner.email}</div></td><td>{owner.employeeId}</td><td>{owner.organization ?? '—'}</td><td>{owner.assetCount}</td><td>{owner.lastOwnershipAt ? new Date(owner.lastOwnershipAt).toLocaleString() : '—'}</td><td className="action-column"><Link className="inno-row-action" to={'/assets/owners/' + owner.id} aria-label={'Open ' + owner.fullName}>Open</Link></td></tr>)}</tbody>
+              <tbody>{query.data.items.map((owner) => <tr key={owner.id}><td><b>{owner.fullName}</b><div className="table-meta">{owner.email}</div></td><td>{owner.employeeId}</td><td>{owner.organization ?? '—'}</td><td>{owner.assetCount}</td><td>{owner.lastOwnershipAt ? new Date(owner.lastOwnershipAt).toLocaleString() : '—'}</td><td className="action-column"><RouterRowAction to={'/assets/owners/' + owner.id} ariaLabel={'Open ' + owner.fullName} /></td></tr>)}</tbody>
             </table>
           </INNOTableWrap>
         )}

@@ -116,7 +116,8 @@ for width in WIDTHS:
 c.viewport(1366)
 check("access scopes list route ready", nav(c, "/admin/access-scopes", ".inno-collection"))
 check("access assignments settled", bool(wait(c, "document.querySelectorAll('.inno-table-wrap tbody tr').length>0", 15)))
-access_edit_route = c.ev("document.querySelector('.inno-table-wrap tbody .inno-row-action')?.getAttribute('href')")
+clicked = c.ev("""(()=>{const b=document.querySelector('.inno-table-wrap tbody .inno-row-action');if(!b)return false;b.click();return true})()""")
+access_edit_route = wait(c, "location.pathname.startsWith('/admin/access-scopes/') && location.pathname.endsWith('/edit') ? location.pathname : ''", 5) if clicked else None
 check("access edit route discovered", bool(access_edit_route), access_edit_route or "")
 
 if access_edit_route:

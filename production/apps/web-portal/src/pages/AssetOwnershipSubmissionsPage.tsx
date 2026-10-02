@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOPage, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarMeta, INNOToolbarSpacer } from '@inno/ui';
+import { INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOPage, INNORowActions, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarMeta, INNOToolbarSpacer } from '@inno/ui';
 import { decideOwnershipSubmission, getOwnershipSubmissions } from '../api/client';
 import { usePermission } from '../app/ProfileContext';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -46,8 +46,8 @@ export function AssetOwnershipSubmissionsPage() {
       ) : (
         <INNOTableWrap width="xwide">
           <table>
-            <thead><tr><th>User / Device</th><th>Asset</th><th>Submitted</th><th>Possession</th><th>Changes</th><th>Status</th>{canManage ? <th className="action-column">Decision</th> : null}</tr></thead>
-            <tbody>{query.data.items.map((item) => <tr key={item.id}><td><b>{item.userName}</b><div className="table-meta">{item.deviceName}</div></td><td>{item.assetTag}</td><td>{new Date(item.submittedAt).toLocaleString()}</td><td>{item.possession}</td><td>{item.changes.join(', ') || 'No changes'}</td><td><INNOStatus tone={item.status === 'confirmed' ? 'success' : item.status === 'rejected' ? 'danger' : 'warning'}>{item.status}</INNOStatus></td>{canManage ? <td className="action-column">{item.status === 'pending' ? <div className="inline-actions"><INNOButton variant="secondary" disabled={decision.isPending} onClick={() => decision.mutate({ id: item.id, eTag: item.eTag, value: 'rejected' })}>Reject</INNOButton><INNOButton disabled={decision.isPending} onClick={() => decision.mutate({ id: item.id, eTag: item.eTag, value: 'confirmed' })}>Confirm</INNOButton></div> : <span>Reviewed</span>}</td> : null}</tr>)}</tbody>
+            <thead><tr><th>User / Device</th><th>Asset</th><th>Submitted</th><th>Possession</th><th>Changes</th><th>Status</th>{canManage ? <th className="action-column">Action</th> : null}</tr></thead>
+            <tbody>{query.data.items.map((item) => <tr key={item.id}><td><b>{item.userName}</b><div className="table-meta">{item.deviceName}</div></td><td>{item.assetTag}</td><td>{new Date(item.submittedAt).toLocaleString()}</td><td>{item.possession}</td><td>{item.changes.join(', ') || 'No changes'}</td><td><INNOStatus tone={item.status === 'confirmed' ? 'success' : item.status === 'rejected' ? 'danger' : 'warning'}>{item.status}</INNOStatus></td>{canManage ? <td className="action-column">{item.status === 'pending' ? <INNORowActions ariaLabel={'Ownership submission for ' + item.assetTag} items={[{ id: 'confirm', label: 'Confirm', busy: decision.isPending, onSelect: () => decision.mutate({ id: item.id, eTag: item.eTag, value: 'confirmed' }) }, { id: 'reject', label: 'Reject', tone: 'danger', busy: decision.isPending, onSelect: () => decision.mutate({ id: item.id, eTag: item.eTag, value: 'rejected' }) }]} /> : <span className="table-meta">Reviewed</span>}</td> : null}</tr>)}</tbody>
           </table>
         </INNOTableWrap>
       )}

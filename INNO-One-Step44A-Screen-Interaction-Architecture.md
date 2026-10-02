@@ -330,9 +330,15 @@ Refactor:
 - other incorrectly permanent master-detail editors.
 
 ### Step 44E — Visual Parity
-- restore approved hero illustrations,
-- normalize card/input/button/table spacing,
-- remove redundant explanatory state blocks.
+**Status: COMPLETE on `ux/step44e-visual-parity`.**
+
+Completed:
+- restored approved Apps / Assets hero illustrations while retaining Agent Deployment / Workspace,
+- normalized remaining spacing ownership to shared tokens/components,
+- standardized table Action columns on `INNORowActions`,
+- removed redundant explanatory blocks from normal task flow.
+
+After Step 44E, Step 44A reports **2 remaining gap classes**: Assets User Profiles IA and Workflow Canvas.
 
 ### Step 44F — Assets Information Architecture
 Rename/restructure ownership navigation so it does not duplicate Admin Users.

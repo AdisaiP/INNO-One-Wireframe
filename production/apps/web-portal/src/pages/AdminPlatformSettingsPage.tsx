@@ -4,7 +4,6 @@ import {
   INNOCollection,
   INNOCollectionHeader,
   INNOPage,
-  INNOPurposeNote,
   INNOStatus,
   INNOTableWrap,
 } from '@inno/ui';
@@ -69,11 +68,6 @@ export function AdminPlatformSettingsPage() {
             </div>
           </div>
 
-          <INNOPurposeNote
-            title="Platform settings are deployment-managed"
-            description="The current contracts reserve admin.settings.manage, but they do not define a persisted global settings resource or audited update API. This page therefore exposes only safe effective values and frozen platform conventions."
-          />
-
           <INNOCollection>
             <INNOCollectionHeader
               title="Effective Platform Settings"
@@ -122,10 +116,6 @@ export function AdminPlatformSettingsPage() {
             </INNOTableWrap>
           </INNOCollection>
 
-          <INNOPurposeNote
-            title="Future mutation boundary"
-            description="Before timezone defaults, retention values, notification defaults, or other global settings become editable, define the settings schema, validation, ETag concurrency, audit events, and ownership boundaries. Module-specific settings should remain with their owning module."
-          />
         </>
       ) : null}
     </INNOPage>

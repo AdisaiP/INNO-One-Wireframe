@@ -1,10 +1,11 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterNote, INNOEditorFooterStart, INNOIcon, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarMeta, INNOToolbarSpacer } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterNote, INNOEditorFooterStart, INNOIcon, INNOPage, INNOPagination, INNORowActions, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarMeta, INNOToolbarSpacer } from '@inno/ui';
 import { getSoftwareLicenses, updateSoftwareLicense } from '../api/client';
 import type { SoftwareLicenseItem } from '../api/types';
 import { ErrorState, LoadingState } from '../components/Feedback';
+import { RouterRowAction } from '../components/RouterRowAction';
 
 function money(value: number, currency = 'THB') {
   return new Intl.NumberFormat('en-US', {
@@ -248,9 +249,7 @@ export function SoftwareLicensesPage() {
                       </td>
                       <td className="numeric-column">{money(item.estimatedGapCost, item.currency)}</td>
                       <td className="action-column">
-                        <button type="button" className="inno-row-action" aria-label={'Select ' + item.productName} onClick={() => setSelectedId(item.id)}>
-                          Select
-                        </button>
+                        <INNORowActions ariaLabel={'License ' + item.productName} items={[{ id: 'select', label: 'Select', onSelect: () => setSelectedId(item.id) }]} />
                       </td>
                     </tr>
                   ))}
@@ -307,7 +306,7 @@ export function SoftwareLicensesPage() {
                         <td><INNOStatus>{allocation.status}</INNOStatus></td>
                         <td className="action-column">
                           {allocation.assetId
-                            ? <Link className="inno-row-action" to={'/assets/' + allocation.assetId} aria-label="Open asset">Open</Link>
+                            ? <RouterRowAction to={'/assets/' + allocation.assetId} ariaLabel="Open asset" />
                             : <span className="table-meta">Aggregate</span>}
                         </td>
                       </tr>

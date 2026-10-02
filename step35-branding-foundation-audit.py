@@ -58,10 +58,9 @@ if "applyProductDocumentBrand();" not in main:
 
 for marker in [
     'title="Branding"',
-    "Brand customization is not editable yet",
+    "read-only brand tokens",
     "Effective Product Identity",
     "Frozen Brand Tokens",
-    "Future customization boundary",
     "BRAND_TOKEN_DEFINITIONS",
     "readBrandCssVariable",
 ]:

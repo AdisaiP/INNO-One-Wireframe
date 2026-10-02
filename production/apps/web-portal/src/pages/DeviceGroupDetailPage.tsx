@@ -5,6 +5,7 @@ import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollect
 import { getDeviceGroup, getDeviceGroupMembers, updateDeviceGroup } from '../api/client';
 import { CollectionErrorState, CollectionLoadingState, ErrorState, LoadingState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
+import { RouterRowAction } from '../components/RouterRowAction';
 
 function formatLastSeen(value?: string | null) {
   if (!value) return '—';
@@ -191,7 +192,7 @@ export function DeviceGroupDetailPage() {
                     <td>{device.organization ?? '—'}</td>
                     <td><INNOStatus tone={device.status === 'online' ? 'success' : 'neutral'} dot>{device.status}</INNOStatus></td>
                     <td>{formatLastSeen(device.lastSeenAt)}</td>
-                    <td className="action-column"><Link className="device-row-action" to={'/devices/' + device.id} aria-label={'Open ' + device.name}><INNOIcon token="action.next" size={14} /></Link></td>
+                    <td className="action-column"><RouterRowAction to={'/devices/' + device.id} ariaLabel={'Open ' + device.name} /></td>
                   </tr>
                 ))}
               </tbody>

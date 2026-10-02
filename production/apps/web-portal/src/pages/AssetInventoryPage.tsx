@@ -1,6 +1,6 @@
 import { useDeferredValue, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { RouterRowAction } from '../components/RouterRowAction';
 import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOStatus, INNOTableWrap, INNOToolbarMeta, INNOToolbarSpacer } from '@inno/ui';
 import { getAssets } from '../api/client';
 import { CollectionErrorState, CollectionLoadingState } from '../components/Feedback';
@@ -84,7 +84,7 @@ export function AssetInventoryPage() {
                     <td>{asset.location ?? asset.organization ?? '—'}</td>
                     <td>{new Date(asset.registeredAt).toLocaleDateString()}</td>
                     <td><INNOStatus>{statusLabel(asset.status)}</INNOStatus></td>
-                    <td className="action-column"><Link className="inno-row-action" to={'/assets/' + asset.id} aria-label={'Open ' + asset.assetTag}>Open</Link></td>
+                    <td className="action-column"><RouterRowAction to={'/assets/' + asset.id} ariaLabel={'Open ' + asset.assetTag} /></td>
                   </tr>
                 ))}</tbody>
               </table>

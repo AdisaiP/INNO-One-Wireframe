@@ -1,6 +1,6 @@
 import { useDeferredValue, useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { RouterRowAction } from '../components/RouterRowAction';
 import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOStatus, INNOTableWrap, INNOToolbarMeta, INNOToolbarSpacer } from '@inno/ui';
 import { createDeviceGroup, getDeviceGroups } from '../api/client';
 import { CollectionErrorState, CollectionLoadingState, ErrorState } from '../components/Feedback';
@@ -156,7 +156,7 @@ export function DeviceGroupsPage() {
                       <td>{group.members}</td>
                       <td>{group.online}</td>
                       <td><INNOStatus tone={group.syncStatus === 'synced' ? 'success' : 'neutral'}>{group.syncStatus}</INNOStatus></td>
-                      <td className="action-column"><Link className="inno-row-action" to={'/devices/groups/' + group.id} aria-label={'Open ' + group.name}>Open</Link></td>
+                      <td className="action-column"><RouterRowAction to={'/devices/groups/' + group.id} ariaLabel={'Open ' + group.name} /></td>
                     </tr>
                   ))}
                 </tbody>

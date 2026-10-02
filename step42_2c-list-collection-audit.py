@@ -39,14 +39,14 @@ for marker in [
     require(ui_css, marker, "shared collection styles")
 
 primary = {
-    "DevicesPage.tsx": ["INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "INNOSelectField", "INNOTableWrap", "INNOPagination", "inno-row-action", ">Action<"],
-    "DeviceGroupsPage.tsx": ["INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "INNOSelectField", "INNOTableWrap", "INNOPagination", "INNOToolbarMeta", "inno-row-action", ">Action<"],
-    "AssetInventoryPage.tsx": ["INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "INNOSelectField", "INNOTableWrap", "INNOPagination", "INNOToolbarMeta", "inno-row-action", ">Action<"],
-    "TicketsPage.tsx": ["INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "INNOSelectField", "INNOTableWrap", "INNOPagination", "INNOToolbarMeta", "inno-row-action", "helpdesk-operational-queue", ">Action<"],
-    "AdminUsersPage.tsx": ["INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "INNOSelectField", "INNOTableWrap", "INNOPagination", "inno-row-action", ">Action<"],
-    "AutomationRulesPage.tsx": ["INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "INNOSelectField", "INNOTableWrap", "INNOPagination", "inno-row-action", ">Action<"],
-    "SoftwareLicensesPage.tsx": ["INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "INNOSelectField", "INNOTableWrap", "INNOPagination", "INNOToolbarMeta", "inno-row-action", ">Action<"],
-    "ContractsWarrantyPage.tsx": ["INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "INNOSelectField", "INNOTableWrap", "INNOPagination", "inno-row-action", ">Action<"],
+    "DevicesPage.tsx": ["INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "INNOSelectField", "INNOTableWrap", "INNOPagination", "RouterRowAction", ">Action<"],
+    "DeviceGroupsPage.tsx": ["INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "INNOSelectField", "INNOTableWrap", "INNOPagination", "INNOToolbarMeta", "RouterRowAction", ">Action<"],
+    "AssetInventoryPage.tsx": ["INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "INNOSelectField", "INNOTableWrap", "INNOPagination", "INNOToolbarMeta", "RouterRowAction", ">Action<"],
+    "TicketsPage.tsx": ["INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "INNOSelectField", "INNOTableWrap", "INNOPagination", "INNOToolbarMeta", "RouterRowAction", "helpdesk-operational-queue", ">Action<"],
+    "AdminUsersPage.tsx": ["INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "INNOSelectField", "INNOTableWrap", "INNOPagination", "RouterRowAction", ">Action<"],
+    "AutomationRulesPage.tsx": ["INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "INNOSelectField", "INNOTableWrap", "INNOPagination", "RouterRowAction", ">Action<"],
+    "SoftwareLicensesPage.tsx": ["INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "INNOSelectField", "INNOTableWrap", "INNOPagination", "INNOToolbarMeta", "INNORowActions", ">Action<"],
+    "ContractsWarrantyPage.tsx": ["INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "INNOSelectField", "INNOTableWrap", "INNOPagination", "RouterRowAction", ">Action<"],
 }
 
 for name, markers in primary.items():
@@ -58,8 +58,8 @@ for name, markers in primary.items():
 # Step 44D removes invalid permanent side editors from Positions and Access Scopes.
 # They remain collection-owned lists, but row actions now open a dialog or dedicated edit route.
 remediated_lists = {
-    "AdminAccessScopesPage.tsx": ["INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "INNOSelectField", "stickyAction", "inno-row-action", ">Edit<", ">Action<"],
-    "AdminPositionsPage.tsx": ["INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "stickyAction", "inno-row-action", ">Edit<", ">Action<", "INNODialog"],
+    "AdminAccessScopesPage.tsx": ["INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "INNOSelectField", "stickyAction", "RouterRowAction", 'label="Edit"', ">Action<"],
+    "AdminPositionsPage.tsx": ["INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "stickyAction", "INNORowActions", "label: 'Edit'", ">Action<", "INNODialog"],
 }
 
 for name, markers in remediated_lists.items():
@@ -88,7 +88,8 @@ for name in ["AssetOwnersPage.tsx", "AssetOwnershipSubmissionsPage.tsx"]:
     forbid(source, 'className="collection-scope"', name + " toolbar meta")
 
 audit = read("production/apps/web-portal/src/pages/AdminAuditPage.tsx")
-require(audit, 'className="inno-row-action"', "AdminAuditPage row action")
+require(audit, "INNORowActions", "AdminAuditPage shared row action")
+require(audit, "label: 'Open'", "AdminAuditPage open action")
 require(audit, ">Action<", "AdminAuditPage action header")
 
 print("step42_2c_collection_anatomy=shared")

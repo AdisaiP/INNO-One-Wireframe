@@ -1,6 +1,6 @@
 import { useDeferredValue, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { RouterRowAction } from '../components/RouterRowAction';
 import {
   INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar,
   INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOState,
@@ -94,7 +94,7 @@ export function ContractsWarrantyPage() {
                     <td>{item.serviceType}</td>
                     <td className="numeric-column">{item.coveredAssets.length}</td>
                     <td><INNOStatus tone={item.status === 'expired' ? 'danger' : item.status === 'expiring' ? 'warning' : 'success'}>{statusLabel(item.status)}</INNOStatus></td>
-                    <td className="action-column"><Link className="inno-row-action" to={'/assets/contracts/' + item.id} aria-label={'Open ' + item.contractNumber}>Open</Link></td>
+                    <td className="action-column"><RouterRowAction to={'/assets/contracts/' + item.id} ariaLabel={'Open ' + item.contractNumber} /></td>
                   </tr>
                 ))}</tbody>
               </table>

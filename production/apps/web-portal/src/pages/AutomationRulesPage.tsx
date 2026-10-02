@@ -5,6 +5,7 @@ import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollect
 import { getAutomationRules } from '../api/client';
 import { usePermission } from '../app/ProfileContext';
 import { CollectionErrorState, CollectionLoadingState } from '../components/Feedback';
+import { RouterRowAction } from '../components/RouterRowAction';
 
 function formatRelative(value?: string | null) {
   if (!value) return 'Never';
@@ -117,7 +118,7 @@ export function AutomationRulesPage() {
                       <td>{rule.primaryAction}</td>
                       <td><INNOStatus tone={rule.status === 'active' ? 'success' : 'neutral'}>{rule.status === 'active' ? 'Active' : 'Paused'}</INNOStatus></td>
                       <td>{formatRelative(rule.lastExecutedAt)}</td>
-                      <td className="action-column"><Link className="inno-row-action" to={'/helpdesk/automation/' + rule.id} aria-label={'Open ' + rule.name}>Open</Link></td>
+                      <td className="action-column"><RouterRowAction to={'/helpdesk/automation/' + rule.id} ariaLabel={'Open ' + rule.name} /></td>
                     </tr>
                   ))}
                 </tbody>

@@ -109,27 +109,33 @@ check("purpose note is visually lightweight",
       and "border-radius" not in re.search(r"\.inno-purpose-note \{(.*?)\n\}", UI_CSS, re.S).group(1))
 check("legacy purpose note markup removed",
       'className="purpose-note"' not in ALL_PAGES and ".purpose-note {" not in SHELL)
-check("integrations policy uses purpose note",
-      "INNOPurposeNote" in INTEGRATIONS
+# Step 44E keeps the Purpose Note primitive but removes redundant policy callouts
+# when the same boundary can live in normal page/section description copy.
+check("integrations policy is concise page description",
+      "INNOPurposeNote" not in INTEGRATIONS
       and "Configuration remains deployment-managed" in INTEGRATIONS)
 check("integrations test uses shared row action",
       "INNORowActions" in INTEGRATIONS and "label: 'Test'" in INTEGRATIONS)
 
+audit_source = PAGES["AdminAuditPage.tsx"]
+check("AdminAuditPage.tsx passive copy still uses purpose note where useful",
+      "INNOPurposeNote" in audit_source and "Audit records are read-only" in audit_source)
+check("AdminAuditPage.tsx passive copy no longer uses INNOState",
+      re.search(r'<INNOState[\s\S]{0,240}title="Audit records are read-only"', audit_source) is None)
+
 passive_titles = {
-    "AdminAuditPage.tsx": "Audit records are read-only",
     "AdminBrandingPage.tsx": "Brand customization is not editable yet",
     "AdminPlatformSettingsPage.tsx": "Platform settings are deployment-managed",
     "AdminRolesPage.tsx": "Role definitions are read-only in this phase",
     "AdminSecurityPage.tsx": "Security policy changes are not exposed yet",
     "SearchPage.tsx": "Authorization stays authoritative",
 }
-for file_name, title in passive_titles.items():
+for file_name, former_title in passive_titles.items():
     source = PAGES[file_name]
-    check(file_name + " passive copy uses purpose note",
-          "INNOPurposeNote" in source and title in source)
-    pattern = re.compile(r"<INNOState[\s\S]{0,240}title=" + re.escape(json.dumps(title)))
-    check(file_name + " passive copy no longer uses INNOState",
-          pattern.search(source) is None)
+    check(file_name + " redundant passive callout removed",
+          "INNOPurposeNote" not in source)
+    check(file_name + " passive explanation title removed while real states remain allowed",
+          former_title not in source)
 
 # Shared spacing ownership.
 for token in [

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { RouterRowAction } from '../components/RouterRowAction';
 import {
   INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState,
   INNOCollectionToolbar, INNOPage, INNOSearchField, INNOSelectField,
@@ -87,7 +87,7 @@ export function AdminAccessScopesPage() {
                   <td><INNOStatus tone={item.status === 'active' ? 'success' : 'neutral'}>{item.status}</INNOStatus></td>
                   <td className="action-column">
                     {canManage
-                      ? <Link className="inno-row-action" to={'/admin/access-scopes/' + item.id + '/edit'} aria-label={'Edit assignment for ' + item.subjectName}>Edit</Link>
+                      ? <RouterRowAction to={'/admin/access-scopes/' + item.id + '/edit'} label="Edit" ariaLabel={'Edit assignment for ' + item.subjectName} />
                       : <span className="table-meta">View only</span>}
                   </td>
                 </tr>

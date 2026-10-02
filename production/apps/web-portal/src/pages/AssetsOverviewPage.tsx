@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { INNOIcon, INNOCollection, INNOCollectionHeader, INNOPage, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { getAssetOverview } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
+import { RouterRowAction } from '../components/RouterRowAction';
 
 function statusLabel(value: string) {
   return value.replaceAll('_', ' ').replace(/\b\w/g, (char) => char.toUpperCase());
@@ -15,8 +16,9 @@ export function AssetsOverviewPage() {
     <INNOPage
       eyebrow="Assets"
       title="Asset Overview"
-      description="Ownership, inventory status and attention items inside your effective scope."
+      description="Track asset ownership, inventory status and attention items inside your effective scope."
       actions={<Link className="inno-link-button" to="/assets/inventory">View Asset Inventory</Link>}
+      illustration={<img src="/illustrations/asset-inventory.svg" alt="" />}
     >
 
       {query.isPending ? <LoadingState label="Loading Assets…" /> : null}
@@ -50,7 +52,7 @@ export function AssetsOverviewPage() {
                         <td>{asset.category}</td>
                         <td><INNOStatus>{statusLabel(asset.status)}</INNOStatus></td>
                         <td>{new Date(asset.updatedAt).toLocaleString()}</td>
-                        <td className="action-column"><Link className="device-row-action" to={'/assets/' + asset.id} aria-label={'Open ' + asset.assetTag}><INNOIcon token="action.next" size={14} /></Link></td>
+                        <td className="action-column"><RouterRowAction to={'/assets/' + asset.id} ariaLabel={'Open ' + asset.assetTag} /></td>
                       </tr>
                     ))}
                   </tbody>

@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom';
 import { INNOIcon, INNOCollection, INNOCollectionHeader, INNOResourceHeader, INNOResourceSummary, INNOResourceSummaryItem, INNOState, INNOStatus, INNOSurfaceTabs, INNOTableWrap } from '@inno/ui';
 import { getAssetOwner } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
+import { RouterRowAction } from '../components/RouterRowAction';
 
 export function AssetOwnerDetailPage() {
   const { userId = '' } = useParams();
@@ -73,7 +74,7 @@ export function AssetOwnerDetailPage() {
                       <td>{asset.brandModel || '—'}</td>
                       <td><INNOStatus>{asset.status.replaceAll('_', ' ')}</INNOStatus></td>
                       <td>{new Date(asset.assignedAt).toLocaleString()}</td>
-                      <td className="action-column"><Link className="device-row-action" to={'/assets/' + asset.id} aria-label={'Open ' + asset.assetTag}><INNOIcon token="action.next" size={14} /></Link></td>
+                      <td className="action-column"><RouterRowAction to={'/assets/' + asset.id} ariaLabel={'Open ' + asset.assetTag} /></td>
                     </tr>
                   ))}
                 </tbody>

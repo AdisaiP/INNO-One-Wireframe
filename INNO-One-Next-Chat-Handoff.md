@@ -1,5 +1,12 @@
 > [!IMPORTANT]
-> **Current production override — 2026-10-02 — Step 44D**
+> **Current production override — 2026-10-02 — Step 44E**
+>
+> **Step 44E Visual Parity is complete** on `ux/step44e-visual-parity`.
+>
+> Read `INNO-One-Step44E-Next-Chat-Handoff.md` first. Step 44E restores the approved Apps / Assets hero illustrations, retains Workspace / Agent Deployment hero parity, standardizes Production table Action columns on shared `INNORowActions` (with `RouterRowAction` for navigation), removes redundant implementation-oriented explanation blocks, and closes the remaining shared spacing drift. Production remains at **56 concrete routes**. Dedicated QA is **35/35 static and 96/96 browser**; Step 42.2C is **193/193**, Step 42.2D **159/159**, Step 42.2E **256/256**, Step 42.2G **77/77**, Design System browser **56/56**, broad Production **1477/1477 across 56 routes**, and the current static chain is **57/57**. Step36 / Step38 historical browser regressions are also green at **26/26** and **52/52**. UI/Web builds pass. Step 44A now reports only **2 remaining gap classes**: Assets User Profiles IA and Workflow Canvas. Next frozen slice is **Step 44F — Assets Information Architecture**. Frozen Design System V1.26 / UI Contract 1.20.0 remain unchanged. **Do not merge or deploy unless explicitly requested.**
+>
+> [!IMPORTANT]
+> **Previous production override — 2026-10-02 — Step 44D**
 >
 > **Step 44D Form / Detail Route Remediation is complete** on `ux/step44d-form-detail-route-remediation`.
 >

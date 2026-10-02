@@ -4,7 +4,6 @@ import {
   INNOCollection,
   INNOCollectionHeader,
   INNOPage,
-  INNOPurposeNote,
   INNORowActions,
   INNOState,
   INNOStatus,
@@ -68,7 +67,7 @@ export function AdminIntegrationsPage() {
     <INNOPage
       eyebrow="Admin Center · Platform"
       title="Integrations"
-      description="Monitor registered platform integrations without exposing credentials or vendor-specific identifiers."
+      description="Monitor registered integration health and run safe connection tests. Configuration remains deployment-managed."
       actions={(
         <INNOButton
           type="button"
@@ -91,12 +90,6 @@ export function AdminIntegrationsPage() {
             <div><span>Needs attention</span><b>{attention}</b><small>Degraded or not configured</small></div>
             <div><span>Disabled</span><b>{disabled}</b><small>Disabled by environment</small></div>
           </div>
-
-          <INNOPurposeNote
-            tone="info"
-            title="Configuration remains deployment-managed"
-            description="This page exposes health and safe connection tests only. Credentials, secrets, TLS overrides, and provider configuration are never returned by the Admin API."
-          />
 
           <INNOCollection>
             <INNOCollectionHeader

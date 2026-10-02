@@ -30,7 +30,7 @@ def check(name, condition):
 # Positions: list + focused dialog.
 check("positions uses focused dialog", "<INNODialog" in POSITIONS)
 check("positions no permanent master detail", "admin-master-detail" not in POSITIONS and "admin-editor-panel" not in POSITIONS)
-check("positions has edit action", ">Edit</button>" in POSITIONS)
+check("positions has edit action", "INNORowActions" in POSITIONS and "label: 'Edit'" in POSITIONS)
 check("positions no selected row state", "selectedId" not in POSITIONS)
 
 # Users: list -> dedicated create/edit -> read-only detail.

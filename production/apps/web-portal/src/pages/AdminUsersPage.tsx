@@ -8,6 +8,7 @@ import {
 } from '@inno/ui';
 import { getAdminOrganizationTree, getAdminUsers } from '../api/client';
 import { CollectionErrorState, CollectionLoadingState } from '../components/Feedback';
+import { RouterRowAction } from '../components/RouterRowAction';
 import { usePermission } from '../app/ProfileContext';
 
 export function AdminUsersPage() {
@@ -75,7 +76,7 @@ export function AdminUsersPage() {
                     <td>{user.position?.name ?? '—'}</td>
                     <td>{user.location?.name ?? '—'}</td>
                     <td><INNOStatus tone={user.status === 'active' ? 'success' : 'neutral'}>{user.status}</INNOStatus></td>
-                    <td className="action-column"><Link className="inno-row-action" to={'/admin/users/' + user.id} aria-label={'Open ' + user.fullName}>Open</Link></td>
+                    <td className="action-column"><RouterRowAction to={'/admin/users/' + user.id} ariaLabel={'Open ' + user.fullName} /></td>
                   </tr>
                 ))}</tbody>
               </table>

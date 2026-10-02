@@ -141,7 +141,7 @@ else:
     for marker in (
         "Contracts & Warranty", "Active contracts", "Expiring ≤ 90 days",
         "Covered assets", "Uncovered assets", "Status: All", "Fiscal year: All",
-        "getAssetContracts", "inno-row-action",
+        "getAssetContracts", "RouterRowAction",
     ):
         if marker not in page:
             issues.append(f"Contracts list UX missing: {marker}")

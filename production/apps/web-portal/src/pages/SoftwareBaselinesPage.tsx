@@ -1,6 +1,6 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOPage, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOPage, INNORowActions, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { createSoftwareBaseline, evaluateSoftwareBaseline, getSoftwareBaselineResults, getSoftwareBaselines, updateSoftwareBaseline } from '../api/client';
 import type { SoftwareBaselineItem, SoftwareBaselineRequest } from '../api/types';
 import { CollectionErrorState, CollectionLoadingState, ErrorState, LoadingState } from '../components/Feedback';
@@ -155,7 +155,7 @@ export function SoftwareBaselinesPage() {
               <td>{item.requiredPackages.length}</td>
               <td><INNOStatus tone={item.status === 'active' ? 'success' : 'neutral'}>{item.status}</INNOStatus></td>
               <td><INNOStatus tone={item.evaluationStatus === 'current' ? 'success' : item.evaluationStatus === 'stale' ? 'warning' : 'neutral'}>{item.evaluationStatus.replaceAll('_', ' ')}</INNOStatus></td>
-              <td className="action-column"><button type="button" className="inno-row-action" aria-label={'Select ' + item.name} onClick={() => { setCreating(false); setSelectedId(item.id); }}>Select</button></td>
+              <td className="action-column"><INNORowActions ariaLabel={'Baseline ' + item.name} items={[{ id: 'select', label: 'Select', onSelect: () => { setCreating(false); setSelectedId(item.id); } }]} /></td>
             </tr>)}</tbody>
           </table></INNOTableWrap>
         ) : (

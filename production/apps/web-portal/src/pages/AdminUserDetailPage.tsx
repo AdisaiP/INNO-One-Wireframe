@@ -8,6 +8,7 @@ import {
 } from '@inno/ui';
 import { getAdminUser } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
+import { RouterRowAction } from '../components/RouterRowAction';
 import { usePermission } from '../app/ProfileContext';
 
 export function AdminUserDetailPage() {
@@ -83,7 +84,7 @@ export function AdminUserDetailPage() {
                     <td>{assignment.scopeType}</td>
                     <td><INNOStatus tone={assignment.status === 'active' ? 'success' : 'neutral'}>{assignment.status}</INNOStatus></td>
                     <td className="action-column">
-                      <Link className="inno-row-action" to={'/admin/access-scopes/' + assignment.id + '/edit'} aria-label={'Edit ' + assignment.roleName + ' assignment'}>Edit</Link>
+                      <RouterRowAction to={'/admin/access-scopes/' + assignment.id + '/edit'} label="Edit" ariaLabel={'Edit ' + assignment.roleName + ' assignment'} />
                     </td>
                   </tr>
                 ))}</tbody>

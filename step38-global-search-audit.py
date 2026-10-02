@@ -138,7 +138,7 @@ for marker in [
     "Search authorized resources across enabled INNO.One modules.",
     "Search across your workspace",
     "No results",
-    "Authorization stays authoritative",
+    "Results are filtered by each destination module before they are returned.",
     "getGlobalSearch",
     "global-search-results",
 ]:
