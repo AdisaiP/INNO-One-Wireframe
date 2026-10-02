@@ -273,12 +273,12 @@ Frozen design contract already defines:
 
 But `@inno/ui` does not currently implement those production wrappers.
 
-Target:
-- Tree → React Arborist or lightweight controlled tree,
-- TreeGrid → TanStack Table expandable hierarchical rows,
-- OrgChart → d3-org-chart.
+Target implementation decision updated by Step 44C:
+- Tree → native `INNOTree` in `@inno/ui`,
+- TreeGrid → native `INNOTreeGrid` in `@inno/ui`,
+- OrgChart → d3-org-chart remains a future specialized component.
 
-Syncfusion/AG Grid is not the default solely because a hierarchy exists; enterprise grid dependency must be justified by actual requirements.
+Step 44C intentionally adds no Tree/Grid vendor dependency. The frozen V1.26 component names and interaction contract remain unchanged.
 
 ### 9. Assets > User Profiles
 

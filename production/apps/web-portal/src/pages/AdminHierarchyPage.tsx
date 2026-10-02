@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
-  INNOIcon,
   INNOButton,
   INNOCollection,
   INNOCollectionHeader,
@@ -10,10 +9,9 @@ import {
   INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart,
   INNOPage,
   INNOSearchField,
-  INNOSelectField,
   INNOState,
   INNOStatus,
-  INNOTableWrap,
+  INNOTree,
 } from '@inno/ui';
 import {
   createAdminLocation,
@@ -44,14 +42,12 @@ export function AdminHierarchyPage({ kind }: { kind: Kind }) {
     queryFn: isOrganization ? getAdminOrganizationTree : getAdminLocations,
   });
 
-  const items = useMemo(() => {
-    const term = search.trim().toLowerCase();
-    return (query.data ?? []).filter((item) =>
-      !term || item.name.toLowerCase().includes(term) || item.code.toLowerCase().includes(term),
-    );
-  }, [query.data, search]);
-
-  const selected = (query.data ?? []).find((item) => item.id === selectedId) ?? null;
+  const records = query.data ?? [];
+  const term = search.trim().toLowerCase();
+  const hasSearchMatch = !term || records.some((item) =>
+    item.name.toLowerCase().includes(term) || item.code.toLowerCase().includes(term),
+  );
+  const selected = records.find((item) => item.id === selectedId) ?? null;
 
   useEffect(() => {
     if (!selected) return;
@@ -111,40 +107,51 @@ export function AdminHierarchyPage({ kind }: { kind: Kind }) {
     >
       <div className="admin-master-detail">
         <INNOCollection>
-          <INNOCollectionHeader title={title} description="Select a record to inspect or edit." meta={query.data ? <INNOStatus>{query.data.length} records</INNOStatus> : undefined} />
+          <INNOCollectionHeader
+            title={isOrganization ? 'Organization Tree' : 'Location Tree'}
+            description={isOrganization
+              ? 'Select a hierarchy node to inspect or edit the canonical organization structure.'
+              : 'Select a hierarchy node to inspect or edit nested places.'}
+            meta={query.data ? <INNOStatus>{query.data.length} records</INNOStatus> : undefined}
+          />
           <INNOCollectionToolbar>
             <INNOSearchField label={'Search ' + title.toLowerCase()} value={search} onChange={setSearch} placeholder="Search name or code…" />
           </INNOCollectionToolbar>
           {query.isPending ? <CollectionLoadingState label={'Loading ' + title.toLowerCase() + '…'} /> : null}
           {query.isError ? <CollectionErrorState error={query.error} retry={() => void query.refetch()} /> : null}
-          {query.data && items.length === 0 ? (
+          {query.data && records.length === 0 ? (
             <INNOCollectionState
-              kind={search ? 'no-results' : 'empty'}
-              title={search ? 'No records found' : 'Nothing here yet'}
-              description={search ? 'Try another search.' : 'Create the first record when you are ready.'}
-              action={search ? <INNOButton variant="secondary" onClick={() => setSearch('')}>Clear search</INNOButton> : undefined}
+              kind="empty"
+              title="Nothing here yet"
+              description="Create the first hierarchy record when you are ready."
             />
           ) : null}
-          {items.length > 0 ? (
-            <INNOTableWrap stickyAction>
-              <table>
-                <thead><tr><th>Name</th><th>Code</th><th>Parent</th><th>Status</th><th className="action-column">Action</th></tr></thead>
-                <tbody>
-                  {items.map((item) => {
-                    const parent = query.data?.find((candidate) => candidate.id === item.parentId);
-                    return (
-                      <tr key={item.id} className={item.id === selectedId ? 'selected-row' : undefined}>
-                        <td><b>{item.name}</b></td>
-                        <td>{item.code}</td>
-                        <td>{parent?.name ?? '—'}</td>
-                        <td><INNOStatus tone={item.status === 'active' ? 'success' : 'neutral'}>{item.status}</INNOStatus></td>
-                        <td className="action-column"><button type="button" className="inno-row-action" aria-label={'Select ' + item.name} onClick={() => setSelectedId(item.id)}>Select</button></td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </INNOTableWrap>
+          {query.data && records.length > 0 && !hasSearchMatch ? (
+            <INNOCollectionState
+              kind="no-results"
+              title="No records found"
+              description="Try another search."
+              action={<INNOButton variant="secondary" onClick={() => setSearch('')}>Clear search</INNOButton>}
+            />
+          ) : null}
+          {records.length > 0 && hasSearchMatch ? (
+            <INNOTree
+              key={kind}
+              items={records}
+              getId={(item) => item.id}
+              getParentId={(item) => item.parentId}
+              getLabel={(item) => item.name}
+              getDescription={(item) => item.code}
+              getSearchText={(item) => item.name + ' ' + item.code}
+              renderMeta={(item) => (
+                <INNOStatus tone={item.status === 'active' ? 'success' : 'neutral'}>{item.status}</INNOStatus>
+              )}
+              selectedId={selectedId}
+              onSelect={(id) => setSelectedId(id)}
+              search={search}
+              ariaLabel={title}
+              emptyContent="No hierarchy records match this search."
+            />
           ) : null}
         </INNOCollection>
 

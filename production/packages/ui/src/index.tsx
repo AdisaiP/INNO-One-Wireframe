@@ -8,6 +8,7 @@ import {
   BriefcaseBusiness,
   Building2,
   CalendarDays,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   CircleAlert,
@@ -142,6 +143,8 @@ const INNO_ICON_MAP = {
   'action.collapse': ChevronLeft,
   'action.expand': ChevronRight,
   'action.next': ChevronRight,
+  'hierarchy.expanded': ChevronDown,
+  'hierarchy.collapsed': ChevronRight,
   'status.success': CircleCheck,
   'status.warning': TriangleAlert,
   'status.error': CircleX,
@@ -464,6 +467,545 @@ export function INNOTableWrap({
   return (
     <div className={cx('inno-table-wrap', width !== 'auto' && 'inno-table-wrap--' + width, stickyAction && 'inno-table-wrap--sticky-action', className)} tabIndex={0}>
       {children}
+    </div>
+  );
+}
+
+type INNOHierarchyRow<T> = {
+  item: T;
+  id: string;
+  parentId: string | null;
+  level: number;
+  hasChildren: boolean;
+};
+
+function buildHierarchyRows<T>({
+  items,
+  getId,
+  getParentId,
+  getSearchText,
+  search,
+  expanded,
+}: {
+  items: T[];
+  getId: (item: T) => string;
+  getParentId: (item: T) => string | null | undefined;
+  getSearchText: (item: T) => string;
+  search: string;
+  expanded: Set<string>;
+}) {
+  const byId = new Map<string, T>();
+  const parentById = new Map<string, string | null>();
+  const childrenById = new Map<string, T[]>();
+
+  items.forEach((item) => byId.set(getId(item), item));
+  items.forEach((item) => {
+    const id = getId(item);
+    const rawParent = getParentId(item) ?? null;
+    const parentId = rawParent && rawParent !== id && byId.has(rawParent) ? rawParent : null;
+    parentById.set(id, parentId);
+    const key = parentId ?? '__root__';
+    const children = childrenById.get(key) ?? [];
+    children.push(item);
+    childrenById.set(key, children);
+  });
+
+  const query = search.trim().toLowerCase();
+  const searchContext = query ? new Set<string>() : null;
+
+  if (searchContext) {
+    const addDescendants = (id: string, seen = new Set<string>()) => {
+      if (seen.has(id)) return;
+      seen.add(id);
+      searchContext.add(id);
+      (childrenById.get(id) ?? []).forEach((child) => addDescendants(getId(child), seen));
+    };
+
+    items.forEach((item) => {
+      const id = getId(item);
+      if (!getSearchText(item).toLowerCase().includes(query)) return;
+      searchContext.add(id);
+
+      let parentId = parentById.get(id) ?? null;
+      const seen = new Set<string>();
+      while (parentId && !seen.has(parentId)) {
+        seen.add(parentId);
+        searchContext.add(parentId);
+        parentId = parentById.get(parentId) ?? null;
+      }
+
+      addDescendants(id);
+    });
+  }
+
+  const rows: INNOHierarchyRow<T>[] = [];
+  const visited = new Set<string>();
+
+  const visit = (item: T, level: number, ancestry: Set<string>) => {
+    const id = getId(item);
+    if (visited.has(id) || ancestry.has(id)) return;
+    visited.add(id);
+    const parentId = parentById.get(id) ?? null;
+    const children = childrenById.get(id) ?? [];
+    const included = !searchContext || searchContext.has(id);
+
+    if (included) {
+      rows.push({
+        item,
+        id,
+        parentId,
+        level,
+        hasChildren: children.length > 0,
+      });
+    }
+
+    const canTraverse = Boolean(searchContext) || expanded.has(id);
+    if (!canTraverse) return;
+
+    const nextAncestry = new Set(ancestry);
+    nextAncestry.add(id);
+    children.forEach((child) => visit(child, level + 1, nextAncestry));
+  };
+
+  (childrenById.get('__root__') ?? []).forEach((item) => visit(item, 1, new Set()));
+
+  return {
+    rows,
+    parentById,
+    childrenById,
+    query,
+  };
+}
+
+function collectExpandableIds<T>(
+  items: T[],
+  getId: (item: T) => string,
+  getParentId: (item: T) => string | null | undefined,
+) {
+  const parentIds = new Set(
+    items
+      .map((item) => getParentId(item))
+      .filter((id): id is string => Boolean(id)),
+  );
+  return new Set(items.map(getId).filter((id) => parentIds.has(id)));
+}
+
+export type INNOTreeProps<T> = {
+  items: T[];
+  getId: (item: T) => string;
+  getParentId: (item: T) => string | null | undefined;
+  getLabel: (item: T) => ReactNode;
+  getDescription?: (item: T) => ReactNode;
+  getSearchText?: (item: T) => string;
+  renderMeta?: (item: T) => ReactNode;
+  selectedId?: string | null;
+  onSelect?: (id: string, item: T) => void;
+  search?: string;
+  ariaLabel: string;
+  emptyContent?: ReactNode;
+  className?: string;
+};
+
+export function INNOTree<T>({
+  items,
+  getId,
+  getParentId,
+  getLabel,
+  getDescription,
+  getSearchText,
+  renderMeta,
+  selectedId,
+  onSelect,
+  search = '',
+  ariaLabel,
+  emptyContent,
+  className,
+}: INNOTreeProps<T>) {
+  const [expanded, setExpanded] = useState<Set<string>>(() => collectExpandableIds(items, getId, getParentId));
+  const [focusedId, setFocusedId] = useState<string | null>(selectedId ?? null);
+  const initializedRef = useRef(false);
+  const itemRefs = useRef(new Map<string, HTMLButtonElement>());
+
+  useEffect(() => {
+    if (!items.length || initializedRef.current) return;
+    setExpanded(collectExpandableIds(items, getId, getParentId));
+    initializedRef.current = true;
+  }, [items, getId, getParentId]);
+
+  const hierarchy = buildHierarchyRows({
+    items,
+    getId,
+    getParentId,
+    getSearchText: getSearchText ?? ((item) => String(getLabel(item))),
+    search,
+    expanded,
+  });
+
+  useEffect(() => {
+    if (!selectedId) return;
+    setFocusedId(selectedId);
+    const ancestors: string[] = [];
+    let parentId = hierarchy.parentById.get(selectedId) ?? null;
+    const seen = new Set<string>();
+    while (parentId && !seen.has(parentId)) {
+      seen.add(parentId);
+      ancestors.push(parentId);
+      parentId = hierarchy.parentById.get(parentId) ?? null;
+    }
+    if (ancestors.length) {
+      setExpanded((current) => {
+        const next = new Set(current);
+        ancestors.forEach((id) => next.add(id));
+        return next;
+      });
+    }
+  }, [selectedId, items]);
+
+  useEffect(() => {
+    if (focusedId && hierarchy.rows.some((row) => row.id === focusedId)) return;
+    const next = selectedId && hierarchy.rows.some((row) => row.id === selectedId)
+      ? selectedId
+      : hierarchy.rows[0]?.id ?? null;
+    setFocusedId(next);
+  }, [focusedId, hierarchy.rows, selectedId]);
+
+  function toggle(id: string) {
+    if (hierarchy.query) return;
+    setExpanded((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function focusRow(id?: string) {
+    if (!id) return;
+    setFocusedId(id);
+    window.requestAnimationFrame(() => itemRefs.current.get(id)?.focus());
+  }
+
+  function onKeyDown(event: React.KeyboardEvent<HTMLButtonElement>, row: INNOHierarchyRow<T>) {
+    const visibleIds = hierarchy.rows.map((candidate) => candidate.id);
+    const index = visibleIds.indexOf(row.id);
+    const isExpanded = hierarchy.query ? true : expanded.has(row.id);
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      focusRow(visibleIds[index + 1]);
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      focusRow(visibleIds[index - 1]);
+    } else if (event.key === 'Home') {
+      event.preventDefault();
+      focusRow(visibleIds[0]);
+    } else if (event.key === 'End') {
+      event.preventDefault();
+      focusRow(visibleIds[visibleIds.length - 1]);
+    } else if (event.key === 'ArrowRight' && row.hasChildren) {
+      event.preventDefault();
+      if (!isExpanded) toggle(row.id);
+      else focusRow(getId((hierarchy.childrenById.get(row.id) ?? [])[0]));
+    } else if (event.key === 'ArrowLeft') {
+      if (row.hasChildren && isExpanded && !hierarchy.query) {
+        event.preventDefault();
+        toggle(row.id);
+      } else if (row.parentId) {
+        event.preventDefault();
+        focusRow(row.parentId);
+      }
+    } else if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onSelect?.(row.id, row.item);
+    }
+  }
+
+  if (!hierarchy.rows.length) {
+    return <div className="inno-tree-empty">{emptyContent ?? 'No hierarchy items.'}</div>;
+  }
+
+  return (
+    <div className={cx('inno-tree', className)} role="tree" aria-label={ariaLabel}>
+      {hierarchy.rows.map((row) => {
+        const isExpanded = hierarchy.query ? true : expanded.has(row.id);
+        const selected = row.id === selectedId;
+        return (
+          <div
+            key={row.id}
+            className="inno-tree-row"
+            role="presentation"
+            style={{ paddingLeft: (row.level - 1) * 18 }}
+          >
+            {row.hasChildren ? (
+              <button
+                type="button"
+                className="inno-tree-toggle"
+                tabIndex={-1}
+                disabled={Boolean(hierarchy.query)}
+                aria-label={(isExpanded ? 'Collapse ' : 'Expand ') + String(getSearchText?.(row.item) ?? getLabel(row.item))}
+                aria-expanded={isExpanded}
+                onClick={() => {
+                  toggle(row.id);
+                  focusRow(row.id);
+                }}
+              >
+                <INNOIcon token={isExpanded ? 'hierarchy.expanded' : 'hierarchy.collapsed'} size={14} />
+              </button>
+            ) : <span className="inno-tree-toggle-spacer" aria-hidden="true" />}
+            <button
+              ref={(node) => {
+                if (node) itemRefs.current.set(row.id, node);
+                else itemRefs.current.delete(row.id);
+              }}
+              type="button"
+              role="treeitem"
+              className="inno-tree-item"
+              aria-level={row.level}
+              aria-expanded={row.hasChildren ? isExpanded : undefined}
+              aria-selected={selected}
+              tabIndex={focusedId === row.id ? 0 : -1}
+              onFocus={() => setFocusedId(row.id)}
+              onKeyDown={(event) => onKeyDown(event, row)}
+              onClick={() => onSelect?.(row.id, row.item)}
+            >
+              <span className="inno-tree-copy">
+                <span className="inno-tree-label">{getLabel(row.item)}</span>
+                {getDescription ? <span className="inno-tree-description">{getDescription(row.item)}</span> : null}
+              </span>
+              {renderMeta ? <span className="inno-tree-meta">{renderMeta(row.item)}</span> : null}
+            </button>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+export type INNOTreeGridColumn<T> = {
+  id: string;
+  header: ReactNode;
+  render: (item: T) => ReactNode;
+  align?: 'left' | 'center' | 'right';
+  className?: string;
+};
+
+export type INNOTreeGridProps<T> = {
+  items: T[];
+  getId: (item: T) => string;
+  getParentId: (item: T) => string | null | undefined;
+  getLabel: (item: T) => ReactNode;
+  getDescription?: (item: T) => ReactNode;
+  getSearchText?: (item: T) => string;
+  primaryHeader?: ReactNode;
+  columns?: INNOTreeGridColumn<T>[];
+  selectedId?: string | null;
+  onSelect?: (id: string, item: T) => void;
+  search?: string;
+  ariaLabel: string;
+  emptyContent?: ReactNode;
+  className?: string;
+};
+
+export function INNOTreeGrid<T>({
+  items,
+  getId,
+  getParentId,
+  getLabel,
+  getDescription,
+  getSearchText,
+  primaryHeader = 'Name',
+  columns = [],
+  selectedId,
+  onSelect,
+  search = '',
+  ariaLabel,
+  emptyContent,
+  className,
+}: INNOTreeGridProps<T>) {
+  const [expanded, setExpanded] = useState<Set<string>>(() => collectExpandableIds(items, getId, getParentId));
+  const [focusedId, setFocusedId] = useState<string | null>(selectedId ?? null);
+  const initializedRef = useRef(false);
+  const rowRefs = useRef(new Map<string, HTMLTableRowElement>());
+
+  useEffect(() => {
+    if (!items.length || initializedRef.current) return;
+    setExpanded(collectExpandableIds(items, getId, getParentId));
+    initializedRef.current = true;
+  }, [items, getId, getParentId]);
+
+  const hierarchy = buildHierarchyRows({
+    items,
+    getId,
+    getParentId,
+    getSearchText: getSearchText ?? ((item) => String(getLabel(item))),
+    search,
+    expanded,
+  });
+
+  useEffect(() => {
+    if (!selectedId) return;
+    setFocusedId(selectedId);
+    const ancestors: string[] = [];
+    let parentId = hierarchy.parentById.get(selectedId) ?? null;
+    const seen = new Set<string>();
+    while (parentId && !seen.has(parentId)) {
+      seen.add(parentId);
+      ancestors.push(parentId);
+      parentId = hierarchy.parentById.get(parentId) ?? null;
+    }
+    if (ancestors.length) {
+      setExpanded((current) => {
+        const next = new Set(current);
+        ancestors.forEach((id) => next.add(id));
+        return next;
+      });
+    }
+  }, [selectedId, items]);
+
+  useEffect(() => {
+    if (focusedId && hierarchy.rows.some((row) => row.id === focusedId)) return;
+    const next = selectedId && hierarchy.rows.some((row) => row.id === selectedId)
+      ? selectedId
+      : hierarchy.rows[0]?.id ?? null;
+    setFocusedId(next);
+  }, [focusedId, hierarchy.rows, selectedId]);
+
+  function toggle(id: string) {
+    if (hierarchy.query) return;
+    setExpanded((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function focusRow(id?: string) {
+    if (!id) return;
+    setFocusedId(id);
+    window.requestAnimationFrame(() => rowRefs.current.get(id)?.focus());
+  }
+
+  function onKeyDown(event: React.KeyboardEvent<HTMLTableRowElement>, row: INNOHierarchyRow<T>) {
+    const visibleIds = hierarchy.rows.map((candidate) => candidate.id);
+    const index = visibleIds.indexOf(row.id);
+    const isExpanded = hierarchy.query ? true : expanded.has(row.id);
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      focusRow(visibleIds[index + 1]);
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      focusRow(visibleIds[index - 1]);
+    } else if (event.key === 'Home') {
+      event.preventDefault();
+      focusRow(visibleIds[0]);
+    } else if (event.key === 'End') {
+      event.preventDefault();
+      focusRow(visibleIds[visibleIds.length - 1]);
+    } else if (event.key === 'ArrowRight' && row.hasChildren) {
+      event.preventDefault();
+      if (!isExpanded) toggle(row.id);
+      else focusRow(getId((hierarchy.childrenById.get(row.id) ?? [])[0]));
+    } else if (event.key === 'ArrowLeft') {
+      if (row.hasChildren && isExpanded && !hierarchy.query) {
+        event.preventDefault();
+        toggle(row.id);
+      } else if (row.parentId) {
+        event.preventDefault();
+        focusRow(row.parentId);
+      }
+    } else if ((event.key === 'Enter' || event.key === ' ') && onSelect) {
+      event.preventDefault();
+      onSelect(row.id, row.item);
+    }
+  }
+
+  return (
+    <div className={cx('inno-treegrid-wrap', className)}>
+      <table
+        className="inno-treegrid"
+        role="treegrid"
+        aria-label={ariaLabel}
+        aria-colcount={columns.length + 1}
+        aria-rowcount={hierarchy.rows.length}
+      >
+        <thead>
+          <tr>
+            <th>{primaryHeader}</th>
+            {columns.map((column) => (
+              <th
+                key={column.id}
+                className={cx(column.className, column.align && 'is-' + column.align)}
+              >
+                {column.header}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {hierarchy.rows.length ? hierarchy.rows.map((row) => {
+            const isExpanded = hierarchy.query ? true : expanded.has(row.id);
+            const selected = row.id === selectedId;
+            return (
+              <tr
+                key={row.id}
+                ref={(node) => {
+                  if (node) rowRefs.current.set(row.id, node);
+                  else rowRefs.current.delete(row.id);
+                }}
+                className={selected ? 'is-selected' : undefined}
+                role="row"
+                aria-level={row.level}
+                aria-expanded={row.hasChildren ? isExpanded : undefined}
+                aria-selected={selected}
+                tabIndex={focusedId === row.id ? 0 : -1}
+                onFocus={() => setFocusedId(row.id)}
+                onKeyDown={(event) => onKeyDown(event, row)}
+                onClick={() => onSelect?.(row.id, row.item)}
+              >
+                <td>
+                  <div className="inno-treegrid-primary" style={{ paddingLeft: (row.level - 1) * 18 }}>
+                    {row.hasChildren ? (
+                      <button
+                        type="button"
+                        className="inno-treegrid-toggle"
+                        tabIndex={-1}
+                        disabled={Boolean(hierarchy.query)}
+                        aria-label={(isExpanded ? 'Collapse ' : 'Expand ') + String(getSearchText?.(row.item) ?? getLabel(row.item))}
+                        aria-expanded={isExpanded}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          toggle(row.id);
+                          focusRow(row.id);
+                        }}
+                      >
+                        <INNOIcon token={isExpanded ? 'hierarchy.expanded' : 'hierarchy.collapsed'} size={14} />
+                      </button>
+                    ) : <span className="inno-treegrid-toggle-spacer" aria-hidden="true" />}
+                    <span className="inno-treegrid-copy">
+                      <span className="inno-treegrid-label">{getLabel(row.item)}</span>
+                      {getDescription ? <span className="inno-treegrid-description">{getDescription(row.item)}</span> : null}
+                    </span>
+                  </div>
+                </td>
+                {columns.map((column) => (
+                  <td
+                    key={column.id}
+                    className={cx(column.className, column.align && 'is-' + column.align)}
+                  >
+                    {column.render(row.item)}
+                  </td>
+                ))}
+              </tr>
+            );
+          }) : (
+            <tr className="inno-treegrid-empty-row">
+              <td colSpan={columns.length + 1}>{emptyContent ?? 'No hierarchy items.'}</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
     </div>
   );
 }

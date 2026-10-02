@@ -170,8 +170,9 @@ check("illustration restore candidates are frozen",
       set(cross["illustrations"]["restoreCandidates"]) == {"apps", "assets", "devices/add"})
 check("workflow canvas boundary is frozen",
       "React Flow + ELK.js" in cross["specialComponents"]["workflowCanvas"])
-check("treegrid library direction is frozen",
-      "TanStack Table" in cross["specialComponents"]["treeGrid"])
+check("treegrid production direction is native",
+      "native @inno/ui implementation" in cross["specialComponents"]["treeGrid"]
+      and "vendor dependency" in cross["specialComponents"]["treeGrid"])
 check("assets identity ownership boundary is frozen",
       cross["assetInformationArchitecture"]["identityOwner"] == "Admin Center > Users")
 

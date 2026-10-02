@@ -57,7 +57,6 @@ for name, markers in primary.items():
 
 master_detail = {
     "AdminAccessScopesPage.tsx": ["INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "INNOSelectField", "stickyAction", "inno-row-action", ">Select<", ">Action<"],
-    "AdminHierarchyPage.tsx": ["INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "stickyAction", "inno-row-action", ">Select<", ">Action<"],
     "AdminPositionsPage.tsx": ["INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "stickyAction", "inno-row-action", ">Select<", ">Action<"],
 }
 
@@ -65,6 +64,14 @@ for name, markers in master_detail.items():
     source = read("production/apps/web-portal/src/pages/" + name)
     for marker in markers:
         require(source, marker, name)
+
+# Step 44C supersedes the old flat collection contract for Organization / Locations.
+# The hierarchy master-detail surface keeps the shared collection header/toolbar/search
+# but selection is owned by INNOTree rather than a sticky table Action column.
+hierarchy = read("production/apps/web-portal/src/pages/AdminHierarchyPage.tsx")
+for marker in ["INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "INNOTree", "selectedId={selectedId}", "onSelect={(id) => setSelectedId(id)}"]:
+    require(hierarchy, marker, "AdminHierarchyPage.tsx hierarchy contract")
+forbid(hierarchy, 'className="inno-row-action"', "AdminHierarchyPage.tsx hierarchy contract")
 
 for name in ["DevicesPage.tsx", "DeviceGroupsPage.tsx", "AssetInventoryPage.tsx", "AdminUsersPage.tsx"]:
     source = read("production/apps/web-portal/src/pages/" + name)

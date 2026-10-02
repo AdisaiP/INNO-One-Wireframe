@@ -530,11 +530,11 @@
       "rule": "Hero illustrations are selective module/workspace orientation aids, not decoration on every page."
     },
     "specialComponents": {
-      "tree": "INNOTree; production implementation must exist before hierarchy remediation.",
-      "treeGrid": "INNOTreeGrid; default direction is TanStack Table expandable rows, not Syncfusion/AG Grid by default.",
+      "tree": "INNOTree; Step 44C production decision is a native @inno/ui implementation with no Tree vendor dependency.",
+      "treeGrid": "INNOTreeGrid; Step 44C production decision is a native @inno/ui implementation with no Tree/Grid vendor dependency.",
       "orgChart": "INNOOrgChart only for reporting-line visualization.",
       "workflowCanvas": "INNOWorkflowCanvas = React Flow + ELK.js only for real editable branching Dynamic Workflow.",
-      "currentGap": "Frozen design contract names these components but @inno/ui does not implement Tree/TreeGrid/OrgChart/WorkflowCanvas yet."
+      "currentGap": "Step 44C implements native INNOTree/INNOTreeGrid; INNOOrgChart and INNOWorkflowCanvas remain future specialized foundations."
     },
     "assetInformationArchitecture": {
       "identityOwner": "Admin Center > Users",

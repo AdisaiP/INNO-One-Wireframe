@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 import {
-  INNOIcon,
   INNOButton,
   INNOCollection,
   INNOCollectionHeader,
@@ -15,6 +14,7 @@ import {
   INNOState,
   INNOStatus,
   INNOTableWrap,
+  INNOTreeGrid,
 } from '@inno/ui';
 import {
   evaluateAdminAccess,
@@ -26,8 +26,8 @@ import {
   getAdminUsers,
   updateAdminAccessAssignment,
 } from '../api/client';
-import type { AdminAccessAssignment, AdminAccessEvaluation } from '../api/types';
-import { CollectionErrorState, CollectionLoadingState, ErrorState, LoadingState } from '../components/Feedback';
+import type { AdminAccessAssignment, AdminAccessEvaluation, AdminHierarchyItem } from '../api/types';
+import { CollectionErrorState, CollectionLoadingState, ErrorState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
 
 export function AdminAccessScopesPage() {
@@ -37,6 +37,7 @@ export function AdminAccessScopesPage() {
   const [params, setParams] = useSearchParams();
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
+  const [scopeSearch, setScopeSearch] = useState('');
   const [selectedId, setSelectedId] = useState(params.get('assignment') ?? '');
   const [evaluateUserId, setEvaluateUserId] = useState('');
   const [evaluatePermission, setEvaluatePermission] = useState('');
@@ -112,11 +113,16 @@ export function AdminAccessScopesPage() {
     onSuccess: setEvaluation,
   });
 
-  const scopeOptions = form.scopeType === 'organization'
+  const scopeOptions: AdminHierarchyItem[] = form.scopeType === 'organization'
     ? organizations.data ?? []
     : form.scopeType === 'location'
       ? locations.data ?? []
       : [];
+  const scopeQuery = form.scopeType === 'organization' ? organizations : locations;
+  const scopeBrowserVisible = Boolean(
+    selected && (form.scopeType === 'organization' || form.scopeType === 'location'),
+  );
+  const selectedScopeResource = scopeOptions.find((item) => item.id === form.resourceId) ?? null;
 
   function selectAssignment(item: AdminAccessAssignment) {
     setSelectedId(item.id);
@@ -166,9 +172,15 @@ export function AdminAccessScopesPage() {
             <form className="editor-form" onSubmit={(e) => { e.preventDefault(); save.mutate(); }}>
               <div className="editor-grid">
                 <label className="field-block"><span>Role</span><select disabled={!canManage} value={form.roleId} onChange={(e) => setForm({ ...form, roleId: e.target.value })}>{roles.data?.map((role) => <option key={role.id} value={role.id}>{role.name}</option>)}</select></label>
-                <label className="field-block"><span>Scope type</span><select disabled={!canManage} value={form.scopeType} onChange={(e) => setForm({ ...form, scopeType: e.target.value, resourceId: '' })}><option value="all">All</option><option value="organization">Organization</option><option value="location">Location</option><option value="device_group">Device Group</option></select></label>
+                <label className="field-block"><span>Scope type</span><select disabled={!canManage} value={form.scopeType} onChange={(e) => { setScopeSearch(''); setForm({ ...form, scopeType: e.target.value, resourceId: '' }); }}><option value="all">All</option><option value="organization">Organization</option><option value="location">Location</option><option value="device_group">Device Group</option></select></label>
                 {form.scopeType === 'organization' || form.scopeType === 'location' ? (
-                  <label className="field-block"><span>Resource</span><select disabled={!canManage} value={form.resourceId} onChange={(e) => setForm({ ...form, resourceId: e.target.value })}><option value="">Select resource</option>{scopeOptions.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+                  <div className="field-block field-wide">
+                    <span>Resource</span>
+                    <div className="admin-scope-resource-summary" aria-live="polite">
+                      <b>{selectedScopeResource?.name ?? 'No resource selected'}</b>
+                      <span>{selectedScopeResource ? selectedScopeResource.code : 'Choose a hierarchy row in Scope Browser below.'}</span>
+                    </div>
+                  </div>
                 ) : null}
                 {form.scopeType === 'device_group' ? <label className="field-block"><span>Device Group ID</span><input disabled={!canManage} value={form.resourceId} onChange={(e) => setForm({ ...form, resourceId: e.target.value })} placeholder="grp_…" /></label> : null}
                 <label className="field-block"><span>Status</span><select disabled={!canManage} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}><option value="active">Active</option><option value="inactive">Inactive</option></select></label>
@@ -180,6 +192,54 @@ export function AdminAccessScopesPage() {
             </form>
           ) : <div className="collection-state"><INNOState title="Select an assignment" description="Choose a row to inspect its role and effective resource scope." /></div>}
         </section>
+
+        {scopeBrowserVisible ? (
+          <INNOCollection className="admin-access-scope-browser">
+            <INNOCollectionHeader
+              title="Scope Browser"
+              description={form.scopeType === 'organization'
+                ? 'Choose one organization node. Child resources inherit only when Include child resources is enabled.'
+                : 'Choose one location node from the canonical location hierarchy.'}
+              meta={<INNOStatus>{scopeOptions.length} resources</INNOStatus>}
+            />
+            <INNOCollectionToolbar>
+              <INNOSearchField
+                label="Search scope resources"
+                value={scopeSearch}
+                onChange={setScopeSearch}
+                placeholder="Search name or code…"
+              />
+            </INNOCollectionToolbar>
+            {scopeQuery.isPending ? <CollectionLoadingState label="Loading scope hierarchy…" /> : null}
+            {scopeQuery.isError ? <CollectionErrorState error={scopeQuery.error} retry={() => void scopeQuery.refetch()} /> : null}
+            {!scopeQuery.isPending && !scopeQuery.isError ? (
+              <INNOTreeGrid
+                key={form.scopeType}
+                items={scopeOptions}
+                getId={(item) => item.id}
+                getParentId={(item) => item.parentId}
+                getLabel={(item) => item.name}
+                getSearchText={(item) => item.name + ' ' + item.code + ' ' + item.status}
+                primaryHeader="Resource"
+                columns={[
+                  { id: 'code', header: 'Code', render: (item) => item.code },
+                  {
+                    id: 'status',
+                    header: 'Status',
+                    render: (item) => (
+                      <INNOStatus tone={item.status === 'active' ? 'success' : 'neutral'}>{item.status}</INNOStatus>
+                    ),
+                  },
+                ]}
+                selectedId={form.resourceId}
+                onSelect={canManage ? (id) => setForm({ ...form, resourceId: id }) : undefined}
+                search={scopeSearch}
+                ariaLabel={form.scopeType === 'organization' ? 'Organization scope browser' : 'Location scope browser'}
+                emptyContent={scopeSearch ? 'No hierarchy resources match this search.' : 'No hierarchy resources are available.'}
+              />
+            ) : null}
+          </INNOCollection>
+        ) : null}
       </div>
 
       <INNOCollection>

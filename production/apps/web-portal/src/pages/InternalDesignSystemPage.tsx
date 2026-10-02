@@ -16,6 +16,8 @@ import {
   INNOState,
   INNOStatus,
   INNOTableWrap,
+  INNOTree,
+  INNOTreeGrid,
   type INNOIconToken,
 } from '@inno/ui';
 import './InternalDesignSystemPage.css';
@@ -107,6 +109,15 @@ const sampleRows = [
   { id: '10.20.4.21', name: 'PC-FIN-021', user: 'Ploy K.', os: 'Windows 10', state: 'Offline', seen: '3h ago' },
 ];
 
+const hierarchyRows = [
+  { id: 'root', parentId: null, name: 'Innovations Solutions', code: 'INNO', type: 'Organization', status: 'active' },
+  { id: 'digital', parentId: 'root', name: 'Digital Technology', code: 'DIGI', type: 'Division', status: 'active' },
+  { id: 'ops', parentId: 'digital', name: 'IT Operations', code: 'OPS', type: 'Department', status: 'active' },
+  { id: 'apps', parentId: 'digital', name: 'Application Engineering', code: 'APP', type: 'Department', status: 'active' },
+  { id: 'finance', parentId: 'root', name: 'Finance', code: 'FIN', type: 'Division', status: 'active' },
+  { id: 'hr', parentId: 'root', name: 'Human Resources', code: 'HR', type: 'Division', status: 'review' },
+];
+
 const iconRows: Array<[INNOIconToken, string, string]> = [
   ['nav.workspace', 'Workspace', 'Global workspace destination'],
   ['nav.apps', 'Apps', 'Application launcher'],
@@ -133,6 +144,7 @@ const implementationRows = [
   ['Primary table', 'INNOCollection + INNOTableWrap + INNOPagination'],
   ['States', 'INNOState with page vs compact ownership'],
   ['Resource detail', 'INNOResourceHeader + INNOSurfaceTabs + flat sections'],
+  ['Hierarchy', 'Native INNOTree / INNOTreeGrid in @inno/ui; no Tree/Grid vendor dependency'],
   ['Editor actions', 'INNOEditorFooter owned by the editor'],
   ['Icons', 'INNOIcon semantic tokens mapped to Lucide'],
   ['Branching workflow', 'INNOWorkflowCanvas → React Flow + ELK only when graph behavior exists'],
@@ -150,6 +162,8 @@ export function InternalDesignSystemPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [partialResolved, setPartialResolved] = useState(false);
+  const [treeSelected, setTreeSelected] = useState('ops');
+  const [treeGridSelected, setTreeGridSelected] = useState('digital');
 
   const filteredRows = useMemo(() => {
     const needle = search.trim().toLowerCase();
@@ -455,16 +469,18 @@ export function InternalDesignSystemPage() {
       >
         <div className="internal-ds-grid">
           <DSCard title="INNOTree">
-            <p className="internal-ds-card-note">Nested data without columns. Supports expand/collapse, selection, search and Arrow-key navigation.</p>
-            <div className="internal-ds-tree-search"><INNOIcon token="action.search" size={13} /><span>Search organization...</span></div>
-            <div className="internal-ds-tree">
-              <div><span>▾</span><b>Innovations Solutions</b></div>
-              <div className="level-1"><span>▾</span><b>Digital Technology</b></div>
-              <div className="level-2 active"><span>•</span><b>IT Operations</b></div>
-              <div className="level-2"><span>•</span><span>Application Engineering</span></div>
-              <div className="level-1"><span>›</span><span>Finance</span></div>
-              <div className="level-1"><span>›</span><span>Human Resources</span></div>
-            </div>
+            <p className="internal-ds-card-note">Native INNO.One hierarchy without columns. Supports expand/collapse, selection and Arrow-key navigation.</p>
+            <INNOTree
+              items={hierarchyRows}
+              getId={(item) => item.id}
+              getParentId={(item) => item.parentId}
+              getLabel={(item) => item.name}
+              getDescription={(item) => item.code}
+              getSearchText={(item) => item.name + ' ' + item.code}
+              selectedId={treeSelected}
+              onSelect={(id) => setTreeSelected(id)}
+              ariaLabel="Design system organization tree"
+            />
           </DSCard>
 
           <DSCard title="INNOOrgChart">
@@ -480,17 +496,28 @@ export function InternalDesignSystemPage() {
           </DSCard>
 
           <DSCard title="INNOTreeGrid">
-            <p className="internal-ds-card-note">Hierarchy plus columns. Use when nested records need status, owner or operational metadata.</p>
-            <INNOTableWrap>
-              <table className="internal-ds-treegrid">
-                <thead><tr><th>Name</th><th>Type</th><th>Status</th></tr></thead>
-                <tbody>
-                  <tr><td><b>▾ Bangkok</b></td><td>Site</td><td><INNOStatus tone="success">Active</INNOStatus></td></tr>
-                  <tr><td><span className="indent">↳ Office 01</span></td><td>Location</td><td><INNOStatus tone="success">Active</INNOStatus></td></tr>
-                  <tr><td><span className="indent">↳ Lab</span></td><td>Location</td><td><INNOStatus tone="warning">Review</INNOStatus></td></tr>
-                </tbody>
-              </table>
-            </INNOTableWrap>
+            <p className="internal-ds-card-note">Native hierarchy plus columns. Use when nested records need status, owner or operational metadata.</p>
+            <INNOTreeGrid
+              items={hierarchyRows}
+              getId={(item) => item.id}
+              getParentId={(item) => item.parentId}
+              getLabel={(item) => item.name}
+              getDescription={(item) => item.code}
+              primaryHeader="Name"
+              columns={[
+                { id: 'type', header: 'Type', render: (item) => item.type },
+                {
+                  id: 'status',
+                  header: 'Status',
+                  render: (item) => (
+                    <INNOStatus tone={item.status === 'active' ? 'success' : 'warning'}>{item.status}</INNOStatus>
+                  ),
+                },
+              ]}
+              selectedId={treeGridSelected}
+              onSelect={(id) => setTreeGridSelected(id)}
+              ariaLabel="Design system hierarchy tree grid"
+            />
           </DSCard>
 
           <DSCard title="Selection rule">

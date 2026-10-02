@@ -2827,6 +2827,33 @@
 .admin-access-layout {
   grid-template-columns: minmax(0, 1.55fr) minmax(320px, .75fr);
 }
+.admin-access-scope-browser {
+  grid-column: 1 / -1;
+}
+.admin-scope-resource-summary {
+  min-height: var(--ds-control-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ds-space-2);
+  padding: 7px 10px;
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-control-radius);
+  background: #f8fafc;
+}
+.admin-scope-resource-summary b {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--ds-text);
+  font-size: 10px;
+  white-space: nowrap;
+}
+.admin-scope-resource-summary span {
+  flex: none;
+  color: var(--ds-muted);
+  font-size: 9px;
+}
 .admin-check-field {
   display: flex;
   align-items: center;

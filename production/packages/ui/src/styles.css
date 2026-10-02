@@ -288,6 +288,180 @@ body { margin: 0; font-family: var(--ds-font); background: var(--ds-bg); color: 
   line-height: 1.35;
   white-space: nowrap;
 }
+
+.inno-tree {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: var(--ds-space-2);
+}
+.inno-tree-row {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 4px;
+  align-items: center;
+  min-width: 0;
+}
+.inno-tree-toggle,
+.inno-tree-toggle-spacer {
+  width: 28px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 28px;
+}
+.inno-tree-toggle {
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #6f7d91;
+  cursor: pointer;
+}
+.inno-tree-toggle:hover { background: var(--ds-surface-hover); color: var(--ds-text); }
+.inno-tree-toggle:focus-visible,
+.inno-tree-item:focus-visible,
+.inno-treegrid-toggle:focus-visible,
+.inno-treegrid tr[tabindex]:focus-visible {
+  outline: 0;
+  box-shadow: var(--ds-focus);
+}
+.inno-tree-toggle:disabled { opacity: .42; cursor: default; }
+.inno-tree-item {
+  min-width: 0;
+  min-height: 38px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--ds-space-2);
+  padding: 6px 9px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ds-text-2);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.inno-tree-item:hover { background: var(--ds-surface-hover); }
+.inno-tree-item[aria-selected="true"] {
+  border-color: #d7e2f8;
+  background: var(--ds-primary-soft);
+  color: #2457bd;
+}
+.inno-tree-copy,
+.inno-treegrid-copy {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+.inno-tree-label,
+.inno-treegrid-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: inherit;
+  font-size: 10px;
+  font-weight: 720;
+  white-space: nowrap;
+}
+.inno-tree-description,
+.inno-treegrid-description {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--ds-muted);
+  font-size: 9px;
+  white-space: nowrap;
+}
+.inno-tree-meta {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  color: var(--ds-muted);
+  font-size: 9px;
+  white-space: nowrap;
+}
+.inno-tree-empty {
+  padding: 22px var(--ds-surface-padding-x);
+  color: var(--ds-muted);
+  font-size: 10px;
+  text-align: center;
+}
+
+.inno-treegrid-wrap {
+  width: 100%;
+  overflow: auto;
+  overscroll-behavior-inline: contain;
+  border-top: 1px solid var(--ds-border);
+  background: #fff;
+}
+.inno-treegrid {
+  width: 100%;
+  min-width: 620px;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+.inno-treegrid th,
+.inno-treegrid td {
+  padding: var(--ds-table-cell-y) var(--ds-table-cell-x);
+  border-bottom: 1px solid #edf0f3;
+  text-align: left;
+  font-size: 10px;
+  vertical-align: middle;
+}
+.inno-treegrid th {
+  height: 38px;
+  background: #fafbfc;
+  color: #7c8798;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.inno-treegrid tr[tabindex] {
+  height: var(--ds-table-row-h);
+  cursor: default;
+}
+.inno-treegrid tr[tabindex]:hover td { background: #fafcff; }
+.inno-treegrid tr[aria-selected="true"] td {
+  background: #f6f9ff;
+}
+.inno-treegrid tr[aria-selected="true"]:hover td {
+  background: #f1f6ff;
+}
+.inno-treegrid th.is-right,
+.inno-treegrid td.is-right { text-align: right; }
+.inno-treegrid th.is-center,
+.inno-treegrid td.is-center { text-align: center; }
+.inno-treegrid-primary {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.inno-treegrid-toggle,
+.inno-treegrid-toggle-spacer {
+  width: 26px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 26px;
+}
+.inno-treegrid-toggle {
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #6f7d91;
+  cursor: pointer;
+}
+.inno-treegrid-toggle:hover { background: var(--ds-surface-hover); color: var(--ds-text); }
+.inno-treegrid-toggle:disabled { opacity: .42; cursor: default; }
+.inno-treegrid-empty-row td {
+  height: 90px;
+  color: var(--ds-muted);
+  text-align: center;
+}
+
 .inno-row-action {
   min-width: 40px;
   height: 32px;
