@@ -1,0 +1,130 @@
+@import '@xyflow/react/dist/style.css';
+
+.inno-workflow-canvas {
+  width: 100%;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--ds-border);
+  border-radius: 11px;
+  background: var(--ds-surface);
+}
+.inno-workflow-canvas .react-flow {
+  background: #fbfcfe;
+}
+.inno-workflow-canvas .react-flow__pane {
+  cursor: grab;
+}
+.inno-workflow-canvas .react-flow__pane.dragging {
+  cursor: grabbing;
+}
+.inno-workflow-canvas .react-flow__node {
+  border-radius: 11px;
+}
+.inno-workflow-node {
+  width: 196px;
+  min-height: 78px;
+  display: grid;
+  align-content: center;
+  gap: 5px;
+  padding: 11px 13px;
+  border: 1px solid var(--ds-border-strong);
+  border-radius: 11px;
+  background: var(--ds-surface);
+  color: var(--ds-text);
+  box-shadow: var(--ds-shadow-sm);
+}
+.inno-workflow-node.is-selected {
+  border-color: var(--ds-primary);
+  box-shadow: 0 0 0 3px rgba(39, 95, 215, .12), var(--ds-shadow-sm);
+}
+.inno-workflow-node.is-disabled {
+  opacity: .58;
+}
+.inno-workflow-node.has-warning {
+  border-color: #e0bb79;
+}
+.inno-workflow-node.has-error {
+  border-color: #df8791;
+}
+.inno-workflow-node-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--ds-muted);
+  font-size: 9px;
+  font-weight: 760;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.inno-workflow-node-topline b {
+  color: var(--ds-danger);
+  font-size: 8px;
+}
+.inno-workflow-node > strong {
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.inno-workflow-node > small {
+  overflow-wrap: anywhere;
+  color: var(--ds-muted);
+  font-size: 9px;
+  line-height: 1.4;
+}
+.inno-workflow-node--trigger,
+.inno-workflow-node--end {
+  background: var(--ds-primary-soft);
+  border-color: #cddafb;
+}
+.inno-workflow-node--condition,
+.inno-workflow-node--branch,
+.inno-workflow-node--approval {
+  background: #fffdf8;
+}
+.inno-workflow-node .react-flow__handle {
+  width: 9px;
+  height: 9px;
+  border: 2px solid var(--ds-surface);
+  background: var(--ds-primary);
+}
+.inno-workflow-canvas .react-flow__edge-path {
+  stroke: #94a3b8;
+  stroke-width: 1.6;
+}
+.inno-workflow-canvas .react-flow__edge.selected .react-flow__edge-path {
+  stroke: var(--ds-primary);
+}
+.inno-workflow-canvas .react-flow__edge-text {
+  fill: var(--ds-text-2);
+  font-size: 9px;
+}
+.inno-workflow-canvas .react-flow__controls {
+  overflow: hidden;
+  border: 1px solid var(--ds-border);
+  border-radius: 9px;
+  box-shadow: var(--ds-shadow-sm);
+}
+.inno-workflow-canvas .react-flow__controls-button {
+  width: 30px;
+  height: 30px;
+  border-bottom-color: var(--ds-border);
+  background: var(--ds-surface);
+  color: var(--ds-text-2);
+}
+.inno-workflow-canvas .react-flow__controls-button:hover {
+  background: var(--ds-bg);
+}
+.inno-workflow-canvas .react-flow__background pattern circle {
+  fill: #cfd7e4;
+}
+.inno-workflow-canvas.is-read-only .react-flow__node {
+  cursor: default;
+}
+
+@media (max-width: 850px) {
+  .inno-workflow-canvas {
+    min-height: 360px;
+  }
+}

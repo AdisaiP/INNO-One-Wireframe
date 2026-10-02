@@ -255,6 +255,7 @@ export function AppShell() {
               <a className={designSystemHash === '#forms' ? 'active' : ''} href="#forms"><SideNavLabel token="section.customFields">Forms</SideNavLabel></a>
               <a className={designSystemHash === '#data' ? 'active' : ''} href="#data"><SideNavLabel token="section.inventory">Data Table</SideNavLabel></a>
               <a className={designSystemHash === '#hierarchy' ? 'active' : ''} href="#hierarchy"><SideNavLabel token="section.organization">Hierarchy</SideNavLabel></a>
+              <a className={designSystemHash === '#workflow' ? 'active' : ''} href="#workflow"><SideNavLabel token="section.automation">Workflow Canvas</SideNavLabel></a>
               <div className="prod-side-section">Feedback</div>
               <a className={designSystemHash === '#states' ? 'active' : ''} href="#states"><SideNavLabel token="status.info">States</SideNavLabel></a>
               <a className={designSystemHash === '#interactions' ? 'active' : ''} href="#interactions"><SideNavLabel token="section.automation">Interactions</SideNavLabel></a>

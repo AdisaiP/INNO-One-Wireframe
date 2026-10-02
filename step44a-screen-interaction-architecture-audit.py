@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parent
 MATRIX = json.loads((ROOT / "inno-step44a-screen-interaction-matrix.json").read_text(encoding="utf-8"))
 APP_ROOT = (ROOT / "production/apps/web-portal/src/app/AppRoot.tsx").read_text(encoding="utf-8")
 UI_INDEX = (ROOT / "production/packages/ui/src/index.tsx").read_text(encoding="utf-8")
+WORKFLOW_UI = (ROOT / "production/packages/ui/src/workflow.tsx").read_text(encoding="utf-8") if (ROOT / "production/packages/ui/src/workflow.tsx").exists() else ""
 UI_PACKAGE = json.loads((ROOT / "production/packages/ui/package.json").read_text(encoding="utf-8"))
 WEB_PACKAGE = json.loads((ROOT / "production/apps/web-portal/package.json").read_text(encoding="utf-8"))
 SHELL_CSS = (ROOT / "production/apps/web-portal/src/shell.css").read_text(encoding="utf-8")
@@ -136,8 +137,13 @@ detected["hero-illustration-parity-gap"] = (
 deps = {}
 deps.update(UI_PACKAGE.get("dependencies", {}))
 deps.update(WEB_PACKAGE.get("dependencies", {}))
+workflow_exported = (
+    "INNOWorkflowCanvas" in WORKFLOW_UI
+    and "./workflow" in UI_PACKAGE.get("exports", {})
+)
 detected["workflow-canvas-missing"] = (
     "INNOWorkflowCanvas" in SPECIAL
+    and not workflow_exported
     and "INNOWorkflowCanvas" not in UI_INDEX
     and "@xyflow/react" not in deps
     and "elkjs" not in deps

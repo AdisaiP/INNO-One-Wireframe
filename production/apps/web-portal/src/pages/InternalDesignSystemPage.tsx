@@ -20,6 +20,12 @@ import {
   INNOTreeGrid,
   type INNOIconToken,
 } from '@inno/ui';
+import {
+  INNOWorkflowCanvas,
+  type INNOWorkflowEdge,
+  type INNOWorkflowNode,
+} from '@inno/ui/workflow';
+import '@inno/ui/workflow.css';
 import './InternalDesignSystemPage.css';
 
 type DSSectionProps = {
@@ -118,6 +124,24 @@ const hierarchyRows = [
   { id: 'hr', parentId: 'root', name: 'Human Resources', code: 'HR', type: 'Division', status: 'review' },
 ];
 
+const workflowSampleNodes: INNOWorkflowNode[] = [
+  { id: 'trigger', kind: 'trigger', label: 'Ticket created', description: 'Helpdesk event' },
+  { id: 'condition', kind: 'condition', label: 'Priority is critical?', description: 'Branch by ticket priority' },
+  { id: 'approval', kind: 'approval', label: 'Manager approval', description: 'Required for critical tickets' },
+  { id: 'assignment', kind: 'assignment', label: 'Assign IT Operations', description: 'Route to support team' },
+  { id: 'notification', kind: 'notification', label: 'Notify requester', description: 'Send status update' },
+  { id: 'end', kind: 'end', label: 'Workflow complete' },
+];
+
+const workflowSampleEdges: INNOWorkflowEdge[] = [
+  { id: 'edge-trigger-condition', source: 'trigger', target: 'condition' },
+  { id: 'edge-condition-approval', source: 'condition', target: 'approval', label: 'Critical' },
+  { id: 'edge-condition-assignment', source: 'condition', target: 'assignment', label: 'Standard' },
+  { id: 'edge-approval-assignment', source: 'approval', target: 'assignment' },
+  { id: 'edge-assignment-notification', source: 'assignment', target: 'notification' },
+  { id: 'edge-notification-end', source: 'notification', target: 'end' },
+];
+
 const iconRows: Array<[INNOIconToken, string, string]> = [
   ['nav.workspace', 'Workspace', 'Global workspace destination'],
   ['nav.apps', 'Apps', 'Application launcher'],
@@ -164,6 +188,10 @@ export function InternalDesignSystemPage() {
   const [partialResolved, setPartialResolved] = useState(false);
   const [treeSelected, setTreeSelected] = useState('ops');
   const [treeGridSelected, setTreeGridSelected] = useState('digital');
+  const [workflowNodes, setWorkflowNodes] = useState<INNOWorkflowNode[]>(workflowSampleNodes);
+  const [workflowEdges, setWorkflowEdges] = useState<INNOWorkflowEdge[]>(workflowSampleEdges);
+  const [workflowSelected, setWorkflowSelected] = useState<string | null>('condition');
+  const [workflowSequence, setWorkflowSequence] = useState(1);
 
   const filteredRows = useMemo(() => {
     const needle = search.trim().toLowerCase();
@@ -179,6 +207,24 @@ export function InternalDesignSystemPage() {
   const totalPages = Math.max(1, Math.ceil(filteredRows.length / pageSize));
   const safePage = Math.min(page, totalPages);
   const visibleRows = filteredRows.slice((safePage - 1) * pageSize, safePage * pageSize);
+  const selectedWorkflowNode = useMemo(
+    () => workflowNodes.find((node) => node.id === workflowSelected) ?? null,
+    [workflowNodes, workflowSelected],
+  );
+
+  function addWorkflowNode(kind: INNOWorkflowNode['kind'], label: string) {
+    const id = 'demo-' + kind + '-' + workflowSequence;
+    setWorkflowSequence((value) => value + 1);
+    setWorkflowNodes((current) => [...current, { id, kind, label, description: 'New workflow step' }]);
+    setWorkflowSelected(id);
+  }
+
+  function connectWorkflow(edge: Omit<INNOWorkflowEdge, 'id'>) {
+    setWorkflowEdges((current) => [
+      ...current,
+      { ...edge, id: 'demo-edge-' + (current.length + 1) },
+    ]);
+  }
 
   async function copyPattern() {
     try {
@@ -528,6 +574,109 @@ export function InternalDesignSystemPage() {
               ['Workflow Canvas', 'Choose only for real editable branching flow, not simple forms or queues.'],
             ]} />
           </DSCard>
+        </div>
+      </DSSection>
+
+      <DSSection
+        id="workflow"
+        title="Dynamic Workflow"
+        description="P06 builder foundation for editable branching workflows. React Flow owns interaction; ELK.js owns automatic layout."
+        badge={<INNOStatus tone="success">Shared primitive</INNOStatus>}
+      >
+        <div className="internal-ds-workflow-layout">
+          <aside className="internal-ds-workflow-palette" aria-label="Workflow node palette">
+            <div className="internal-ds-workflow-pane-head">
+              <b>Node Palette</b>
+              <span>Add workflow steps</span>
+            </div>
+            {[
+              ['condition', 'Condition'],
+              ['approval', 'Approval'],
+              ['assignment', 'Assignment'],
+              ['wait', 'Wait'],
+              ['notification', 'Notification'],
+              ['subflow', 'Subflow'],
+            ].map(([kind, label]) => (
+              <button
+                key={kind}
+                type="button"
+                onClick={() => addWorkflowNode(kind as INNOWorkflowNode['kind'], label)}
+              >
+                <INNOIcon token="action.add" size={13} />
+                <span>{label}</span>
+              </button>
+            ))}
+          </aside>
+
+          <div className="internal-ds-workflow-canvas-pane">
+            <div className="internal-ds-workflow-pane-head">
+              <div>
+                <b>Workflow Canvas</b>
+                <span>Drag, connect, select, pan and zoom</span>
+              </div>
+              <INNOStatus>{workflowNodes.length} nodes</INNOStatus>
+            </div>
+            <INNOWorkflowCanvas
+              ariaLabel="Dynamic workflow design system example"
+              nodes={workflowNodes}
+              edges={workflowEdges}
+              selectedNodeId={workflowSelected}
+              onSelectedNodeChange={setWorkflowSelected}
+              onConnect={connectWorkflow}
+              onDeleteNodes={(ids) => {
+                setWorkflowNodes((current) => current.filter((node) => !ids.includes(node.id)));
+                setWorkflowEdges((current) => current.filter((edge) => !ids.includes(edge.source) && !ids.includes(edge.target)));
+                if (workflowSelected && ids.includes(workflowSelected)) setWorkflowSelected(null);
+              }}
+              onDeleteEdges={(ids) => setWorkflowEdges((current) => current.filter((edge) => !ids.includes(edge.id)))}
+              validation={[{
+                id: 'approval-demo-warning',
+                severity: 'warning',
+                message: 'Configure the approver source before publishing.',
+                nodeId: 'approval',
+              }]}
+              height={440}
+            />
+          </div>
+
+          <aside className="internal-ds-workflow-properties" aria-label="Selected workflow node properties">
+            <div className="internal-ds-workflow-pane-head">
+              <b>Properties</b>
+              <span>Selected node configuration</span>
+            </div>
+            {selectedWorkflowNode ? (
+              <div className="internal-ds-workflow-properties-form">
+                <label>
+                  <span>Label</span>
+                  <input
+                    value={selectedWorkflowNode.label}
+                    onChange={(event) => setWorkflowNodes((current) => current.map((node) => (
+                      node.id === selectedWorkflowNode.id ? { ...node, label: event.target.value } : node
+                    )))}
+                  />
+                </label>
+                <div><span>Node type</span><b>{selectedWorkflowNode.kind}</b></div>
+                <div><span>Node ID</span><code>{selectedWorkflowNode.id}</code></div>
+                {selectedWorkflowNode.id === 'approval' ? (
+                  <div className="internal-ds-workflow-validation">
+                    <INNOIcon token="status.warning" size={13} />
+                    <span>Configure the approver source before publishing.</span>
+                  </div>
+                ) : null}
+              </div>
+            ) : (
+              <INNOState compact kind="empty" title="No node selected" description="Select a node on the canvas to inspect its properties." />
+            )}
+          </aside>
+        </div>
+
+        <div className="internal-ds-workflow-contract">
+          <RuleRows items={[
+            ['Persistence', 'Persist the INNO workflow definition (schema version, nodes, edges and business configuration), never React Flow internal objects.'],
+            ['Layout', 'Node coordinates are optional view metadata; ELK.js may regenerate positions without changing workflow meaning.'],
+            ['Execution', 'Runtime run state is a separate execution snapshot keyed by workflow ID + version; the canvas does not execute workflows.'],
+            ['Simple rules', 'Trigger → Condition → Action forms remain the existing Helpdesk P04 editor and do not use this canvas.'],
+          ]} />
         </div>
       </DSSection>
 
