@@ -113,37 +113,31 @@ for width in WIDTHS:
                 check(f"{label} ArrowRight expands hierarchy", expanded)
             else:
                 check(f"{label} leaf-only dataset needs no expand keyboard action", True)
-for width in WIDTHS:
-    c.viewport(width)
-    check(f"{width} access scopes route ready", nav(c, "/admin/access-scopes", ".inno-collection"))
-    check(f"{width} assignments settled", bool(wait(c,
-        "document.querySelectorAll('.inno-table-wrap tbody tr').length>0", 15)))
-    selected = c.ev("""(()=>{const b=document.querySelector('.inno-table-wrap tbody .inno-row-action');
-      if(!b)return false;b.click();return true;})()""")
-    check(f"{width} access assignment selectable", bool(selected))
-    check(f"{width} assignment editor opens", bool(wait(c, "!!document.querySelector('.admin-editor-panel form')", 5)))
-    changed = c.ev("""(()=>{const labels=[...document.querySelectorAll('.admin-editor-panel label')];
-      const label=labels.find(x=>(x.querySelector(':scope > span')?.textContent||'').trim()==='Scope type');
-      const s=label?.querySelector('select');if(!s)return false;s.value='organization';
-      s.dispatchEvent(new Event('change',{bubbles:true}));return true;})()""")
-    check(f"{width} scope type can switch to organization", bool(changed))
-    check(f"{width} treegrid appears", bool(wait(c, "!!document.querySelector('.inno-treegrid[role=treegrid]') && document.querySelectorAll('.inno-treegrid tbody tr[role=row]').length>0", 10)))
-    metrics = c.ev("""(()=>{const g=document.querySelector('.inno-treegrid');const rows=[...g?.querySelectorAll('tbody tr[role=row]')||[]];
-      const wrap=g?.closest('.inno-treegrid-wrap');return {role:g?.getAttribute('role'),rows:rows.length,
-      localScroll:!!wrap&&wrap.scrollWidth>wrap.clientWidth+2,docOverflow:document.documentElement.scrollWidth>innerWidth+2,
-      clipped:rows.some(x=>{const r=x.getBoundingClientRect();return r.left<-2||r.right>Math.max(innerWidth+2,wrap?.getBoundingClientRect().right||0)+2})};})()""")
-    check(f"{width} access treegrid semantics", bool(metrics and metrics.get("role")=="treegrid" and metrics.get("rows",0)>0), metrics)
-    check(f"{width} access no document overflow", bool(metrics and not metrics.get("docOverflow",True)), metrics)
-    c.shot(f"{width}__access-scope-treegrid.png")
+c.viewport(1366)
+check("access scopes list route ready", nav(c, "/admin/access-scopes", ".inno-collection"))
+check("access assignments settled", bool(wait(c, "document.querySelectorAll('.inno-table-wrap tbody tr').length>0", 15)))
+access_edit_route = c.ev("document.querySelector('.inno-table-wrap tbody .inno-row-action')?.getAttribute('href')")
+check("access edit route discovered", bool(access_edit_route), access_edit_route or "")
 
-    if width == 1366:
-        choose = c.ev("""(()=>{const row=document.querySelector('.inno-treegrid tbody tr[role=row]');if(!row)return null;
-          row.click();const summary=document.querySelector('.admin-scope-resource-summary b')?.textContent?.trim();
-          return {selected:row.getAttribute('aria-selected'),summary};})()""")
-        time.sleep(.1)
-        after = c.ev("""(()=>{const row=document.querySelector('.inno-treegrid tbody tr[role=row][aria-selected=true]');
-          return {selected:!!row,summary:document.querySelector('.admin-scope-resource-summary b')?.textContent?.trim()||''};})()""")
-        check("access treegrid row selection updates editor resource", after and after["selected"] and after["summary"]!="No resource selected", after)
+if access_edit_route:
+    for width in WIDTHS:
+        c.viewport(width)
+        check(f"{width} access scope edit route ready", nav(c, access_edit_route, ".editor-route-panel"))
+        check(f"{width} treegrid appears", bool(wait(c, "!!document.querySelector('.inno-treegrid[role=treegrid]') && document.querySelectorAll('.inno-treegrid tbody tr[role=row]').length>0", 10)))
+        metrics = c.ev("""(()=>{const g=document.querySelector('.inno-treegrid');const rows=[...g?.querySelectorAll('tbody tr[role=row]')||[]];
+          const wrap=g?.closest('.inno-treegrid-wrap');return {role:g?.getAttribute('role'),rows:rows.length,
+          localScroll:!!wrap&&wrap.scrollWidth>wrap.clientWidth+2,docOverflow:document.documentElement.scrollWidth>innerWidth+2,
+          clipped:rows.some(x=>{const r=x.getBoundingClientRect();return r.left<-2||r.right>Math.max(innerWidth+2,wrap?.getBoundingClientRect().right||0)+2})};})()""")
+        check(f"{width} access treegrid semantics", bool(metrics and metrics.get("role")=="treegrid" and metrics.get("rows",0)>0), metrics)
+        check(f"{width} access no document overflow", bool(metrics and not metrics.get("docOverflow",True)), metrics)
+        c.shot(f"{width}__access-scope-treegrid.png")
+
+        if width == 1366:
+            c.ev("""(()=>{const row=document.querySelector('.inno-treegrid tbody tr[role=row]');if(!row)return false;row.click();return true;})()""")
+            time.sleep(.1)
+            after = c.ev("""(()=>{const row=document.querySelector('.inno-treegrid tbody tr[role=row][aria-selected=true]');
+              return {selected:!!row,summary:document.querySelector('.admin-scope-resource-summary b')?.textContent?.trim()||''};})()""")
+            check("access treegrid row selection updates editor resource", after and after["selected"] and after["summary"]!="No resource selected", after)
 c.viewport(1366)
 check("design system route ready", nav(c, "/internal/design-system", "#hierarchy"))
 c.ev("document.querySelector('#hierarchy')?.scrollIntoView({block:'center'})")

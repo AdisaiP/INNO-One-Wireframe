@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 import json
+import sys
 from pathlib import Path
+
+sys.stdout.reconfigure(encoding="utf-8")
 
 ROOT = Path(__file__).resolve().parent
 PROD = ROOT / "production"
@@ -120,29 +123,37 @@ if "MapContractsWarrantyEndpoints()" not in program:
 app_root = (PROD / "apps/web-portal/src/app/AppRoot.tsx").read_text()
 app_shell = (PROD / "apps/web-portal/src/app/AppShell.tsx").read_text()
 page_path = PROD / "apps/web-portal/src/pages/ContractsWarrantyPage.tsx"
+detail_path = PROD / "apps/web-portal/src/pages/ContractDetailPage.tsx"
+edit_path = PROD / "apps/web-portal/src/pages/ContractEditPage.tsx"
 if 'path="assets/contracts"' not in app_root:
     issues.append("AppRoot missing /assets/contracts")
+for marker in ('path="assets/contracts/:contractId"', 'path="assets/contracts/:contractId/edit"'):
+    if marker not in app_root:
+        issues.append(f"AppRoot missing Step44D Contract route: {marker}")
 if 'to="/assets/contracts"' not in app_shell:
     issues.append("AppShell missing Contracts & Warranty navigation")
-if not page_path.exists():
-    issues.append("ContractsWarrantyPage.tsx missing")
+if not page_path.exists() or not detail_path.exists() or not edit_path.exists():
+    issues.append("Step44D contract list/detail/edit pages must exist")
 else:
     page = page_path.read_text()
+    detail = detail_path.read_text()
+    edit = edit_path.read_text()
     for marker in (
-        "Contracts & Warranty",
-        "Active contracts",
-        "Expiring ≤ 90 days",
-        "Covered assets",
-        "Uncovered assets",
-        "Status: All",
-        "Fiscal year: All",
-        "Contract record",
-        "Save Contract",
-        "getAssetContracts",
-        "updateAssetContract",
+        "Contracts & Warranty", "Active contracts", "Expiring ≤ 90 days",
+        "Covered assets", "Uncovered assets", "Status: All", "Fiscal year: All",
+        "getAssetContracts", "inno-row-action",
     ):
         if marker not in page:
-            issues.append(f"Contracts UX missing: {marker}")
+            issues.append(f"Contracts list UX missing: {marker}")
+    for marker in ("INNOResourceHeader", "Contract terms", "Covered assets", "getAssetContract", "Edit Contract"):
+        if marker not in detail:
+            issues.append(f"Contract detail UX missing: {marker}")
+    for marker in ("Contract record", "Save Contract", "getAssetContract", "updateAssetContract", "INNOEditorFooter"):
+        if marker not in edit:
+            issues.append(f"Contract edit UX missing: {marker}")
+    for marker in ("selectedId", "contract-record-panel", "updateAssetContract"):
+        if marker in page:
+            issues.append(f"Contracts list retains obsolete inline editor: {marker}")
 
 client = (PROD / "apps/web-portal/src/api/client.ts").read_text()
 types = (PROD / "apps/web-portal/src/api/types.ts").read_text()

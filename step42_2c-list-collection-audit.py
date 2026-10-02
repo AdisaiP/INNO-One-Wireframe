@@ -55,15 +55,19 @@ for name, markers in primary.items():
         require(source, marker, name)
     forbid(source, 'className="collection-scope"', name + " toolbar meta")
 
-master_detail = {
-    "AdminAccessScopesPage.tsx": ["INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "INNOSelectField", "stickyAction", "inno-row-action", ">Select<", ">Action<"],
-    "AdminPositionsPage.tsx": ["INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "stickyAction", "inno-row-action", ">Select<", ">Action<"],
+# Step 44D removes invalid permanent side editors from Positions and Access Scopes.
+# They remain collection-owned lists, but row actions now open a dialog or dedicated edit route.
+remediated_lists = {
+    "AdminAccessScopesPage.tsx": ["INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "INNOSelectField", "stickyAction", "inno-row-action", ">Edit<", ">Action<"],
+    "AdminPositionsPage.tsx": ["INNOCollectionHeader", "INNOCollectionToolbar", "INNOSearchField", "stickyAction", "inno-row-action", ">Edit<", ">Action<", "INNODialog"],
 }
 
-for name, markers in master_detail.items():
+for name, markers in remediated_lists.items():
     source = read("production/apps/web-portal/src/pages/" + name)
     for marker in markers:
         require(source, marker, name)
+    forbid(source, 'className="admin-master-detail"', name + " Step44D route architecture")
+    forbid(source, 'className="admin-editor-panel"', name + " Step44D route architecture")
 
 # Step 44C supersedes the old flat collection contract for Organization / Locations.
 # The hierarchy master-detail surface keeps the shared collection header/toolbar/search

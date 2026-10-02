@@ -4,7 +4,7 @@
 **Branch:** `ux/step44a-screen-interaction-architecture`
 **Base:** `bdf3cca feat: implement inventory query`
 **Scope:** Production Web Portal interaction architecture
-**Concrete Production routes reviewed:** 51
+**Concrete Production routes reviewed:** 56
 **Frozen Design System:** V1.26
 **Frozen UI Contract:** 1.20.0
 
@@ -45,14 +45,14 @@ step44a-screen-interaction-architecture-audit.py
 
 ## Route classification
 
-All 51 concrete Production routes are now classified.
+All 56 concrete Production routes are now classified.
 
 | Pattern | Routes |
 | --- | ---: |
 | P01 Overview | 4 |
 | P02 List | 17 |
-| P03 Resource Detail | 6 |
-| P04 Create/Edit | 3 |
+| P03 Resource Detail | 7 |
+| P04 Create/Edit | 7 |
 | P05 Settings | 7 |
 | P06 Builder | 1 |
 | P07 Monitor/Operations | 2 |
@@ -64,8 +64,8 @@ Remediation priority:
 
 | Priority | Routes |
 | --- | ---: |
-| Critical | 4 |
-| High | 11 |
+| Critical | 7 |
+| High | 13 |
 | Medium | 18 |
 | Low | 18 |
 
@@ -346,7 +346,7 @@ Only when explicitly approved:
 - persistence/execution contract.
 
 ### Step 44H — Full Route Visual QA
-- 51 routes,
+- 56 routes,
 - 1366 / 1024 / 768,
 - architecture assertions,
 - interaction assertions,
@@ -356,9 +356,9 @@ Only when explicitly approved:
 ## Step 44A QA
 
 ```text
-step44a_routes=51
+step44a_routes=56
 step44a_reported_gap_classes=9
-step44a_checks=60
+step44a_checks=50
 step44a_failures=0
 ```
 

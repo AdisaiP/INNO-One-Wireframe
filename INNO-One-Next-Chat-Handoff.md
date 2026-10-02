@@ -1,5 +1,12 @@
 > [!IMPORTANT]
-> **Current production override — 2026-10-01 — Step 44B**
+> **Current production override — 2026-10-02 — Step 44D**
+>
+> **Step 44D Form / Detail Route Remediation is complete** on `ux/step44d-form-detail-route-remediation`.
+>
+> Read `INNO-One-Step44D-Next-Chat-Handoff.md` first. Step 44D removes invalid permanent side-card / inline editor architecture from Positions, Users, Access Scopes, Contracts and Custom Fields. Production now has 56 concrete routes: Users gained dedicated create/edit routes, Access Scopes gained a dedicated edit route that owns the Step 44C TreeGrid, Contracts gained detail/edit routes, and short Positions / Custom Fields forms use shared dialogs. Dedicated QA is **34/34 static and 102/102 browser**; Step 42.2C is **193/193**, Step 42.2D **159/159**, Step 42.2E **250/250**, Step 44B **65/65**, Step 44C **54/54**, Step 42.2G **77/77**, Design System browser **56/56**, broad Production **1468/1468 across 56 routes**, and the current static chain is **56/56**. UI/Web builds pass. Step 44A now reports **4 remaining gap classes**. Next frozen slice is **Step 44E — Visual Parity**. Frozen Design System V1.26 / UI Contract 1.20.0 remain unchanged. **Do not merge or deploy unless explicitly requested.**
+>
+> [!IMPORTANT]
+> **Previous production override — 2026-10-01 — Step 44B**
 >
 > **Step 44B Shared Interaction Foundations is complete** on `ux/step44b-shared-interaction-foundations`.
 >

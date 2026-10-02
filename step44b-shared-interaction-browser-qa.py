@@ -193,6 +193,7 @@ trigger_clicked = c.ev("""(()=> {
 })()""")
 check("row action menu trigger works", bool(trigger_clicked))
 check("row action portal menu opens", bool(wait(c, "!!document.body.querySelector(':scope > .inno-row-actions-menu')", 3)))
+check("row action menu receives initial focus", bool(wait(c, "(document.activeElement?.textContent||'').trim()==='Open'", 2)))
 menu = c.ev("""(()=> {
   const m=document.querySelector('.inno-row-actions-menu');
   if(!m)return null;
@@ -208,10 +209,8 @@ menu = c.ev("""(()=> {
 check("row action menu portals to body", menu and menu["parent"] and not menu["clipped"], menu)
 check("row action menu stays within viewport",
       menu and menu["left"] >= 0 and menu["top"] >= 0 and menu["right"] <= 1366 and menu["bottom"] <= 900, menu)
-check("row action menu receives initial focus", menu and menu["focused"] == "Open", menu)
 c.ev("document.activeElement?.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowDown',bubbles:true}))")
-time.sleep(.08)
-check("row action arrow navigation works", c.ev("(document.activeElement?.textContent||'').trim()") == "Edit")
+check("row action arrow navigation works", bool(wait(c, "(document.activeElement?.textContent||'').trim()==='Edit'", 2)))
 c.ev("document.activeElement?.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}))")
 check("row action Escape closes menu", bool(wait(c, "!document.querySelector('.inno-row-actions-menu')", 2)))
 check("row action Escape restores trigger focus",

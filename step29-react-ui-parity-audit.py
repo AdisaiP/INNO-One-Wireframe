@@ -21,6 +21,7 @@ asset_qr=(root/'production/apps/web-portal/src/pages/AssetQrLabelsPage.tsx').rea
 software_baselines=(root/'production/apps/web-portal/src/pages/SoftwareBaselinesPage.tsx').read_text()
 software_licenses=(root/'production/apps/web-portal/src/pages/SoftwareLicensesPage.tsx').read_text()
 contracts=(root/'production/apps/web-portal/src/pages/ContractsWarrantyPage.tsx').read_text()
+contract_edit=(root/'production/apps/web-portal/src/pages/ContractEditPage.tsx').read_text()
 helpdesk_overview=(root/'production/apps/web-portal/src/pages/HelpdeskOverviewPage.tsx').read_text()
 tickets=(root/'production/apps/web-portal/src/pages/TicketsPage.tsx').read_text()
 ticket_detail=(root/'production/apps/web-portal/src/pages/TicketDetailPage.tsx').read_text()
@@ -187,10 +188,11 @@ for name, source in [('asset detail', asset_detail), ('asset owner detail', asse
     if 'INNOResourceHeader' not in source: issues.append(name+' missing INNOResourceHeader')
     if 'INNOTableWrap' not in source: issues.append(name+' missing INNOTableWrap')
 
-for name, source in [('asset detail', asset_detail), ('asset custom fields', asset_custom_fields),
+for name, source in [('asset detail', asset_detail),
                      ('asset qr', asset_qr), ('software baselines', software_baselines),
-                     ('software licenses', software_licenses), ('contracts', contracts)]:
+                     ('software licenses', software_licenses), ('contract edit', contract_edit)]:
     if 'INNOEditorFooter' not in source: issues.append(name+' missing INNOEditorFooter')
+if 'INNODialog' not in asset_custom_fields: issues.append('asset custom fields missing focused INNODialog')
 
 for marker in ['Evaluation uses Devices observations from the last 24 hours',
                "item.status === 'compliant' ? 'success' : item.status === 'missing' ? 'danger' : 'warning'"]:

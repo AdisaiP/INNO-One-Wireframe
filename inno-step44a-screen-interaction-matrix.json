@@ -142,12 +142,30 @@
       "priority": "high"
     },
     {
+      "route": "admin/users/new",
+      "page": "AdminUserEditorPage",
+      "pattern": "P04",
+      "surface": "create-route",
+      "wireframe": "users.html",
+      "remediation": "dedicated create route for the full organization profile form",
+      "priority": "high"
+    },
+    {
+      "route": "admin/users/:userId/edit",
+      "page": "AdminUserEditorPage",
+      "pattern": "P04",
+      "surface": "edit-route",
+      "wireframe": "user-detail.html",
+      "remediation": "dedicated edit route; detail route remains read-only",
+      "priority": "high"
+    },
+    {
       "route": "admin/users/:userId",
       "page": "AdminUserDetailPage",
       "pattern": "P03",
       "surface": "detail-route",
       "wireframe": "user-detail.html",
-      "remediation": "detail only; complex profile editing belongs on dedicated P04 route",
+      "remediation": "detail only; editing is owned by the dedicated P04 route",
       "priority": "high"
     },
     {
@@ -165,7 +183,16 @@
       "pattern": "P02",
       "surface": "list",
       "wireframe": "access-scopes.html",
-      "remediation": "split assignment editor to P04 route; restore hierarchy browser as TreeGrid utility; effective access may use drawer",
+      "remediation": "list only; assignment editing lives on dedicated P04 route; evaluation remains a focused utility",
+      "priority": "critical"
+    },
+    {
+      "route": "admin/access-scopes/:assignmentId/edit",
+      "page": "AdminAccessScopeEditPage",
+      "pattern": "P04",
+      "surface": "edit-route",
+      "wireframe": "access-scopes.html",
+      "remediation": "dedicated assignment editor with INNOTreeGrid hierarchy browser",
       "priority": "critical",
       "specialComponent": "INNOTreeGrid"
     },
@@ -386,9 +413,27 @@
       "route": "assets/contracts",
       "page": "ContractsWarrantyPage",
       "pattern": "P02",
-      "surface": "list-to-detail/edit",
+      "surface": "list",
       "wireframe": "contracts-warranty.html",
-      "remediation": "remove complex permanent side editor; list -> P03 detail / P04 edit route",
+      "remediation": "list only; row action navigates to contract detail",
+      "priority": "critical"
+    },
+    {
+      "route": "assets/contracts/:contractId",
+      "page": "ContractDetailPage",
+      "pattern": "P03",
+      "surface": "detail-route",
+      "wireframe": "contracts-warranty.html",
+      "remediation": "dedicated read-only contract detail with covered assets",
+      "priority": "critical"
+    },
+    {
+      "route": "assets/contracts/:contractId/edit",
+      "page": "ContractEditPage",
+      "pattern": "P04",
+      "surface": "edit-route",
+      "wireframe": "contracts-warranty.html",
+      "remediation": "dedicated multi-section contract editor with canonical footer",
       "priority": "critical"
     },
     {

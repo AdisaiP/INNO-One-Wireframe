@@ -879,6 +879,18 @@ export async function getAssetContracts(
   );
 }
 
+export async function getAssetContract(contractId: string): Promise<AssetContractItem> {
+  let page = 1;
+  while (true) {
+    const response = await getAssetContracts({ page, pageSize: 100 });
+    const match = response.items.find((item) => item.id === contractId);
+    if (match) return match;
+    if (page >= response.totalPages) break;
+    page += 1;
+  }
+  throw new ApiError(404, { title: 'Contract not found.' });
+}
+
 export async function updateAssetContract(
   contractId: string,
   eTag: string,

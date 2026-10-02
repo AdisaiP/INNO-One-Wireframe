@@ -4,6 +4,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { getCurrentProfile } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import { AdminAccessScopesPage } from '../pages/AdminAccessScopesPage';
+import { AdminAccessScopeEditPage } from '../pages/AdminAccessScopeEditPage';
 import { AdminAuditPage } from '../pages/AdminAuditPage';
 import { AdminBrandingPage } from '../pages/AdminBrandingPage';
 import { AdminPlatformSettingsPage } from '../pages/AdminPlatformSettingsPage';
@@ -15,6 +16,7 @@ import { AdminOverviewPage } from '../pages/AdminOverviewPage';
 import { AdminPositionsPage } from '../pages/AdminPositionsPage';
 import { AdminRolesPage } from '../pages/AdminRolesPage';
 import { AdminUserDetailPage } from '../pages/AdminUserDetailPage';
+import { AdminUserEditorPage } from '../pages/AdminUserEditorPage';
 import { AdminUsersPage } from '../pages/AdminUsersPage';
 import { AgentDeploymentPage } from '../pages/AgentDeploymentPage';
 import { AppsPage } from '../pages/AppsPage';
@@ -32,6 +34,8 @@ import { SoftwareLicensesPage } from '../pages/SoftwareLicensesPage';
 import { AutomationRulePage } from '../pages/AutomationRulePage';
 import { AutomationRulesPage } from '../pages/AutomationRulesPage';
 import { BusinessCalendarPage } from '../pages/BusinessCalendarPage';
+import { ContractDetailPage } from '../pages/ContractDetailPage';
+import { ContractEditPage } from '../pages/ContractEditPage';
 import { ContractsWarrantyPage } from '../pages/ContractsWarrantyPage';
 import { DeviceDetailPage } from '../pages/DeviceDetailPage';
 import { DeviceGroupDetailPage } from '../pages/DeviceGroupDetailPage';
@@ -124,9 +128,12 @@ export function AppRoot() {
           <Route path="admin/locations" element={canAdminLocations ? <AdminLocationsPage /> : <DeferredPage name="Locations" kind="permission" />} />
           <Route path="admin/positions" element={canAdminPositions ? <AdminPositionsPage /> : <DeferredPage name="Positions" kind="permission" />} />
           <Route path="admin/users" element={canAdminUsers ? <AdminUsersPage /> : <DeferredPage name="Users" kind="permission" />} />
+          <Route path="admin/users/new" element={canAdminUsers ? <AdminUserEditorPage /> : <DeferredPage name="New User" kind="permission" />} />
+          <Route path="admin/users/:userId/edit" element={canAdminUsers ? <AdminUserEditorPage /> : <DeferredPage name="Edit User" kind="permission" />} />
           <Route path="admin/users/:userId" element={canAdminUsers ? <AdminUserDetailPage /> : <DeferredPage name="User Detail" kind="permission" />} />
           <Route path="admin/roles" element={canAdminRoles ? <AdminRolesPage /> : <DeferredPage name="Roles & Permissions" kind="permission" />} />
           <Route path="admin/access-scopes" element={canAdminScopes ? <AdminAccessScopesPage /> : <DeferredPage name="Access Scopes" kind="permission" />} />
+          <Route path="admin/access-scopes/:assignmentId/edit" element={canAdminScopes ? <AdminAccessScopeEditPage /> : <DeferredPage name="Edit Access Scope" kind="permission" />} />
           <Route path="admin/integrations" element={canAdminIntegrations ? <AdminIntegrationsPage /> : <DeferredPage name="Integrations" kind="permission" />} />
           <Route path="admin/security" element={canAdminSecurity ? <AdminSecurityPage /> : <DeferredPage name="Security" kind="permission" />} />
           <Route path="admin/audit" element={canAdminAudit ? <AdminAuditPage /> : <DeferredPage name="Audit Log" kind="permission" />} />
@@ -163,6 +170,8 @@ export function AppRoot() {
           <Route path="assets/software-baselines" element={canViewAssets ? <SoftwareBaselinesPage /> : <DeferredPage name="Software Baselines" kind="permission" />} />
           <Route path="assets/software-licenses" element={canViewAssets && canManageAssetLicenses ? <SoftwareLicensesPage /> : <DeferredPage name="Software Licenses" kind="permission" />} />
           <Route path="assets/contracts" element={canViewAssets ? <ContractsWarrantyPage /> : <DeferredPage name="Contracts & Warranty" kind="permission" />} />
+          <Route path="assets/contracts/:contractId/edit" element={canViewAssets ? <ContractEditPage /> : <DeferredPage name="Edit Contract" kind="permission" />} />
+          <Route path="assets/contracts/:contractId" element={canViewAssets ? <ContractDetailPage /> : <DeferredPage name="Contract" kind="permission" />} />
           <Route path="assets/:assetId" element={canViewAssets ? <AssetDetailPage /> : <DeferredPage name="Asset" kind="permission" />} />
 
           <Route path="helpdesk" element={canViewHelpdesk ? <HelpdeskOverviewPage /> : <DeferredPage name="Helpdesk" kind="permission" />} />

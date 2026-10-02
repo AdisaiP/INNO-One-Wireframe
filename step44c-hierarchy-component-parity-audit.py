@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parent
 UI = (ROOT / "production/packages/ui/src/index.tsx").read_text(encoding="utf-8")
 UI_CSS = (ROOT / "production/packages/ui/src/styles.css").read_text(encoding="utf-8")
 ORG = (ROOT / "production/apps/web-portal/src/pages/AdminHierarchyPage.tsx").read_text(encoding="utf-8")
-ACCESS = (ROOT / "production/apps/web-portal/src/pages/AdminAccessScopesPage.tsx").read_text(encoding="utf-8")
+ACCESS = (ROOT / "production/apps/web-portal/src/pages/AdminAccessScopeEditPage.tsx").read_text(encoding="utf-8")
 DS = (ROOT / "production/apps/web-portal/src/pages/InternalDesignSystemPage.tsx").read_text(encoding="utf-8")
 DS_CSS = (ROOT / "production/apps/web-portal/src/pages/InternalDesignSystemPage.css").read_text(encoding="utf-8")
 PKG_TEXT = "\n".join([

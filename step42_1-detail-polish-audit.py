@@ -12,6 +12,7 @@ ui = read("production/packages/ui/src/index.tsx")
 ui_css = read("production/packages/ui/src/styles.css")
 tickets = read("production/apps/web-portal/src/pages/TicketsPage.tsx")
 contracts = read("production/apps/web-portal/src/pages/ContractsWarrantyPage.tsx")
+contract_edit = read("production/apps/web-portal/src/pages/ContractEditPage.tsx")
 
 def require(text: str, marker: str, label: str):
     if marker not in text:
@@ -90,9 +91,10 @@ require(qr, "<INNOEditorFooterEnd>", "QR footer")
 require(qr, "<INNOEditorFooterNote>", "QR footer")
 require(shell_css, ".license-stat-strip { margin-bottom: 16px; }", "license stats")
 require(shell_css, ".contract-stat-strip { margin-bottom: 16px; }", "contract stats")
-require(contracts, "<INNOEditorFooter>", "contract footer")
-require(contracts, "<INNOEditorFooterStart>", "contract footer")
-require(contracts, "<INNOEditorFooterEnd>", "contract footer")
+require(contract_edit, "<INNOEditorFooter>", "contract edit footer")
+require(contract_edit, "<INNOEditorFooterStart>", "contract edit footer")
+require(contract_edit, "<INNOEditorFooterEnd>", "contract edit footer")
+forbid(contracts, "<INNOEditorFooter", "contract list footer ownership")
 
 print("step42_1_detail_polish=wireframe-micro-fidelity")
 print("context_navigation=desktop-collapse+tablet-hamburger")

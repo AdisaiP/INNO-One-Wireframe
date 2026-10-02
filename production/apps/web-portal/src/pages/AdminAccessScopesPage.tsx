@@ -1,81 +1,31 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useSearchParams } from 'react-router-dom';
+import { useMemo, useState } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import {
-  INNOButton,
-  INNOCollection,
-  INNOCollectionHeader,
-  INNOCollectionState,
-  INNOCollectionToolbar,
-  INNOEditorFooter,
-  INNOPage,
-  INNOSearchField,
-  INNOSelectField,
-  INNOState,
-  INNOStatus,
-  INNOTableWrap,
-  INNOTreeGrid,
+  INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState,
+  INNOCollectionToolbar, INNOPage, INNOSearchField, INNOSelectField,
+  INNOStatus, INNOTableWrap,
 } from '@inno/ui';
 import {
-  evaluateAdminAccess,
-  getAdminAccessAssignments,
-  getAdminLocations,
-  getAdminOrganizationTree,
-  getAdminPermissions,
-  getAdminRoles,
-  getAdminUsers,
-  updateAdminAccessAssignment,
+  evaluateAdminAccess, getAdminAccessAssignments, getAdminPermissions,
+  getAdminRoles, getAdminUsers,
 } from '../api/client';
-import type { AdminAccessAssignment, AdminAccessEvaluation, AdminHierarchyItem } from '../api/types';
+import type { AdminAccessEvaluation } from '../api/types';
 import { CollectionErrorState, CollectionLoadingState, ErrorState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
 
 export function AdminAccessScopesPage() {
   const canManage = usePermission('admin.access_scopes.manage');
   const canEvaluate = usePermission('admin.access_scopes.evaluate');
-  const queryClient = useQueryClient();
-  const [params, setParams] = useSearchParams();
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
-  const [scopeSearch, setScopeSearch] = useState('');
-  const [selectedId, setSelectedId] = useState(params.get('assignment') ?? '');
   const [evaluateUserId, setEvaluateUserId] = useState('');
   const [evaluatePermission, setEvaluatePermission] = useState('');
   const [evaluation, setEvaluation] = useState<AdminAccessEvaluation | null>(null);
-  const [form, setForm] = useState({
-    roleId: '',
-    scopeType: 'all',
-    resourceId: '',
-    includeChildren: false,
-    actionOverrides: '',
-    status: 'active',
-  });
-
   const assignments = useQuery({ queryKey: ['admin', 'access-assignments'], queryFn: getAdminAccessAssignments });
   const roles = useQuery({ queryKey: ['admin', 'roles'], queryFn: getAdminRoles });
   const permissions = useQuery({ queryKey: ['admin', 'permissions'], queryFn: getAdminPermissions });
-  const organizations = useQuery({ queryKey: ['admin', 'organization'], queryFn: getAdminOrganizationTree });
-  const locations = useQuery({ queryKey: ['admin', 'location'], queryFn: getAdminLocations });
   const users = useQuery({ queryKey: ['admin', 'users', 'scope-picker'], queryFn: () => getAdminUsers({ page: 1, pageSize: 100 }) });
-
-  const selected = assignments.data?.find((item) => item.id === selectedId) ?? null;
-
-  useEffect(() => {
-    if (!selected) return;
-    setParams((current) => {
-      const next = new URLSearchParams(current);
-      next.set('assignment', selected.id);
-      return next;
-    }, { replace: true });
-    setForm({
-      roleId: selected.roleId,
-      scopeType: selected.scopeType,
-      resourceId: selected.resources[0]?.id ?? '',
-      includeChildren: selected.includeChildren,
-      actionOverrides: selected.actionOverrides.join(', '),
-      status: selected.status,
-    });
-  }, [selected, setParams]);
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -88,46 +38,10 @@ export function AdminAccessScopesPage() {
     });
   }, [assignments.data, roleFilter, search]);
 
-  const save = useMutation({
-    mutationFn: () => {
-      if (!selected) throw new Error('Select an access assignment.');
-      return updateAdminAccessAssignment(selected.id, selected.eTag, {
-        roleId: form.roleId,
-        scopeType: form.scopeType,
-        resourceIds: form.scopeType === 'all' || !form.resourceId ? [] : [form.resourceId],
-        includeChildren: form.includeChildren,
-        actionOverrides: form.actionOverrides.split(',').map((value) => value.trim()).filter(Boolean),
-        status: form.status,
-      });
-    },
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['admin', 'access-assignments'] }),
-        queryClient.invalidateQueries({ queryKey: ['admin', 'overview'] }),
-      ]);
-    },
-  });
-
   const evaluate = useMutation({
     mutationFn: () => evaluateAdminAccess({ userId: evaluateUserId, permission: evaluatePermission }),
     onSuccess: setEvaluation,
   });
-
-  const scopeOptions: AdminHierarchyItem[] = form.scopeType === 'organization'
-    ? organizations.data ?? []
-    : form.scopeType === 'location'
-      ? locations.data ?? []
-      : [];
-  const scopeQuery = form.scopeType === 'organization' ? organizations : locations;
-  const scopeBrowserVisible = Boolean(
-    selected && (form.scopeType === 'organization' || form.scopeType === 'location'),
-  );
-  const selectedScopeResource = scopeOptions.find((item) => item.id === form.resourceId) ?? null;
-
-  function selectAssignment(item: AdminAccessAssignment) {
-    setSelectedId(item.id);
-    setEvaluation(null);
-  }
 
   return (
     <INNOPage
@@ -135,113 +49,53 @@ export function AdminAccessScopesPage() {
       title="Access Scopes"
       description="Manage role + resource-scope bindings separately from role definitions."
     >
-      <div className="admin-master-detail admin-access-layout">
-        <INNOCollection>
-          <INNOCollectionHeader title="Access Assignments" description="Role + resource scope bindings." meta={assignments.data ? <INNOStatus>{assignments.data.length} assignments</INNOStatus> : undefined} />
-          <INNOCollectionToolbar>
-            <INNOSearchField label="Search assignments" value={search} onChange={setSearch} placeholder="Search user, role or scope…" />
-            <INNOSelectField label="Role filter" value={roleFilter} onChange={setRoleFilter}><option value="all">Role: All</option>{roles.data?.map((role) => <option key={role.id} value={role.id}>{role.name}</option>)}</INNOSelectField>
-          </INNOCollectionToolbar>
-          {assignments.isPending ? <CollectionLoadingState label="Loading access assignments…" /> : null}
-          {assignments.isError ? <CollectionErrorState error={assignments.error} retry={() => void assignments.refetch()} /> : null}
-          {assignments.data && filtered.length === 0 ? (
-            <INNOCollectionState
-              kind={search || roleFilter !== 'all' ? 'no-results' : 'empty'}
-              title={search || roleFilter !== 'all' ? 'No assignments found' : 'No access assignments'}
-              description={search || roleFilter !== 'all'
-                ? 'Try another search or clear the filters.'
-                : 'The current API contract does not define assignment creation, so only existing assignments are shown.'}
-              action={search || roleFilter !== 'all'
-                ? <INNOButton variant="secondary" onClick={() => { setSearch(''); setRoleFilter('all'); }}>Clear filters</INNOButton>
-                : undefined}
-            />
-          ) : null}
-          {filtered.length ? (
-            <INNOTableWrap width="wide" stickyAction>
-              <table>
-                <thead><tr><th>Subject</th><th>Role</th><th>Scope</th><th>Resources</th><th>Status</th><th className="action-column">Action</th></tr></thead>
-                <tbody>{filtered.map((item) => <tr key={item.id} className={item.id === selectedId ? 'selected-row' : undefined}><td><b>{item.subjectName}</b></td><td>{item.roleName}</td><td>{item.scopeType}</td><td>{item.resources.length ? item.resources.map((resource) => resource.id).join(', ') : 'All'}</td><td><INNOStatus tone={item.status === 'active' ? 'success' : 'neutral'}>{item.status}</INNOStatus></td><td className="action-column"><button type="button" className="inno-row-action" aria-label={'Select assignment for ' + item.subjectName} onClick={() => selectAssignment(item)}>Select</button></td></tr>)}</tbody>
-              </table>
-            </INNOTableWrap>
-          ) : null}
-        </INNOCollection>
-
-        <section className="prod-panel admin-editor-panel">
-          <div className="prod-panel-head"><div><h3>{selected ? selected.subjectName : 'Assignment details'}</h3><p>{selected ? 'Edit this existing role + scope binding.' : 'Select an assignment to inspect or edit it.'}</p></div></div>
-          {selected ? (
-            <form className="editor-form" onSubmit={(e) => { e.preventDefault(); save.mutate(); }}>
-              <div className="editor-grid">
-                <label className="field-block"><span>Role</span><select disabled={!canManage} value={form.roleId} onChange={(e) => setForm({ ...form, roleId: e.target.value })}>{roles.data?.map((role) => <option key={role.id} value={role.id}>{role.name}</option>)}</select></label>
-                <label className="field-block"><span>Scope type</span><select disabled={!canManage} value={form.scopeType} onChange={(e) => { setScopeSearch(''); setForm({ ...form, scopeType: e.target.value, resourceId: '' }); }}><option value="all">All</option><option value="organization">Organization</option><option value="location">Location</option><option value="device_group">Device Group</option></select></label>
-                {form.scopeType === 'organization' || form.scopeType === 'location' ? (
-                  <div className="field-block field-wide">
-                    <span>Resource</span>
-                    <div className="admin-scope-resource-summary" aria-live="polite">
-                      <b>{selectedScopeResource?.name ?? 'No resource selected'}</b>
-                      <span>{selectedScopeResource ? selectedScopeResource.code : 'Choose a hierarchy row in Scope Browser below.'}</span>
-                    </div>
-                  </div>
-                ) : null}
-                {form.scopeType === 'device_group' ? <label className="field-block"><span>Device Group ID</span><input disabled={!canManage} value={form.resourceId} onChange={(e) => setForm({ ...form, resourceId: e.target.value })} placeholder="grp_…" /></label> : null}
-                <label className="field-block"><span>Status</span><select disabled={!canManage} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}><option value="active">Active</option><option value="inactive">Inactive</option></select></label>
-                <label className="field-block field-wide"><span>Action overrides</span><input disabled={!canManage} value={form.actionOverrides} onChange={(e) => setForm({ ...form, actionOverrides: e.target.value })} placeholder="permission.id, permission.id" /></label>
-                <label className="field-block admin-check-field"><input type="checkbox" disabled={!canManage || form.scopeType === 'all'} checked={form.includeChildren} onChange={(e) => setForm({ ...form, includeChildren: e.target.checked })} /><span>Include child resources</span></label>
-              </div>
-              {save.isError ? <ErrorState error={save.error} /> : null}
-              {canManage ? <INNOEditorFooter><INNOButton type="submit" busy={save.isPending}>Save Assignment</INNOButton></INNOEditorFooter> : null}
-            </form>
-          ) : <div className="collection-state"><INNOState title="Select an assignment" description="Choose a row to inspect its role and effective resource scope." /></div>}
-        </section>
-
-        {scopeBrowserVisible ? (
-          <INNOCollection className="admin-access-scope-browser">
-            <INNOCollectionHeader
-              title="Scope Browser"
-              description={form.scopeType === 'organization'
-                ? 'Choose one organization node. Child resources inherit only when Include child resources is enabled.'
-                : 'Choose one location node from the canonical location hierarchy.'}
-              meta={<INNOStatus>{scopeOptions.length} resources</INNOStatus>}
-            />
-            <INNOCollectionToolbar>
-              <INNOSearchField
-                label="Search scope resources"
-                value={scopeSearch}
-                onChange={setScopeSearch}
-                placeholder="Search name or code…"
-              />
-            </INNOCollectionToolbar>
-            {scopeQuery.isPending ? <CollectionLoadingState label="Loading scope hierarchy…" /> : null}
-            {scopeQuery.isError ? <CollectionErrorState error={scopeQuery.error} retry={() => void scopeQuery.refetch()} /> : null}
-            {!scopeQuery.isPending && !scopeQuery.isError ? (
-              <INNOTreeGrid
-                key={form.scopeType}
-                items={scopeOptions}
-                getId={(item) => item.id}
-                getParentId={(item) => item.parentId}
-                getLabel={(item) => item.name}
-                getSearchText={(item) => item.name + ' ' + item.code + ' ' + item.status}
-                primaryHeader="Resource"
-                columns={[
-                  { id: 'code', header: 'Code', render: (item) => item.code },
-                  {
-                    id: 'status',
-                    header: 'Status',
-                    render: (item) => (
-                      <INNOStatus tone={item.status === 'active' ? 'success' : 'neutral'}>{item.status}</INNOStatus>
-                    ),
-                  },
-                ]}
-                selectedId={form.resourceId}
-                onSelect={canManage ? (id) => setForm({ ...form, resourceId: id }) : undefined}
-                search={scopeSearch}
-                ariaLabel={form.scopeType === 'organization' ? 'Organization scope browser' : 'Location scope browser'}
-                emptyContent={scopeSearch ? 'No hierarchy resources match this search.' : 'No hierarchy resources are available.'}
-              />
-            ) : null}
-          </INNOCollection>
+      <INNOCollection>
+        <INNOCollectionHeader
+          title="Access Assignments"
+          description="Role + resource scope bindings. Assignment creation is not part of the current API contract."
+          meta={assignments.data ? <INNOStatus>{assignments.data.length} assignments</INNOStatus> : undefined}
+        />
+        <INNOCollectionToolbar>
+          <INNOSearchField label="Search assignments" value={search} onChange={setSearch} placeholder="Search user, role or scope…" />
+          <INNOSelectField label="Role filter" value={roleFilter} onChange={setRoleFilter}>
+            <option value="all">Role: All</option>
+            {roles.data?.map((role) => <option key={role.id} value={role.id}>{role.name}</option>)}
+          </INNOSelectField>
+        </INNOCollectionToolbar>
+        {assignments.isPending ? <CollectionLoadingState label="Loading access assignments…" /> : null}
+        {assignments.isError ? <CollectionErrorState error={assignments.error} retry={() => void assignments.refetch()} /> : null}
+        {assignments.data && filtered.length === 0 ? (
+          <INNOCollectionState
+            kind={search || roleFilter !== 'all' ? 'no-results' : 'empty'}
+            title={search || roleFilter !== 'all' ? 'No assignments found' : 'No access assignments'}
+            description={search || roleFilter !== 'all' ? 'Try another search or clear the filters.' : 'No assignments are currently visible.'}
+            action={search || roleFilter !== 'all'
+              ? <INNOButton variant="secondary" onClick={() => { setSearch(''); setRoleFilter('all'); }}>Clear filters</INNOButton>
+              : undefined}
+          />
         ) : null}
-      </div>
-
+        {filtered.length ? (
+          <INNOTableWrap width="wide" stickyAction>
+            <table>
+              <thead><tr><th>Subject</th><th>Role</th><th>Scope</th><th>Resources</th><th>Status</th><th className="action-column">Action</th></tr></thead>
+              <tbody>{filtered.map((item) => (
+                <tr key={item.id}>
+                  <td><b>{item.subjectName}</b></td>
+                  <td>{item.roleName}</td>
+                  <td>{item.scopeType}</td>
+                  <td>{item.resources.length ? item.resources.map((resource) => resource.id).join(', ') : 'All'}</td>
+                  <td><INNOStatus tone={item.status === 'active' ? 'success' : 'neutral'}>{item.status}</INNOStatus></td>
+                  <td className="action-column">
+                    {canManage
+                      ? <Link className="inno-row-action" to={'/admin/access-scopes/' + item.id + '/edit'} aria-label={'Edit assignment for ' + item.subjectName}>Edit</Link>
+                      : <span className="table-meta">View only</span>}
+                  </td>
+                </tr>
+              ))}</tbody>
+            </table>
+          </INNOTableWrap>
+        ) : null}
+      </INNOCollection>
       <INNOCollection>
         <INNOCollectionHeader title="Evaluate Access" description="Explain whether a user has one permission and which scope made it effective." />
         <div className="admin-evaluate-panel">

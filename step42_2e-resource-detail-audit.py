@@ -79,7 +79,6 @@ group = read(WEB / "DeviceGroupDetailPage.tsx")
 ticket = read(WEB / "TicketDetailPage.tsx")
 
 for name, source, action in [
-    ("AdminUserDetailPage.tsx", admin, "Edit Profile"),
     ("AssetDetailPage.tsx", asset, "Edit Asset"),
     ("DeviceGroupDetailPage.tsx", group, "Edit Group"),
 ]:
@@ -89,8 +88,12 @@ for name, source, action in [
     require(source, "<INNOEditorFooterEnd>", name)
     require(source, ">Cancel</INNOButton>", name)
 
+# Step 44D supersedes inline Admin User editing: P03 remains read-only and links to P04.
 forbid(admin, "<INNOPage", "Admin user resource detail")
-require(admin, "!editing ? (", "Admin user tabs while viewing")
+forbid(admin, "const [editing, setEditing]", "Admin user dedicated edit route")
+forbid(admin, "<INNOEditorFooter", "Admin user detail editor ownership")
+require(admin, "Edit Profile", "Admin user edit navigation")
+require(admin, "'/edit'", "Admin user edit route")
 require(group, "!editing ? (", "Device group tabs while viewing")
 require(asset, "...(!editing ? [{ id: 'ownership', label: 'Ownership' }] : [])", "Asset edit-safe tabs")
 

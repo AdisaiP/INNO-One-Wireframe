@@ -12,7 +12,7 @@ STATIC_ROUTES = [
     "/", "/workspace/continue", "/workspace/attention", "/workspace/recent",
     "/profile", "/notifications", "/search", "/apps",
     "/admin", "/admin/organization", "/admin/locations", "/admin/positions",
-    "/admin/users", "/admin/roles", "/admin/access-scopes",
+    "/admin/users", "/admin/users/new", "/admin/roles", "/admin/access-scopes",
     "/admin/integrations", "/admin/security", "/admin/audit",
     "/admin/branding", "/admin/settings", "/admin/apps",
     "/devices", "/devices/discovery", "/devices/groups", "/devices/add",
@@ -207,6 +207,8 @@ def collect_dynamic(cdp, route):
         "/assets/owners": ".inno-collection tbody a[href^='/assets/owners/']",
         "/helpdesk/tickets": ".inno-collection tbody a[href^='/helpdesk/tickets/']:not([href='/helpdesk/tickets/new'])",
         "/helpdesk/automation": ".inno-collection tbody a[href^='/helpdesk/automation/']:not([href='/helpdesk/automation/new'])",
+        "/admin/access-scopes": ".inno-collection tbody a[href^='/admin/access-scopes/'][href$='/edit']",
+        "/assets/contracts": ".inno-collection tbody a[href^='/assets/contracts/']",
     }
     selector = selectors.get(route)
     if not selector:
@@ -218,6 +220,8 @@ def collect_dynamic(cdp, route):
     check("dynamic route discovered " + route, bool(href), selector)
     if href and ":" not in href:
         dynamic_routes.add(href)
+        if route in ("/admin/users", "/assets/contracts") and not href.endswith("/edit"):
+            dynamic_routes.add(href + "/edit")
 
 for route in STATIC_ROUTES:
     c.viewport(1366)

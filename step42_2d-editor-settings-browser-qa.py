@@ -111,7 +111,7 @@ routes = [
     ("/helpdesk/automation/new", "Save Rule", False),
     ("/helpdesk/sla", "Save Policy", True),
     ("/helpdesk/calendar", "Save Calendar", True),
-    ("/assets/custom-fields", "Save Schema", True),
+    ("/admin/users/new", "Create User", False),
 ]
 for width in (1366, 1024, 768):
     viewport(width)
@@ -129,7 +129,6 @@ for width in (1366, 1024, 768):
 
     for route, trigger, cancel, primary in [
         ("/devices/groups", "New Device Group", "Cancel", "Create Group"),
-        ("/admin/users", "New User", "Cancel", "Create User"),
     ]:
         check(f"{width} ready {route}", nav(route))
         check(f"{width} open editor {route}", bool(click_text(trigger)))
@@ -145,6 +144,7 @@ for width in (1366, 1024, 768):
         ("/helpdesk/tickets/new", "ticket-create", None),
         ("/helpdesk/sla", "sla", None),
         ("/devices/groups", "device-groups-create", "New Device Group"),
+        ("/admin/users/new", "admin-user-create", None),
     ]:
         nav(route)
         if trigger:

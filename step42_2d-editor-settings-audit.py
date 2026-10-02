@@ -46,19 +46,18 @@ for marker in [
 
 structured = [
     "ProfilePage.tsx",
-    "AssetCustomFieldsPage.tsx",
     "AssetDetailPage.tsx",
     "AutomationRulePage.tsx",
     "BusinessCalendarPage.tsx",
     "HelpdeskSlaPage.tsx",
     "SoftwareLicensesPage.tsx",
-    "ContractsWarrantyPage.tsx",
+    "ContractEditPage.tsx",
     "SoftwareBaselinesPage.tsx",
     "TicketCreatePage.tsx",
     "AdminHierarchyPage.tsx",
-    "AdminPositionsPage.tsx",
+    "AdminUserEditorPage.tsx",
+    "AdminAccessScopeEditPage.tsx",
     "DeviceGroupsPage.tsx",
-    "AdminUsersPage.tsx",
 ]
 
 for name in structured:
@@ -67,14 +66,19 @@ for name in structured:
         require(source, marker, name)
 
 for name in [
-    "AssetCustomFieldsPage.tsx",
     "AssetDetailPage.tsx",
     "BusinessCalendarPage.tsx",
     "HelpdeskSlaPage.tsx",
     "SoftwareLicensesPage.tsx",
-    "ContractsWarrantyPage.tsx",
+    "ContractEditPage.tsx",
 ]:
     require(read(WEB / name), "<INNOEditorFooterNote", name)
+
+# Step 44D short forms use shared dialog footers instead of page editor footers.
+for name in ["AdminPositionsPage.tsx", "AssetCustomFieldsPage.tsx"]:
+    source = read(WEB / name)
+    require(source, "<INNODialog", name + " focused dialog")
+    forbid(source, 'className="admin-master-detail"', name + " permanent editor")
 
 profile = read(WEB / "ProfilePage.tsx")
 require(profile, "Discard changes", "Profile settings")
@@ -82,11 +86,16 @@ forbid(profile, "profile-edit-actions", "Profile settings")
 
 for name, old_toggle in [
     ("DeviceGroupsPage.tsx", "showCreate ? 'Cancel'"),
-    ("AdminUsersPage.tsx", "showCreate ? 'Cancel'"),
 ]:
     source = read(WEB / name)
     forbid(source, old_toggle, name + " page header")
     require(source, "variant=\"secondary\"", name + " footer cancel")
+
+users = read(WEB / "AdminUsersPage.tsx")
+forbid(users, "showCreate", "AdminUsersPage dedicated create route")
+forbid(users, "<INNOEditorFooter", "AdminUsersPage list ownership")
+require(users, 'to="/admin/users/new"', "AdminUsersPage create navigation")
+require(read(WEB / "AdminUserEditorPage.tsx"), 'variant="secondary"', "AdminUserEditorPage footer cancel")
 
 for name in structured:
     source = read(WEB / name)

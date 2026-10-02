@@ -110,9 +110,8 @@ routes = [
     ("/assets/owners", "Open", True),
     ("/helpdesk/tickets", "Open", True),
     ("/admin/users", "Open", False),
-    ("/admin/access-scopes", "Select", False),
-    ("/admin/positions", "Select", False),
-    ("/admin/organization", "Select", False),
+    ("/admin/access-scopes", "Edit", False),
+    ("/admin/positions", "Edit", False),
     ("/admin/audit", "Open", False),
 ]
 for width in (1366, 1024, 768):

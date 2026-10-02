@@ -15,6 +15,8 @@ SHELL_CSS = (ROOT / "production/apps/web-portal/src/shell.css").read_text(encodi
 UI_CSS = (ROOT / "production/packages/ui/src/styles.css").read_text(encoding="utf-8")
 HIERARCHY = (ROOT / "production/apps/web-portal/src/pages/AdminHierarchyPage.tsx").read_text(encoding="utf-8")
 POSITIONS = (ROOT / "production/apps/web-portal/src/pages/AdminPositionsPage.tsx").read_text(encoding="utf-8")
+USERS = (ROOT / "production/apps/web-portal/src/pages/AdminUsersPage.tsx").read_text(encoding="utf-8")
+CUSTOM_FIELDS = (ROOT / "production/apps/web-portal/src/pages/AssetCustomFieldsPage.tsx").read_text(encoding="utf-8")
 ACCESS = (ROOT / "production/apps/web-portal/src/pages/AdminAccessScopesPage.tsx").read_text(encoding="utf-8")
 INTEGRATIONS = (ROOT / "production/apps/web-portal/src/pages/AdminIntegrationsPage.tsx").read_text(encoding="utf-8")
 CONTRACTS = (ROOT / "production/apps/web-portal/src/pages/ContractsWarrantyPage.tsx").read_text(encoding="utf-8")
@@ -39,8 +41,8 @@ routes = [
 matrix_routes = [item["route"] for item in MATRIX["routes"]]
 by_route = {item["route"]: item for item in MATRIX["routes"]}
 
-check("route count is 51", len(routes) == 51, len(routes))
-check("matrix count is 51", len(matrix_routes) == 51, len(matrix_routes))
+check("route count is 56", len(routes) == 56, len(routes))
+check("matrix count is 56", len(matrix_routes) == 56, len(matrix_routes))
 check("matrix routes are unique", len(set(matrix_routes)) == len(matrix_routes))
 check("production routes are unique", len(set(routes)) == len(routes))
 check("matrix covers exact production routes", set(matrix_routes) == set(routes),
@@ -62,9 +64,9 @@ expected = {
     "admin/organization": ("P09", "hierarchy-master-detail", "INNOTree", "critical"),
     "admin/locations": ("P09", "hierarchy-master-detail", "INNOTree", "critical"),
     "admin/positions": ("P02", "list+modal", None, "high"),
-    "admin/access-scopes": ("P02", "list", "INNOTreeGrid", "critical"),
+    "admin/access-scopes": ("P02", "list", None, "critical"),
     "admin/integrations": ("P07", "health-monitor", None, "high"),
-    "assets/contracts": ("P02", "list-to-detail/edit", None, "critical"),
+    "assets/contracts": ("P02", "list", None, "critical"),
     "helpdesk/calendar": ("P05", "settings-page", None, "high"),
     "devices/query": ("P06", "builder", None, "low"),
     "helpdesk/automation/new": ("P04", "edit-route", None, "medium"),
@@ -82,11 +84,12 @@ detected = {}
 
 # 1: permanent side editor used where route/form classification needs review.
 detected["form-detail-side-card"] = (
-    "admin-master-detail" in HIERARCHY
-    and "admin-master-detail" in POSITIONS
-    and "admin-master-detail" in ACCESS
-    and "contract-record-panel" in CONTRACTS
-    and "selectedId" in CONTRACTS
+    "admin-master-detail" in POSITIONS
+    or "admin-master-detail" in ACCESS
+    or "contract-record-panel" in CONTRACTS
+    or "selectedId" in CONTRACTS
+    or "create-panel" in USERS
+    or "custom-field-editor-row" in CUSTOM_FIELDS
 )
 
 # 2: editor footer exists as its own rounded bordered surface rather than an integrated action bar.
@@ -182,8 +185,8 @@ for item in MATRIX["routes"]:
     priorities[item["priority"]] = priorities.get(item["priority"], 0) + 1
     patterns[item["pattern"]] = patterns.get(item["pattern"], 0) + 1
 
-check("critical remediation count", priorities.get("critical") == 4, priorities)
-check("high remediation count", priorities.get("high") == 11, priorities)
+check("critical remediation count", priorities.get("critical") == 7, priorities)
+check("high remediation count", priorities.get("high") == 13, priorities)
 
 print("step44a_routes=" + str(len(matrix_routes)))
 print("step44a_patterns=" + json.dumps(patterns, sort_keys=True))
