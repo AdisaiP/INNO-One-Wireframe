@@ -50,14 +50,14 @@ All 56 concrete Production routes are now classified.
 | Pattern | Routes |
 | --- | ---: |
 | P01 Overview | 4 |
-| P02 List | 17 |
+| P02 List / focused overlay | 21 |
 | P03 Resource Detail | 7 |
 | P04 Create/Edit | 7 |
 | P05 Settings | 7 |
 | P06 Builder | 1 |
 | P07 Monitor/Operations | 2 |
 | P08 Wizard | 2 |
-| P09 Master-Detail | 6 |
+| P09 Master-Detail | 2 |
 | P10 History/Log | 3 |
 
 Remediation priority:
@@ -78,19 +78,21 @@ Current Production:
 - `Select` row action,
 - permanent side editor.
 
-Target:
-- P09 hierarchy master-detail,
+Target after Step 44H-A revision:
+- P02 hierarchy list with focused drawer,
 - real `INNOTree` hierarchy interaction,
-- selected hierarchy node owns the adjacent editor.
+- selected hierarchy node opens the short create/edit form in an `INNODrawer`,
+- the hierarchy remains full-width instead of reserving a permanent editor column.
 
-The adjacent editor is valid here because selecting a hierarchy node and editing that exact node are one continuous task.
+The drawer is preferred after Production visual review because the edit form is short and the permanent side editor created avoidable empty space.
 
 ### Locations
 
 Same correction as Organization Structure:
-- P09,
+- P02 hierarchy list + drawer,
 - real hierarchy tree,
-- not a flat table pretending to be hierarchy.
+- not a flat table pretending to be hierarchy,
+- no permanent editor column.
 
 ### Access Scopes
 
@@ -350,6 +352,20 @@ Only when explicitly approved:
 - ELK.js,
 - node/edge contract,
 - persistence/execution contract.
+
+### Step 44H-A — Page Architecture & Spacing Remediation
+
+Post-44G Production visual review revises several earlier permissive master-detail decisions:
+
+- Organization / Locations → full-width `INNOTree` + focused `INNODrawer`; shared tree connector lines make hierarchy depth visible.
+- Audit Log → history table + read-only `INNODrawer`, matching the original P10 decision.
+- Software Licenses → primary list + focused drawer for allocations and the short entitlement editor.
+- Roles & Permissions → read-only system-role reference + separately spaced permission matrix; no custom-role create control until a backend contract exists.
+- Access Scopes → assignments list remains primary; `Evaluate Access` is a utility dialog.
+- Inventory Query → builder hierarchy and action ownership clarified; fact coverage becomes a lightweight note.
+- Asset detail / QR Labels / Asset Ownership → spacing and panel-body ownership normalized.
+
+These decisions supersede the earlier adjacent-editor allowances where noted in the route matrix.
 
 ### Step 44H — Full Route Visual QA
 - 56 routes,

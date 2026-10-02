@@ -1,7 +1,6 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterNote, INNOEditorFooterStart, INNOIcon, INNOPage, INNOPagination, INNORowActions, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarMeta, INNOToolbarSpacer } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNODrawer, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterNote, INNOEditorFooterStart, INNOIcon, INNOPage, INNOPagination, INNORowActions, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOTableWrap, INNOToolbarMeta, INNOToolbarSpacer } from '@inno/ui';
 import { getSoftwareLicenses, updateSoftwareLicense } from '../api/client';
 import type { SoftwareLicenseItem } from '../api/types';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -63,12 +62,8 @@ export function SoftwareLicensesPage() {
   });
 
   useEffect(() => {
-    if (!query.data?.items.length) {
+    if (selectedId && query.data && !query.data.items.some((item) => item.id === selectedId)) {
       setSelectedId('');
-      return;
-    }
-    if (!query.data.items.some((item) => item.id === selectedId)) {
-      setSelectedId(query.data.items[0].id);
     }
   }, [query.data, selectedId]);
 
@@ -249,7 +244,7 @@ export function SoftwareLicensesPage() {
                       </td>
                       <td className="numeric-column">{money(item.estimatedGapCost, item.currency)}</td>
                       <td className="action-column">
-                        <INNORowActions ariaLabel={'License ' + item.productName} items={[{ id: 'select', label: 'Select', onSelect: () => setSelectedId(item.id) }]} />
+                        <INNORowActions ariaLabel={'License ' + item.productName} items={[{ id: 'open', label: 'Open', onSelect: () => setSelectedId(item.id) }]} />
                       </td>
                     </tr>
                   ))}
@@ -267,7 +262,14 @@ export function SoftwareLicensesPage() {
         )}
       </INNOCollection>
       {selected ? (
-        <section className="license-detail-grid">
+        <INNODrawer
+          open={Boolean(selected)}
+          title={selected.productName}
+          description="Review detected usage and update the purchased license record."
+          onClose={() => setSelectedId('')}
+          size="lg"
+        >
+        <section className="license-drawer-content">
           <INNOCollection className="license-allocations">
             <INNOCollectionHeader
               title={selected.productName}
@@ -393,6 +395,7 @@ export function SoftwareLicensesPage() {
             </INNOEditorFooter>
           </div>
         </section>
+        </INNODrawer>
       ) : null}
     </INNOPage>
   );

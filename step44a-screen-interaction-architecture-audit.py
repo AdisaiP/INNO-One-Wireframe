@@ -62,10 +62,10 @@ check("all route decisions have wireframe reference marker",
       all("wireframe" in item for item in MATRIX["routes"]))
 
 expected = {
-    "admin/organization": ("P09", "hierarchy-master-detail", "INNOTree", "critical"),
-    "admin/locations": ("P09", "hierarchy-master-detail", "INNOTree", "critical"),
+    "admin/organization": ("P02", "hierarchy-list+drawer", "INNOTree", "critical"),
+    "admin/locations": ("P02", "hierarchy-list+drawer", "INNOTree", "critical"),
     "admin/positions": ("P02", "list+modal", None, "high"),
-    "admin/access-scopes": ("P02", "list", None, "critical"),
+    "admin/access-scopes": ("P02", "list+utility-dialog", None, "critical"),
     "admin/integrations": ("P07", "health-monitor", None, "high"),
     "assets/contracts": ("P02", "list", None, "critical"),
     "helpdesk/calendar": ("P05", "settings-page", None, "high"),

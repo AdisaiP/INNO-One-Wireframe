@@ -21,7 +21,7 @@ export function AssetOwnershipPage() {
           <div><span>Pending confirmation</span><b>{query.data.pendingSubmissions}</b><small>From Endpoint Agent</small></div>
           <div><span>Unassigned</span><b>{query.data.unassignedAssets}</b><small>Need an owner or pool</small></div>
         </div>
-        <div className="helpdesk-overview-grid">
+        <div className="asset-ownership-overview-grid">
           <section className="prod-panel">
             <div className="prod-panel-head"><div><h3>Asset Owners</h3><p>Open ownership profiles for people with assets in your effective scope.</p></div><Link className="open-resource" to="/assets/owners">View asset owners</Link></div>
             <div className="settings-stack"><div className="settings-row"><div><b>Identity source</b><span>Names, email and organization are read-only here and remain administered in Admin Center.</span></div><INNOStatus tone="success">Connected</INNOStatus></div></div>

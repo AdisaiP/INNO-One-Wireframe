@@ -1160,10 +1160,14 @@
 
 /* Step 17 · Helpdesk Core */
 .helpdesk-stat-strip { margin-bottom: 16px; }
-.helpdesk-overview-grid {
+.helpdesk-overview-grid,
+.asset-ownership-overview-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(320px, .8fr);
   gap: 14px;
+}
+.asset-ownership-overview-grid {
+  margin-bottom: 16px;
 }
 .helpdesk-queue-list { display: grid; }
 .helpdesk-queue-row {
@@ -1539,6 +1543,7 @@
 
 @media (max-width: 1100px) {
   .helpdesk-overview-grid,
+  .asset-ownership-overview-grid,
   .ticket-create-layout {
     grid-template-columns: 1fr;
   }
@@ -1848,6 +1853,9 @@
 .qr-select-section,
 .qr-setup-section,
 .qr-preview-section { margin-bottom: 14px; }
+.qr-setup-section .editor-form {
+  padding-bottom: var(--ds-space-4);
+}
 .qr-asset-table .select-column { width: 42px; text-align: center; }
 .qr-asset-table .select-column input { width: 15px; height: 15px; }
 .qr-content-options {
@@ -2033,13 +2041,13 @@
   border-radius: inherit;
   background: #597fe0;
 }
-.license-detail-grid {
+.license-drawer-content {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(300px, .6fr);
-  gap: 14px;
-  align-items: start;
-  margin-bottom: 14px;
+  gap: 16px;
+  min-width: 0;
 }
+.license-drawer-content .inno-collection,
+.license-drawer-content .prod-panel { margin: 0; }
 .license-allocations { min-width: 0; }
 .license-record-panel { min-width: 0; }
 .license-record-panel .editor-form { padding-bottom: 4px; }
@@ -2080,12 +2088,6 @@
 .supporting-table th,
 .supporting-table td {
   padding-block: 8px;
-}
-
-@media (max-width: 1024px) {
-  .license-detail-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 768px) {
@@ -2786,6 +2788,16 @@
   position: sticky;
   top: 76px;
 }
+.admin-role-catalog {
+  margin-bottom: 16px;
+}
+.admin-permission-collection {
+  margin-top: 16px;
+}
+.overlay-editor-form {
+  display: grid;
+  gap: 16px;
+}
 .admin-role-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
@@ -2858,6 +2870,13 @@
 }
 .admin-check-field input {
   width: auto;
+}
+.admin-evaluate-dialog {
+  display: grid;
+  gap: 16px;
+}
+.admin-evaluate-dialog .admin-evaluation-result {
+  margin: 0;
 }
 .admin-evaluate-panel {
   display: grid;

@@ -48,7 +48,11 @@ check("native treegrid decision", "native @inno/ui implementation" in MATRIX["cr
 check("organization uses INNOTree", "<INNOTree" in ORG)
 check("organization flat table removed", "<INNOTableWrap" not in ORG)
 check("organization search feeds tree", "search={search}" in ORG)
-check("organization selection feeds editor", "onSelect={(id) => setSelectedId(id)}" in ORG)
+check("organization selection opens focused drawer",
+      "onSelect={(id) => {" in ORG
+      and "setSelectedId(id);" in ORG
+      and "INNODrawer" in ORG
+      and "open={createMode || Boolean(selected)}" in ORG)
 check("access scope uses INNOTreeGrid", "<INNOTreeGrid" in ACCESS)
 check("access scope browser owned surface", 'className="admin-access-scope-browser"' in ACCESS)
 check("access scope dropdown picker removed", '<span>Resource</span><select' not in ACCESS)

@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type ButtonHTMLAttributes, type ChangeEvent, type PropsWithChildren, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type ButtonHTMLAttributes, type ChangeEvent, type CSSProperties, type PropsWithChildren, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import {
   ArrowLeft,
@@ -734,7 +734,11 @@ export function INNOTree<T>({
             key={row.id}
             className="inno-tree-row"
             role="presentation"
-            style={{ paddingLeft: (row.level - 1) * 18 }}
+            data-level={row.level}
+            style={{
+              paddingLeft: (row.level - 1) * 18,
+              '--inno-tree-indent': ((row.level - 1) * 18) + 'px',
+            } as CSSProperties}
           >
             {row.hasChildren ? (
               <button

@@ -6,10 +6,9 @@ import {
   INNOCollectionHeader,
   INNOCollectionState,
   INNOCollectionToolbar,
-  INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart,
+  INNODrawer,
   INNOPage,
   INNOSearchField,
-  INNOState,
   INNOStatus,
   INNOTree,
 } from '@inno/ui';
@@ -78,8 +77,8 @@ export function AdminHierarchyPage({ kind }: { kind: Kind }) {
         ? updateAdminOrganizationUnit(selected.id, selected.eTag, input)
         : updateAdminLocation(selected.id, selected.eTag, input);
     },
-    onSuccess: async (saved) => {
-      setSelectedId(saved.id);
+    onSuccess: async () => {
+      setSelectedId('');
       setCreateMode(false);
       await queryClient.invalidateQueries({ queryKey });
       await queryClient.invalidateQueries({ queryKey: ['admin', 'overview'] });
@@ -90,6 +89,11 @@ export function AdminHierarchyPage({ kind }: { kind: Kind }) {
     setSelectedId('');
     setCreateMode(true);
     setForm({ code: '', name: '', parentId: '', status: 'active' });
+  }
+
+  function closeEditor() {
+    setSelectedId('');
+    setCreateMode(false);
   }
 
   const parentOptions = (query.data ?? []).filter((item) => item.id !== selected?.id);
@@ -105,8 +109,7 @@ export function AdminHierarchyPage({ kind }: { kind: Kind }) {
         <INNOButton type="button" onClick={beginCreate}>New {isOrganization ? 'Unit' : 'Location'}</INNOButton>
       ) : undefined}
     >
-      <div className="admin-master-detail">
-        <INNOCollection>
+      <INNOCollection className="admin-hierarchy-collection">
           <INNOCollectionHeader
             title={isOrganization ? 'Organization Tree' : 'Location Tree'}
             description={isOrganization
@@ -147,7 +150,10 @@ export function AdminHierarchyPage({ kind }: { kind: Kind }) {
                 <INNOStatus tone={item.status === 'active' ? 'success' : 'neutral'}>{item.status}</INNOStatus>
               )}
               selectedId={selectedId}
-              onSelect={(id) => setSelectedId(id)}
+              onSelect={(id) => {
+                setCreateMode(false);
+                setSelectedId(id);
+              }}
               search={search}
               ariaLabel={title}
               emptyContent="No hierarchy records match this search."
@@ -155,48 +161,57 @@ export function AdminHierarchyPage({ kind }: { kind: Kind }) {
           ) : null}
         </INNOCollection>
 
-        <section className="prod-panel admin-editor-panel">
-          <div className="prod-panel-head">
-            <div>
-              <h3>{createMode ? 'New ' + (isOrganization ? 'Organization Unit' : 'Location') : selected ? selected.name : 'Record details'}</h3>
-              <p>{createMode ? 'Create a canonical administration master.' : selected ? 'Edit this record with optimistic concurrency.' : 'Select a row or create a new record.'}</p>
-            </div>
+      <INNODrawer
+        open={createMode || Boolean(selected)}
+        title={createMode ? 'New ' + (isOrganization ? 'Organization Unit' : 'Location') : selected?.name ?? title}
+        description={createMode
+          ? 'Create a canonical administration master while keeping the hierarchy visible behind this drawer.'
+          : 'Inspect or edit the selected hierarchy record.'}
+        onClose={closeEditor}
+        size="md"
+        footer={(
+          <>
+            <INNOButton type="button" variant="secondary" onClick={closeEditor}>Cancel</INNOButton>
+            <INNOButton
+              type="submit"
+              form="admin-hierarchy-editor"
+              busy={mutation.isPending}
+              disabled={!canManage || !form.code.trim() || !form.name.trim()}
+            >
+              Save
+            </INNOButton>
+          </>
+        )}
+      >
+        <form
+          id="admin-hierarchy-editor"
+          className="overlay-editor-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (!mutation.isPending) mutation.mutate();
+          }}
+        >
+          <div className="editor-grid">
+            <label className="field-block"><span>Code</span><input required value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} /></label>
+            <label className="field-block"><span>Name</span><input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>
+            <label className="field-block">
+              <span>Parent</span>
+              <select value={form.parentId} onChange={(e) => setForm({ ...form, parentId: e.target.value })}>
+                <option value="">No parent</option>
+                {parentOptions.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+              </select>
+            </label>
+            <label className="field-block">
+              <span>Status</span>
+              <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </label>
           </div>
-          {createMode || selected ? (
-            <form className="editor-form" onSubmit={(event) => { event.preventDefault(); if (!mutation.isPending) mutation.mutate(); }}>
-              <div className="editor-grid">
-                <label className="field-block"><span>Code</span><input required value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} /></label>
-                <label className="field-block"><span>Name</span><input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>
-                <label className="field-block">
-                  <span>Parent</span>
-                  <select value={form.parentId} onChange={(e) => setForm({ ...form, parentId: e.target.value })}>
-                    <option value="">No parent</option>
-                    {parentOptions.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
-                  </select>
-                </label>
-                <label className="field-block">
-                  <span>Status</span>
-                  <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
-                </label>
-              </div>
-              {mutation.isError ? <ErrorState error={mutation.error} /> : null}
-              <INNOEditorFooter>
-                <INNOEditorFooterStart>
-                  {createMode ? <INNOButton type="button" variant="secondary" onClick={() => setCreateMode(false)}>Cancel</INNOButton> : null}
-                </INNOEditorFooterStart>
-                <INNOEditorFooterEnd>
-                  <INNOButton type="submit" busy={mutation.isPending} disabled={!canManage || !form.code.trim() || !form.name.trim()}>Save</INNOButton>
-                </INNOEditorFooterEnd>
-              </INNOEditorFooter>
-            </form>
-          ) : (
-            <div className="collection-state"><INNOState title="Select a record" description="Choose a row to inspect its hierarchy and edit it." /></div>
-          )}
-        </section>
-      </div>
+          {mutation.isError ? <ErrorState error={mutation.error} /> : null}
+        </form>
+      </INNODrawer>
     </INNOPage>
   );
 }

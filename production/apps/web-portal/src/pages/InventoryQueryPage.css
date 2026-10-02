@@ -104,9 +104,19 @@
 .inventory-query-builder > .prod-panel-head {
   padding: 18px 18px 12px;
 }
+.inventory-builder-head-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
 
 .inventory-builder-body {
   padding: 0 18px 18px;
+}
+.inventory-builder-body > .inno-purpose-note {
+  margin-bottom: 14px;
 }
 
 .inventory-condition-row {
@@ -196,6 +206,10 @@
 }
 
 @media (max-width: 850px) {
+  .inventory-builder-head-actions {
+    justify-content: flex-start;
+  }
+
   .inventory-query-layout {
     display: flex;
     flex-direction: column;

@@ -264,11 +264,11 @@ export function AssetDetailPage() {
             {canManage && editing ? <div className="settings-stack">
               <label className="field-block"><span>Assigned user</span><select value={ownerId} onChange={(e) => setOwnerId(e.target.value)}><option value="">Unassigned</option>{owners.data?.items.map((owner) => <option key={owner.id} value={owner.id}>{owner.fullName} · {owner.employeeId}</option>)}</select></label>
               <INNOButton variant="secondary" busy={ownerMutation.isPending} disabled={ownerId === (asset.owner?.id ?? '')} onClick={() => ownerMutation.mutate()}>Change owner</INNOButton>
-            </div> : <div className="settings-row"><div><b>{asset.owner?.name ?? 'Unassigned'}</b><span>{asset.organization?.name ?? 'No organization'}</span></div></div>}
+            </div> : <div className="settings-stack"><div className="settings-row"><div><b>{asset.owner?.name ?? 'Unassigned'}</b><span>{asset.organization?.name ?? 'No organization'}</span></div></div></div>}
           </section>
           <section className="prod-panel">
             <div className="prod-panel-head"><div><h3>Linked managed endpoint</h3><p>Read through the Devices directory contract.</p></div></div>
-            {asset.linkedDevice ? <div className="settings-row"><div><b>{asset.linkedDevice.name}</b><span>{asset.linkedDevice.operatingSystem ?? 'Unknown OS'}</span></div><INNOStatus tone={asset.linkedDevice.status === 'online' ? 'success' : 'neutral'} dot>{asset.linkedDevice.status}</INNOStatus></div> : <div className="compact-empty">No managed endpoint linked.</div>}
+            {asset.linkedDevice ? <div className="settings-stack"><div className="settings-row"><div><b>{asset.linkedDevice.name}</b><span>{asset.linkedDevice.operatingSystem ?? 'Unknown OS'}</span></div><INNOStatus tone={asset.linkedDevice.status === 'online' ? 'success' : 'neutral'} dot>{asset.linkedDevice.status}</INNOStatus></div></div> : <div className="compact-empty">No managed endpoint linked.</div>}
           </section>
         </div>
       </div>

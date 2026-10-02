@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNOIcon, INNOPage, INNOSearchField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNOIcon, INNOPage, INNOPurposeNote, INNOSearchField, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { getAdminPermissions, getAdminRoles } from '../api/client';
 import { CollectionErrorState, CollectionLoadingState, ErrorState, LoadingState } from '../components/Feedback';
 
@@ -25,7 +25,7 @@ export function AdminRolesPage() {
       title="Roles & Permissions"
       description="Inspect the read-only role catalog and centralized permission matrix used by access assignments."
     >
-      <INNOCollection>
+      <INNOCollection className="admin-role-catalog">
         <INNOCollectionHeader
           title="Role catalog"
           description="Reusable role definitions currently available for access assignments."
@@ -46,7 +46,12 @@ export function AdminRolesPage() {
         ) : roles.data ? <div className="collection-state"><INNOState title="No roles available" /></div> : null}
       </INNOCollection>
 
-      <INNOCollection>
+      <INNOPurposeNote
+        title="System roles are read-only"
+        description="This catalog is supplied by the platform contract. Custom role creation and permission editing are not available in the current API."
+      />
+
+      <INNOCollection className="admin-permission-collection">
         <INNOCollectionHeader
           title="Permission matrix"
           description="A check means the role currently includes the permission."

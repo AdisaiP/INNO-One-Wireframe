@@ -12,6 +12,7 @@ import {
   INNOEditorFooterNote,
   INNOEditorFooterStart,
   INNOPage,
+  INNOPurposeNote,
   INNOSearchField,
   INNOStatus,
   INNOTableWrap,
@@ -204,7 +205,7 @@ export function InventoryQueryPage() {
       {formError ? <div className="form-error" role="alert">{formError}</div> : null}
 
       <div className="inventory-query-layout">
-        <aside className="inventory-query-support panel-stack">
+        <aside className="inventory-query-support">
           <INNOCollection>
             <INNOCollectionHeader
               title="Saved Queries"
@@ -258,34 +259,25 @@ export function InventoryQueryPage() {
             )}
           </INNOCollection>
 
-          <section className="prod-panel inventory-fact-coverage">
-            <div className="prod-panel-head">
-              <div>
-                <h3>Fact coverage</h3>
-                <p>Only evidence-backed inventory facts are exposed.</p>
-              </div>
-              <INNOStatus tone="success">Available</INNOStatus>
-            </div>
-            <div className="inventory-fact-row">
-              <span>Software</span>
-              <b>Latest endpoint inventory snapshot</b>
-            </div>
-            <p className="table-meta">
-              Process, Service, File and Folder remain unavailable until a production telemetry source exists.
-            </p>
-          </section>
         </aside>
 
         <section className="inventory-query-builder prod-panel">
           <div className="prod-panel-head">
             <div>
               <h3>Query Builder</h3>
-              <p>One condition · modeled fields only · no unrestricted query language.</p>
+              <p>Build one software-inventory condition, choose a scope, then run or save it for reuse.</p>
             </div>
-            {selectedSaved ? <INNOStatus tone="info">Saved query</INNOStatus> : <INNOStatus>Draft</INNOStatus>}
+            <div className="inventory-builder-head-actions">
+              {selectedSaved ? <INNOStatus tone="info">Saved query</INNOStatus> : <INNOStatus>Draft</INNOStatus>}
+              <INNOButton type="button" variant="secondary" onClick={newQuery}>New Query</INNOButton>
+            </div>
           </div>
 
           <div className="editor-form inventory-builder-body">
+            <INNOPurposeNote
+              title="Available fact source"
+              description="Software queries use the latest endpoint inventory snapshot. Process, Service, File and Folder remain unavailable until a production telemetry source exists."
+            />
             <div className="editor-grid">
               <label className="field-block field-wide">
                 <span>Query name</span>
@@ -393,20 +385,19 @@ export function InventoryQueryPage() {
 
           <INNOEditorFooter>
             <INNOEditorFooterStart>
-              <INNOButton variant="secondary" onClick={newQuery}>New Query</INNOButton>
               <INNOEditorFooterNote>
-                Save requires Devices Manage. Run uses your effective Devices View scope.
+                Saved queries are reusable definitions. Saving creates a new record; Run uses your effective Devices View scope.
               </INNOEditorFooterNote>
             </INNOEditorFooterStart>
             <INNOEditorFooterEnd>
-              {canManage && !selectedSavedId ? (
+              {canManage ? (
                 <INNOButton
                   variant="secondary"
                   busy={save.isPending}
                   disabled={!queryName.trim() || !definition.value.trim() || isRunning}
                   onClick={() => save.mutate()}
                 >
-                  Save Query
+                  {selectedSavedId ? 'Save as New' : 'Save Query'}
                 </INNOButton>
               ) : null}
               <INNOButton

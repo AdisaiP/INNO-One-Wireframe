@@ -105,20 +105,20 @@
     {
       "route": "admin/organization",
       "page": "AdminOrganizationPage",
-      "pattern": "P09",
-      "surface": "hierarchy-master-detail",
+      "pattern": "P02",
+      "surface": "hierarchy-list+drawer",
       "wireframe": "organization.html",
-      "remediation": "replace flat table with real hierarchy control; editor may stay adjacent because hierarchy selection + edit is one job",
+      "remediation": "full-width INNOTree hierarchy; select or create opens a focused drawer so the hierarchy remains visible without a permanent side editor",
       "priority": "critical",
       "specialComponent": "INNOTree"
     },
     {
       "route": "admin/locations",
       "page": "AdminLocationsPage",
-      "pattern": "P09",
-      "surface": "hierarchy-master-detail",
+      "pattern": "P02",
+      "surface": "hierarchy-list+drawer",
       "wireframe": "organization-locations.html",
-      "remediation": "replace flat table with real hierarchy control; editor may stay adjacent",
+      "remediation": "full-width INNOTree hierarchy; select or create opens a focused drawer rather than reserving a permanent editor column",
       "priority": "critical",
       "specialComponent": "INNOTree"
     },
@@ -171,19 +171,19 @@
     {
       "route": "admin/roles",
       "page": "AdminRolesPage",
-      "pattern": "P09",
-      "surface": "master-detail",
+      "pattern": "P02",
+      "surface": "reference+permission-matrix",
       "wireframe": "roles-permissions-v2.html",
-      "remediation": "keep master-detail only if role selection and permission matrix are one job",
+      "remediation": "read-only platform role catalog and permission matrix remain separate stacked sections; custom role creation is not exposed until an API contract exists",
       "priority": "medium"
     },
     {
       "route": "admin/access-scopes",
       "page": "AdminAccessScopesPage",
       "pattern": "P02",
-      "surface": "list",
+      "surface": "list+utility-dialog",
       "wireframe": "access-scopes.html",
-      "remediation": "list only; assignment editing lives on dedicated P04 route; evaluation remains a focused utility",
+      "remediation": "assignment list is the primary job; editing lives on the dedicated P04 route and Evaluate Access opens as a focused utility dialog",
       "priority": "critical"
     },
     {
@@ -403,11 +403,12 @@
     {
       "route": "assets/software-licenses",
       "page": "SoftwareLicensesPage",
-      "pattern": "P09",
-      "surface": "master-detail",
+      "pattern": "P02",
+      "surface": "list+drawer",
       "wireframe": "software-licenses.html",
-      "remediation": "license product + allocations may remain master-detail; row actions normalized",
-      "priority": "medium"
+      "remediation": "license list remains the primary job; Open shows allocations and the short license-record editor in a focused drawer",
+      "priority": "medium",
+      "specialComponent": "INNODrawer"
     },
     {
       "route": "assets/contracts",

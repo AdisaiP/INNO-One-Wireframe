@@ -73,7 +73,10 @@ check("integrations explains boundary in page description", "Configuration remai
 check("calendar has no purpose note", "<INNOPurposeNote" not in calendar)
 check("branding has no purpose note", "<INNOPurposeNote" not in branding)
 check("platform settings has no purpose note", "<INNOPurposeNote" not in platform)
-check("roles has no purpose note", "<INNOPurposeNote" not in roles)
+check("roles purpose note is the current API boundary",
+      "<INNOPurposeNote" in roles
+      and "System roles are read-only" in roles
+      and "Custom role creation and permission editing are not available in the current API." in roles)
 check("security has no purpose note", "<INNOPurposeNote" not in security)
 check("automation has no purpose note", "<INNOPurposeNote" not in automation)
 check("search has no purpose note", "<INNOPurposeNote" not in search)

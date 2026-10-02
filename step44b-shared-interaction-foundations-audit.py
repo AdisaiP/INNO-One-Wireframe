@@ -126,7 +126,6 @@ check("AdminAuditPage.tsx passive copy no longer uses INNOState",
 passive_titles = {
     "AdminBrandingPage.tsx": "Brand customization is not editable yet",
     "AdminPlatformSettingsPage.tsx": "Platform settings are deployment-managed",
-    "AdminRolesPage.tsx": "Role definitions are read-only in this phase",
     "AdminSecurityPage.tsx": "Security policy changes are not exposed yet",
     "SearchPage.tsx": "Authorization stays authoritative",
 }
@@ -136,6 +135,14 @@ for file_name, former_title in passive_titles.items():
           "INNOPurposeNote" not in source)
     check(file_name + " passive explanation title removed while real states remain allowed",
           former_title not in source)
+
+roles_source = PAGES["AdminRolesPage.tsx"]
+check("roles purpose note documents current immutable contract",
+      "INNOPurposeNote" in roles_source
+      and "System roles are read-only" in roles_source
+      and "Custom role creation and permission editing are not available in the current API." in roles_source)
+check("roles legacy phase wording remains removed",
+      "Role definitions are read-only in this phase" not in roles_source)
 
 # Shared spacing ownership.
 for token in [

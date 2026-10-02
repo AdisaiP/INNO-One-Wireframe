@@ -1,4 +1,4 @@
-import { useDeferredValue, useEffect, useMemo, useState } from 'react';
+import { useDeferredValue, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 import {
@@ -8,12 +8,12 @@ import {
   INNOCollectionHeader,
   INNOCollectionState,
   INNOCollectionToolbar,
+  INNODrawer,
   INNOPage,
   INNOPagination,
   INNOPurposeNote,
   INNOSearchField,
   INNOSelectField,
-  INNOState,
   INNOStatus,
   INNOTableWrap,
 } from '@inno/ui';
@@ -113,11 +113,6 @@ export function AdminAuditPage() {
     || to,
   );
 
-  const selectedInPage = useMemo(
-    () => list.data?.items.find((item) => item.auditId === selectedId) ?? null,
-    [list.data, selectedId],
-  );
-
   function selectAudit(auditId: string) {
     setParams((current) => {
       const next = new URLSearchParams(current);
@@ -157,8 +152,7 @@ export function AdminAuditPage() {
         description="This view shows persisted audit facts exactly as stored. It does not infer canonical envelope fields that are not present in the current ledger."
       />
 
-      <div className="admin-audit-layout">
-        <INNOCollection>
+      <INNOCollection className="admin-audit-collection">
           <INNOCollectionHeader
             title="Audit Records"
             description="Newest records first. Filters are applied on the server."
@@ -290,48 +284,36 @@ export function AdminAuditPage() {
           ) : null}
         </INNOCollection>
 
-        <section className="prod-panel admin-audit-detail">
-          <div className="prod-panel-head">
-            <div>
-              <h3>Audit Detail</h3>
-              <p>{selectedId ? 'Immutable stored audit fact.' : 'Select a record to inspect it.'}</p>
+      <INNODrawer
+        open={Boolean(selectedId)}
+        title="Audit Detail"
+        description="Immutable stored audit fact."
+        onClose={clearSelection}
+        size="lg"
+      >
+        {detail.isPending ? <div className="collection-state"><LoadingState label="Loading audit detail…" /></div> : null}
+        {detail.isError ? <div className="collection-state"><ErrorState error={detail.error} retry={() => void detail.refetch()} /></div> : null}
+        {detail.data ? (
+          <div className="admin-audit-detail-body">
+            <dl className="audit-detail-list">
+              <div><dt>Audit ID</dt><dd>{detail.data.auditId}</dd></div>
+              <div><dt>Occurred</dt><dd>{formatWhen(detail.data.occurredAt)}</dd></div>
+              <div><dt>Action</dt><dd>{detail.data.action}</dd></div>
+              <div><dt>Module</dt><dd>{detail.data.module}</dd></div>
+              <div><dt>Actor</dt><dd>{detail.data.actorName ?? detail.data.actorId}</dd></div>
+              <div><dt>Actor ID</dt><dd>{detail.data.actorId}</dd></div>
+              <div><dt>Target</dt><dd>{detail.data.targetType} · {detail.data.targetId}</dd></div>
+              <div><dt>Classification</dt><dd>{detail.data.classification}</dd></div>
+              <div><dt>Correlation ID</dt><dd>{detail.data.correlationId ?? '—'}</dd></div>
+              <div><dt>Trace ID</dt><dd>{detail.data.traceId ?? '—'}</dd></div>
+            </dl>
+            <div className="audit-metadata-block">
+              <b>Metadata</b>
+              <pre>{prettyMetadata(detail.data.metadata)}</pre>
             </div>
-            {selectedId ? (
-              <button type="button" className="audit-close-button" onClick={clearSelection}>
-                Close
-              </button>
-            ) : null}
           </div>
-
-          {!selectedId ? (
-            <div className="collection-state">
-              <INNOState title="Select an audit record" description="Choose a row to inspect actor, target, correlation, trace and metadata." />
-            </div>
-          ) : null}
-          {selectedId && detail.isPending ? <div className="collection-state"><LoadingState label="Loading audit detail…" /></div> : null}
-          {selectedId && detail.isError ? <div className="collection-state"><ErrorState error={detail.error} retry={() => void detail.refetch()} /></div> : null}
-          {detail.data ? (
-            <div className="admin-audit-detail-body">
-              <dl className="audit-detail-list">
-                <div><dt>Audit ID</dt><dd>{detail.data.auditId}</dd></div>
-                <div><dt>Occurred</dt><dd>{formatWhen(detail.data.occurredAt)}</dd></div>
-                <div><dt>Action</dt><dd>{detail.data.action}</dd></div>
-                <div><dt>Module</dt><dd>{detail.data.module}</dd></div>
-                <div><dt>Actor</dt><dd>{detail.data.actorName ?? detail.data.actorId}</dd></div>
-                <div><dt>Actor ID</dt><dd>{detail.data.actorId}</dd></div>
-                <div><dt>Target</dt><dd>{detail.data.targetType} · {detail.data.targetId}</dd></div>
-                <div><dt>Classification</dt><dd>{detail.data.classification}</dd></div>
-                <div><dt>Correlation ID</dt><dd>{detail.data.correlationId ?? '—'}</dd></div>
-                <div><dt>Trace ID</dt><dd>{detail.data.traceId ?? '—'}</dd></div>
-              </dl>
-              <div className="audit-metadata-block">
-                <b>Metadata</b>
-                <pre>{prettyMetadata(detail.data.metadata)}</pre>
-              </div>
-            </div>
-          ) : selectedInPage && !detail.isPending ? null : null}
-        </section>
-      </div>
+        ) : null}
+      </INNODrawer>
     </INNOPage>
   );
 }

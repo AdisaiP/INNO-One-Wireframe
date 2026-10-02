@@ -3,7 +3,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { RouterRowAction } from '../components/RouterRowAction';
 import {
   INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState,
-  INNOCollectionToolbar, INNOPage, INNOSearchField, INNOSelectField,
+  INNOCollectionToolbar, INNODialog, INNOPage, INNOSearchField, INNOSelectField,
   INNOStatus, INNOTableWrap,
 } from '@inno/ui';
 import {
@@ -19,6 +19,7 @@ export function AdminAccessScopesPage() {
   const canEvaluate = usePermission('admin.access_scopes.evaluate');
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
+  const [evaluateOpen, setEvaluateOpen] = useState(false);
   const [evaluateUserId, setEvaluateUserId] = useState('');
   const [evaluatePermission, setEvaluatePermission] = useState('');
   const [evaluation, setEvaluation] = useState<AdminAccessEvaluation | null>(null);
@@ -47,7 +48,10 @@ export function AdminAccessScopesPage() {
     <INNOPage
       eyebrow="Admin Center · Access"
       title="Access Scopes"
-      description="Manage role + resource-scope bindings separately from role definitions."
+      description="Manage who receives a role and which resources that role applies to."
+      actions={canEvaluate ? (
+        <INNOButton type="button" variant="secondary" onClick={() => setEvaluateOpen(true)}>Evaluate Access</INNOButton>
+      ) : undefined}
     >
       <INNOCollection>
         <INNOCollectionHeader
@@ -96,26 +100,56 @@ export function AdminAccessScopesPage() {
           </INNOTableWrap>
         ) : null}
       </INNOCollection>
-      <INNOCollection>
-        <INNOCollectionHeader title="Evaluate Access" description="Explain whether a user has one permission and which scope made it effective." />
-        <div className="admin-evaluate-panel">
-          <label className="field-block"><span>User</span><select disabled={!canEvaluate} value={evaluateUserId} onChange={(e) => setEvaluateUserId(e.target.value)}><option value="">Select user</option>{users.data?.items.map((user) => <option key={user.id} value={user.id}>{user.fullName}</option>)}</select></label>
-          <label className="field-block"><span>Permission</span><select disabled={!canEvaluate} value={evaluatePermission} onChange={(e) => setEvaluatePermission(e.target.value)}><option value="">Select permission</option>{permissions.data?.map((permission) => <option key={permission.id} value={permission.id}>{permission.id}</option>)}</select></label>
-          <INNOButton type="button" busy={evaluate.isPending} disabled={!canEvaluate || !evaluateUserId || !evaluatePermission} onClick={() => evaluate.mutate()}>Evaluate</INNOButton>
+
+      <INNODialog
+        open={evaluateOpen}
+        title="Evaluate Access"
+        description="Check whether one user has a permission and which resource scope makes it effective."
+        onClose={() => setEvaluateOpen(false)}
+        size="md"
+        footer={(
+          <>
+            <INNOButton type="button" variant="secondary" onClick={() => setEvaluateOpen(false)}>Close</INNOButton>
+            <INNOButton
+              type="button"
+              busy={evaluate.isPending}
+              disabled={!canEvaluate || !evaluateUserId || !evaluatePermission}
+              onClick={() => evaluate.mutate()}
+            >
+              Evaluate
+            </INNOButton>
+          </>
+        )}
+      >
+        <div className="admin-evaluate-dialog">
+          <label className="field-block">
+            <span>User</span>
+            <select value={evaluateUserId} onChange={(e) => { setEvaluateUserId(e.target.value); setEvaluation(null); }}>
+              <option value="">Select user</option>
+              {users.data?.items.map((user) => <option key={user.id} value={user.id}>{user.fullName}</option>)}
+            </select>
+          </label>
+          <label className="field-block">
+            <span>Permission</span>
+            <select value={evaluatePermission} onChange={(e) => { setEvaluatePermission(e.target.value); setEvaluation(null); }}>
+              <option value="">Select permission</option>
+              {permissions.data?.map((permission) => <option key={permission.id} value={permission.id}>{permission.id}</option>)}
+            </select>
+          </label>
+          {evaluate.isError ? <ErrorState error={evaluate.error} /> : null}
+          {evaluation ? (
+            <div className="admin-evaluation-result">
+              <INNOStatus tone={evaluation.allowed ? 'success' : 'danger'}>{evaluation.allowed ? 'Allowed' : 'Denied'}</INNOStatus>
+              <div><b>{evaluation.permission}</b><span>{evaluation.reason}</span></div>
+              <small>{evaluation.allResources ? 'All resources' : [
+                evaluation.organizationIds.length ? evaluation.organizationIds.length + ' organizations' : '',
+                evaluation.locationIds.length ? evaluation.locationIds.length + ' locations' : '',
+                evaluation.deviceGroupIds.length ? evaluation.deviceGroupIds.length + ' device groups' : '',
+              ].filter(Boolean).join(' · ') || 'No resource scope'}</small>
+            </div>
+          ) : null}
         </div>
-        {evaluate.isError ? <div className="collection-state"><ErrorState error={evaluate.error} /></div> : null}
-        {evaluation ? (
-          <div className="admin-evaluation-result">
-            <INNOStatus tone={evaluation.allowed ? 'success' : 'danger'}>{evaluation.allowed ? 'Allowed' : 'Denied'}</INNOStatus>
-            <div><b>{evaluation.permission}</b><span>{evaluation.reason}</span></div>
-            <small>{evaluation.allResources ? 'All resources' : [
-              evaluation.organizationIds.length ? evaluation.organizationIds.length + ' organizations' : '',
-              evaluation.locationIds.length ? evaluation.locationIds.length + ' locations' : '',
-              evaluation.deviceGroupIds.length ? evaluation.deviceGroupIds.length + ' device groups' : '',
-            ].filter(Boolean).join(' · ') || 'No resource scope'}</small>
-          </div>
-        ) : null}
-      </INNOCollection>
+      </INNODialog>
     </INNOPage>
   );
 }
