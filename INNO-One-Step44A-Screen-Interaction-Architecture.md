@@ -368,12 +368,20 @@ Post-44G Production visual review revises several earlier permissive master-deta
 These decisions supersede the earlier adjacent-editor allowances where noted in the route matrix.
 
 ### Step 44H — Full Route Visual QA
+**Status: COMPLETE on `ux/step44h-final-visual-qa`.**
+
+Final freeze evidence:
 - 56 routes,
 - 1366 / 1024 / 768,
-- architecture assertions,
-- interaction assertions,
-- screenshot/contact-sheet review,
-- build/typecheck/regression freeze.
+- 168 top-of-page screenshots,
+- 12 / 20 / 32 bottom screenshots at 1366 / 1024 / 768,
+- architecture + interaction assertions,
+- 6 contact sheets visually reviewed,
+- 2462 browser checks / 0 failures,
+- Design System browser 56 / 56,
+- build/typecheck/static regression PASS.
+
+No additional Production UI source change was required after Step 44H-A.
 
 ## Step 44A QA
 
