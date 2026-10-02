@@ -18,7 +18,7 @@ export function AssetOwnerDetailPage() {
 
   return (
     <main className="inno-page">
-      <div className="resource-breadcrumb"><Link to="/assets/owners">User Profiles</Link><span>›</span><span>{owner.fullName}</span></div>
+      <div className="resource-breadcrumb"><Link to="/assets/owners">Asset Owners</Link><span>›</span><span>{owner.fullName}</span></div>
 
       <INNOResourceHeader
         icon={<INNOIcon token="section.userProfiles" size={20} />}
@@ -47,7 +47,7 @@ export function AssetOwnerDetailPage() {
       <div hidden={activeTab !== 'overview'}>
         <section className="prod-panel">
           <div className="prod-panel-head">
-            <div><h3>User profile</h3><p>Identity data is read-only here and remains owned by Platform.</p></div>
+            <div><h3>Ownership profile</h3><p>Identity fields are read-only here; user administration remains in Admin Center.</p></div>
           </div>
           <div className="kv-grid production-kv-grid">
             <div className="kv-row"><span>Employee ID</span><b>{owner.employeeId}</b></div>

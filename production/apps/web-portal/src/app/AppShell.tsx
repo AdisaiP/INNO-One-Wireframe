@@ -305,8 +305,8 @@ export function AppShell() {
               <NavLink to="/assets/custom-fields"><SideNavLabel token="section.customFields">Custom Fields</SideNavLabel></NavLink>
               {canPrintAssetQr ? <NavLink to="/assets/qr-labels"><SideNavLabel token="section.qr">QR Labels</SideNavLabel></NavLink> : null}
               <div className="prod-side-section">Ownership</div>
-              <NavLink end to="/assets/ownership"><SideNavLabel token="section.ownership">Ownership & Users</SideNavLabel></NavLink>
-              <NavLink to="/assets/owners"><SideNavLabel token="section.userProfiles">User Profiles</SideNavLabel></NavLink>
+              <NavLink end to="/assets/ownership"><SideNavLabel token="section.ownership">Ownership Overview</SideNavLabel></NavLink>
+              <NavLink to="/assets/owners"><SideNavLabel token="section.userProfiles">Asset Owners</SideNavLabel></NavLink>
               <NavLink to="/assets/ownership/submissions"><SideNavLabel token="section.submissions">Agent Submissions</SideNavLabel></NavLink>
             </>
           ) : inHelpdesk ? (

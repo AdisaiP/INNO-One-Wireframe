@@ -161,7 +161,7 @@ export function AppRoot() {
 
           <Route path="assets" element={canViewAssets ? <AssetsOverviewPage /> : <DeferredPage name="Assets" kind="permission" />} />
           <Route path="assets/inventory" element={canViewAssets ? <AssetInventoryPage /> : <DeferredPage name="Asset Inventory" kind="permission" />} />
-          <Route path="assets/ownership" element={canViewAssets ? <AssetOwnershipPage /> : <DeferredPage name="Ownership & Users" kind="permission" />} />
+          <Route path="assets/ownership" element={canViewAssets ? <AssetOwnershipPage /> : <DeferredPage name="Asset Ownership" kind="permission" />} />
           <Route path="assets/owners" element={canViewAssets ? <AssetOwnersPage /> : <DeferredPage name="Asset Owners" kind="permission" />} />
           <Route path="assets/owners/:userId" element={canViewAssets ? <AssetOwnerDetailPage /> : <DeferredPage name="Asset Owner" kind="permission" />} />
           <Route path="assets/ownership/submissions" element={canViewAssets ? <AssetOwnershipSubmissionsPage /> : <DeferredPage name="Agent Submissions" kind="permission" />} />

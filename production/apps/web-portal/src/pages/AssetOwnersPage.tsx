@@ -12,14 +12,14 @@ export function AssetOwnersPage() {
   return (
     <INNOPage
       eyebrow="Assets · Ownership"
-      title="User Profiles"
-      description="Find a user and open their current asset ownership context."
+      title="Asset Owners"
+      description="Find an asset owner and open their ownership profile. Identity administration remains in Admin Center."
     >
       <INNOCollection>
         <INNOCollectionHeader
-          title="Users"
-          description="Platform users with assets visible in your scope."
-          meta={query.data ? <INNOStatus>{query.data.totalItems} users</INNOStatus> : undefined}
+          title="Asset owners"
+          description="People with asset ownership context visible in your scope."
+          meta={query.data ? <INNOStatus>{query.data.totalItems} owners</INNOStatus> : undefined}
         />
         <INNOCollectionToolbar>
           <INNOSearchField label="Search owners" value={search} onChange={setSearch} placeholder="Search name, employee ID or email…" />
@@ -27,20 +27,20 @@ export function AssetOwnersPage() {
           <INNOToolbarMeta>Authorization filtered server-side</INNOToolbarMeta>
         </INNOCollectionToolbar>
         {query.isPending ? (
-          <CollectionLoadingState label="Loading users…" />
+          <CollectionLoadingState label="Loading asset owners…" />
         ) : query.isError ? (
           <CollectionErrorState error={query.error} retry={() => void query.refetch()} />
         ) : query.data.items.length === 0 ? (
           <INNOCollectionState
             kind={search ? 'no-results' : 'empty'}
-            title={search ? 'No users found' : 'No users in scope'}
-            description={search ? 'Try another name, employee ID or email.' : 'No Platform users with visible Asset ownership are available.'}
+            title={search ? 'No asset owners found' : 'No asset owners in scope'}
+            description={search ? 'Try another name, employee ID or email.' : 'No people with visible asset ownership context are available.'}
             action={search ? <INNOButton variant="secondary" onClick={() => setSearch('')}>Clear search</INNOButton> : undefined}
           />
         ) : (
           <INNOTableWrap width="wide">
             <table>
-              <thead><tr><th>User</th><th>Employee ID</th><th>Organization</th><th>Owned assets</th><th>Last ownership change</th><th className="action-column">Action</th></tr></thead>
+              <thead><tr><th>Asset owner</th><th>Employee ID</th><th>Organization</th><th>Owned assets</th><th>Last ownership change</th><th className="action-column">Action</th></tr></thead>
               <tbody>{query.data.items.map((owner) => <tr key={owner.id}><td><b>{owner.fullName}</b><div className="table-meta">{owner.email}</div></td><td>{owner.employeeId}</td><td>{owner.organization ?? '—'}</td><td>{owner.assetCount}</td><td>{owner.lastOwnershipAt ? new Date(owner.lastOwnershipAt).toLocaleString() : '—'}</td><td className="action-column"><RouterRowAction to={'/assets/owners/' + owner.id} ariaLabel={'Open ' + owner.fullName} /></td></tr>)}</tbody>
             </table>
           </INNOTableWrap>

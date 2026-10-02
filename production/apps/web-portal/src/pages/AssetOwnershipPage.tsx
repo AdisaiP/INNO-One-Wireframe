@@ -9,8 +9,8 @@ export function AssetOwnershipPage() {
   return (
     <INNOPage
       eyebrow="Assets · Ownership"
-      title="Ownership & Users"
-      description="Review ownership state while user identity remains owned by Platform."
+      title="Asset Ownership"
+      description="Review asset assignments, owner context and Agent-submitted ownership changes. User identity remains administered in Admin Center."
     >
       {query.isPending ? <LoadingState label="Loading ownership…" /> : null}
       {query.isError ? <ErrorState error={query.error} retry={() => void query.refetch()} /> : null}
@@ -23,8 +23,8 @@ export function AssetOwnershipPage() {
         </div>
         <div className="helpdesk-overview-grid">
           <section className="prod-panel">
-            <div className="prod-panel-head"><div><h3>User Profiles</h3><p>Open users with current asset ownership.</p></div><Link className="open-resource" to="/assets/owners">View users</Link></div>
-            <div className="settings-stack"><div className="settings-row"><div><b>Platform directory</b><span>Names and organization are read through the shared directory contract.</span></div><INNOStatus tone="success">Connected</INNOStatus></div></div>
+            <div className="prod-panel-head"><div><h3>Asset Owners</h3><p>Open ownership profiles for people with assets in your effective scope.</p></div><Link className="open-resource" to="/assets/owners">View asset owners</Link></div>
+            <div className="settings-stack"><div className="settings-row"><div><b>Identity source</b><span>Names, email and organization are read-only here and remain administered in Admin Center.</span></div><INNOStatus tone="success">Connected</INNOStatus></div></div>
           </section>
           <section className="prod-panel">
             <div className="prod-panel-head"><div><h3>Agent Submissions</h3><p>Review durable ownership confirmations from the Endpoint Agent.</p></div><Link className="open-resource" to="/assets/ownership/submissions">Review queue</Link></div>
