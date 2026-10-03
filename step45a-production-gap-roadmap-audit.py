@@ -46,7 +46,7 @@ check("roadmap schema is 1", ROADMAP["schemaVersion"] == 1)
 check("step id is 45A", ROADMAP["step"] == "45A")
 check("frozen design system remains V1.26", ROADMAP["baseline"]["designSystem"] == "V1.26")
 check("frozen UI contract remains 1.20.0", ROADMAP["baseline"]["uiContract"] == "1.20.0")
-check("Step 44 route matrix remains 61", len(MATRIX["routes"]) == 61, len(MATRIX["routes"]))
+check("current route matrix is 64 after Step 45B", len(MATRIX["routes"]) == 64, len(MATRIX["routes"]))
 check("45A baseline records 61 route definitions", ROADMAP["baseline"]["productionRouteDefinitions"] == 61)
 check("implemented route groups sum to 61", sum(ROADMAP["baseline"]["implementedRouteGroups"].values()) == 61)
 
@@ -68,12 +68,15 @@ check("Assets owner manifest uses canonical label", asset_nav.get("/assets/owner
 check("legacy Ownership & Users label removed from production manifest", "Ownership & Users" not in read(PROD / "module-manifests.json"))
 check("legacy User Profiles label removed from production manifest", '"User Profiles"' not in read(PROD / "module-manifests.json"))
 
-# Workflow is foundation-only and intentionally separate from Helpdesk simple automation.
-check("workflow classified foundation-only", surface["workflow"]["status"] == "foundation-only")
+# Step 45A froze Workflow as foundation-only; Step 45B now adds hidden Product IA routes
+# without changing the 45A historical classification or adding persistence.
+check("workflow classified foundation-only at 45A", surface["workflow"]["status"] == "foundation-only")
 check("workflow canvas foundation exists", "INNOWorkflowCanvas" in workflow and "@xyflow/react" in workflow)
 check("workflow proof remains in internal design system", "INNOWorkflowCanvas" in design_system and 'id="workflow"' in design_system)
-check("workflow has no production route yet", 'path="workflows' not in app_root and 'path="workflow' not in app_root)
-check("workflow absent from production module manifest until 45B", "workflow" not in modules)
+check("45B workflow Product routes now exist", all(marker in app_root for marker in ['path="workflows"', 'path="workflows/new"', 'path="workflows/:workflowId"']))
+check("45B workflow module contract now exists", "workflows" in modules)
+check("45B workflow module stays out of normal launcher", modules["workflows"]["launcher"] is False)
+check("45B workflow future permissions are declared", set(modules["workflows"]["permissions"]) == {"workflows.view", "workflows.manage"})
 check("workflow standalone module decision frozen", decisions["workflow-ownership"]["decision"].startswith("Dynamic Workflow is a standalone Web application"))
 check("Helpdesk simple automation route remains separate", 'path="helpdesk/automation"' in app_root)
 
@@ -101,6 +104,7 @@ for file_name in ("meeting.html", "meeting-list.html", "meeting-new.html", "meet
 check("development seed installs devices", 'AppId = "devices"' in seed)
 check("development seed installs assets", 'AppId = "assets"' in seed)
 check("development seed installs helpdesk", 'AppId = "helpdesk"' in seed)
+check("development seed does not install workflows", 'AppId = "workflows"' not in seed)
 check("development seed does not install meeting", 'AppId = "meeting"' not in seed)
 check("development seed does not install reports", 'AppId = "reports"' not in seed)
 
@@ -128,8 +132,11 @@ check("Reports vertical slice scheduled", roadmap["46"]["name"] == "Reports Prod
 check("Endpoint Agent runtime scheduled before Meeting", roadmap["47"]["name"] == "Endpoint Agent Runtime Foundation" and "47" in roadmap["48"]["dependsOn"])
 check("Meeting production scheduled after Agent runtime", roadmap["48"]["name"] == "Meeting Production Module")
 
-# Availability: no normal nav entries for deferred/foundation-only modules.
-check("App shell does not expose Workflow nav", 'to="/workflows"' not in app_shell)
+# Availability: 45B may own contextual Workflow navigation after direct entry,
+# but there is still no normal launcher/rail entry until persistence exists.
+rail = app_shell.split('<aside className="prod-rail"', 1)[1].split('</aside>', 1)[0]
+check("App rail does not expose Workflow module", 'to="/workflows"' not in rail)
+check("Workflow contextual navigation is preview-only", 'Session-only authoring preview' in app_shell and "canPreviewWorkflows = canAdminApps" in app_shell)
 check("App shell does not expose Meeting nav", 'to="/meeting"' not in app_shell)
 check("App shell does not expose Reports nav", 'to="/reports"' not in app_shell)
 

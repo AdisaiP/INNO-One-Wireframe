@@ -19,7 +19,7 @@ if len(ids) != len(set(ids)):
 if len(routes) != len(set(routes)):
     issues.append("duplicate module routes")
 
-expected = {"devices", "assets", "helpdesk", "meeting", "reports"}
+expected = {"devices", "assets", "helpdesk", "workflows", "meeting", "reports"}
 if set(ids) != expected:
     issues.append("module catalog ids")
 
@@ -27,6 +27,7 @@ expected_dependencies = {
     "devices": {"platform"},
     "assets": {"platform", "devices"},
     "helpdesk": {"platform", "devices", "assets"},
+    "workflows": {"platform"},
     "meeting": {"platform"},
     "reports": {"platform", "devices", "assets", "helpdesk"},
 }

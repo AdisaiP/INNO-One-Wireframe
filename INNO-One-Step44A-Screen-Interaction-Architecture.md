@@ -4,7 +4,7 @@
 **Branch:** `ux/step44a-screen-interaction-architecture`
 **Base:** `bdf3cca feat: implement inventory query`
 **Scope:** Production Web Portal interaction architecture
-**Current Production route definitions:** 61 (Step 44H-C adds explicit Software Baseline create/detail/edit routes and Asset Edit after the 56-route H freeze)
+**Current Production route definitions:** 64 (Step 45B adds Dynamic Workflow list/new/edit Product IA routes after the 61-route H-C baseline)
 **Frozen Design System:** V1.26
 **Frozen UI Contract:** 1.20.0
 
@@ -45,16 +45,16 @@ step44a-screen-interaction-architecture-audit.py
 
 ## Route classification
 
-All 61 current Production route definitions are now classified. The broad browser harness is prepared to cover the Workspace root `/` plus dynamic resource routes; Step 44H-C browser execution is pending because the current test infra host is unreachable.
+All 64 current Production route definitions are classified. Step 45B adds Dynamic Workflow as one P02 list route plus two P06 builder routes while preserving the Step 44 interaction contracts.
 
 | Pattern | Routes |
 | --- | ---: |
 | P01 Overview | 4 |
-| P02 List / focused overlay | 23 |
+| P02 List / focused overlay | 24 |
 | P03 Resource Detail | 9 |
 | P04 Create/Edit | 10 |
 | P05 Settings | 7 |
-| P06 Builder | 1 |
+| P06 Builder | 3 |
 | P07 Monitor/Operations | 2 |
 | P08 Wizard | 2 |
 | P09 Master-Detail | 0 |
@@ -65,7 +65,7 @@ Remediation priority:
 | Priority | Routes |
 | --- | ---: |
 | Critical | 9 |
-| High | 24 |
+| High | 27 |
 | Medium | 14 |
 | Low | 14 |
 
@@ -406,7 +406,7 @@ A second route-by-route architecture audit found and remediated the remaining em
 - **Admin Apps** → module registry stays list-first; Inspect opens technical manifest metadata in a drawer instead of native inline `<details>`.
 - **Helpdesk SLA** → explicitly reviewed and retained as P05 because policy configuration is the page's primary job; the live SLA monitor remains supporting context.
 
-No P09 Master-Detail routes remain in the current matrix. The current matrix contains 61 route definitions.
+No P09 Master-Detail routes remained after H-C. The H-C baseline contained 61 route definitions.
 
 Step 44H-C completion evidence:
 - dedicated H-C browser QA = 145 checks / 0 failures / 38 screenshots,
@@ -418,13 +418,29 @@ Step 44H-C completion evidence:
 
 The current database has zero Software Baseline rows, so the real list empty state is tested directly while Baseline Detail/Edit visual evidence uses a browser-only fetch fixture that does not mutate Product data.
 
+### Step 45B — Dynamic Workflow Product IA + UI Routes
+**Status: COMPLETE on `ux/step45b-dynamic-workflow-product-ia`.**
+
+Step 45B consumes the Step 44G React Flow + ELK foundation without duplicating the canvas:
+
+- `/workflows` → P02 session-draft list,
+- `/workflows/new` → P06 new workflow builder,
+- `/workflows/:workflowId` → P06 session-draft edit builder,
+- shared special component remains `INNOWorkflowCanvas`,
+- Product builder owns Node Palette | Workflow Canvas | Properties,
+- session-only drafts are explicit and honest; there is no fake server save, publish, run or history,
+- Workflow module contract exists with `workflows.view` / `workflows.manage`, but `launcher:false` and no development seed installation keep it out of the normal launcher,
+- Helpdesk Automation remains the simple P04 Trigger → Condition → Action editor.
+
+Current matrix = 64 route definitions. Dedicated Step 45B browser QA is 84/84 with 9 screenshots; broad Production regression is 62 concrete routes / 1628 checks / 0 failures; Design System browser remains 56/56.
+
 ## Step 44A QA
 
 ```text
-step44a_routes=61
+step44a_routes=64
 step44a_reported_gap_classes=9
 step44a_current_gap_classes=0
-step44a_checks=97
+step44a_checks=108
 step44a_failures=0
 ```
 

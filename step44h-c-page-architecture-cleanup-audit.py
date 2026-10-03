@@ -104,7 +104,7 @@ for route, (pattern, surface) in expected.items():
     check(route + " matrix decision", routes[route]["pattern"] == pattern and routes[route]["surface"] == surface, routes[route])
 
 check("no P09 routes remain after cleanup", all(item["pattern"] != "P09" for item in MATRIX["routes"]))
-check("matrix route count is 61", len(MATRIX["routes"]) == 61, len(MATRIX["routes"]))
+check("current matrix route count is 64 after Step 45B", len(MATRIX["routes"]) == 64, len(MATRIX["routes"]))
 
 print(f"step44h_c_checks={checks}")
 print(f"step44h_c_failures={len(failures)}")

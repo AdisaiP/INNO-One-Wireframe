@@ -42,8 +42,8 @@ routes = [
 matrix_routes = [item["route"] for item in MATRIX["routes"]]
 by_route = {item["route"]: item for item in MATRIX["routes"]}
 
-check("route count is 61", len(routes) == 61, len(routes))
-check("matrix count is 61", len(matrix_routes) == 61, len(matrix_routes))
+check("route count is 64", len(routes) == 64, len(routes))
+check("matrix count is 64", len(matrix_routes) == 64, len(matrix_routes))
 check("matrix routes are unique", len(set(matrix_routes)) == len(matrix_routes))
 check("production routes are unique", len(set(routes)) == len(routes))
 check("matrix covers exact production routes", set(matrix_routes) == set(routes),
@@ -62,6 +62,9 @@ check("all route decisions have wireframe reference marker",
       all("wireframe" in item for item in MATRIX["routes"]))
 
 expected = {
+    "workflows": ("P02", "list+session-drafts", None, "high"),
+    "workflows/new": ("P06", "builder-route+session-draft", "INNOWorkflowCanvas", "high"),
+    "workflows/:workflowId": ("P06", "builder-route+session-draft", "INNOWorkflowCanvas", "high"),
     "admin/organization": ("P02", "hierarchy-list+drawer", "INNOTree", "critical"),
     "admin/locations": ("P02", "hierarchy-list+drawer", "INNOTree", "critical"),
     "admin/positions": ("P02", "list+modal", None, "high"),
@@ -205,7 +208,7 @@ for item in MATRIX["routes"]:
     patterns[item["pattern"]] = patterns.get(item["pattern"], 0) + 1
 
 check("critical remediation count", priorities.get("critical") == 9, priorities)
-check("high remediation count", priorities.get("high") == 24, priorities)
+check("high remediation count", priorities.get("high") == 27, priorities)
 
 print("step44a_routes=" + str(len(matrix_routes)))
 print("step44a_patterns=" + json.dumps(patterns, sort_keys=True))

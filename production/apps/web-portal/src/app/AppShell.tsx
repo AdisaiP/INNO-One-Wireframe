@@ -46,6 +46,7 @@ export function AppShell() {
   const canAdminBranding = usePermission('admin.branding.manage');
   const canAdminSettings = usePermission('admin.settings.manage');
   const canAdminApps = usePermission('admin.apps.view');
+  const canPreviewWorkflows = canAdminApps;
   const canViewDevices = usePermission('devices.view');
   const canDeployDevices = usePermission('devices.deploy');
   const canViewAssets = usePermission('assets.view');
@@ -60,6 +61,7 @@ export function AppShell() {
   const [sideCollapsed, setSideCollapsed] = useState(() => window.localStorage.getItem('inno.ui.sidebar.collapsed') === '1');
   const [shellSearch, setShellSearch] = useState('');
   const inApps = location.pathname === '/apps';
+  const inWorkflows = location.pathname.startsWith('/workflows');
   const inDesignSystem = location.pathname.startsWith('/internal/design-system');
   const inAdmin = location.pathname === '/admin' || location.pathname.startsWith('/admin/') || inDesignSystem;
   const inAdminApps = location.pathname.startsWith('/admin/apps');
@@ -83,6 +85,7 @@ export function AppShell() {
       : inDesignSystem ? 'Design System'
         : inAdmin ? 'Admin Center'
           : inApps ? 'Apps'
+          : inWorkflows ? 'Dynamic Workflows'
           : inAssets ? 'Assets'
             : inHelpdesk ? 'Helpdesk'
               : inDevices ? 'Devices'
@@ -204,7 +207,7 @@ export function AppShell() {
 
         <aside
           className={`prod-side${sideOpen ? ' open' : ''}`}
-          aria-label={inWorkspace ? 'Workspace navigation' : inSearch ? 'Search navigation' : inAccount ? 'Account navigation' : inDesignSystem ? 'Design System navigation' : inAdmin ? 'Admin navigation' : inApps ? 'Apps navigation' : inAssets ? 'Assets navigation' : inHelpdesk ? 'Helpdesk navigation' : inDevices ? 'Devices navigation' : 'Workspace context'}
+          aria-label={inWorkspace ? 'Workspace navigation' : inSearch ? 'Search navigation' : inAccount ? 'Account navigation' : inDesignSystem ? 'Design System navigation' : inAdmin ? 'Admin navigation' : inApps ? 'Apps navigation' : inWorkflows ? 'Dynamic Workflows navigation' : inAssets ? 'Assets navigation' : inHelpdesk ? 'Helpdesk navigation' : inDevices ? 'Devices navigation' : 'Workspace context'}
         >
           <button
             className="prod-side-collapse"
@@ -292,6 +295,15 @@ export function AppShell() {
               <div className="prod-side-section">Launcher</div>
               <NavLink end to="/apps"><SideNavLabel token="nav.apps">All Apps</SideNavLabel></NavLink>
               {canAdminApps ? <NavLink to="/admin/apps"><SideNavLabel token="section.modules">Apps & Modules</SideNavLabel></NavLink> : null}
+            </>
+          ) : inWorkflows && canPreviewWorkflows ? (
+            <>
+              <div className="prod-side-title">Dynamic Workflows</div>
+              <div className="prod-side-section">Definitions</div>
+              <NavLink end to="/workflows"><SideNavLabel token="section.automation">All Workflows</SideNavLabel></NavLink>
+              <NavLink to="/workflows/new"><SideNavLabel token="action.add">New Workflow</SideNavLabel></NavLink>
+              <div className="prod-side-section">Step 45B</div>
+              <div className="prod-side-note">Session-only authoring preview. Publishing and execution stay unavailable until persistence is implemented.</div>
             </>
           ) : inAssets ? (
             <>

@@ -62,12 +62,19 @@ import {
 import { TicketCreatePage } from '../pages/TicketCreatePage';
 import { TicketDetailPage } from '../pages/TicketDetailPage';
 import { TicketsPage } from '../pages/TicketsPage';
+import { WorkflowListPage } from '../pages/WorkflowListPage';
 import { AppShell } from './AppShell';
 import { ProfileProvider } from './ProfileContext';
+import { WorkflowDraftProvider } from './WorkflowDraftContext';
 
 const InternalDesignSystemPage = lazy(async () => {
   const module = await import('../pages/InternalDesignSystemPage');
   return { default: module.InternalDesignSystemPage };
+});
+
+const WorkflowBuilderPage = lazy(async () => {
+  const module = await import('../pages/WorkflowBuilderPage');
+  return { default: module.WorkflowBuilderPage };
 });
 
 export function AppRoot() {
@@ -103,6 +110,9 @@ export function AppRoot() {
   const canAdminBranding = profile.permissions.includes('admin.branding.manage');
   const canAdminSettings = profile.permissions.includes('admin.settings.manage');
   const canAdminApps = profile.permissions.includes('admin.apps.view');
+  // Step 45B preview gate only. Dedicated workflows.* permissions are declared
+  // in the module contract but are not provisioned until persistence in 45C.
+  const canPreviewWorkflows = canAdminApps;
   const canViewDevices = profile.permissions.includes('devices.view');
   const canDeployDevices = profile.permissions.includes('devices.deploy');
   const canViewAssets = profile.permissions.includes('assets.view');
@@ -117,6 +127,7 @@ export function AppRoot() {
 
   return (
     <ProfileProvider profile={profile}>
+      <WorkflowDraftProvider>
       <Routes>
         <Route element={<AppShell />}>
           <Route index element={canWorkspace ? <WorkspaceHomePage /> : <Navigate to="/profile" replace />} />
@@ -127,6 +138,23 @@ export function AppRoot() {
           <Route path="notifications" element={canViewNotifications ? <NotificationsPage /> : <DeferredPage name="Notifications" kind="permission" />} />
           <Route path="search" element={canUseSearch ? <SearchPage /> : <DeferredPage name="Search" kind="permission" />} />
           <Route path="apps" element={canViewApps ? <AppsPage /> : <DeferredPage name="Apps" kind="permission" />} />
+
+          {/* Step 45B product IA preview: hidden from normal launcher until 45C persistence exists. */}
+          <Route path="workflows" element={canPreviewWorkflows ? <WorkflowListPage /> : <DeferredPage name="Dynamic Workflows" kind="permission" />} />
+          <Route path="workflows/new"
+            element={canPreviewWorkflows ? (
+              <Suspense fallback={<LoadingState label="Loading workflow builder…" />}>
+                <WorkflowBuilderPage />
+              </Suspense>
+            ) : <DeferredPage name="New Workflow" kind="permission" />}
+          />
+          <Route path="workflows/:workflowId"
+            element={canPreviewWorkflows ? (
+              <Suspense fallback={<LoadingState label="Loading workflow builder…" />}>
+                <WorkflowBuilderPage />
+              </Suspense>
+            ) : <DeferredPage name="Workflow Builder" kind="permission" />}
+          />
 
           <Route path="admin" element={canAdmin ? <AdminOverviewPage /> : <DeferredPage name="Admin Center" kind="permission" />} />
           <Route path="admin/organization" element={canAdminOrganization ? <AdminOrganizationPage /> : <DeferredPage name="Organization Structure" kind="permission" />} />
@@ -204,6 +232,7 @@ export function AppRoot() {
           <Route path="*" element={<DeferredPage name="Not Found" kind="no-results" />} />
         </Route>
       </Routes>
+      </WorkflowDraftProvider>
     </ProfileProvider>
   );
 }

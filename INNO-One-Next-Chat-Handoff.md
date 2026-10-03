@@ -1,5 +1,12 @@
 > [!IMPORTANT]
-> **Current production override — 2026-10-04 — Step 45A**
+> **Current production override — 2026-10-04 — Step 45B**
+>
+> **Step 45B Dynamic Workflow Product IA + UI Routes is complete** on `ux/step45b-dynamic-workflow-product-ia`.
+>
+> Read `INNO-One-Step45B-Next-Chat-Handoff.md` first. Current Production has **64 route definitions**. Dynamic Workflow now has Product IA routes at `/workflows`, `/workflows/new`, and `/workflows/:workflowId`, reusing the Step 44G `INNOWorkflowCanvas` React Flow + ELK foundation. Step 45B remains frontend-only: drafts are React-memory session drafts, there is no Workflow API/persistence/execution, no Publish/Run action, the Workflow manifest is `launcher:false`, and the development seed does not install it. Dedicated QA is **66/66 static, 84/84 browser**, broad Production is **1628/1628 across 62 concrete routes**, and Design System browser remains **56/56**. Next is **Step 45C — Dynamic Workflow Persistence & Versioning**. Frozen Design System V1.26 / UI Contract 1.20.0 remain unchanged. **Do not merge unless explicitly requested.**
+>
+> [!IMPORTANT]
+> **Previous production override — 2026-10-04 — Step 45A**
 >
 > **Step 45A Production Gap Audit & Roadmap Freeze is complete** on `planning/step45a-production-gap-roadmap`.
 >

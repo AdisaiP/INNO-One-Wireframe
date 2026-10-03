@@ -94,6 +94,35 @@
       "priority": "medium"
     },
     {
+      "route": "workflows",
+      "page": "WorkflowListPage",
+      "pattern": "P02",
+      "surface": "list+session-drafts",
+      "wireframe": "—",
+      "remediation": "Step 45B Product IA list for session-only drafts; launcher remains hidden until persisted workflow definitions exist",
+      "priority": "high"
+    },
+    {
+      "route": "workflows/new",
+      "page": "WorkflowBuilderPage",
+      "pattern": "P06",
+      "surface": "builder-route+session-draft",
+      "wireframe": "—",
+      "remediation": "P06 authoring route reuses INNOWorkflowCanvas; no fake publish, execution or server persistence",
+      "priority": "high",
+      "specialComponent": "INNOWorkflowCanvas"
+    },
+    {
+      "route": "workflows/:workflowId",
+      "page": "WorkflowBuilderPage",
+      "pattern": "P06",
+      "surface": "builder-route+session-draft",
+      "wireframe": "—",
+      "remediation": "P06 edit route resolves only session drafts in Step 45B; persisted IDs and versioning begin in Step 45C",
+      "priority": "high",
+      "specialComponent": "INNOWorkflowCanvas"
+    },
+    {
       "route": "admin",
       "page": "AdminOverviewPage",
       "pattern": "P01",
