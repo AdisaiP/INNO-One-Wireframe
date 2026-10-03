@@ -215,6 +215,10 @@ def collect_dynamic(cdp, route):
     if route not in action_routes:
         return
     ready = wait_eval(cdp, "!!document.querySelector('.inno-collection tbody .action-column .inno-row-action')", timeout=5)
+    if route == "/assets/software-baselines" and not ready:
+        empty = cdp.eval("document.body.innerText.includes('No software baselines yet')")
+        check("dynamic route empty state accepted " + route, bool(empty))
+        return
     check("dynamic route action ready " + route, bool(ready))
     if not ready:
         return

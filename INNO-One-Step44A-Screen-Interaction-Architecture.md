@@ -395,7 +395,7 @@ Post-freeze user review intentionally supersedes three Step 44H-A decisions:
 The route matrix after Step 44H-B was 57 route definitions; the historical Step 44H visual evidence remains the pre-H-B 56-route freeze.
 
 ### Step 44H-C — Remaining Page Architecture Cleanup
-**Status: IMPLEMENTED on `ux/step44h-c-page-architecture-cleanup`; browser verification pending test-infra recovery.**
+**Status: COMPLETE on `ux/step44h-c-page-architecture-cleanup`; implementation, browser verification and visual review passed.**
 
 A second route-by-route architecture audit found and remediated the remaining embedded form/detail surfaces:
 
@@ -407,6 +407,16 @@ A second route-by-route architecture audit found and remediated the remaining em
 - **Helpdesk SLA** → explicitly reviewed and retained as P05 because policy configuration is the page's primary job; the live SLA monitor remains supporting context.
 
 No P09 Master-Detail routes remain in the current matrix. The current matrix contains 61 route definitions.
+
+Step 44H-C completion evidence:
+- dedicated H-C browser QA = 145 checks / 0 failures / 38 screenshots,
+- broad Production regression = 60 concrete routes / 1572 checks / 0 failures,
+- Design System browser = 56 / 56,
+- affected screenshots visually reviewed,
+- Admin Apps Inspect drawer wrapping issue found during visual review, fixed, rerun and re-reviewed,
+- build/typecheck/static regression PASS.
+
+The current database has zero Software Baseline rows, so the real list empty state is tested directly while Baseline Detail/Edit visual evidence uses a browser-only fetch fixture that does not mutate Product data.
 
 ## Step 44A QA
 

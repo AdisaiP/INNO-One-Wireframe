@@ -674,6 +674,14 @@
   padding: 12px 16px 16px;
 }
 
+.admin-app-inspect-drawer .production-kv-grid {
+  grid-template-columns: 1fr;
+  padding-top: 4px;
+}
+.admin-app-inspect-drawer .kv-row {
+  grid-template-columns: 120px minmax(0, 1fr);
+}
+
 .kv-row {
   display: grid;
   grid-template-columns: 125px minmax(0, 1fr);

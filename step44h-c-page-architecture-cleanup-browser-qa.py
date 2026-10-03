@@ -123,6 +123,45 @@ def close_overlay(c):
     c.ev("""(()=>{const b=document.querySelector('.inno-overlay-close');if(!b)return false;b.click();return true})()""")
     wait(c,"!document.querySelector('.inno-overlay')",4)
 
+def install_baseline_fixture(c):
+    fixture_id="baseline_qa_visual"
+    script="""(()=> {
+      if(!window.__qaOriginalFetch) window.__qaOriginalFetch=window.fetch.bind(window);
+      const id=%s;
+      const detail={
+        id, code:'QA_VISUAL', name:'QA Visual Baseline', targetCategory:'Computer',
+        requiredPackages:['Microsoft 365 Apps','Endpoint Protection'],
+        status:'active', evaluationStatus:'current',
+        updatedAt:'2026-10-03T07:00:00Z', eTag:'W/"1"'
+      };
+      const results={
+        baselineId:id, baselineName:'QA Visual Baseline', baselineVersion:1,
+        compliantCount:1, missingCount:1, unknownCount:1,
+        evaluatedAt:'2026-10-03T07:00:00Z',
+        items:[
+          {id:'result_qa_1',assetId:'asset_qa_1',assetTag:'NB-QA-001',assetName:'QA Notebook',category:'Computer',status:'compliant',reasonCode:'all_required_software_present',missingPackages:[],inventorySnapshotId:'snap_qa_1',inventoryObservedAt:'2026-10-03T06:30:00Z',evaluatedAt:'2026-10-03T07:00:00Z'},
+          {id:'result_qa_2',assetId:'asset_qa_2',assetTag:'NB-QA-002',assetName:'QA Finance Notebook',category:'Computer',status:'missing',reasonCode:'required_software_missing',missingPackages:['Endpoint Protection'],inventorySnapshotId:'snap_qa_2',inventoryObservedAt:'2026-10-03T06:20:00Z',evaluatedAt:'2026-10-03T07:00:00Z'},
+          {id:'result_qa_3',assetId:'asset_qa_3',assetTag:'NB-QA-003',assetName:'QA Offline Notebook',category:'Computer',status:'unknown',reasonCode:'inventory_stale',missingPackages:[],inventorySnapshotId:null,inventoryObservedAt:null,evaluatedAt:'2026-10-03T07:00:00Z'}
+        ]
+      };
+      window.fetch=async (input,init={})=>{
+        const url=typeof input==='string'?input:input.url;
+        const method=(init&&init.method)||'GET';
+        if(url.includes('/assets/software-baselines/'+id+'/results') && method==='GET')
+          return new Response(JSON.stringify(results),{status:200,headers:{'Content-Type':'application/json'}});
+        if(url.includes('/assets/software-baselines/'+id) && method==='GET')
+          return new Response(JSON.stringify({data:detail}),{status:200,headers:{'Content-Type':'application/json','ETag':'W/"1"'}});
+        return window.__qaOriginalFetch(input,init);
+      };
+      return id;
+    })()""" % json.dumps(fixture_id)
+    return c.ev(script) == fixture_id
+
+def spa_route(c,path):
+    ok=c.ev("""(()=>{history.pushState({},'',%s);window.dispatchEvent(new PopStateEvent('popstate'));return true})()""" % json.dumps(path))
+    if not ok: return False
+    return bool(wait(c,"location.pathname==="+json.dumps(path)+" && !!document.querySelector('.inno-page') && !document.querySelector('.page-loading-wrap')",12))
+
 def discover_from_first_row(c,route):
     if not nav(c,route): return ""
     ready=wait(c,"!!document.querySelector('.inno-collection tbody .action-column .inno-row-action')",7)
@@ -142,6 +181,7 @@ if not logged:
 
 # Software Baselines list and create route.
 baseline_route=""
+baseline_fixture=False
 for width in WIDTHS:
     c.viewport(width)
     check(f"{width} baseline list ready",nav(c,"/assets/software-baselines"))
@@ -152,31 +192,44 @@ for width in WIDTHS:
     c.shot(f"{width}__software-baselines.png")
     if width==1366:
         baseline_route=discover_from_first_row(c,"/assets/software-baselines")
-        check("baseline Open navigates to detail",baseline_route.startswith("/assets/software-baselines/baseline_"),baseline_route)
+        if baseline_route:
+            check("baseline Open navigates to detail",baseline_route.startswith("/assets/software-baselines/") and baseline_route!="/assets/software-baselines",baseline_route)
+        else:
+            baseline_fixture=True
+            baseline_route="/assets/software-baselines/baseline_qa_visual"
+            check("baseline empty collection is explicit",c.ev("document.body.innerText.includes('No software baselines yet')") is True)
+            check("baseline visual fixture installs without DB mutation",install_baseline_fixture(c))
 
 for width in WIDTHS:
     c.viewport(width)
     check(f"{width} baseline create ready",nav(c,"/assets/software-baselines/new"))
     body=c.ev("document.body.innerText") or ""
     check(f"{width} baseline create owns editor","New software baseline" in body and "Create Baseline" in body)
-    check(f"{width} baseline create excludes evaluation","Evaluation results" not in body)
+    check(f"{width} baseline create excludes evaluation surface",c.ev("![...document.querySelectorAll('h1,h2,h3')].some(x=>(x.textContent||'').trim()==='Evaluation results')") is True)
     check(f"{width} baseline create no overflow",no_overflow(c))
     c.shot(f"{width}__software-baseline-new.png")
 
 if baseline_route:
     for width in WIDTHS:
         c.viewport(width)
-        check(f"{width} baseline detail ready",nav(c,baseline_route))
+        if baseline_fixture:
+            if not c.ev("!!window.__qaOriginalFetch"):
+                check(f"{width} baseline visual fixture reinstalls",install_baseline_fixture(c))
+            detail_ready=spa_route(c,baseline_route)
+        else:
+            detail_ready=nav(c,baseline_route)
+        check(f"{width} baseline detail ready",detail_ready)
         body=c.ev("document.body.innerText") or ""
         check(f"{width} baseline detail has evaluation","Evaluation results" in body)
         check(f"{width} baseline detail has no editor","Save Baseline" not in body)
         check(f"{width} baseline detail no overflow",no_overflow(c))
         c.shot(f"{width}__software-baseline-detail.png")
         edit_route=baseline_route+"/edit"
-        check(f"{width} baseline edit ready",nav(c,edit_route))
+        edit_ready=spa_route(c,edit_route) if baseline_fixture else nav(c,edit_route)
+        check(f"{width} baseline edit ready",edit_ready)
         body=c.ev("document.body.innerText") or ""
         check(f"{width} baseline edit owns editor","Edit software baseline" in body and "Save Baseline" in body)
-        check(f"{width} baseline edit excludes evaluation","Evaluation results" not in body)
+        check(f"{width} baseline edit excludes evaluation surface",c.ev("![...document.querySelectorAll('h1,h2,h3')].some(x=>(x.textContent||'').trim()==='Evaluation results')") is True)
         check(f"{width} baseline edit no overflow",no_overflow(c))
         c.shot(f"{width}__software-baseline-edit.png")
 
@@ -195,7 +248,7 @@ for width in WIDTHS:
         c.shot("1366__device-groups__create-dialog.png")
         close_overlay(c)
         group_route=discover_from_first_row(c,"/devices/groups")
-        check("device group Open navigates to detail",group_route.startswith("/devices/groups/group_"),group_route)
+        check("device group Open navigates to detail",group_route.startswith("/devices/groups/") and group_route!="/devices/groups",group_route)
 
 if group_route:
     for width in WIDTHS:

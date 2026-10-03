@@ -1,6 +1,6 @@
 # INNO.One — Step 44H-C Next Chat Handoff
 
-**Status:** IMPLEMENTED — browser verification pending test-infra recovery  
+**Status:** COMPLETE — implementation, browser verification and visual review passed
 **Branch:** `ux/step44h-c-page-architecture-cleanup`  
 **Base:** `190a047 feat: make licenses roles and inventory query dynamic`  
 **Frozen Design System:** V1.26  
@@ -47,55 +47,50 @@ inno-step44a-screen-interaction-matrix.json
 ## Current QA
 
 Static:
-- H-C = 51 / 51
 - Step 44A = 97 / 97, gaps=0, routes=61
+- Step 44B = 65 / 65
+- Step 44C = 40 / 40
+- Step 44D = 34 / 34
 - Step 44E = 35 / 35
+- Step 44F = 24 / 24
+- Step 44G = 46 / 46
 - Step 44H-A = 43 / 43
+- Step 44H final static = 34 / 34
+- Step 44H-B = 40 / 40
+- Step 44H-C = 51 / 51
 - `git diff --check` PASS
+
+Browser:
+- H-C dedicated = 145 / 145, 38 screenshots
+- broad Production = 60 routes / 1572 checks / 0 failures
+- Design System = 56 / 56
 
 Frontend:
 - `@inno/ui` build PASS
 - Web Portal typecheck PASS
 - Web Portal production build PASS
+- main JS = 693.68 kB / 179.80 kB gzip
+- main CSS = 105.43 kB / 17.96 kB gzip
 
-H-C browser harness:
-- exists,
-- Python syntax compile PASS,
-- runtime verification currently BLOCKED by external infra.
-## Infra blocker
+## Browser / visual notes
 
-At the time of this checkpoint the Windows test machine cannot reach:
+The infrastructure recovered and authenticated browser QA now passes.
 
-```text
-172.10.1.58:5432  PostgreSQL
-172.10.1.58:8080  Keycloak
-```
+The current database has zero Software Baseline rows:
+- the real list empty state is covered directly,
+- Baseline Detail/Edit browser evidence uses the H-C browser-only `baseline_qa_visual` fetch fixture,
+- the fixture does not mutate PostgreSQL or Product data.
 
-Observed:
-- Platform API startup fails with Npgsql connection timeout to PostgreSQL,
-- Chrome QA redirects to Keycloak but the host is unreachable,
-- therefore authenticated Product browser QA cannot proceed.
+Affected screenshots were visually inspected. One real visual issue was found in Admin Apps Inspect: generic two-column KV layout wrapped metadata too aggressively inside the drawer. The drawer now has a dedicated single-column metadata layout, H-C browser QA was rerun clean, and the corrected screenshot was reviewed.
 
-This is an infrastructure/network dependency, not a compile/static failure.
+Broad Production accepts the empty Software Baseline collection as a valid state instead of requiring a row action.
 
-Do not claim H-C browser QA, screenshot review, broad Production browser regression, or Design System browser regression passed until the host is reachable.
-## When infra returns
+## Next work
 
-Run in this order:
+Step 44H-C is complete.
 
-```text
-python step44h-c-page-architecture-cleanup-browser-qa.py
-python step42-production-ux-browser-qa.py
-python step42_2-design-system-browser-qa.py
-```
-
-Do not run the two browser harnesses concurrently because they share the same CDP tab.
-
-Then:
-- open H-C screenshots at 1366 / 1024 / 768,
-- run the full Step 44 static chain,
-- run `git diff --check`,
-- update H-C docs from IMPLEMENTED/PENDING to COMPLETE,
-- commit/push any final QA/doc changes.
-
-Do not merge to `main` unless explicitly requested.
+Before starting another architecture/remediation step:
+- read this handoff and the H-C completion doc,
+- inspect current branch/status/diff,
+- preserve Design System V1.26 / UI Contract 1.20.0,
+- do not merge to `main` unless explicitly requested.
