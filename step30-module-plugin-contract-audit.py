@@ -32,6 +32,15 @@ expected_dependencies = {
 }
 
 known = set(ids) | {"platform"}
+device_navigation = {item.get("route"): item.get("label") for item in next(m for m in modules if m["id"] == "devices").get("navigation", [])}
+asset_navigation = {item.get("route"): item.get("label") for item in next(m for m in modules if m["id"] == "assets").get("navigation", [])}
+if device_navigation.get("/devices/query") != "Inventory Query":
+    issues.append("devices inventory query navigation")
+if asset_navigation.get("/assets/ownership") != "Ownership Overview":
+    issues.append("assets ownership canonical label")
+if asset_navigation.get("/assets/owners") != "Asset Owners":
+    issues.append("assets owner canonical label")
+
 for module in modules:
     module_id = module["id"]
     entry = module.get("entryPermission", "")
@@ -117,11 +126,14 @@ for marker in [
     "getAdminApps",
     "updateAdminApp",
     'role="switch"',
-    "<summary>Inspect</summary>",
+    "INNODrawer",
+    "setSelected(app)",
     "canManageApps",
 ]:
     if marker not in admin_page:
         issues.append("admin apps page " + marker)
+if "<details" in admin_page or "<summary" in admin_page:
+    issues.append("admin apps legacy inline inspect")
 
 if ">Install<" in admin_page or "Install</button>" in admin_page:
     issues.append("fake install action")

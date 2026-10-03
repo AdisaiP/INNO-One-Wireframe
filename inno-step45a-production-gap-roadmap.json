@@ -1,0 +1,329 @@
+{
+  "schemaVersion": 1,
+  "step": "45A",
+  "title": "Production Gap Audit & Roadmap Freeze",
+  "baseline": {
+    "gitBase": "9443903",
+    "designSystem": "V1.26",
+    "uiContract": "1.20.0",
+    "productionRouteDefinitions": 61,
+    "implementedRouteGroups": {
+      "workspaceCore": 7,
+      "admin": 17,
+      "devices": 7,
+      "assets": 19,
+      "helpdesk": 11
+    }
+  },
+  "statusVocabulary": {
+    "implemented": "Routable production capability with real product UI and supporting contracts/runtime.",
+    "implemented-cross-surface": "Real runtime exists outside the Web Portal and follows the frozen surface boundary.",
+    "foundation-only": "Reusable implementation foundation exists, but there is no normal product route or persisted product resource yet.",
+    "backend-skeleton": "Backend project/module wiring exists, but domain/API/product behavior is not implemented.",
+    "deferred": "Product intent and prototype evidence exist, but Production routes intentionally resolve to deferred state.",
+    "boundary-only": "Surface ownership is frozen, but the runtime application is not implemented.",
+    "backlog-only": "Historical/future concept exists but is intentionally absent from the Production manifest and route set."
+  },
+  "surfaces": [
+    {
+      "id": "platform-core",
+      "name": "Workspace / Apps / Account / Admin",
+      "surface": "web",
+      "status": "implemented",
+      "productionEvidence": [
+        "production/apps/web-portal/src/app/AppRoot.tsx",
+        "production/apps/web-portal/src/app/AppShell.tsx",
+        "production/services/platform-api/src/Modules/Platform"
+      ],
+      "nextStep": null
+    },
+    {
+      "id": "devices",
+      "name": "Devices",
+      "surface": "web",
+      "status": "implemented",
+      "productionEvidence": [
+        "production/module-manifests.json",
+        "production/apps/web-portal/src/pages/DevicesPage.tsx",
+        "production/services/platform-api/src/Modules/Devices"
+      ],
+      "nextStep": null
+    },
+    {
+      "id": "assets",
+      "name": "Assets",
+      "surface": "web",
+      "status": "implemented",
+      "productionEvidence": [
+        "production/module-manifests.json",
+        "production/apps/web-portal/src/pages/AssetsOverviewPage.tsx",
+        "production/services/platform-api/src/Modules/Assets"
+      ],
+      "nextStep": null
+    },
+    {
+      "id": "helpdesk",
+      "name": "Helpdesk",
+      "surface": "web",
+      "status": "implemented",
+      "productionEvidence": [
+        "production/module-manifests.json",
+        "production/apps/web-portal/src/pages/HelpdeskOverviewPage.tsx",
+        "production/services/platform-api/src/Modules/Helpdesk"
+      ],
+      "nextStep": null
+    },
+    {
+      "id": "workflow",
+      "name": "Dynamic Workflow",
+      "surface": "web",
+      "status": "foundation-only",
+      "productionEvidence": [
+        "production/packages/ui/src/workflow.tsx",
+        "production/packages/ui/src/workflow.css",
+        "production/apps/web-portal/src/pages/InternalDesignSystemPage.tsx"
+      ],
+      "missing": [
+        "Production module manifest entry",
+        "Product list/builder routes",
+        "Workflow definition persistence",
+        "Versioning and optimistic concurrency",
+        "Execution runtime",
+        "Run history"
+      ],
+      "decision": "Standalone cross-module Web application. Do not fold branching workflow into Helpdesk Automation.",
+      "nextStep": "45B"
+    },
+    {
+      "id": "reports",
+      "name": "Reports",
+      "surface": "web",
+      "status": "backend-skeleton",
+      "productionEvidence": [
+        "production/module-manifests.json",
+        "production/services/platform-api/src/Modules/Reports/ReportsModule.cs",
+        "production/services/platform-api/src/Modules/Reports/Persistence/ReportsDbContext.cs"
+      ],
+      "prototypeEvidence": [
+        "reports-overview.html",
+        "reports-saved.html",
+        "report-builder.html"
+      ],
+      "missing": [
+        "Reports domain model",
+        "Reports API endpoints",
+        "Production React routes",
+        "Saved report persistence",
+        "Builder execution/export behavior"
+      ],
+      "nextStep": "46"
+    },
+    {
+      "id": "meeting",
+      "name": "Meeting",
+      "surface": "web+endpoint-agent",
+      "status": "backend-skeleton",
+      "productionEvidence": [
+        "production/module-manifests.json",
+        "production/apps/web-portal/src/app/AppRoot.tsx",
+        "production/services/meeting-service/README.md",
+        "production/services/meeting-service/src/INNO.One.MeetingService/Program.cs"
+      ],
+      "prototypeEvidence": [
+        "meeting.html",
+        "meeting-list.html",
+        "meeting-new.html",
+        "meeting-detail.html",
+        "meeting-upcoming.html"
+      ],
+      "missing": [
+        "Meeting domain entities and feature persistence",
+        "Meeting API endpoints beyond health/composition",
+        "Production React routes",
+        "Upload/recording ingestion contract",
+        "Transcript and summary processing",
+        "Endpoint Agent recording integration"
+      ],
+      "nextStep": "48"
+    },
+    {
+      "id": "endpoint-agent",
+      "name": "Endpoint Agent",
+      "surface": "endpoint-agent",
+      "status": "boundary-only",
+      "productionEvidence": [
+        "production/apps/endpoint-agent/README.md",
+        "INNO-One-Surface-Boundaries.md"
+      ],
+      "prototypeEvidence": [
+        "helpdesk-agent-request.html",
+        "agent-ownership-confirmation.html",
+        "remote-consent-message.html"
+      ],
+      "missing": [
+        "Runtime implementation choice",
+        "Agent shell/runtime",
+        "Request Help client",
+        "Ownership confirmation client",
+        "Remote consent runtime",
+        "Meeting recording client integration"
+      ],
+      "nextStep": "47"
+    },
+    {
+      "id": "assets-mobile",
+      "name": "Assets Mobile",
+      "surface": "android",
+      "status": "implemented-cross-surface",
+      "productionEvidence": [
+        "production/apps/assets-mobile/App.tsx",
+        "production/apps/assets-mobile/src/api.ts",
+        "production/apps/assets-mobile/src/history.ts"
+      ],
+      "nextStep": null
+    },
+    {
+      "id": "forms",
+      "name": "Forms",
+      "surface": "web",
+      "status": "backlog-only",
+      "prototypeEvidence": [
+        "platform-registry.js"
+      ],
+      "missing": [
+        "Approved product scope",
+        "Production module manifest",
+        "Routes",
+        "Domain/API",
+        "Form builder runtime"
+      ],
+      "nextStep": null
+    }
+  ],
+  "frozenDecisions": [
+    {
+      "id": "workflow-ownership",
+      "decision": "Dynamic Workflow is a standalone Web application/module shared across domains.",
+      "reason": "Its node model includes cross-module trigger/action/approval/assignment/notification/subflow behavior. Helpdesk Automation remains the simple Trigger -> Condition -> Action P04 editor."
+    },
+    {
+      "id": "workflow-component",
+      "decision": "Use the existing @inno/ui/workflow INNOWorkflowCanvas foundation.",
+      "reason": "React Flow + ELK.js is already isolated, QA-proven and must not be duplicated."
+    },
+    {
+      "id": "meeting-agent-dependency",
+      "decision": "Meeting web workspace and Endpoint Agent recording are separate surfaces connected by API/contracts.",
+      "reason": "Web owns Meeting workspace; Endpoint Agent owns local recording interaction."
+    },
+    {
+      "id": "future-module-visibility",
+      "decision": "Deferred/foundation-only modules remain absent from normal navigation until a real product route and installed module state exist.",
+      "reason": "Availability contract prohibits normal navigation into placeholder-only product flows."
+    },
+    {
+      "id": "forms-scheduling",
+      "decision": "Forms remains backlog-only and is not assigned a numbered implementation step.",
+      "reason": "No current approved Production scope or contract justifies implementation."
+    }
+  ],
+  "roadmap": [
+    {
+      "step": "45B",
+      "name": "Dynamic Workflow Product IA + UI Routes",
+      "scope": [
+        "Add standalone Workflow module IA without backend persistence",
+        "P02 workflow list shell",
+        "P06 new/edit builder routes using INNOWorkflowCanvas",
+        "Navigation/permission/module-manifest contract",
+        "Keep module unavailable in normal launcher until persistence is ready"
+      ],
+      "backend": false,
+      "dependsOn": ["44G", "45A"]
+    },
+    {
+      "step": "45C",
+      "name": "Dynamic Workflow Persistence & Versioning",
+      "scope": [
+        "Workflow definition domain model",
+        "Nodes/edges business contract",
+        "Versioning",
+        "Optimistic concurrency",
+        "CRUD API",
+        "Audit events"
+      ],
+      "backend": true,
+      "dependsOn": ["45B"]
+    },
+    {
+      "step": "45D",
+      "name": "Dynamic Workflow Execution & Run History",
+      "scope": [
+        "Execution snapshot",
+        "Run state/history",
+        "Worker/scheduler boundary",
+        "Failure/retry semantics",
+        "P10 run history"
+      ],
+      "backend": true,
+      "dependsOn": ["45C"]
+    },
+    {
+      "step": "46",
+      "name": "Reports Production Vertical Slice",
+      "scope": [
+        "Reports overview",
+        "Saved reports",
+        "Report builder",
+        "Real Reports domain/API using existing module skeleton",
+        "Initial export contract"
+      ],
+      "backend": true,
+      "dependsOn": ["45A"]
+    },
+    {
+      "step": "47",
+      "name": "Endpoint Agent Runtime Foundation",
+      "scope": [
+        "Freeze runtime technology choice",
+        "Agent shell and authentication",
+        "Request Help",
+        "Ownership confirmation",
+        "Remote consent runtime",
+        "Shared API boundary"
+      ],
+      "backend": true,
+      "dependsOn": ["45A"]
+    },
+    {
+      "step": "48",
+      "name": "Meeting Production Module",
+      "scope": [
+        "Meeting web overview/list/new/detail/upcoming",
+        "Meeting domain/API",
+        "Audio upload/recording ingestion",
+        "Transcript/summary processing boundary",
+        "Endpoint Agent recording integration"
+      ],
+      "backend": true,
+      "dependsOn": ["47"]
+    }
+  ],
+  "registryAlignment": {
+    "devices": {
+      "requiredNavigation": [
+        "/devices",
+        "/devices/discovery",
+        "/devices/query",
+        "/devices/groups",
+        "/devices/add"
+      ]
+    },
+    "assets": {
+      "canonicalLabels": {
+        "/assets/ownership": "Ownership Overview",
+        "/assets/owners": "Asset Owners"
+      }
+    }
+  }
+}

@@ -213,14 +213,23 @@ for width in (1366, 1024, 768):
     }
 c.viewport(1366)
 c.navigate("http://localhost:5180/admin/apps")
-wait_eval(c, "document.querySelector('.production-module-inspect > summary')")
-c.eval("document.querySelector('.production-module-inspect > summary').click()")
-time.sleep(0.15)
-inspect_open = c.eval(
-    "document.querySelector('.production-module-inspect')?.hasAttribute('open')"
-    " && !!document.querySelector('.production-module-detail')"
+wait_eval(c, "document.querySelector('.production-module-row button')")
+inspect_clicked = c.eval("""(()=>{
+  const button=[...document.querySelectorAll('.production-module-row button')]
+    .find(x=>(x.textContent||'').trim()==='Inspect');
+  if(!button)return false;
+  button.click();
+  return true;
+})()""")
+inspect_open = bool(wait_eval(c, "!!document.querySelector('.inno-overlay--drawer')", timeout=5))
+inspect_metadata = c.eval(
+    "document.body.innerText.includes('Entry permission')"
+    " && document.body.innerText.includes('Dependencies')"
+    " && document.body.innerText.includes('Capabilities')"
+    " && document.body.innerText.includes('Events')"
 )
-check("Admin Inspect opens details", inspect_open)
+check("Admin Inspect action dispatches", inspect_clicked)
+check("Admin Inspect opens drawer", inspect_open and inspect_metadata)
 manifest["inspectShot"] = c.shot("admin-apps-inspect-1366.png")
 
 manifest["checks"] = checks

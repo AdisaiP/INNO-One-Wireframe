@@ -19,6 +19,7 @@
       "navigation": [
         { "id": "overview", "label": "Devices", "route": "/devices", "permission": "devices.view" },
         { "id": "discovery", "label": "Discovery", "route": "/devices/discovery", "permission": "devices.view" },
+        { "id": "query", "label": "Inventory Query", "route": "/devices/query", "permission": "devices.view" },
         { "id": "groups", "label": "Device Groups", "route": "/devices/groups", "permission": "devices.view" },
         { "id": "deployment", "label": "Agent Deployment", "route": "/devices/add", "permission": "devices.deploy" }
       ],
@@ -60,8 +61,8 @@
         { "id": "contracts", "label": "Contracts & Warranty", "route": "/assets/contracts", "permission": "assets.view" },
         { "id": "custom-fields", "label": "Custom Fields", "route": "/assets/custom-fields", "permission": "assets.view" },
         { "id": "qr-labels", "label": "QR Labels", "route": "/assets/qr-labels", "permission": "assets.qr.print" },
-        { "id": "ownership", "label": "Ownership & Users", "route": "/assets/ownership", "permission": "assets.view" },
-        { "id": "owners", "label": "User Profiles", "route": "/assets/owners", "permission": "assets.view" },
+        { "id": "ownership", "label": "Ownership Overview", "route": "/assets/ownership", "permission": "assets.view" },
+        { "id": "owners", "label": "Asset Owners", "route": "/assets/owners", "permission": "assets.view" },
         { "id": "submissions", "label": "Agent Submissions", "route": "/assets/ownership/submissions", "permission": "assets.view" }
       ],
       "events": ["ownership.changed"],
