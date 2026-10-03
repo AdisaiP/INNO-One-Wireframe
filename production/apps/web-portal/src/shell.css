@@ -2089,10 +2089,75 @@
 .supporting-table td {
   padding-block: 8px;
 }
+.license-entitlement-section {
+  margin-bottom: 16px;
+}
+.license-entitlement-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0 16px 16px;
+  border: 1px solid var(--ds-border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.license-entitlement-grid > div {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border-right: 1px solid #eef1f4;
+  border-bottom: 1px solid #eef1f4;
+}
+.license-entitlement-grid > div:nth-child(4n) {
+  border-right: 0;
+}
+.license-entitlement-grid > div:nth-last-child(-n+4) {
+  border-bottom: 0;
+}
+.license-entitlement-grid span {
+  color: var(--ds-muted);
+  font-size: 9px;
+}
+.license-entitlement-grid b {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ds-text);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 1024px) {
+  .license-entitlement-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .license-entitlement-grid > div,
+  .license-entitlement-grid > div:nth-child(4n),
+  .license-entitlement-grid > div:nth-last-child(-n+4) {
+    border-right: 0;
+    border-bottom: 1px solid #eef1f4;
+  }
+  .license-entitlement-grid > div:nth-child(odd) {
+    border-right: 1px solid #eef1f4;
+  }
+  .license-entitlement-grid > div:nth-last-child(-n+2) {
+    border-bottom: 0;
+  }
+}
 
 @media (max-width: 768px) {
+  .license-entitlement-grid,
   .license-record-summary {
     grid-template-columns: 1fr;
+  }
+  .license-entitlement-grid > div,
+  .license-entitlement-grid > div:nth-child(odd),
+  .license-entitlement-grid > div:nth-last-child(-n+2) {
+    border-right: 0;
+    border-bottom: 1px solid #eef1f4;
+  }
+  .license-entitlement-grid > div:last-child {
+    border-bottom: 0;
   }
   .license-record-summary > div,
   .license-record-summary > div:nth-child(odd),
@@ -2833,6 +2898,105 @@
   text-align: center;
   font-weight: 800;
 }
+.admin-role-editor {
+  display: grid;
+  gap: 18px;
+}
+.admin-role-editor .editor-grid {
+  padding: 0;
+}
+.admin-role-permissions {
+  display: grid;
+  gap: 12px;
+}
+.admin-role-permissions-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 300px);
+  align-items: end;
+  gap: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--ds-border);
+}
+.admin-role-permissions-head > div:first-child {
+  display: grid;
+  gap: 3px;
+}
+.admin-role-permissions-head h3,
+.admin-role-permissions-head p {
+  margin: 0;
+}
+.admin-role-permissions-head h3 {
+  font-size: 12px;
+}
+.admin-role-permissions-head p {
+  color: var(--ds-muted);
+  font-size: 10px;
+  line-height: 1.45;
+}
+.admin-permission-group {
+  overflow: hidden;
+  border: 1px solid var(--ds-border);
+  border-radius: 10px;
+  background: #fff;
+}
+.admin-permission-group-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #edf0f4;
+  background: #fafbfc;
+}
+.admin-permission-group-head > div {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.admin-permission-group-head b {
+  font-size: 11px;
+  text-transform: capitalize;
+}
+.admin-permission-group-head span {
+  color: var(--ds-muted);
+  font-size: 9px;
+}
+.admin-permission-checklist {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.admin-permission-option {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 9px;
+  padding: 11px 12px;
+  border-bottom: 1px solid #f0f2f5;
+  cursor: pointer;
+}
+.admin-permission-option:nth-child(odd) {
+  border-right: 1px solid #f0f2f5;
+}
+.admin-permission-option input {
+  width: auto;
+  margin-top: 2px;
+}
+.admin-permission-option > span {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+.admin-permission-option b {
+  color: var(--ds-text);
+  font-size: 10px;
+  font-weight: 700;
+}
+.admin-permission-option small {
+  color: var(--ds-muted);
+  font-size: 9px;
+  overflow-wrap: anywhere;
+}
 .admin-access-layout {
   grid-template-columns: minmax(0, 1.55fr) minmax(320px, .75fr);
 }
@@ -2925,6 +3089,17 @@
   .admin-overview-grid,
   .admin-role-grid {
     grid-template-columns: 1fr;
+  }
+  .admin-role-permissions-head,
+  .admin-permission-checklist {
+    grid-template-columns: 1fr;
+  }
+  .admin-permission-option:nth-child(odd) {
+    border-right: 0;
+  }
+  .admin-permission-group-head {
+    align-items: flex-start;
+    flex-direction: column;
   }
   .admin-evaluate-panel {
     grid-template-columns: 1fr;

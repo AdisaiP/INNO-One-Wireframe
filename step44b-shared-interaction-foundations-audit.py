@@ -137,12 +137,13 @@ for file_name, former_title in passive_titles.items():
           former_title not in source)
 
 roles_source = PAGES["AdminRolesPage.tsx"]
-check("roles purpose note documents current immutable contract",
-      "INNOPurposeNote" in roles_source
-      and "System roles are read-only" in roles_source
-      and "Custom role creation and permission editing are not available in the current API." in roles_source)
-check("roles legacy phase wording remains removed",
-      "Role definitions are read-only in this phase" not in roles_source)
+check("roles uses shared drawer for dynamic editing",
+      "INNODrawer" in roles_source
+      and ">New Role</INNOButton>" in roles_source
+      and "admin-permission-checklist" in roles_source)
+check("roles legacy read-only wording remains removed",
+      "Role definitions are read-only in this phase" not in roles_source
+      and "System roles are read-only" not in roles_source)
 
 # Shared spacing ownership.
 for token in [

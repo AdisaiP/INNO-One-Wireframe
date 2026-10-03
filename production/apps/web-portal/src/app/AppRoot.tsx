@@ -30,6 +30,7 @@ import { AssetOwnershipSubmissionsPage } from '../pages/AssetOwnershipSubmission
 import { AssetQrLabelsPage } from '../pages/AssetQrLabelsPage';
 import { AssetsOverviewPage } from '../pages/AssetsOverviewPage';
 import { SoftwareBaselinesPage } from '../pages/SoftwareBaselinesPage';
+import { SoftwareLicenseDetailPage } from '../pages/SoftwareLicenseDetailPage';
 import { SoftwareLicensesPage } from '../pages/SoftwareLicensesPage';
 import { AutomationRulePage } from '../pages/AutomationRulePage';
 import { AutomationRulesPage } from '../pages/AutomationRulesPage';
@@ -169,6 +170,7 @@ export function AppRoot() {
           <Route path="assets/qr-labels" element={canViewAssets && canPrintAssetQr ? <AssetQrLabelsPage /> : <DeferredPage name="QR Labels" kind="permission" />} />
           <Route path="assets/software-baselines" element={canViewAssets ? <SoftwareBaselinesPage /> : <DeferredPage name="Software Baselines" kind="permission" />} />
           <Route path="assets/software-licenses" element={canViewAssets && canManageAssetLicenses ? <SoftwareLicensesPage /> : <DeferredPage name="Software Licenses" kind="permission" />} />
+          <Route path="assets/software-licenses/:licenseId" element={canViewAssets && canManageAssetLicenses ? <SoftwareLicenseDetailPage /> : <DeferredPage name="Software License" kind="permission" />} />
           <Route path="assets/contracts" element={canViewAssets ? <ContractsWarrantyPage /> : <DeferredPage name="Contracts & Warranty" kind="permission" />} />
           <Route path="assets/contracts/:contractId/edit" element={canViewAssets ? <ContractEditPage /> : <DeferredPage name="Edit Contract" kind="permission" />} />
           <Route path="assets/contracts/:contractId" element={canViewAssets ? <ContractDetailPage /> : <DeferredPage name="Contract" kind="permission" />} />

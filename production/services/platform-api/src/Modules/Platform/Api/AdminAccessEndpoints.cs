@@ -17,6 +17,8 @@ public static class AdminAccessEndpoints
     public static RouteGroupBuilder MapAdminAccessEndpoints(this RouteGroupBuilder api)
     {
         api.MapGet("/admin/roles", GetRolesAsync).WithName("admin.roles.list");
+        api.MapPost("/admin/roles", CreateRoleAsync).WithName("admin.roles.create");
+        api.MapPut("/admin/roles/{roleId}", UpdateRoleAsync).WithName("admin.roles.update");
         api.MapGet("/admin/permissions", GetPermissionsAsync).WithName("admin.permissions.list");
         api.MapGet("/admin/access-assignments", GetAssignmentsAsync).WithName("admin.access.assignments.list");
         api.MapGet("/admin/access-assignments/{assignmentId}", GetAssignmentAsync).WithName("admin.access.assignments.get");
@@ -46,6 +48,154 @@ public static class AdminAccessEndpoints
             Etag(role.Version))).ToArray();
 
         return Results.Ok(new { items });
+    }
+
+    private static async Task<IResult> CreateRoleAsync(
+        RoleCreateRequest request,
+        HttpContext httpContext,
+        PlatformDbContext db,
+        IAccessEvaluator accessEvaluator,
+        PlatformLedgerWriter ledger,
+        CancellationToken cancellationToken)
+    {
+        var access = await accessEvaluator.EvaluateAsync(httpContext.User, "admin.roles.manage", cancellationToken);
+        if (!access.Allowed) return Forbidden(access.Reason);
+
+        var code = (request.Code?.Trim() ?? string.Empty).ToLowerInvariant();
+        var name = request.Name?.Trim() ?? string.Empty;
+        if (code.Length is < 2 or > 64 || code.Any(ch => !(char.IsLetterOrDigit(ch) || ch is '_' or '-' or '.')))
+            return BadRequest("Role code must be 2-64 characters using letters, numbers, dot, dash or underscore.");
+        if (name.Length is < 2 or > 200)
+            return BadRequest("Role name must be 2-200 characters.");
+        if (await db.Roles.AnyAsync(x => x.Code == code, cancellationToken))
+            return Results.Problem(statusCode: StatusCodes.Status409Conflict, title: "Role code already exists");
+
+        var permissionIds = (request.Permissions ?? Array.Empty<string>())
+            .Select(x => x.Trim())
+            .Where(x => x.Length > 0)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(x => x)
+            .ToArray();
+        var validPermissionCount = await db.Permissions.CountAsync(x => permissionIds.Contains(x.PermissionId), cancellationToken);
+        if (validPermissionCount != permissionIds.Length)
+            return BadRequest("One or more permissions are invalid.");
+
+        var now = DateTimeOffset.UtcNow;
+        var role = new Role
+        {
+            Id = Guid.NewGuid(),
+            Code = code,
+            Name = name,
+            Status = NormalizeStatus(request.Status),
+            Version = 1,
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
+        await using var tx = await db.Database.BeginTransactionAsync(cancellationToken);
+        db.Roles.Add(role);
+        db.RolePermissions.AddRange(permissionIds.Select(permissionId => new RolePermission
+        {
+            RoleId = role.Id,
+            PermissionId = permissionId
+        }));
+        await db.SaveChangesAsync(cancellationToken);
+        var publicId = OpaqueId.Format("role", role.Id);
+        await ledger.AppendAuditAsync(
+            "platform.role.created",
+            "role",
+            publicId,
+            OpaqueId.Format("user", access.UserId),
+            CorrelationId(httpContext),
+            httpContext.TraceIdentifier,
+            new { role.Code, role.Name, role.Status, permissions = permissionIds },
+            cancellationToken,
+            "restricted");
+        await tx.CommitAsync(cancellationToken);
+
+        httpContext.Response.Headers.ETag = Etag(role.Version);
+        return Results.Created(
+            $"/api/v1/admin/roles/{publicId}",
+            new ResourceResponse<RoleResponse>(new RoleResponse(
+                publicId, role.Code, role.Name, role.Status, permissionIds, Etag(role.Version))));
+    }
+
+    private static async Task<IResult> UpdateRoleAsync(
+        string roleId,
+        RoleUpdateRequest request,
+        HttpContext httpContext,
+        PlatformDbContext db,
+        IAccessEvaluator accessEvaluator,
+        PlatformLedgerWriter ledger,
+        CancellationToken cancellationToken)
+    {
+        var access = await accessEvaluator.EvaluateAsync(httpContext.User, "admin.roles.manage", cancellationToken);
+        if (!access.Allowed) return Forbidden(access.Reason);
+        if (!OpaqueId.TryParse(roleId, "role", out var id)) return NotFound("Role not found.");
+
+        var role = await db.Roles.SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
+        if (role is null) return NotFound("Role not found.");
+        var stale = ValidateRoleIfMatch(httpContext, role.Version);
+        if (stale is not null) return stale;
+
+        var name = request.Name?.Trim() ?? string.Empty;
+        if (name.Length is < 2 or > 200)
+            return BadRequest("Role name must be 2-200 characters.");
+
+        var permissionIds = (request.Permissions ?? Array.Empty<string>())
+            .Select(x => x.Trim())
+            .Where(x => x.Length > 0)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(x => x)
+            .ToArray();
+        var validPermissionCount = await db.Permissions.CountAsync(x => permissionIds.Contains(x.PermissionId), cancellationToken);
+        if (validPermissionCount != permissionIds.Length)
+            return BadRequest("One or more permissions are invalid.");
+
+        var status = NormalizeStatus(request.Status);
+        if (string.Equals(role.Code, "platform_admin", StringComparison.Ordinal))
+        {
+            var required = new[] { "admin.access", "admin.roles.view", "admin.roles.manage" };
+            if (status != "active" || required.Any(x => !permissionIds.Contains(x, StringComparer.Ordinal)))
+                return BadRequest("Platform Admin must stay active and retain Admin Center and role-management permissions.");
+        }
+
+        var previousPermissions = await db.RolePermissions
+            .Where(x => x.RoleId == id)
+            .Select(x => x.PermissionId)
+            .OrderBy(x => x)
+            .ToListAsync(cancellationToken);
+        var previous = new { role.Name, role.Status, permissions = previousPermissions.ToArray() };
+
+        role.Name = name;
+        role.Status = status;
+        role.Version++;
+        role.UpdatedAt = DateTimeOffset.UtcNow;
+
+        var existingLinks = await db.RolePermissions.Where(x => x.RoleId == id).ToListAsync(cancellationToken);
+        await using var tx = await db.Database.BeginTransactionAsync(cancellationToken);
+        db.RolePermissions.RemoveRange(existingLinks);
+        db.RolePermissions.AddRange(permissionIds.Select(permissionId => new RolePermission
+        {
+            RoleId = id,
+            PermissionId = permissionId
+        }));
+        await db.SaveChangesAsync(cancellationToken);
+        await ledger.AppendAuditAsync(
+            "platform.role.updated",
+            "role",
+            roleId,
+            OpaqueId.Format("user", access.UserId),
+            CorrelationId(httpContext),
+            httpContext.TraceIdentifier,
+            new { previous, current = new { role.Name, role.Status, permissions = permissionIds, role.Version } },
+            cancellationToken,
+            "restricted");
+        await tx.CommitAsync(cancellationToken);
+
+        httpContext.Response.Headers.ETag = Etag(role.Version);
+        return Results.Ok(new ResourceResponse<RoleResponse>(new RoleResponse(
+            roleId, role.Code, role.Name, role.Status, permissionIds, Etag(role.Version))));
     }
 
     private static async Task<IResult> GetPermissionsAsync(
@@ -493,6 +643,26 @@ public static class AdminAccessEndpoints
             ? "inactive"
             : "active";
 
+    private static IResult? ValidateRoleIfMatch(HttpContext httpContext, long currentVersion)
+    {
+        var raw = httpContext.Request.Headers.IfMatch.FirstOrDefault();
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status428PreconditionRequired,
+                title: "If-Match is required",
+                detail: "Refresh this role and retry the save.");
+        }
+        if (!TryReadVersion(raw, out var expected) || expected != currentVersion)
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status412PreconditionFailed,
+                title: "Role changed",
+                detail: "Refresh this role and retry the save.");
+        }
+        return null;
+    }
+
     private static IResult? ValidateIfMatch(HttpContext httpContext, long currentVersion)
     {
         var raw = httpContext.Request.Headers.IfMatch.FirstOrDefault();
@@ -542,6 +712,17 @@ public static class AdminAccessEndpoints
         statusCode: StatusCodes.Status404NotFound,
         title: "Not found",
         detail: detail);
+    private sealed record RoleCreateRequest(
+        string Code,
+        string Name,
+        IReadOnlyList<string>? Permissions,
+        string? Status);
+
+    private sealed record RoleUpdateRequest(
+        string Name,
+        IReadOnlyList<string>? Permissions,
+        string? Status);
+
     private sealed record RoleResponse(
         string Id,
         string Code,

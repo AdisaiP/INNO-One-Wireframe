@@ -4,7 +4,7 @@
 **Branch:** `ux/step44a-screen-interaction-architecture`
 **Base:** `bdf3cca feat: implement inventory query`
 **Scope:** Production Web Portal interaction architecture
-**Concrete Production routes reviewed:** 56
+**Current Production route definitions:** 57 (Step 44H-B adds Software License Detail after the 56-route H freeze)
 **Frozen Design System:** V1.26
 **Frozen UI Contract:** 1.20.0
 
@@ -45,13 +45,13 @@ step44a-screen-interaction-architecture-audit.py
 
 ## Route classification
 
-All 56 concrete Production routes are now classified.
+All 57 current Production route definitions are now classified. Browser regression also covers the Workspace root `/`, for 58 concrete navigable URLs.
 
 | Pattern | Routes |
 | --- | ---: |
 | P01 Overview | 4 |
 | P02 List / focused overlay | 21 |
-| P03 Resource Detail | 7 |
+| P03 Resource Detail | 8 |
 | P04 Create/Edit | 7 |
 | P05 Settings | 7 |
 | P06 Builder | 1 |
@@ -138,7 +138,7 @@ Confirmed gap.
 Step 44A now classifies each route instead of reusing master-detail everywhere.
 
 Examples:
-- Organization / Locations → hierarchy master-detail remains, but with Tree.
+- Organization / Locations → full-width hierarchy Tree + focused drawer.
 - Positions → list + focused modal.
 - Users → list → detail/edit routes.
 - Access Scopes → list + edit route + TreeGrid utility.
@@ -382,6 +382,17 @@ Final freeze evidence:
 - build/typecheck/static regression PASS.
 
 No additional Production UI source change was required after Step 44H-A.
+
+### Step 44H-B — License / Role / Query Remediation
+**Status: COMPLETE on `ux/step44h-b-license-role-query-remediation`.**
+
+Post-freeze user review intentionally supersedes three Step 44H-A decisions:
+
+- **Software Licenses** → the product list stays P02, but Open now navigates to a dedicated P03 Software License Detail route. Detail owns **Entitlement & Renewal** plus detected allocations. The former ambiguous `License record` label is removed; its five commercial entitlement fields edit in a focused dialog.
+- **Roles & Permissions** → roles are no longer a read-only reference. Existing `Role`, `Permission`, and `RolePermission` persistence is exposed through real Create/Update APIs guarded by `admin.roles.manage`. New/Edit Role uses a drawer with dynamic permission assignment and optimistic concurrency. Platform Admin retains lockout protections.
+- **Inventory Query** → the builder is full width. Saved Queries becomes a utility drawer, the disabled Fact selector and dark code-preview block are removed, and the query reads as a light clause builder with Condition/Scope summary.
+
+The current route matrix is therefore 57 route definitions; the historical Step 44H visual evidence remains the pre-H-B 56-route freeze.
 
 ## Step 44A QA
 

@@ -42,8 +42,8 @@ routes = [
 matrix_routes = [item["route"] for item in MATRIX["routes"]]
 by_route = {item["route"]: item for item in MATRIX["routes"]}
 
-check("route count is 56", len(routes) == 56, len(routes))
-check("matrix count is 56", len(matrix_routes) == 56, len(matrix_routes))
+check("route count is 57", len(routes) == 57, len(routes))
+check("matrix count is 57", len(matrix_routes) == 57, len(matrix_routes))
 check("matrix routes are unique", len(set(matrix_routes)) == len(matrix_routes))
 check("production routes are unique", len(set(routes)) == len(routes))
 check("matrix covers exact production routes", set(matrix_routes) == set(routes),
@@ -65,11 +65,14 @@ expected = {
     "admin/organization": ("P02", "hierarchy-list+drawer", "INNOTree", "critical"),
     "admin/locations": ("P02", "hierarchy-list+drawer", "INNOTree", "critical"),
     "admin/positions": ("P02", "list+modal", None, "high"),
+    "admin/roles": ("P02", "role-list+drawer+permission-matrix", "INNODrawer", "high"),
     "admin/access-scopes": ("P02", "list+utility-dialog", None, "critical"),
     "admin/integrations": ("P07", "health-monitor", None, "high"),
+    "assets/software-licenses": ("P02", "list", None, "high"),
+    "assets/software-licenses/:licenseId": ("P03", "detail-route+edit-dialog", "INNODialog", "high"),
     "assets/contracts": ("P02", "list", None, "critical"),
     "helpdesk/calendar": ("P05", "settings-page", None, "high"),
-    "devices/query": ("P06", "builder", None, "low"),
+    "devices/query": ("P06", "builder+saved-query-drawer", "INNODrawer", "high"),
     "helpdesk/automation/new": ("P04", "edit-route", None, "medium"),
 }
 for route, (pattern, surface, special, priority) in expected.items():
@@ -192,7 +195,7 @@ for item in MATRIX["routes"]:
     patterns[item["pattern"]] = patterns.get(item["pattern"], 0) + 1
 
 check("critical remediation count", priorities.get("critical") == 7, priorities)
-check("high remediation count", priorities.get("high") == 13, priorities)
+check("high remediation count", priorities.get("high") == 17, priorities)
 
 print("step44a_routes=" + str(len(matrix_routes)))
 print("step44a_patterns=" + json.dumps(patterns, sort_keys=True))

@@ -172,10 +172,11 @@
       "route": "admin/roles",
       "page": "AdminRolesPage",
       "pattern": "P02",
-      "surface": "reference+permission-matrix",
+      "surface": "role-list+drawer+permission-matrix",
       "wireframe": "roles-permissions-v2.html",
-      "remediation": "read-only platform role catalog and permission matrix remain separate stacked sections; custom role creation is not exposed until an API contract exists",
-      "priority": "medium"
+      "remediation": "role list is primary; New/Edit Role uses a focused drawer with dynamic permission assignment; permission matrix remains a separate reference surface",
+      "priority": "high",
+      "specialComponent": "INNODrawer"
     },
     {
       "route": "admin/access-scopes",
@@ -273,10 +274,10 @@
       "route": "devices/query",
       "page": "InventoryQueryPage",
       "pattern": "P06",
-      "surface": "builder",
+      "surface": "builder+saved-query-drawer",
       "wireframe": "device-query.html",
-      "remediation": "keep builder-centric layout; selected result detail may use drawer",
-      "priority": "low",
+      "remediation": "full-width clause builder owns the primary job; Saved Queries is a utility drawer and results remain a separate collection below the builder",
+      "priority": "high",
       "specialComponent": "INNODrawer"
     },
     {
@@ -404,11 +405,20 @@
       "route": "assets/software-licenses",
       "page": "SoftwareLicensesPage",
       "pattern": "P02",
-      "surface": "list+drawer",
+      "surface": "list",
       "wireframe": "software-licenses.html",
-      "remediation": "license list remains the primary job; Open shows allocations and the short license-record editor in a focused drawer",
-      "priority": "medium",
-      "specialComponent": "INNODrawer"
+      "remediation": "license product list remains the primary job; Open navigates to a dedicated resource detail route",
+      "priority": "high"
+    },
+    {
+      "route": "assets/software-licenses/:licenseId",
+      "page": "SoftwareLicenseDetailPage",
+      "pattern": "P03",
+      "surface": "detail-route+edit-dialog",
+      "wireframe": "software-licenses.html",
+      "remediation": "resource detail owns Entitlement & Renewal plus detected allocations; the five-field entitlement editor opens in a focused dialog",
+      "priority": "high",
+      "specialComponent": "INNODialog"
     },
     {
       "route": "assets/contracts",

@@ -18,6 +18,8 @@ public static class SoftwareLicenseEndpoints
     {
         api.MapGet("/assets/software-licenses", ListSoftwareLicensesAsync)
             .WithName("assets.licenses.list");
+        api.MapGet("/assets/software-licenses/{licenseId}", GetSoftwareLicenseAsync)
+            .WithName("assets.licenses.get");
         api.MapPatch(
                 "/assets/software-licenses/{licenseId}",
                 UpdateSoftwareLicenseAsync)
@@ -147,6 +149,48 @@ public static class SoftwareLicenseEndpoints
             summary,
             vendors));
     }
+    private static async Task<IResult> GetSoftwareLicenseAsync(
+        string licenseId,
+        HttpContext httpContext,
+        AssetsDbContext db,
+        IAccessEvaluator accessEvaluator,
+        CancellationToken cancellationToken)
+    {
+        if (!OpaqueId.TryParse(licenseId, "license", out var id))
+        {
+            return NotFound();
+        }
+
+        var access = await accessEvaluator.EvaluateAsync(
+            httpContext.User,
+            "assets.license.manage",
+            cancellationToken);
+        if (!access.Allowed)
+        {
+            return Forbidden(access.Reason);
+        }
+
+        var license = await db.SoftwareLicenses
+            .AsNoTracking()
+            .SingleOrDefaultAsync(
+                x => x.Id == id && x.Status == "active",
+                cancellationToken);
+        if (license is null)
+        {
+            return NotFound();
+        }
+
+        var allocations = await db.LicenseAllocations
+            .AsNoTracking()
+            .Where(x => x.SoftwareLicenseId == license.Id)
+            .OrderByDescending(x => x.LastUsedAt)
+            .ToListAsync(cancellationToken);
+        var usedSeats = allocations.Sum(x => x.SeatCount);
+        var response = ToResponse(license, usedSeats, allocations);
+        httpContext.Response.Headers.ETag = response.ETag;
+        return Results.Ok(new ResourceResponse<SoftwareLicenseResponse>(response));
+    }
+
     private static async Task<IResult> UpdateSoftwareLicenseAsync(
         string licenseId,
         UpdateSoftwareLicenseRequest request,

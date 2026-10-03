@@ -453,6 +453,35 @@ export async function getAdminRoles(): Promise<AdminRole[]> {
   return response.items;
 }
 
+export async function createAdminRole(input: {
+  code: string;
+  name: string;
+  permissions: string[];
+  status?: string;
+}): Promise<AdminRole> {
+  const response = await request<ResourceEnvelope<AdminRole>>(
+    '/admin/roles',
+    { method: 'POST', ...jsonRequest(input) },
+  );
+  return response.data;
+}
+
+export async function updateAdminRole(
+  roleId: string,
+  eTag: string,
+  input: {
+    name: string;
+    permissions: string[];
+    status?: string;
+  },
+): Promise<AdminRole> {
+  const response = await request<ResourceEnvelope<AdminRole>>(
+    '/admin/roles/' + encodeURIComponent(roleId),
+    { method: 'PUT', ...jsonRequest(input, { 'If-Match': eTag }) },
+  );
+  return response.data;
+}
+
 export async function getAdminPermissions(): Promise<AdminPermission[]> {
   const response = await request<{ items: AdminPermission[] }>('/admin/permissions');
   return response.items;
@@ -831,6 +860,13 @@ export async function getSoftwareLicenses(
   return request<SoftwareLicenseListResponse>(
     '/assets/software-licenses?' + params.toString(),
   );
+}
+
+export async function getSoftwareLicense(licenseId: string): Promise<SoftwareLicenseItem> {
+  const response = await request<ResourceEnvelope<SoftwareLicenseItem>>(
+    '/assets/software-licenses/' + encodeURIComponent(licenseId),
+  );
+  return response.data;
 }
 
 export async function updateSoftwareLicense(

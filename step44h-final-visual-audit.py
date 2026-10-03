@@ -21,7 +21,7 @@ def check(name, ok, detail=""):
 check("frozen documentation remains Design System V1.26", "Design System V1.26" in DS)
 check("frozen UI contract remains 1.20.0", "UI Contract 1.20.0" in DS)
 check("final visual baseline keeps canonical 1366 x 900 viewport", "1366" in BASELINE and "900" in BASELINE)
-check("Step 44 architecture matrix remains 56 routes", len(MATRIX.get("routes", [])) == 56, len(MATRIX.get("routes", [])))
+check("current Step 44 architecture matrix has 57 routes", len(MATRIX.get("routes", [])) == 57, len(MATRIX.get("routes", [])))
 
 check("final visual QA owns Step 44H evidence directory",
       'OUT = ROOT / "qa-step44h-final-visual"' in QA)
