@@ -22,6 +22,7 @@ import { AgentDeploymentPage } from '../pages/AgentDeploymentPage';
 import { AppsPage } from '../pages/AppsPage';
 import { AssetCustomFieldsPage } from '../pages/AssetCustomFieldsPage';
 import { AssetDetailPage } from '../pages/AssetDetailPage';
+import { AssetEditPage } from '../pages/AssetEditPage';
 import { AssetInventoryPage } from '../pages/AssetInventoryPage';
 import { AssetOwnerDetailPage } from '../pages/AssetOwnerDetailPage';
 import { AssetOwnersPage } from '../pages/AssetOwnersPage';
@@ -29,6 +30,8 @@ import { AssetOwnershipPage } from '../pages/AssetOwnershipPage';
 import { AssetOwnershipSubmissionsPage } from '../pages/AssetOwnershipSubmissionsPage';
 import { AssetQrLabelsPage } from '../pages/AssetQrLabelsPage';
 import { AssetsOverviewPage } from '../pages/AssetsOverviewPage';
+import { SoftwareBaselineDetailPage } from '../pages/SoftwareBaselineDetailPage';
+import { SoftwareBaselineEditorPage } from '../pages/SoftwareBaselineEditorPage';
 import { SoftwareBaselinesPage } from '../pages/SoftwareBaselinesPage';
 import { SoftwareLicenseDetailPage } from '../pages/SoftwareLicenseDetailPage';
 import { SoftwareLicensesPage } from '../pages/SoftwareLicensesPage';
@@ -104,6 +107,7 @@ export function AppRoot() {
   const canDeployDevices = profile.permissions.includes('devices.deploy');
   const canViewAssets = profile.permissions.includes('assets.view');
   const canManageAssets = profile.permissions.includes('assets.manage');
+  const canManageAssetBaselines = profile.permissions.includes('assets.baseline.manage');
   const canPrintAssetQr = profile.permissions.includes('assets.qr.print');
   const canManageAssetLicenses = profile.permissions.includes('assets.license.manage');
   const canViewHelpdesk = profile.permissions.includes('helpdesk.ticket.view');
@@ -169,11 +173,15 @@ export function AppRoot() {
           <Route path="assets/custom-fields" element={canViewAssets ? <AssetCustomFieldsPage /> : <DeferredPage name="Custom Fields" kind="permission" />} />
           <Route path="assets/qr-labels" element={canViewAssets && canPrintAssetQr ? <AssetQrLabelsPage /> : <DeferredPage name="QR Labels" kind="permission" />} />
           <Route path="assets/software-baselines" element={canViewAssets ? <SoftwareBaselinesPage /> : <DeferredPage name="Software Baselines" kind="permission" />} />
+          <Route path="assets/software-baselines/new" element={canViewAssets && canManageAssetBaselines ? <SoftwareBaselineEditorPage /> : <DeferredPage name="New Software Baseline" kind="permission" />} />
+          <Route path="assets/software-baselines/:baselineId/edit" element={canViewAssets && canManageAssetBaselines ? <SoftwareBaselineEditorPage /> : <DeferredPage name="Edit Software Baseline" kind="permission" />} />
+          <Route path="assets/software-baselines/:baselineId" element={canViewAssets ? <SoftwareBaselineDetailPage /> : <DeferredPage name="Software Baseline" kind="permission" />} />
           <Route path="assets/software-licenses" element={canViewAssets && canManageAssetLicenses ? <SoftwareLicensesPage /> : <DeferredPage name="Software Licenses" kind="permission" />} />
           <Route path="assets/software-licenses/:licenseId" element={canViewAssets && canManageAssetLicenses ? <SoftwareLicenseDetailPage /> : <DeferredPage name="Software License" kind="permission" />} />
           <Route path="assets/contracts" element={canViewAssets ? <ContractsWarrantyPage /> : <DeferredPage name="Contracts & Warranty" kind="permission" />} />
           <Route path="assets/contracts/:contractId/edit" element={canViewAssets ? <ContractEditPage /> : <DeferredPage name="Edit Contract" kind="permission" />} />
           <Route path="assets/contracts/:contractId" element={canViewAssets ? <ContractDetailPage /> : <DeferredPage name="Contract" kind="permission" />} />
+          <Route path="assets/:assetId/edit" element={canViewAssets && canManageAssets ? <AssetEditPage /> : <DeferredPage name="Edit Asset" kind="permission" />} />
           <Route path="assets/:assetId" element={canViewAssets ? <AssetDetailPage /> : <DeferredPage name="Asset" kind="permission" />} />
 
           <Route path="helpdesk" element={canViewHelpdesk ? <HelpdeskOverviewPage /> : <DeferredPage name="Helpdesk" kind="permission" />} />

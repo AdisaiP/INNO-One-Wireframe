@@ -1277,6 +1277,12 @@ export async function getSoftwareBaselines(query: { search?: string; status?: st
   if (query.status && query.status !== 'all') params.set('status', query.status);
   return request<SoftwareBaselineListResponse>('/assets/software-baselines?' + params.toString());
 }
+export async function getSoftwareBaseline(id: string): Promise<SoftwareBaselineItem> {
+  const result = await request<ResourceEnvelope<SoftwareBaselineItem>>(
+    '/assets/software-baselines/' + encodeURIComponent(id),
+  );
+  return result.data;
+}
 export async function createSoftwareBaseline(body: SoftwareBaselineRequest): Promise<SoftwareBaselineItem> {
   const result = await request<ResourceEnvelope<SoftwareBaselineItem>>(
     '/assets/software-baselines', { method: 'POST', ...jsonRequest(body) },

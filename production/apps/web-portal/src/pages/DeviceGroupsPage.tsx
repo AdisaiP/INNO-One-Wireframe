@@ -1,7 +1,22 @@
 import { useDeferredValue, useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { RouterRowAction } from '../components/RouterRowAction';
-import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOStatus, INNOTableWrap, INNOToolbarMeta, INNOToolbarSpacer } from '@inno/ui';
+import {
+  INNOButton,
+  INNOCollection,
+  INNOCollectionHeader,
+  INNOCollectionState,
+  INNOCollectionToolbar,
+  INNODialog,
+  INNOPage,
+  INNOPagination,
+  INNOSearchField,
+  INNOSelectField,
+  INNOStatus,
+  INNOTableWrap,
+  INNOToolbarMeta,
+  INNOToolbarSpacer,
+} from '@inno/ui';
 import { createDeviceGroup, getDeviceGroups } from '../api/client';
 import { CollectionErrorState, CollectionLoadingState, ErrorState } from '../components/Feedback';
 import { usePermission, useProfile } from '../app/ProfileContext';
@@ -13,7 +28,7 @@ export function DeviceGroupsPage() {
   const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search);
   const [type, setType] = useState('all');
-  const [showCreate, setShowCreate] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
@@ -32,6 +47,14 @@ export function DeviceGroupsPage() {
     }),
   });
 
+  const closeCreate = () => {
+    if (create.isPending) return;
+    setCreateOpen(false);
+    setName('');
+    setCode('');
+    setDescription('');
+  };
+
   const create = useMutation({
     mutationFn: () => createDeviceGroup({
       name,
@@ -41,10 +64,7 @@ export function DeviceGroupsPage() {
       locationId: profile.location?.id,
     }),
     onSuccess: async () => {
-      setName('');
-      setCode('');
-      setDescription('');
-      setShowCreate(false);
+      closeCreate();
       await queryClient.invalidateQueries({ queryKey: ['device-groups'] });
     },
   });
@@ -54,60 +74,12 @@ export function DeviceGroupsPage() {
       eyebrow="Devices"
       title="Device Groups"
       description="Manage static endpoint groups and keep their membership synchronized with the remote device engine."
-      actions={canManage && !showCreate ? (
-        <INNOButton type="button" onClick={() => setShowCreate(true)}>
+      actions={canManage ? (
+        <INNOButton type="button" onClick={() => setCreateOpen(true)}>
           New Device Group
         </INNOButton>
       ) : undefined}
     >
-
-      {showCreate ? (
-        <section className="prod-panel create-panel">
-          <div className="prod-panel-head">
-            <div>
-              <h3>New Device Group</h3>
-              <p>Creates the canonical INNO.One group and provisions its MeshCentral group when available.</p>
-            </div>
-          </div>
-          <form
-            className="editor-form"
-            onSubmit={(event) => {
-              event.preventDefault();
-              if (!name.trim() || create.isPending) return;
-              create.mutate();
-            }}
-          >
-            <div className="editor-grid">
-              <label className="field-block">
-                <span>Group name</span>
-                <input required value={name} onChange={(event) => setName(event.target.value)} />
-              </label>
-              <label className="field-block">
-                <span>Code</span>
-                <input value={code} onChange={(event) => setCode(event.target.value)} placeholder="Generated if empty" />
-              </label>
-              <label className="field-block field-wide">
-                <span>Description</span>
-                <textarea value={description} onChange={(event) => setDescription(event.target.value)} rows={3} />
-              </label>
-            </div>
-            <div className="editor-scope-note">
-              Scope: {profile.organization?.name ?? 'Current organization'}
-              {profile.location?.name ? ' · ' + profile.location.name : ''}
-            </div>
-            {create.isError ? <ErrorState error={create.error} /> : null}
-            <INNOEditorFooter>
-              <INNOEditorFooterStart>
-                <INNOButton type="button" variant="secondary" disabled={create.isPending} onClick={() => setShowCreate(false)}>Cancel</INNOButton>
-              </INNOEditorFooterStart>
-              <INNOEditorFooterEnd>
-                <INNOButton type="submit" busy={create.isPending} disabled={!name.trim()}>Create Group</INNOButton>
-              </INNOEditorFooterEnd>
-            </INNOEditorFooter>
-          </form>
-        </section>
-      ) : null}
-
       <INNOCollection>
         <INNOCollectionHeader
           title="Groups"
@@ -172,6 +144,48 @@ export function DeviceGroupsPage() {
           </>
         )}
       </INNOCollection>
+
+      <INNODialog
+        open={createOpen}
+        title="New Device Group"
+        description="Create a static managed-endpoint group in the current organization scope."
+        onClose={closeCreate}
+        size="md"
+        footer={<>
+          <INNOButton type="button" variant="secondary" disabled={create.isPending} onClick={closeCreate}>Cancel</INNOButton>
+          <INNOButton type="submit" form="device-group-create-form" busy={create.isPending} disabled={!name.trim()}>Create Group</INNOButton>
+        </>}
+      >
+        <form
+          id="device-group-create-form"
+          className="editor-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (!name.trim() || create.isPending) return;
+            create.mutate();
+          }}
+        >
+          <div className="editor-grid">
+            <label className="field-block">
+              <span>Group name</span>
+              <input data-autofocus required value={name} onChange={(event) => setName(event.target.value)} />
+            </label>
+            <label className="field-block">
+              <span>Code</span>
+              <input value={code} onChange={(event) => setCode(event.target.value)} placeholder="Generated if empty" />
+            </label>
+            <label className="field-block field-wide">
+              <span>Description</span>
+              <textarea value={description} onChange={(event) => setDescription(event.target.value)} rows={3} />
+            </label>
+          </div>
+          <div className="editor-scope-note">
+            Scope: {profile.organization?.name ?? 'Current organization'}
+            {profile.location?.name ? ' · ' + profile.location.name : ''}
+          </div>
+          {create.isError ? <ErrorState error={create.error} /> : null}
+        </form>
+      </INNODialog>
     </INNOPage>
   );
 }

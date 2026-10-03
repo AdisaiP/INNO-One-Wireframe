@@ -48,8 +48,7 @@ check("router row action delegates to shared component", "INNORowActions" in (RO
 check("direct dialog/select actions use shared row actions", all(x in all_pages for x in [
     "INNORowActions ariaLabel={'Position ",
     "INNORowActions ariaLabel={'Custom field ",
-    "INNORowActions ariaLabel={'Baseline ",
-]))
+]) and "RouterRowAction" in (PAGES/"SoftwareBaselinesPage.tsx").read_text(encoding="utf-8"))
 check("route actions use shared router adapter", all(x in all_pages for x in [
     "<RouterRowAction to={'/admin/users/' + user.id}",
     "<RouterRowAction to={'/assets/' + asset.id}",

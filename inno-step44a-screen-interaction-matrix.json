@@ -246,11 +246,12 @@
     {
       "route": "admin/apps",
       "page": "AdminAppsPage",
-      "pattern": "P09",
-      "surface": "master-detail",
+      "pattern": "P02",
+      "surface": "registry-list+inspect-drawer",
       "wireframe": "modules.html",
-      "remediation": "keep registry master-detail; technical manifest stays secondary inspect state",
-      "priority": "medium"
+      "remediation": "module registry remains the primary list; Inspect opens technical manifest metadata in a focused drawer",
+      "priority": "medium",
+      "specialComponent": "INNODrawer"
     },
     {
       "route": "devices",
@@ -284,19 +285,21 @@
       "route": "devices/groups",
       "page": "DeviceGroupsPage",
       "pattern": "P02",
-      "surface": "list",
+      "surface": "list+create-dialog",
       "wireframe": "device-groups.html",
-      "remediation": "keep list; open detail route",
-      "priority": "low"
+      "remediation": "group list remains stable while the three-field create form opens in a focused dialog",
+      "priority": "high",
+      "specialComponent": "INNODialog"
     },
     {
       "route": "devices/groups/:groupId",
       "page": "DeviceGroupDetailPage",
       "pattern": "P03",
-      "surface": "detail-route",
+      "surface": "detail-route+edit-dialog",
       "wireframe": "device-group-detail.html",
-      "remediation": "keep resource detail; small metadata edits may use modal, membership stays section-owned",
-      "priority": "medium"
+      "remediation": "resource detail stays read-only while the three-field metadata editor opens in a focused dialog; membership stays section-owned",
+      "priority": "high",
+      "specialComponent": "INNODialog"
     },
     {
       "route": "devices/add",
@@ -395,11 +398,38 @@
     {
       "route": "assets/software-baselines",
       "page": "SoftwareBaselinesPage",
-      "pattern": "P09",
-      "surface": "master-detail",
+      "pattern": "P02",
+      "surface": "list",
       "wireframe": "—",
-      "remediation": "retain only if selected baseline definition is one continuous job; otherwise split once definition exceeds compact scope",
-      "priority": "medium"
+      "remediation": "baseline definitions remain list-only; Open navigates to resource detail and New navigates to a dedicated editor",
+      "priority": "high"
+    },
+    {
+      "route": "assets/software-baselines/new",
+      "page": "SoftwareBaselineEditorPage",
+      "pattern": "P04",
+      "surface": "create-route",
+      "wireframe": "—",
+      "remediation": "dedicated baseline create route; evaluation output is not mixed into the editor",
+      "priority": "high"
+    },
+    {
+      "route": "assets/software-baselines/:baselineId/edit",
+      "page": "SoftwareBaselineEditorPage",
+      "pattern": "P04",
+      "surface": "edit-route",
+      "wireframe": "—",
+      "remediation": "dedicated baseline edit route with canonical editor footer; evaluation output remains on detail",
+      "priority": "high"
+    },
+    {
+      "route": "assets/software-baselines/:baselineId",
+      "page": "SoftwareBaselineDetailPage",
+      "pattern": "P03",
+      "surface": "detail-route",
+      "wireframe": "—",
+      "remediation": "resource detail owns baseline definition and evaluation results; editing navigates to the dedicated P04 route",
+      "priority": "high"
     },
     {
       "route": "assets/software-licenses",
@@ -448,13 +478,23 @@
       "priority": "critical"
     },
     {
+      "route": "assets/:assetId/edit",
+      "page": "AssetEditPage",
+      "pattern": "P04",
+      "surface": "edit-route",
+      "wireframe": "asset-detail.html",
+      "remediation": "dedicated multi-section Asset editor for canonical metadata and dynamic custom fields",
+      "priority": "critical"
+    },
+    {
       "route": "assets/:assetId",
       "page": "AssetDetailPage",
       "pattern": "P03",
-      "surface": "detail-route",
+      "surface": "detail-route+owner-dialog",
       "wireframe": "asset-detail.html",
-      "remediation": "keep tabbed resource detail",
-      "priority": "low"
+      "remediation": "tabbed resource detail remains read-only; Edit Asset navigates to P04 and Change Owner uses a focused dialog",
+      "priority": "critical",
+      "specialComponent": "INNODialog"
     },
     {
       "route": "helpdesk",
@@ -505,10 +545,11 @@
       "route": "helpdesk/tickets/:ticketId",
       "page": "TicketDetailPage",
       "pattern": "P03",
-      "surface": "detail-route",
+      "surface": "detail-route+reassign-dialog",
       "wireframe": "ticket-detail.html",
-      "remediation": "keep resource detail",
-      "priority": "low"
+      "remediation": "resource detail stays stable; the two-field Reassign action opens a focused dialog",
+      "priority": "high",
+      "specialComponent": "INNODialog"
     },
     {
       "route": "helpdesk/sla",
@@ -516,7 +557,7 @@
       "pattern": "P05",
       "surface": "settings",
       "wireframe": "helpdesk-sla.html",
-      "remediation": "keep SLA policy/settings ownership; split complex policy editor if field count grows beyond compact form",
+      "remediation": "reviewed in Step 44H-C: keep as P05 because SLA policy configuration is the primary job; live monitor remains a supporting aside rather than a second editor",
       "priority": "medium"
     },
     {

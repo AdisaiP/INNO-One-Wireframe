@@ -1,7 +1,23 @@
 import { useDeferredValue, useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
-import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOResourceHeader, INNOResourceSummary, INNOResourceSummaryItem, INNOSearchField, INNOSelectField, INNOStatus, INNOSurfaceTabs, INNOTableWrap } from '@inno/ui';
+import {
+  INNOButton,
+  INNOCollection,
+  INNOCollectionHeader,
+  INNOCollectionState,
+  INNOCollectionToolbar,
+  INNODialog,
+  INNOIcon,
+  INNOResourceHeader,
+  INNOResourceSummary,
+  INNOResourceSummaryItem,
+  INNOSearchField,
+  INNOSelectField,
+  INNOStatus,
+  INNOSurfaceTabs,
+  INNOTableWrap,
+} from '@inno/ui';
 import { getDeviceGroup, getDeviceGroupMembers, updateDeviceGroup } from '../api/client';
 import { CollectionErrorState, CollectionLoadingState, ErrorState, LoadingState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
@@ -21,7 +37,7 @@ export function DeviceGroupDetailPage() {
   const { groupId = '' } = useParams();
   const canManage = usePermission('devices.manage');
   const queryClient = useQueryClient();
-  const [editing, setEditing] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'members'>('overview');
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -54,6 +70,16 @@ export function DeviceGroupDetailPage() {
     enabled: Boolean(groupId),
   });
 
+  const closeEdit = () => {
+    if (update.isPending) return;
+    if (group.data) {
+      setName(group.data.name);
+      setDescription(group.data.description ?? '');
+      setStatus(group.data.status);
+    }
+    setEditOpen(false);
+  };
+
   const update = useMutation({
     mutationFn: () => updateDeviceGroup(groupId, group.data?.eTag ?? '', {
       name,
@@ -61,25 +87,17 @@ export function DeviceGroupDetailPage() {
       status,
     }),
     onSuccess: async () => {
-      setEditing(false);
-      await queryClient.invalidateQueries({ queryKey: ['device-group', groupId] });
-      await queryClient.invalidateQueries({ queryKey: ['device-groups'] });
+      setEditOpen(false);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['device-group', groupId] }),
+        queryClient.invalidateQueries({ queryKey: ['device-groups'] }),
+      ]);
     },
   });
-
-  function cancelEditing() {
-    if (group.data) {
-      setName(group.data.name);
-      setDescription(group.data.description ?? '');
-      setStatus(group.data.status);
-    }
-    setEditing(false);
-  }
 
   if (group.isPending) {
     return <div className="page-loading-wrap"><LoadingState label="Loading device group…" /></div>;
   }
-
   if (group.isError) {
     return <div className="page-error-wrap"><ErrorState error={group.error} retry={() => void group.refetch()} /></div>;
   }
@@ -97,7 +115,7 @@ export function DeviceGroupDetailPage() {
         title={data.name}
         status={<><INNOStatus tone={data.status === 'active' ? 'success' : 'neutral'} dot>{data.status}</INNOStatus><INNOStatus tone={data.syncStatus === 'synced' ? 'success' : 'neutral'}>{data.syncStatus}</INNOStatus></>}
         meta={<><span>{data.code}</span><span>·</span><span>{data.groupType}</span>{data.description ? <><span>·</span><span>{data.description}</span></> : null}</>}
-        actions={canManage && !editing ? <INNOButton variant="secondary" onClick={() => { setActiveTab('overview'); setEditing(true); }}>Edit Group</INNOButton> : undefined}
+        actions={canManage ? <INNOButton variant="secondary" onClick={() => setEditOpen(true)}>Edit Group</INNOButton> : undefined}
       />
 
       <INNOResourceSummary>
@@ -107,100 +125,107 @@ export function DeviceGroupDetailPage() {
         <INNOResourceSummaryItem label="Location" value={data.location?.name ?? '—'} detail="Primary site" />
       </INNOResourceSummary>
 
-      {!editing ? (
-        <INNOSurfaceTabs
-          ariaLabel="Device group detail sections"
-          activeId={activeTab}
-          onChange={(id) => setActiveTab(id as 'overview' | 'members')}
-          items={[
-            { id: 'overview', label: 'Overview' },
-            { id: 'members', label: 'Members' },
-          ]}
-        />
-      ) : null}
+      <INNOSurfaceTabs
+        ariaLabel="Device group detail sections"
+        activeId={activeTab}
+        onChange={(id) => setActiveTab(id as 'overview' | 'members')}
+        items={[
+          { id: 'overview', label: 'Overview' },
+          { id: 'members', label: 'Members' },
+        ]}
+      />
 
       <div hidden={activeTab !== 'overview'}>
         <section className="prod-panel">
-          <div className="prod-panel-head"><div><h3>{editing ? 'Edit group' : 'Group information'}</h3><p>{editing ? 'Changes are protected with the current resource ETag.' : 'Canonical group identity and scope.'}</p></div></div>
-          {editing ? (
-            <form className="editor-form" onSubmit={(event) => { event.preventDefault(); if (!update.isPending) update.mutate(); }}>
-              <div className="editor-grid">
-                <label className="field-block"><span>Group name</span><input required value={name} onChange={(event) => setName(event.target.value)} /></label>
-                <label className="field-block"><span>Status</span><select value={status} onChange={(event) => setStatus(event.target.value)}><option value="active">Active</option><option value="inactive">Inactive</option></select></label>
-                <label className="field-block field-wide"><span>Description</span><textarea rows={3} value={description} onChange={(event) => setDescription(event.target.value)} /></label>
-              </div>
-              {update.isError ? <ErrorState error={update.error} /> : null}
-              <INNOEditorFooter>
-                <INNOEditorFooterStart>
-                  <INNOButton type="button" variant="secondary" disabled={update.isPending} onClick={cancelEditing}>Cancel</INNOButton>
-                </INNOEditorFooterStart>
-                <INNOEditorFooterEnd>
-                  <INNOButton type="submit" busy={update.isPending} disabled={!name.trim()}>Save Changes</INNOButton>
-                </INNOEditorFooterEnd>
-              </INNOEditorFooter>
-            </form>
-          ) : (
-            <div className="kv-grid production-kv-grid">
-              <div className="kv-row"><span>Code</span><b>{data.code}</b></div>
-              <div className="kv-row"><span>Type</span><b>{data.groupType}</b></div>
-              <div className="kv-row"><span>Description</span><b>{data.description || '—'}</b></div>
-              <div className="kv-row"><span>Sync status</span><b>{data.syncStatus}</b></div>
-            </div>
-          )}
+          <div className="prod-panel-head"><div><h3>Group information</h3><p>Canonical group identity and scope.</p></div></div>
+          <div className="kv-grid production-kv-grid">
+            <div className="kv-row"><span>Code</span><b>{data.code}</b></div>
+            <div className="kv-row"><span>Type</span><b>{data.groupType}</b></div>
+            <div className="kv-row"><span>Description</span><b>{data.description || '—'}</b></div>
+            <div className="kv-row"><span>Sync status</span><b>{data.syncStatus}</b></div>
+          </div>
         </section>
       </div>
 
       <div hidden={activeTab !== 'members'}>
-      <INNOCollection>
-        <INNOCollectionHeader
-          title="Group members"
-          description="Devices currently resolved into this static group."
-          meta={<INNOStatus>{members.data?.totalItems ?? data.members} devices</INNOStatus>}
-        />
-        <INNOCollectionToolbar>
-          <INNOSearchField label="Search group members" value={search} onChange={setSearch} placeholder="Search device or owner…" />
-          <INNOSelectField label="Member status" value={memberStatus} onChange={setMemberStatus}>
-            <option value="all">Status: All</option>
-            <option value="online">Online</option>
-            <option value="offline">Offline</option>
-          </INNOSelectField>
-        </INNOCollectionToolbar>
-
-        {members.isPending ? (
-          <CollectionLoadingState label="Loading group members…" />
-        ) : members.isError ? (
-          <CollectionErrorState error={members.error} retry={() => void members.refetch()} />
-        ) : members.data.items.length === 0 ? (
-          <INNOCollectionState
-            kind={search || memberStatus !== 'all' ? 'no-results' : 'empty'}
-            title={search || memberStatus !== 'all' ? 'No group members found' : 'No members yet'}
-            description={search || memberStatus !== 'all' ? 'Try another search or clear the filters.' : 'Membership updates as managed endpoints synchronize into this group.'}
-            action={search || memberStatus !== 'all'
-              ? <INNOButton variant="secondary" onClick={() => { setSearch(''); setMemberStatus('all'); }}>Clear filters</INNOButton>
-              : undefined}
+        <INNOCollection>
+          <INNOCollectionHeader
+            title="Group members"
+            description="Devices currently resolved into this static group."
+            meta={<INNOStatus>{members.data?.totalItems ?? data.members} devices</INNOStatus>}
           />
-        ) : (
-          <INNOTableWrap width="wide">
-            <table>
-              <thead><tr><th>Device</th><th>Type</th><th>User</th><th>Organization</th><th>Status</th><th>Last Seen</th><th className="action-column">Action</th></tr></thead>
-              <tbody>
-                {members.data.items.map((device) => (
-                  <tr key={device.id}>
-                    <td><b>{device.name}</b><div className="table-meta">{device.ipAddress ?? '—'}</div></td>
-                    <td>{device.type}</td>
-                    <td>{device.user ?? '—'}</td>
-                    <td>{device.organization ?? '—'}</td>
-                    <td><INNOStatus tone={device.status === 'online' ? 'success' : 'neutral'} dot>{device.status}</INNOStatus></td>
-                    <td>{formatLastSeen(device.lastSeenAt)}</td>
-                    <td className="action-column"><RouterRowAction to={'/devices/' + device.id} ariaLabel={'Open ' + device.name} /></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </INNOTableWrap>
-        )}
-      </INNOCollection>
+          <INNOCollectionToolbar>
+            <INNOSearchField label="Search group members" value={search} onChange={setSearch} placeholder="Search device or owner…" />
+            <INNOSelectField label="Member status" value={memberStatus} onChange={setMemberStatus}>
+              <option value="all">Status: All</option>
+              <option value="online">Online</option>
+              <option value="offline">Offline</option>
+            </INNOSelectField>
+          </INNOCollectionToolbar>
+
+          {members.isPending ? (
+            <CollectionLoadingState label="Loading group members…" />
+          ) : members.isError ? (
+            <CollectionErrorState error={members.error} retry={() => void members.refetch()} />
+          ) : members.data.items.length === 0 ? (
+            <INNOCollectionState
+              kind={search || memberStatus !== 'all' ? 'no-results' : 'empty'}
+              title={search || memberStatus !== 'all' ? 'No group members found' : 'No members yet'}
+              description={search || memberStatus !== 'all' ? 'Try another search or clear the filters.' : 'Membership updates as managed endpoints synchronize into this group.'}
+              action={search || memberStatus !== 'all'
+                ? <INNOButton variant="secondary" onClick={() => { setSearch(''); setMemberStatus('all'); }}>Clear filters</INNOButton>
+                : undefined}
+            />
+          ) : (
+            <INNOTableWrap width="wide">
+              <table>
+                <thead><tr><th>Device</th><th>Type</th><th>User</th><th>Organization</th><th>Status</th><th>Last Seen</th><th className="action-column">Action</th></tr></thead>
+                <tbody>
+                  {members.data.items.map((device) => (
+                    <tr key={device.id}>
+                      <td><b>{device.name}</b><div className="table-meta">{device.ipAddress ?? '—'}</div></td>
+                      <td>{device.type}</td>
+                      <td>{device.user ?? '—'}</td>
+                      <td>{device.organization ?? '—'}</td>
+                      <td><INNOStatus tone={device.status === 'online' ? 'success' : 'neutral'} dot>{device.status}</INNOStatus></td>
+                      <td>{formatLastSeen(device.lastSeenAt)}</td>
+                      <td className="action-column"><RouterRowAction to={'/devices/' + device.id} ariaLabel={'Open ' + device.name} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </INNOTableWrap>
+          )}
+        </INNOCollection>
       </div>
+
+      <INNODialog
+        open={editOpen}
+        title="Edit Device Group"
+        description="Update the compact group metadata. Membership remains section-owned."
+        onClose={closeEdit}
+        size="md"
+        footer={<>
+          <INNOButton type="button" variant="secondary" disabled={update.isPending} onClick={closeEdit}>Cancel</INNOButton>
+          <INNOButton type="submit" form="device-group-edit-form" busy={update.isPending} disabled={!name.trim()}>Save Changes</INNOButton>
+        </>}
+      >
+        <form
+          id="device-group-edit-form"
+          className="editor-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (!update.isPending) update.mutate();
+          }}
+        >
+          <div className="editor-grid">
+            <label className="field-block"><span>Group name</span><input data-autofocus required value={name} onChange={(event) => setName(event.target.value)} /></label>
+            <label className="field-block"><span>Status</span><select value={status} onChange={(event) => setStatus(event.target.value)}><option value="active">Active</option><option value="inactive">Inactive</option></select></label>
+            <label className="field-block field-wide"><span>Description</span><textarea rows={3} value={description} onChange={(event) => setDescription(event.target.value)} /></label>
+          </div>
+          {update.isError ? <ErrorState error={update.error} /> : null}
+        </form>
+      </INNODialog>
     </main>
   );
 }

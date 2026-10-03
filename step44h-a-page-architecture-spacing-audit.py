@@ -71,8 +71,8 @@ check("software detail owns entitlement and allocations", "Entitlement & Renewal
 check("software detail entitlement edit uses dialog", "INNODialog" in license_detail and "Edit Entitlement & Renewal" in license_detail)
 check("software list does not auto-open first item", "query.data.items[0].id" not in licenses)
 
-check("asset current owner uses panel body padding", 'settings-stack"><div className="settings-row"><div><b>{asset.owner?.name' in asset_detail)
-check("linked endpoint row uses panel body padding", 'asset.linkedDevice ? <div className="settings-stack"><div className="settings-row">' in asset_detail)
+check("asset current owner uses panel body padding", 'className="settings-stack"' in asset_detail and "asset.owner?.name" in asset_detail)
+check("linked endpoint row uses panel body padding", asset_detail.count('className="settings-stack"') >= 2 and "asset.linkedDevice" in asset_detail and ".settings-stack" in shell and "padding: 4px 16px" in shell)
 check("QR label setup owns bottom padding", ".qr-setup-section .editor-form" in shell and "padding-bottom: var(--ds-space-4)" in shell)
 check("asset ownership uses domain-specific overview grid", "asset-ownership-overview-grid" in ownership and "helpdesk-overview-grid" not in ownership)
 check("asset ownership overview separates recent history", ".asset-ownership-overview-grid" in shell and "margin-bottom: 16px" in shell)

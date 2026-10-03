@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
+  INNOButton,
   INNOCollection,
   INNOCollectionHeader,
+  INNODrawer,
   INNOPage,
   INNOState,
   INNOStatus,
@@ -21,6 +24,7 @@ function statusTone(status: AdminAppModule['status']) {
 export function AdminAppsPage() {
   const canManageApps = usePermission('admin.apps.manage');
   const queryClient = useQueryClient();
+  const [selected, setSelected] = useState<AdminAppModule | null>(null);
   const query = useQuery({
     queryKey: ['platform', 'admin-apps'],
     queryFn: getAdminApps,
@@ -43,6 +47,7 @@ export function AdminAppsPage() {
       ]);
     },
   });
+
   const items = query.data?.items ?? [];
   const installed = items.filter((item) => item.installed).length;
   const enabled = items.filter((item) => item.enabled).length;
@@ -56,9 +61,7 @@ export function AdminAppsPage() {
       actions={<Link className="inno-link-button secondary" to="/apps">Preview Launcher</Link>}
     >
       {query.isPending ? <LoadingState label="Loading module registry…" /> : null}
-      {query.isError
-        ? <ErrorState error={query.error} retry={() => void query.refetch()} />
-        : null}
+      {query.isError ? <ErrorState error={query.error} retry={() => void query.refetch()} /> : null}
       {mutation.isError ? (
         <INNOState
           kind="error"
@@ -82,12 +85,11 @@ export function AdminAppsPage() {
           <INNOCollection>
             <INNOCollectionHeader
               title="Module Registry"
-              description="Installed modules can be enabled or disabled. Inspect is always available."
+              description="Installed modules can be enabled or disabled. Inspect opens technical manifest details."
             />
             <div className="production-module-list">
               {items.map((app) => {
-                const busy = mutation.isPending
-                  && mutation.variables?.appId === app.id;
+                const busy = mutation.isPending && mutation.variables?.appId === app.id;
                 return (
                   <article className="production-module-row" key={app.id}>
                     <span className="production-app-mark" aria-hidden="true">
@@ -122,15 +124,7 @@ export function AdminAppsPage() {
                           <span aria-hidden="true" />
                         </button>
                       ) : null}
-                      <details className="production-module-inspect">
-                        <summary>Inspect</summary>
-                        <div className="production-module-detail">
-                          <div><span>Entry permission</span><b>{app.entryPermission}</b></div>
-                          <div><span>Dependencies</span><b>{app.dependencies.join(', ') || 'None'}</b></div>
-                          <div><span>Capabilities</span><b>{app.capabilities.join(', ') || 'None'}</b></div>
-                          <div><span>Events</span><b>{app.events.join(', ') || 'None'}</b></div>
-                        </div>
-                      </details>
+                      <INNOButton type="button" variant="secondary" onClick={() => setSelected(app)}>Inspect</INNOButton>
                     </div>
                   </article>
                 );
@@ -139,6 +133,26 @@ export function AdminAppsPage() {
           </INNOCollection>
         </>
       ) : null}
+
+      <INNODrawer
+        open={Boolean(selected)}
+        title={selected?.name ?? 'Module'}
+        description="Technical manifest and module capability metadata."
+        onClose={() => setSelected(null)}
+        size="md"
+        className="admin-app-inspect-drawer"
+      >
+        {selected ? (
+          <div className="production-kv-grid">
+            <div className="kv-row"><span>Status</span><b>{selected.status}</b></div>
+            <div className="kv-row"><span>Route</span><b>{selected.route}</b></div>
+            <div className="kv-row"><span>Entry permission</span><b>{selected.entryPermission}</b></div>
+            <div className="kv-row"><span>Dependencies</span><b>{selected.dependencies.join(', ') || 'None'}</b></div>
+            <div className="kv-row"><span>Capabilities</span><b>{selected.capabilities.join(', ') || 'None'}</b></div>
+            <div className="kv-row"><span>Events</span><b>{selected.events.join(', ') || 'None'}</b></div>
+          </div>
+        ) : null}
+      </INNODrawer>
     </INNOPage>
   );
 }

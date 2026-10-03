@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
-import { INNOButton, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOIcon, INNOResourceHeader, INNOResourceSummary, INNOResourceSummaryItem, INNOState, INNOStatus, INNOSurfaceTabs } from '@inno/ui';
+import { INNOButton, INNODialog, INNOIcon, INNOResourceHeader, INNOResourceSummary, INNOResourceSummaryItem, INNOState, INNOStatus, INNOSurfaceTabs } from '@inno/ui';
 import {
   getTicket,
   reassignTicket,
@@ -122,42 +122,39 @@ export function TicketDetailPage() {
         <INNOResourceSummaryItem label="Requester" value={ticket.requester.name} detail={ticket.organization?.name ?? '—'} />
       </INNOResourceSummary>
 
-      {showAssign ? (
-        <section className="prod-panel ticket-assign-panel">
-          <div className="prod-panel-head">
-            <div><h3>Reassign ticket</h3><p>Choose queue and assignee.</p></div>
+      <INNODialog
+        open={showAssign}
+        title="Reassign Ticket"
+        description="Choose the support queue and optional assignee."
+        onClose={() => { if (!assignMutation.isPending) setShowAssign(false); }}
+        size="sm"
+        footer={<>
+          <INNOButton type="button" variant="secondary" disabled={assignMutation.isPending} onClick={() => setShowAssign(false)}>Cancel</INNOButton>
+          <INNOButton type="button" busy={assignMutation.isPending} onClick={() => assignMutation.mutate()}>Reassign</INNOButton>
+        </>}
+      >
+        <div className="editor-form">
+          <div className="editor-grid">
+            <label className="field-block">
+              <span>Team</span>
+              <select data-autofocus value={team} onChange={(event) => setTeam(event.target.value)}>
+                <option>Support L1</option>
+                <option>Network Support</option>
+                <option>Application Team</option>
+              </select>
+            </label>
+            <label className="field-block">
+              <span>Assignee</span>
+              <select value={assigneeUserId} onChange={(event) => setAssigneeUserId(event.target.value)}>
+                <option value="">Queue only</option>
+                {ticket.assigneeOptions.map((user) => (
+                  <option key={user.id} value={user.id}>{user.name}</option>
+                ))}
+              </select>
+            </label>
           </div>
-          <div className="editor-form">
-            <div className="editor-grid">
-              <label className="field-block">
-                <span>Team</span>
-                <select value={team} onChange={(event) => setTeam(event.target.value)}>
-                  <option>Support L1</option>
-                  <option>Network Support</option>
-                  <option>Application Team</option>
-                </select>
-              </label>
-              <label className="field-block">
-                <span>Assignee</span>
-                <select value={assigneeUserId} onChange={(event) => setAssigneeUserId(event.target.value)}>
-                  <option value="">Queue only</option>
-                  {ticket.assigneeOptions.map((user) => (
-                    <option key={user.id} value={user.id}>{user.name}</option>
-                  ))}
-                </select>
-              </label>
-            </div>
-            <INNOEditorFooter>
-              <INNOEditorFooterStart>
-                <INNOButton variant="secondary" disabled={assignMutation.isPending} onClick={() => setShowAssign(false)}>Cancel</INNOButton>
-              </INNOEditorFooterStart>
-              <INNOEditorFooterEnd>
-                <INNOButton busy={assignMutation.isPending} onClick={() => assignMutation.mutate()}>Reassign</INNOButton>
-              </INNOEditorFooterEnd>
-            </INNOEditorFooter>
-          </div>
-        </section>
-      ) : null}
+        </div>
+      </INNODialog>
 
       <INNOSurfaceTabs
         ariaLabel="Ticket detail sections"

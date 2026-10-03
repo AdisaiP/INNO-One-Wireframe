@@ -18,7 +18,7 @@ STATIC_ROUTES = [
     "/devices", "/devices/discovery", "/devices/query", "/devices/groups", "/devices/add",
     "/assets", "/assets/inventory", "/assets/ownership", "/assets/owners",
     "/assets/ownership/submissions", "/assets/custom-fields", "/assets/qr-labels",
-    "/assets/software-baselines", "/assets/software-licenses", "/assets/contracts",
+    "/assets/software-baselines", "/assets/software-baselines/new", "/assets/software-licenses", "/assets/contracts",
     "/helpdesk", "/helpdesk/tickets", "/helpdesk/assigned", "/helpdesk/team",
     "/helpdesk/tickets/new", "/helpdesk/sla", "/helpdesk/calendar",
     "/helpdesk/automation", "/helpdesk/automation/new",
@@ -205,6 +205,7 @@ def collect_dynamic(cdp, route):
         "/devices/groups",
         "/assets/inventory",
         "/assets/owners",
+        "/assets/software-baselines",
         "/assets/software-licenses",
         "/helpdesk/tickets",
         "/helpdesk/automation",
@@ -226,7 +227,7 @@ def collect_dynamic(cdp, route):
     check("dynamic route discovered " + route, bool(href), href or "shared row action did not navigate")
     if href and ":" not in href:
         dynamic_routes.add(href)
-        if route in ("/admin/users", "/assets/contracts") and not href.endswith("/edit"):
+        if route in ("/admin/users", "/assets/contracts", "/assets/inventory", "/assets/software-baselines") and not href.endswith("/edit"):
             dynamic_routes.add(href + "/edit")
 
 for route in STATIC_ROUTES:

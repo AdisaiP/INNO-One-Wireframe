@@ -4,7 +4,7 @@
 **Branch:** `ux/step44a-screen-interaction-architecture`
 **Base:** `bdf3cca feat: implement inventory query`
 **Scope:** Production Web Portal interaction architecture
-**Current Production route definitions:** 57 (Step 44H-B adds Software License Detail after the 56-route H freeze)
+**Current Production route definitions:** 61 (Step 44H-C adds explicit Software Baseline create/detail/edit routes and Asset Edit after the 56-route H freeze)
 **Frozen Design System:** V1.26
 **Frozen UI Contract:** 1.20.0
 
@@ -45,29 +45,29 @@ step44a-screen-interaction-architecture-audit.py
 
 ## Route classification
 
-All 57 current Production route definitions are now classified. Browser regression also covers the Workspace root `/`, for 58 concrete navigable URLs.
+All 61 current Production route definitions are now classified. The broad browser harness is prepared to cover the Workspace root `/` plus dynamic resource routes; Step 44H-C browser execution is pending because the current test infra host is unreachable.
 
 | Pattern | Routes |
 | --- | ---: |
 | P01 Overview | 4 |
-| P02 List / focused overlay | 21 |
-| P03 Resource Detail | 8 |
-| P04 Create/Edit | 7 |
+| P02 List / focused overlay | 23 |
+| P03 Resource Detail | 9 |
+| P04 Create/Edit | 10 |
 | P05 Settings | 7 |
 | P06 Builder | 1 |
 | P07 Monitor/Operations | 2 |
 | P08 Wizard | 2 |
-| P09 Master-Detail | 2 |
+| P09 Master-Detail | 0 |
 | P10 History/Log | 3 |
 
 Remediation priority:
 
 | Priority | Routes |
 | --- | ---: |
-| Critical | 7 |
-| High | 13 |
-| Medium | 18 |
-| Low | 18 |
+| Critical | 9 |
+| High | 24 |
+| Medium | 14 |
+| Low | 14 |
 
 ## Critical architecture corrections
 
@@ -392,14 +392,29 @@ Post-freeze user review intentionally supersedes three Step 44H-A decisions:
 - **Roles & Permissions** → roles are no longer a read-only reference. Existing `Role`, `Permission`, and `RolePermission` persistence is exposed through real Create/Update APIs guarded by `admin.roles.manage`. New/Edit Role uses a drawer with dynamic permission assignment and optimistic concurrency. Platform Admin retains lockout protections.
 - **Inventory Query** → the builder is full width. Saved Queries becomes a utility drawer, the disabled Fact selector and dark code-preview block are removed, and the query reads as a light clause builder with Condition/Scope summary.
 
-The current route matrix is therefore 57 route definitions; the historical Step 44H visual evidence remains the pre-H-B 56-route freeze.
+The route matrix after Step 44H-B was 57 route definitions; the historical Step 44H visual evidence remains the pre-H-B 56-route freeze.
+
+### Step 44H-C — Remaining Page Architecture Cleanup
+**Status: IMPLEMENTED on `ux/step44h-c-page-architecture-cleanup`; browser verification pending test-infra recovery.**
+
+A second route-by-route architecture audit found and remediated the remaining embedded form/detail surfaces:
+
+- **Software Baselines** → P02 list only, dedicated P03 detail + evaluation results, dedicated P04 create/edit routes.
+- **Device Groups** → the short Create Group form opens in a dialog; group detail remains stable while Edit Group opens in a dialog.
+- **Asset Detail** → read-only P03 detail; multi-section Asset/custom-field editing moves to `/assets/:assetId/edit`; Change Owner stays a separate focused dialog.
+- **Ticket Detail** → two-field Reassign action opens a dialog instead of inserting an editor panel into the detail page.
+- **Admin Apps** → module registry stays list-first; Inspect opens technical manifest metadata in a drawer instead of native inline `<details>`.
+- **Helpdesk SLA** → explicitly reviewed and retained as P05 because policy configuration is the page's primary job; the live SLA monitor remains supporting context.
+
+No P09 Master-Detail routes remain in the current matrix. The current matrix contains 61 route definitions.
 
 ## Step 44A QA
 
 ```text
-step44a_routes=56
+step44a_routes=61
 step44a_reported_gap_classes=9
-step44a_checks=50
+step44a_current_gap_classes=0
+step44a_checks=97
 step44a_failures=0
 ```
 
