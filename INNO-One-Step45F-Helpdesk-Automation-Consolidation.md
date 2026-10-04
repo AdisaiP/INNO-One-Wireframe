@@ -1,6 +1,6 @@
 # INNO.One - Step 45F Helpdesk Automation Consolidation
 
-**Status:** IMPLEMENTATION COMPLETE - runtime/browser QA blocked by dev infrastructure
+**Status:** COMPLETE
 **Date:** 2026-10-04
 **Branch:** `implementation/step45f-helpdesk-automation-consolidation`
 **Base:** `c1eb689 feat: add bilingual runtime foundation`
@@ -123,7 +123,7 @@ Standalone workflow Product entries were removed, and the now-unreferenced `Work
 ## 8. QA completed
 
 Static / contract:
-- Step45F: 134/134
+- Step45F: 135/135
 - Step45E bilingual foundation: 87/87 after new catalogs
 - Step45A current overlay: 78/78
 - Step45C persistence regression: 68/68
@@ -144,38 +144,60 @@ Build / schema:
 
 Known Vite warning remains unchanged: React Flow / ELK lazy chunk is larger than 500 KB. It is still isolated in the lazy Automation builder chunk.
 
-## 9. Runtime/browser QA status
+## 9. Runtime/browser QA
 
-Dedicated browser QA has been added as `step45f-helpdesk-automation-browser-qa.py` and syntax-checks successfully.
+Dedicated browser/runtime QA:
 
-It is designed to verify:
+```text
+step45f_browser_checks=105
+step45f_browser_failures=0
+step45f_browser_screenshots=8
+```
+
+Validated against the real development PostgreSQL + Keycloak environment:
 - Apps launcher hides Dynamic Workflows / Automation Core;
-- Admin registry shows Automation Core only as technical module;
+- Admin registry exposes Automation Core only as a technical module;
 - `/workflows` browser route redirects into Helpdesk;
-- migrated rules appear as Helpdesk-owned definitions;
+- existing Step18 rules are migrated into Helpdesk-owned visual definitions;
+- every Helpdesk list item is owner-scoped to `helpdesk`;
 - 1366 / 1024 / 768 list and builder behavior;
-- Helpdesk-only node palette;
-- create v1 / reopen / save v2;
-- stale ETag -> 412;
-- immutable version history;
-- generic workflow facade cannot read/list Helpdesk definitions;
-- Thai/English rendering;
-- delete / 404 cleanup;
-- invalid definition shared error state;
-- locale restoration after QA.
+- shared React Flow canvas with Helpdesk-only node palette;
+- AI/Subflow are not exposed in the Helpdesk palette;
+- no premature Publish/Run controls;
+- create v1, persisted reopen and save v2;
+- stale ETag returns 412;
+- immutable version history remains Helpdesk-owned;
+- generic workflow facade returns 404/excludes Helpdesk definitions;
+- Thai/English list and builder rendering;
+- invalid definition route uses the shared error state;
+- QA-created definition is deleted;
+- organization/user locale values are restored after QA.
 
-Runtime/browser execution is currently blocked because the configured dev infrastructure host `172.10.1.58` is unreachable from the Windows MCP machine on both PostgreSQL 5432 and Keycloak 8080. The machine has no local Docker, local PostgreSQL or development-auth fallback. This is an infrastructure availability gap, not a compile/static failure.
+Visual inspection found one banner-spacing defect on the Helpdesk Automation list. The list now imports the shared `WorkflowProductPages.css`; the dedicated QA was rerun after the fix and explicitly verifies shared flex spacing at 1366 / 1024 / 768. English and Thai screenshots were re-inspected successfully.
 
-Do not mark Step45F fully QA-complete and do not start Step45G until this browser/runtime suite is executed against the real dev infrastructure.
+Evidence:
+- `qa-step45f-helpdesk-automation`
+- 8 PNG screenshots.
 
-## 10. Next gate
+Broad Product browser regression after Step45F:
 
-When dev PostgreSQL + Keycloak are reachable:
+```text
+step42_routes=60
+step42_browser_checks=1572
+step42_browser_failures=0
+```
 
-1. start Platform API with normal development migration/seed against dev infrastructure;
-2. start Vite with the dev Keycloak URL;
-3. run `python -u step45f-helpdesk-automation-browser-qa.py`;
-4. visually inspect generated Step45F screenshots;
-5. run updated broad `step42-production-ux-browser-qa.py` (standalone workflow routes were removed from its Product route list);
-6. if both are clean, update this document to COMPLETE;
-7. only then begin Step45G - Shared Execution + Helpdesk Run History.
+This includes the migrated Helpdesk Automation dynamic definition route and responsive 1024 / 768 coverage.
+
+## 10. Next step
+
+**Step 45G - Shared Execution + Helpdesk Run History**
+
+Start only from the frozen Step45F ownership boundary:
+- execution must reference workflow ID + immutable workflow version;
+- runtime state stays separate from definition state;
+- runs remain owner-scoped to Helpdesk;
+- execution uses normal authorization/audit services;
+- add Helpdesk run history under the module-owned Automation surface;
+- keep bilingual runtime status/error presentation;
+- do not restore standalone Dynamic Workflows Product navigation.

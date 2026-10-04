@@ -150,6 +150,7 @@ check("helpdesk.automation.manage" in list_page, "Helpdesk list manage permissio
 check("/helpdesk/automation/new" in list_page, "Helpdesk list New action route missing")
 check("useI18n()" in list_page, "Helpdesk list is not bilingual")
 check("formatDateTime" in list_page, "Helpdesk list does not use locale-aware date formatting")
+check("import './WorkflowProductPages.css';" in list_page, "Helpdesk list does not load shared workflow Product styling")
 
 # Helpdesk builder.
 check("INNOWorkflowCanvas" in builder, "Helpdesk editor does not use shared React Flow canvas")

@@ -18,6 +18,7 @@ import { getHelpdeskAutomationDefinitions } from '../api/client';
 import { usePermission } from '../app/ProfileContext';
 import { CollectionErrorState, CollectionLoadingState } from '../components/Feedback';
 import { RouterRowAction } from '../components/RouterRowAction';
+import './WorkflowProductPages.css';
 
 export function AutomationRulesPage() {
   const { t, formatDateTime } = useI18n();

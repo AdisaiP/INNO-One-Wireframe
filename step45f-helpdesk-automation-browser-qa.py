@@ -219,6 +219,7 @@ for width in WIDTHS:
     txt=body(c)
     check(f"{width} automation list title","Automation" in txt)
     check(f"{width} automation list is Helpdesk-owned","Helpdesk-owned" in txt)
+    check(f"{width} boundary uses shared flex spacing",c.ev("""(()=>{const e=document.querySelector('.workflow-product-boundary');if(!e)return false;const s=getComputedStyle(e);return s.display==='flex' && parseFloat(s.gap)>0})()""") is True)
     check(f"{width} automation list no overflow",no_overflow(c))
     c.shot(f"{width}__helpdesk-automation-list-en.png")
 
@@ -319,8 +320,10 @@ check("Version history remains Helpdesk-owned",all(x.get("ownerModule")=="helpde
 check("Switch user locale to Thai",set_profile_locale(c,"th-TH").get("status")==200)
 c.navigate("http://localhost:5180/helpdesk/automation")
 check("Thai automation list ready",bool(wait(c,"location.pathname==='/helpdesk/automation' && document.body.innerText.includes('ระบบอัตโนมัติ')",12)))
+check("Thai automation collection loaded",bool(wait(c,"!!document.querySelector('table') && !document.querySelector('.inno-collection-state.is-loading')",12)))
 check("Thai document language",c.ev("document.documentElement.lang")=="th",c.ev("document.documentElement.lang"))
 check("Thai list title","ระบบอัตโนมัติ" in body(c))
+check("Thai boundary uses shared flex spacing",c.ev("""(()=>{const e=document.querySelector('.workflow-product-boundary');if(!e)return false;const s=getComputedStyle(e);return s.display==='flex' && parseFloat(s.gap)>0})()""") is True)
 c.shot("1366__helpdesk-automation-list-th.png")
 
 check("Thai builder ready",nav(c,"/helpdesk/automation/new"))

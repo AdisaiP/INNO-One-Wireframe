@@ -417,7 +417,7 @@ Completion evidence: `INNO-One-Step45E-Bilingual-Foundation.md`.
 
 No business module should add new hardcoded UI strings after this step.
 
-### Step 45F - Helpdesk Automation consolidation — IMPLEMENTED, runtime/browser QA gate pending
+### Step 45F - Helpdesk Automation consolidation — COMPLETE
 Implemented:
 - remove old simple Helpdesk Automation editor;
 - mount shared React Flow builder under Helpdesk routes;
@@ -430,7 +430,7 @@ Implemented:
 
 This is the first end-to-end proof of the new model.
 
-Implementation is complete on `implementation/step45f-helpdesk-automation-consolidation`, but Step45F must not be marked fully complete until `step45f-helpdesk-automation-browser-qa.py` and the broad Product browser regression run against the real dev PostgreSQL + Keycloak environment. The 2026-10-04 attempt was blocked by dev infrastructure connectivity.
+Step45F is complete on `implementation/step45f-helpdesk-automation-consolidation`. Dedicated browser/runtime QA passed 105/105 with 8 screenshots, broad Product browser regression passed 1572/1572 across 60 concrete routes, and visual inspection passed after fixing the Helpdesk Automation list boundary spacing. Helpdesk ownership, persistence, bilingual behavior and responsive routing are now proven end-to-end.
 
 ### Step 45G - Shared execution + Helpdesk Run History
 Only after 45F:
@@ -516,11 +516,9 @@ The re-architecture is complete when:
 
 ## 17. Immediate next action
 
-Step 45E is complete and Step 45F implementation is complete. Do not start the old Step 45D execution work.
+Step 45E and Step 45F are complete. Do not start the old Step 45D execution work.
 
-**Immediate gate:** finish Step 45F runtime/browser QA against the real dev PostgreSQL + Keycloak environment. The first attempt was blocked by infrastructure reachability.
-
-After Step45F browser QA passes, the next implementation is **Step 45G - Shared Execution + Helpdesk Run History**.
+Next implementation is **Step 45G - Shared Execution + Helpdesk Run History**.
 
 Reason:
-module-owned Helpdesk authoring now exists, but shared execution must not begin until ownership, persistence, bilingual behavior and responsive Product routing are proven end-to-end.
+module-owned Helpdesk authoring, persistence, ownership isolation, bilingual behavior and responsive Product routing are now proven end-to-end. Shared execution can proceed from this frozen boundary without reviving a global workflow Product.
