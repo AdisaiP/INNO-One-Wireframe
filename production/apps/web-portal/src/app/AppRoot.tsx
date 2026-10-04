@@ -44,6 +44,7 @@ import { ContractsWarrantyPage } from '../pages/ContractsWarrantyPage';
 import { DeviceDetailPage } from '../pages/DeviceDetailPage';
 import { DeviceGroupDetailPage } from '../pages/DeviceGroupDetailPage';
 import { DeviceGroupsPage } from '../pages/DeviceGroupsPage';
+import { DevicesAutomationRulesPage } from '../pages/DevicesAutomationRulesPage';
 import { DevicesPage } from '../pages/DevicesPage';
 import { DiscoveryPage } from '../pages/DiscoveryPage';
 import { InventoryQueryPage } from '../pages/InventoryQueryPage';
@@ -78,6 +79,16 @@ const AutomationRulePage = lazy(async () => {
 const AutomationRunsPage = lazy(async () => {
   const module = await import('../pages/AutomationRunsPage');
   return { default: module.AutomationRunsPage };
+});
+
+const DevicesAutomationRulePage = lazy(async () => {
+  const module = await import('../pages/DevicesAutomationRulePage');
+  return { default: module.DevicesAutomationRulePage };
+});
+
+const DevicesAutomationHistoryPage = lazy(async () => {
+  const module = await import('../pages/DevicesAutomationHistoryPage');
+  return { default: module.DevicesAutomationHistoryPage };
 });
 
 export function AppRoot() {
@@ -115,6 +126,9 @@ export function AppRoot() {
   const canAdminApps = profile.permissions.includes('admin.apps.view');
   const canViewDevices = profile.permissions.includes('devices.view');
   const canDeployDevices = profile.permissions.includes('devices.deploy');
+  const canViewDeviceAutomation = profile.permissions.includes('devices.automation.view');
+  const canManageDeviceAutomation = profile.permissions.includes('devices.automation.manage');
+  const canViewDeviceAutomationRuns = profile.permissions.includes('devices.automation.run.view');
   const canViewAssets = profile.permissions.includes('assets.view');
   const canManageAssets = profile.permissions.includes('assets.manage');
   const canManageAssetBaselines = profile.permissions.includes('assets.baseline.manage');
@@ -177,6 +191,31 @@ export function AppRoot() {
           <Route path="devices/query" element={canViewDevices ? <InventoryQueryPage /> : <DeferredPage name="Inventory Query" kind="permission" />} />
           <Route path="devices/groups" element={canViewDevices ? <DeviceGroupsPage /> : <DeferredPage name="Device Groups" kind="permission" />} />
           <Route path="devices/groups/:groupId" element={canViewDevices ? <DeviceGroupDetailPage /> : <DeferredPage name="Device Group" kind="permission" />} />
+          <Route path="devices/automation" element={canViewDeviceAutomation ? <DevicesAutomationRulesPage /> : <DeferredPage name="Devices Automation" kind="permission" />} />
+          <Route
+            path="devices/automation/new"
+            element={canManageDeviceAutomation ? (
+              <Suspense fallback={<LoadingState />}>
+                <DevicesAutomationRulePage />
+              </Suspense>
+            ) : <DeferredPage name="New Devices Automation" kind="permission" />}
+          />
+          <Route
+            path="devices/automation/:automationId/history"
+            element={canViewDeviceAutomationRuns ? (
+              <Suspense fallback={<LoadingState />}>
+                <DevicesAutomationHistoryPage />
+              </Suspense>
+            ) : <DeferredPage name="Devices Automation Run History" kind="permission" />}
+          />
+          <Route
+            path="devices/automation/:automationId"
+            element={canManageDeviceAutomation ? (
+              <Suspense fallback={<LoadingState />}>
+                <DevicesAutomationRulePage />
+              </Suspense>
+            ) : <DeferredPage name="Devices Automation" kind="permission" />}
+          />
           <Route path="devices/add" element={canDeployDevices ? <AgentDeploymentPage /> : <DeferredPage name="Agent Deployment" kind="permission" />} />
           <Route path="devices/:deviceId" element={canViewDevices ? <DeviceDetailPage /> : <DeferredPage name="Device" kind="permission" />} />
 

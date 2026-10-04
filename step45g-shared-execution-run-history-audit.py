@@ -197,7 +197,7 @@ for marker in [
 
 # Product interaction matrix.
 routes = {item["route"]: item for item in screen_matrix["routes"]}
-check(len(routes) == 62, "Current Product matrix must contain 62 screens")
+check(len(routes) == 66, "Current Product matrix must contain 66 screens after Step45H")
 run_route = routes.get("helpdesk/automation/:automationId/runs", {})
 check(run_route.get("page") == "AutomationRunsPage", "Run History matrix page missing")
 check(run_route.get("pattern") == "P10", "Run History must use P10")

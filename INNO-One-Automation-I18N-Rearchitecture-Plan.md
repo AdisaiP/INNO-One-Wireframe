@@ -451,8 +451,25 @@ Frozen Step45G execution scope is deterministic linear execution: Trigger -> sup
 
 Step45G uses manual ticket-context enqueue. Transactional outbox persistence exists, but a central event dispatcher/consumer for automatic trigger-to-run dispatch is not yet implemented and must not be implied.
 
-### Step 45H - Devices Automation & Remediation
-Add a module-scoped WHEN / IF / THEN rules and remediation experience for safe Devices triggers/actions, backed by the shared automation runtime where useful. Do not expose the full React Flow canvas by default. High-impact actions must preserve normal authorization, consent and approval requirements.
+### Step 45H - Devices Automation & Remediation — IMPLEMENTATION COMPLETE, FINAL RUNTIME QA BLOCKED
+
+Implemented on `implementation/step45h-devices-automation-remediation`:
+
+- Devices-owned P02/P04/P10 Product routes under `/devices/automation`;
+- focused WHEN / optional IF / THEN editor with no React Flow surface;
+- shared definition/version persistence with `ownerModule=devices`;
+- shared run history with managed-device context;
+- module permissions `devices.automation.view/manage/run.view`;
+- shared worker Devices owner mapping;
+- real `devices.device.add_to_group` executor for active INNO.One-owned local static groups;
+- current automation + Devices permission/scope re-checks;
+- provider-owned group guard;
+- idempotent membership remediation;
+- bilingual Devices automation/runtime catalog.
+
+Local static/regression/build gates are green. Final runtime and responsive browser QA remain blocked because the shared dev host `172.10.1.58` became unreachable on both Keycloak `:8080` and PostgreSQL `:5432`. Do not mark Step45H fully COMPLETE or start Step45I until `step45h-devices-automation-api-qa.py` and the required responsive/bilingual browser coverage pass against restored dev infrastructure.
+
+High-impact remote actions remain deferred and must preserve normal authorization, consent and approval requirements.
 
 ### Step 45I - Assets Automation
 Add ownership, lifecycle, warranty/license, and baseline-related triggers/actions.
@@ -525,9 +542,17 @@ The re-architecture is complete when:
 
 ## 17. Immediate next action
 
-Step 45E, Step 45F and Step 45G are complete. The old global Step45D direction remains retired.
+Step 45E, Step 45F and Step 45G are complete. Step45H implementation is complete, but its final runtime/responsive QA gate is blocked by the current dev-infrastructure outage. The old global Step45D direction remains retired.
 
-Next implementation is **Step 45H - Devices Automation & Remediation**.
+Immediate action:
+
+1. restore connectivity to Keycloak `172.10.1.58:8080` and PostgreSQL `172.10.1.58:5432`;
+2. rerun `step45h-devices-automation-api-qa.py`;
+3. run Step45H responsive/bilingual browser QA at 1366 / 1024 / 768;
+4. run broad Product regression;
+5. only after those gates are green, mark Step45H fully COMPLETE.
+
+After the green Step45H gate, the next implementation is **Step 45I - Assets Automation**.
 
 Reason:
-Helpdesk now proves the shared runtime boundary end-to-end: immutable version snapshots, persisted run history, module-owned execution, current permission re-checks, retry/recovery, real side effects and bilingual Product monitoring. Devices can reuse that technical foundation while keeping its Product experience intentionally simpler as WHEN / IF / THEN and preserving endpoint authorization, consent and approval boundaries.
+Devices now has the intended focused WHEN / IF / THEN Product architecture and safe local remediation implementation, while the runtime proof must still be completed against real dev infrastructure before the roadmap advances.

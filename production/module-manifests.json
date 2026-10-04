@@ -14,18 +14,23 @@
         "devices.view",
         "devices.manage",
         "devices.deploy",
-        "devices.remote"
+        "devices.remote",
+        "devices.automation.view",
+        "devices.automation.manage",
+        "devices.automation.run.view"
       ],
       "navigation": [
         { "id": "overview", "label": "Devices", "route": "/devices", "permission": "devices.view" },
         { "id": "discovery", "label": "Discovery", "route": "/devices/discovery", "permission": "devices.view" },
         { "id": "query", "label": "Inventory Query", "route": "/devices/query", "permission": "devices.view" },
         { "id": "groups", "label": "Device Groups", "route": "/devices/groups", "permission": "devices.view" },
+        { "id": "automation", "label": "Automation", "route": "/devices/automation", "permission": "devices.automation.view" },
         { "id": "deployment", "label": "Agent Deployment", "route": "/devices/add", "permission": "devices.deploy" }
       ],
       "events": [
         "device.online",
         "device.offline",
+        "device.group.membership.added",
         "remote.started"
       ],
       "capabilities": [

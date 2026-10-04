@@ -34,6 +34,16 @@ public static class WorkflowEndpoints
         "/api/v1/helpdesk/automations",
         "Helpdesk automation");
 
+    private static readonly WorkflowScope DevicesScope = new(
+        "devices",
+        "devices.automation.view",
+        "devices.automation.manage",
+        "devices",
+        "devices.automation.definition",
+        "automation_definition",
+        "/api/v1/devices/automations",
+        "Devices automation");
+
     public static RouteGroupBuilder MapWorkflowEndpoints(this RouteGroupBuilder api)
     {
         // Migration-only generic facade. Product navigation no longer exposes it after Step 45F.
@@ -53,7 +63,17 @@ public static class WorkflowEndpoints
         api.MapGet("/helpdesk/automations/{automationId}/versions", ListHelpdeskVersionsAsync)
             .WithName("helpdesk.automations.versions.list");
 
+        // Module-owned Devices automation/remediation facade.
+        api.MapGet("/devices/automations", ListDevicesAsync).WithName("devices.automations.list");
+        api.MapGet("/devices/automations/{automationId}", GetDevicesAsync).WithName("devices.automations.get");
+        api.MapPost("/devices/automations", CreateDevicesAsync).WithName("devices.automations.create");
+        api.MapPut("/devices/automations/{automationId}", UpdateDevicesAsync).WithName("devices.automations.update");
+        api.MapDelete("/devices/automations/{automationId}", DeleteDevicesAsync).WithName("devices.automations.delete");
+        api.MapGet("/devices/automations/{automationId}/versions", ListDevicesVersionsAsync)
+            .WithName("devices.automations.versions.list");
+
         api.MapWorkflowRunEndpoints();
+        api.MapDeviceAutomationRunEndpoints();
         return api;
     }
 
@@ -77,6 +97,16 @@ public static class WorkflowEndpoints
         CancellationToken cancellationToken = default) =>
         ListAsync(HelpdeskScope, httpContext, db, accessEvaluator, page, pageSize, search, cancellationToken);
 
+    private static Task<IResult> ListDevicesAsync(
+        HttpContext httpContext,
+        WorkflowsDbContext db,
+        IAccessEvaluator accessEvaluator,
+        int page = 1,
+        int pageSize = 25,
+        string? search = null,
+        CancellationToken cancellationToken = default) =>
+        ListAsync(DevicesScope, httpContext, db, accessEvaluator, page, pageSize, search, cancellationToken);
+
     private static Task<IResult> GetLegacyAsync(
         string workflowId,
         HttpContext httpContext,
@@ -92,6 +122,14 @@ public static class WorkflowEndpoints
         IAccessEvaluator accessEvaluator,
         CancellationToken cancellationToken) =>
         GetAsync(HelpdeskScope, automationId, httpContext, db, accessEvaluator, cancellationToken);
+
+    private static Task<IResult> GetDevicesAsync(
+        string automationId,
+        HttpContext httpContext,
+        WorkflowsDbContext db,
+        IAccessEvaluator accessEvaluator,
+        CancellationToken cancellationToken) =>
+        GetAsync(DevicesScope, automationId, httpContext, db, accessEvaluator, cancellationToken);
 
     private static Task<IResult> CreateLegacyAsync(
         UpsertWorkflowRequest request,
@@ -110,6 +148,15 @@ public static class WorkflowEndpoints
         WorkflowLedgerWriter ledger,
         CancellationToken cancellationToken) =>
         CreateAsync(HelpdeskScope, request, httpContext, db, accessEvaluator, ledger, cancellationToken);
+
+    private static Task<IResult> CreateDevicesAsync(
+        UpsertWorkflowRequest request,
+        HttpContext httpContext,
+        WorkflowsDbContext db,
+        IAccessEvaluator accessEvaluator,
+        WorkflowLedgerWriter ledger,
+        CancellationToken cancellationToken) =>
+        CreateAsync(DevicesScope, request, httpContext, db, accessEvaluator, ledger, cancellationToken);
 
     private static Task<IResult> UpdateLegacyAsync(
         string workflowId,
@@ -131,6 +178,16 @@ public static class WorkflowEndpoints
         CancellationToken cancellationToken) =>
         UpdateAsync(HelpdeskScope, automationId, request, httpContext, db, accessEvaluator, ledger, cancellationToken);
 
+    private static Task<IResult> UpdateDevicesAsync(
+        string automationId,
+        UpsertWorkflowRequest request,
+        HttpContext httpContext,
+        WorkflowsDbContext db,
+        IAccessEvaluator accessEvaluator,
+        WorkflowLedgerWriter ledger,
+        CancellationToken cancellationToken) =>
+        UpdateAsync(DevicesScope, automationId, request, httpContext, db, accessEvaluator, ledger, cancellationToken);
+
     private static Task<IResult> DeleteLegacyAsync(
         string workflowId,
         HttpContext httpContext,
@@ -149,6 +206,15 @@ public static class WorkflowEndpoints
         CancellationToken cancellationToken) =>
         DeleteAsync(HelpdeskScope, automationId, httpContext, db, accessEvaluator, ledger, cancellationToken);
 
+    private static Task<IResult> DeleteDevicesAsync(
+        string automationId,
+        HttpContext httpContext,
+        WorkflowsDbContext db,
+        IAccessEvaluator accessEvaluator,
+        WorkflowLedgerWriter ledger,
+        CancellationToken cancellationToken) =>
+        DeleteAsync(DevicesScope, automationId, httpContext, db, accessEvaluator, ledger, cancellationToken);
+
     private static Task<IResult> ListLegacyVersionsAsync(
         string workflowId,
         HttpContext httpContext,
@@ -164,6 +230,14 @@ public static class WorkflowEndpoints
         IAccessEvaluator accessEvaluator,
         CancellationToken cancellationToken) =>
         ListVersionsAsync(HelpdeskScope, automationId, httpContext, db, accessEvaluator, cancellationToken);
+
+    private static Task<IResult> ListDevicesVersionsAsync(
+        string automationId,
+        HttpContext httpContext,
+        WorkflowsDbContext db,
+        IAccessEvaluator accessEvaluator,
+        CancellationToken cancellationToken) =>
+        ListVersionsAsync(DevicesScope, automationId, httpContext, db, accessEvaluator, cancellationToken);
 
     private static async Task<IResult> ListAsync(
         WorkflowScope scope,

@@ -133,14 +133,14 @@ public static class WorkflowExecutionPlanner
         if (nodes.Values.Any(x => x.Kind is "branch" or "condition"))
         {
             return Fail("AUTOMATION_BRANCHING_NOT_SUPPORTED",
-                "Step 45G executes deterministic linear automations only. Branch and condition execution will be added after branch semantics are frozen.",
+                "The shared runtime currently executes deterministic linear automations only. Branch and condition execution require a separately frozen contract.",
                 out errorCode, out errorDetail);
         }
 
         if (outgoing.Values.Any(x => x.Count > 1) || incoming.Values.Any(x => x.Count > 1))
         {
             return Fail("AUTOMATION_BRANCHING_NOT_SUPPORTED",
-                "Step 45G executes one deterministic path per run.",
+                "The shared runtime currently executes one deterministic path per run.",
                 out errorCode, out errorDetail);
         }
 
