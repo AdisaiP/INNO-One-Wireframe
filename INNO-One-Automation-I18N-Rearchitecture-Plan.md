@@ -32,7 +32,7 @@ The Step 45C persistence work is not discarded. It becomes the shared technical 
 | Surface | Workflow builder? | Priority | Product ownership |
 | --- | --- | --- | --- |
 | Helpdesk | Yes | P0 | Helpdesk Automation |
-| Devices | Yes | P1 | Devices Automation |
+| Devices | Rules / Remediation first | P1 | Devices Automation & Remediation; advanced graph only if later use cases justify it |
 | Assets | Yes | P1 | Assets Automation |
 | Admin Center | Yes, constrained | P1 | Approval / lifecycle automation |
 | Reports | No general builder | P2 | Scheduling only; can be called by workflows |
@@ -70,28 +70,30 @@ Primary actions:
 
 Existing simple Trigger -> Condition -> Action Helpdesk editor will be replaced by the shared React Flow builder.
 
-### Devices - P1
+### Devices - P1 automation/remediation, not a full graph by default
 Routes:
 - `/devices/automation`
 - `/devices/automation/new`
 - `/devices/automation/:automationId`
-- `/devices/automation/:automationId/runs`
+- `/devices/automation/:automationId/history`
 
-Primary triggers:
+Primary rule triggers:
 - device online/offline
 - inventory/compliance change
 - discovery result
 - policy drift
 - operation completed/failed
 
-Primary actions:
-- run approved remote operation
+Primary outcomes:
+- run approved remediation / remote operation
 - notify owner/admin
 - create Helpdesk ticket
 - assign device group
-- wait / branch / approval
+- wait for a bounded delay or maintenance window
 
-High-impact remote actions must require explicit permission and can require an Approval node. Workflow runtime must never bypass normal Devices authorization.
+Default UX is a focused WHEN / IF / THEN rule and remediation editor, not React Flow. The shared automation runtime may store the compiled definition, but the Product UI must stay simple for common endpoint-management work. Add an advanced graph only if real multi-stage device use cases later require approval + wait + consent + verify + retry + escalation.
+
+High-impact remote actions must require explicit permission and may require approval/consent. Automation runtime must never bypass normal Devices authorization.
 
 ### Assets - P1
 Routes:
@@ -436,9 +438,8 @@ Only after 45F:
 - execution audit/events;
 - bilingual runtime status/error presentation.
 
-### Step 45H - Devices Automation
-Add module-scoped builder/catalog/run history for safe Devices triggers/actions.
-High-impact actions must preserve normal authorization and approval requirements.
+### Step 45H - Devices Automation & Remediation
+Add a module-scoped WHEN / IF / THEN rules and remediation experience for safe Devices triggers/actions, backed by the shared automation runtime where useful. Do not expose the full React Flow canvas by default. High-impact actions must preserve normal authorization, consent and approval requirements.
 
 ### Step 45I - Assets Automation
 Add ownership, lifecycle, warranty/license, and baseline-related triggers/actions.
