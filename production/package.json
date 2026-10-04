@@ -7,7 +7,7 @@
     "node": ">=18.18.0"
   },
   "scripts": {
-    "build:packages": "pnpm --filter @inno/contracts build && pnpm --filter @inno/shared build && pnpm --filter @inno/auth build && pnpm --filter @inno/ui build",
+    "build:packages": "pnpm --filter @inno/contracts build && pnpm --filter @inno/shared build && pnpm --filter @inno/auth build && pnpm --filter @inno/i18n build && pnpm --filter @inno/ui build",
     "typecheck": "pnpm run build:packages && pnpm --filter @inno/web-portal typecheck",
     "build": "pnpm run build:packages && pnpm --filter @inno/web-portal build",
     "dev:web": "pnpm run build:packages && pnpm --filter @inno/web-portal dev",

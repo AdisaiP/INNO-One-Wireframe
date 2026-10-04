@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@inno/contracts": "workspace:*",
+    "@inno/i18n": "workspace:*",
     "@inno/ui": "workspace:*",
     "@tanstack/react-query": "5.104.0",
     "keycloak-js": "26.2.4",

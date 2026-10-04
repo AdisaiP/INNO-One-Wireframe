@@ -1,6 +1,15 @@
 import { useState, type FormEvent } from 'react';
+import { type Locale, useI18n } from '@inno/i18n';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { INNOButton, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOPage, INNOPurposeNote, INNOStatus } from '@inno/ui';
+import {
+  INNOButton,
+  INNOEditorFooter,
+  INNOEditorFooterEnd,
+  INNOEditorFooterStart,
+  INNOPage,
+  INNOPurposeNote,
+  INNOStatus,
+} from '@inno/ui';
 import { updateCurrentProfile } from '../api/client';
 import { useProfile } from '../app/ProfileContext';
 
@@ -8,12 +17,24 @@ function valueOrDash(value?: string | null) {
   return value?.trim() ? value : '—';
 }
 
+function localeLabel(locale: Locale, t: (key: string) => string) {
+  return locale === 'th-TH'
+    ? t('common.language.thai')
+    : t('common.language.english');
+}
+
+type LanguageSelection = Locale | 'organization';
+
 export function ProfilePage() {
   const profile = useProfile();
+  const { t } = useI18n();
   const queryClient = useQueryClient();
-  const roleSummary = profile.roles.join(', ') || 'User';
+  const roleSummary = profile.roles.join(', ') || t('common.user');
   const [phone, setPhone] = useState(profile.phone ?? '');
   const [office, setOffice] = useState(profile.office ?? '');
+  const [selectedLocale, setSelectedLocale] = useState<LanguageSelection>(
+    profile.preferredLocale ?? 'organization',
+  );
 
   const mutation = useMutation({
     mutationFn: updateCurrentProfile,
@@ -21,27 +42,42 @@ export function ProfilePage() {
       queryClient.setQueryData(['platform', 'me'], updated);
       setPhone(updated.phone ?? '');
       setOffice(updated.office ?? '');
+      setSelectedLocale(updated.preferredLocale ?? 'organization');
     },
   });
 
-  const dirty = phone !== (profile.phone ?? '') || office !== (profile.office ?? '');
+  const currentLanguageSelection: LanguageSelection = profile.preferredLocale ?? 'organization';
+  const localeDirty = selectedLocale !== currentLanguageSelection;
+  const dirty = phone !== (profile.phone ?? '')
+    || office !== (profile.office ?? '')
+    || localeDirty;
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!dirty || mutation.isPending) return;
-    mutation.mutate({ phone, office });
+    mutation.mutate({
+      phone,
+      office,
+      ...(localeDirty && selectedLocale === 'organization'
+        ? { useOrganizationDefault: true }
+        : {}),
+      ...(localeDirty && selectedLocale !== 'organization'
+        ? { preferredLocale: selectedLocale }
+        : {}),
+    });
   }
 
   function discardChanges() {
     setPhone(profile.phone ?? '');
     setOffice(profile.office ?? '');
+    setSelectedLocale(profile.preferredLocale ?? 'organization');
   }
 
   return (
     <INNOPage
-      eyebrow="Account"
-      title="Profile & Settings"
-      description="Your workspace profile and organization-managed sign-in."
+      eyebrow={t('profile.eyebrow')}
+      title={t('profile.title')}
+      description={t('profile.description')}
     >
       <div className="profile-layout">
         <div className="panel-stack">
@@ -53,7 +89,7 @@ export function ProfilePage() {
               <div>
                 <h2>{profile.fullName}</h2>
                 <div className="muted-line">
-                  {profile.position?.name ?? 'Employee'}
+                  {profile.position?.name ?? t('common.employee')}
                   <span>·</span>
                   {roleSummary}
                 </div>
@@ -62,14 +98,14 @@ export function ProfilePage() {
             </div>
 
             <div className="kv-grid production-kv-grid">
-              <div className="kv-row"><span>Email</span><b>{profile.email}</b></div>
-              <div className="kv-row"><span>Employee ID</span><b>{profile.employeeId}</b></div>
-              <div className="kv-row"><span>Organization</span><b>{profile.organization?.name ?? '—'}</b></div>
-              <div className="kv-row"><span>Location</span><b>{profile.location?.name ?? '—'}</b></div>
-              <div className="kv-row"><span>Time zone</span><b>{profile.timeZone}</b></div>
+              <div className="kv-row"><span>{t('profile.email')}</span><b>{profile.email}</b></div>
+              <div className="kv-row"><span>{t('profile.employeeId')}</span><b>{profile.employeeId}</b></div>
+              <div className="kv-row"><span>{t('profile.organization')}</span><b>{valueOrDash(profile.organization?.name)}</b></div>
+              <div className="kv-row"><span>{t('profile.location')}</span><b>{valueOrDash(profile.location?.name)}</b></div>
+              <div className="kv-row"><span>{t('profile.timeZone')}</span><b>{profile.timeZone}</b></div>
               <div className="kv-row">
-                <span>SSO</span>
-                <b><INNOStatus tone="success">Connected</INNOStatus></b>
+                <span>{t('profile.sso')}</span>
+                <b><INNOStatus tone="success">{t('common.status.connected')}</INNOStatus></b>
               </div>
             </div>
           </section>
@@ -77,53 +113,84 @@ export function ProfilePage() {
           <section className="prod-panel">
             <div className="prod-panel-head">
               <div>
-                <h3>Personal contact details</h3>
-                <p>These two business-profile fields are self-managed in INNO.One.</p>
+                <h3>{t('profile.contact.title')}</h3>
+                <p>{t('profile.contact.description')}</p>
               </div>
-              <INNOStatus tone={dirty ? 'warning' : 'success'}>{dirty ? 'Unsaved' : 'Saved'}</INNOStatus>
+              <INNOStatus tone={dirty ? 'warning' : 'success'}>
+                {dirty ? t('common.status.unsaved') : t('common.status.saved')}
+              </INNOStatus>
             </div>
 
             <form className="profile-edit-form" onSubmit={submit}>
               <div className="profile-edit-grid">
                 <label className="field-block">
-                  <span>Phone</span>
+                  <span>{t('profile.phone')}</span>
                   <input
                     value={phone}
                     onChange={(event) => setPhone(event.target.value)}
                     maxLength={64}
                     autoComplete="tel"
-                    placeholder="Optional phone number"
+                    placeholder={t('profile.phone.placeholder')}
                   />
-                  <small>Visible as part of your INNO.One business profile.</small>
+                  <small>{t('profile.phone.help')}</small>
                 </label>
 
                 <label className="field-block">
-                  <span>Office</span>
+                  <span>{t('profile.office')}</span>
                   <input
                     value={office}
                     onChange={(event) => setOffice(event.target.value)}
                     maxLength={120}
-                    placeholder="Optional office or workspace"
+                    placeholder={t('profile.office.placeholder')}
                   />
-                  <small>Examples: HQ 4F, Remote, Branch A.</small>
+                  <small>{t('profile.office.help')}</small>
+                </label>
+
+                <label className="field-block">
+                  <span>{t('profile.language')}</span>
+                  <select
+                    value={selectedLocale}
+                    onChange={(event) => setSelectedLocale(event.target.value as LanguageSelection)}
+                  >
+                    <option value="organization">
+                      {t('profile.language.default', {
+                        locale: localeLabel(profile.organizationDefaultLocale, t),
+                      })}
+                    </option>
+                    {profile.supportedLocales.map((locale) => (
+                      <option key={locale} value={locale}>
+                        {localeLabel(locale, t)}
+                      </option>
+                    ))}
+                  </select>
+                  <small>{t('profile.language.help')}</small>
                 </label>
               </div>
 
               {mutation.isError ? (
                 <div className="profile-save-error" role="alert">
-                  {mutation.error instanceof Error ? mutation.error.message : 'Unable to save profile.'}
+                  {mutation.error instanceof Error
+                    ? mutation.error.message
+                    : t('profile.saveError')}
                 </div>
               ) : null}
 
               {mutation.isSuccess && !dirty ? (
-                <div className="profile-save-success" role="status">Profile saved.</div>
+                <div className="profile-save-success" role="status">
+                  {t('profile.saved')}
+                </div>
               ) : null}
 
               <INNOEditorFooter>
                 <INNOEditorFooterStart>
                   {dirty ? (
-                    <INNOButton type="button" variant="secondary" disabled={mutation.isPending} onClick={discardChanges}>
-                      Discard changes
+                    <INNOButton
+                      type="button"
+                      variant="secondary"
+                      disabled={mutation.isPending}
+                      onClick={discardChanges}
+                    >
+                      {t('common.actions.discard')}
                     </INNOButton>
                   ) : null}
                 </INNOEditorFooterStart>
@@ -133,7 +200,7 @@ export function ProfilePage() {
                     busy={mutation.isPending}
                     disabled={!dirty || mutation.isPending}
                   >
-                    Save profile
+                    {t('profile.save')}
                   </INNOButton>
                 </INNOEditorFooterEnd>
               </INNOEditorFooter>
@@ -144,30 +211,30 @@ export function ProfilePage() {
         <section className="prod-panel">
           <div className="prod-panel-head">
             <div>
-              <h3>Security & sessions</h3>
-              <p>Identity and sign-in are managed by your organization.</p>
+              <h3>{t('profile.security.title')}</h3>
+              <p>{t('profile.security.description')}</p>
             </div>
-            <INNOStatus tone="success">Healthy</INNOStatus>
+            <INNOStatus tone="success">{t('common.status.healthy')}</INNOStatus>
           </div>
           <div className="settings-stack">
             <div className="settings-row">
               <div>
-                <b>Single Sign-On</b>
-                <span>Keycloak · Authorization Code + PKCE</span>
+                <b>{t('profile.security.sso')}</b>
+                <span>{t('profile.security.ssoDetail')}</span>
               </div>
-              <INNOStatus tone="success">Connected</INNOStatus>
+              <INNOStatus tone="success">{t('common.status.connected')}</INNOStatus>
             </div>
             <div className="settings-row">
               <div>
-                <b>Business authorization</b>
-                <span>Resolved from INNO.One roles and resource scopes</span>
+                <b>{t('profile.security.authorization')}</b>
+                <span>{t('profile.security.authorizationDetail')}</span>
               </div>
-              <INNOStatus>{profile.permissions.length} permissions</INNOStatus>
+              <INNOStatus>{t('profile.security.permissions', { count: profile.permissions.length })}</INNOStatus>
             </div>
           </div>
           <INNOPurposeNote
-            title="Organization-managed fields stay read only."
-            description="Name, email, employee ID, organization, position, location, roles and sign-in state are not editable from this page."
+            title={t('profile.managed.title')}
+            description={t('profile.managed.description')}
           />
         </section>
       </div>

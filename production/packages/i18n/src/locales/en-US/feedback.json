@@ -1,0 +1,18 @@
+{
+  "feedback.loading.title": "Loading content",
+  "feedback.loading.description": "Please wait while INNO.One loads the latest available data.",
+  "feedback.permission.title": "You do not have access",
+  "feedback.permission.description": "Your current role does not include permission to view this resource.",
+  "feedback.permission.collectionDescription": "Your current role does not include permission to view this collection.",
+  "feedback.moduleDisabled.title": "Module is not available",
+  "feedback.moduleDisabled.description": "An administrator must enable this module before it can be used.",
+  "feedback.signIn.title": "Sign in required",
+  "feedback.signIn.description": "Your current session cannot complete this request. Sign in again, then retry.",
+  "feedback.error.title": "Unable to load content",
+  "feedback.error.description": "INNO.One could not load this content. Try again when the service is available.",
+  "feedback.error.collectionDescription": "INNO.One could not load this collection. Try again when the service is available.",
+  "feedback.auth.connecting": "Connecting to organization sign-in…",
+  "feedback.auth.notCompleted": "Organization sign-in was not completed.",
+  "feedback.auth.initializeFailed": "Unable to initialize organization sign-in.",
+  "feedback.auth.unableConnect": "Unable to connect to organization sign-in"
+}

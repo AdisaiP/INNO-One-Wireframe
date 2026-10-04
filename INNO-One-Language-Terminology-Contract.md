@@ -1,6 +1,15 @@
 # INNO.One — Language & Terminology Contract
 
-**Status:** UX/UI final polish — Step 3
+> [!IMPORTANT]
+> **Current Production runtime override — Step 45E (2026-10-04)**
+>
+> INNO.One Production is bilingual at runtime. Supported locales are `en-US` and `th-TH` across Web Portal, Endpoint Agent and Android Mobile as each surface is migrated. Locale resolution is: explicit user preference -> organization/platform default -> browser/device locale -> `en-US` fallback. UI translation keys are stable identifiers; API fields, enum/status codes, permissions, event names and audit action codes remain language-neutral. User-authored business content is preserved as entered and is never silently translated.
+>
+> The historical fixed-language rules below remain the regression baseline for the frozen HTML prototype only. They no longer define the language ownership of Production React. `language-terminology-audit.py` continues to protect that frozen prototype. Production bilingual behavior is guarded by `step45e-bilingual-foundation-audit.py` and runtime/browser QA.
+>
+> Profile & Settings owns the personal language preference. Admin Center -> Platform Settings owns the organization/platform default. A user may explicitly return to the organization default. The active runtime locale must update `document.documentElement.lang`, preserve route/resource context, and must not alter authorization.
+
+**Status:** Historical prototype baseline — UX/UI final polish Step 3; superseded for Production runtime by Step 45E
 **Date:** 2026-09-25
 **UI Contract:** 1.15.0
 **Documentation:** Design System V1.21

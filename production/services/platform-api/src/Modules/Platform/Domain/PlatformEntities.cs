@@ -12,6 +12,7 @@ public sealed class UserProfile
     public required string Email { get; set; }
     public string? Phone { get; set; }
     public string? Office { get; set; }
+    public string? PreferredLocale { get; set; }
     public required string Status { get; set; }
     public long Version { get; set; } = 1;
     public DateTimeOffset CreatedAt { get; set; }
@@ -110,6 +111,14 @@ public sealed class AppModule
     public required string AppId { get; set; }
     public bool Installed { get; set; }
     public bool Enabled { get; set; }
+    public long Version { get; set; } = 1;
+    public DateTimeOffset UpdatedAt { get; set; }
+}
+
+public sealed class PlatformLocalizationSettings
+{
+    public int Id { get; set; } = 1;
+    public required string DefaultLocale { get; set; }
     public long Version { get; set; } = 1;
     public DateTimeOffset UpdatedAt { get; set; }
 }

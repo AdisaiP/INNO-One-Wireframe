@@ -30,6 +30,10 @@ export interface Profile {
   permissions: string[];
   timeZone: string;
   ssoStatus: string;
+  locale: 'en-US' | 'th-TH';
+  preferredLocale?: 'en-US' | 'th-TH' | null;
+  organizationDefaultLocale: 'en-US' | 'th-TH';
+  supportedLocales: Array<'en-US' | 'th-TH'>;
 }
 
 export interface AppNavigationItem {
@@ -170,12 +174,20 @@ export interface AdminPlatformSetting {
   detail: string;
 }
 
+export interface AdminPlatformLocalization {
+  defaultLocale: 'en-US' | 'th-TH';
+  supportedLocales: Array<'en-US' | 'th-TH'>;
+  eTag: string;
+  updatedAt: string;
+}
+
 export interface AdminPlatformSettingsResponse {
   configurationMode: string;
   mutableSettings: boolean;
   environment: string;
   checkedAt: string;
   groups: string[];
+  localization: AdminPlatformLocalization;
   items: AdminPlatformSetting[];
 }
 

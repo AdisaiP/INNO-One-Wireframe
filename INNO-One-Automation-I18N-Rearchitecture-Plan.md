@@ -401,8 +401,8 @@ Planning/documentation only:
 - update current handoff/roadmap references;
 - define migration acceptance criteria.
 
-### Step 45E - Bilingual foundation
-Implement:
+### Step 45E - Bilingual foundation — COMPLETE
+Implemented:
 - `@inno/i18n`
 - user locale preference
 - organization default locale
@@ -411,7 +411,9 @@ Implement:
 - Profile language switcher
 - Admin default-language setting
 - localized shell/common states/actions
-- new bilingual regression audits
+- bilingual regression audits
+
+Completion evidence: `INNO-One-Step45E-Bilingual-Foundation.md`.
 
 No business module should add new hardcoded UI strings after this step.
 
@@ -512,9 +514,9 @@ The re-architecture is complete when:
 
 ## 17. Immediate next action
 
-Do not start the old Step 45D execution work.
+Step 45E is complete. Do not start the old Step 45D execution work.
 
-Next implementation should be **Step 45E - Bilingual foundation**, followed by **Step 45F - Helpdesk Automation consolidation**.
+Next implementation is **Step 45F - Helpdesk Automation consolidation**.
 
 Reason:
-new UI should not be built with another generation of hardcoded English strings, and Helpdesk is the clearest first owner for the existing React Flow builder.
+the bilingual runtime foundation now exists, and Helpdesk is the clearest first owner for the existing React Flow builder. Step 45F must prove module-owned automation before shared execution/run history begins.

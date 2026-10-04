@@ -6,6 +6,7 @@ import type {
   AdminAuditFacets,
   AdminAuditListItem,
   AdminSecurityResponse,
+  AdminPlatformLocalization,
   AdminPlatformSettingsResponse,
   AdminAppModule,
   AdminAppModulesResponse,
@@ -142,6 +143,8 @@ export async function getCurrentProfile(): Promise<Profile> {
 export async function updateCurrentProfile(input: {
   phone?: string;
   office?: string;
+  preferredLocale?: 'en-US' | 'th-TH';
+  useOrganizationDefault?: boolean;
 }): Promise<Profile> {
   const response = await request<ResourceEnvelope<Profile>>('/platform/me/profile', {
     method: 'PATCH',
@@ -253,6 +256,19 @@ export async function getAdminSecurity(): Promise<AdminSecurityResponse> {
 
 export async function getAdminPlatformSettings(): Promise<AdminPlatformSettingsResponse> {
   return request<AdminPlatformSettingsResponse>('/admin/settings');
+}
+
+export async function updateAdminPlatformLocalization(
+  defaultLocale: 'en-US' | 'th-TH',
+  eTag: string,
+): Promise<AdminPlatformLocalization> {
+  return request<AdminPlatformLocalization>('/admin/settings/localization', {
+    method: 'PATCH',
+    ...jsonRequest(
+      { defaultLocale },
+      { 'If-Match': eTag },
+    ),
+  });
 }
 
 export async function getAdminAuditDetail(auditId: string): Promise<AdminAuditDetail> {

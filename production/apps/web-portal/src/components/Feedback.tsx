@@ -1,20 +1,22 @@
 import type { ReactNode } from 'react';
+import { useI18n } from '@inno/i18n';
 import { INNOButton, INNOCollectionState, INNOState } from '@inno/ui';
 import { ApiError } from '../api/client';
 
 export function LoadingState({
-  label = 'Loading content',
+  label,
   compact = false,
 }: {
   label?: string;
   compact?: boolean;
 }) {
+  const { t } = useI18n();
   return (
     <INNOState
       kind="loading"
       compact={compact}
-      title={label}
-      description="Please wait while INNO.One loads the latest available data."
+      title={label ?? t('feedback.loading.title')}
+      description={t('feedback.loading.description')}
     />
   );
 }
@@ -26,12 +28,13 @@ export function PermissionState({
   action?: ReactNode;
   compact?: boolean;
 }) {
+  const { t } = useI18n();
   return (
     <INNOState
       kind="permission"
       compact={compact}
-      title="You do not have access"
-      description="Your current role does not include permission to view this resource."
+      title={t('feedback.permission.title')}
+      description={t('feedback.permission.description')}
       action={action}
     />
   );
@@ -44,23 +47,25 @@ export function ModuleDisabledState({
   action?: ReactNode;
   compact?: boolean;
 }) {
+  const { t } = useI18n();
   return (
     <INNOState
       kind="disabled"
       compact={compact}
-      title="Module is not available"
-      description="An administrator must enable this module before it can be used."
+      title={t('feedback.moduleDisabled.title')}
+      description={t('feedback.moduleDisabled.description')}
       action={action}
     />
   );
 }
 
-export function CollectionLoadingState({ label = 'Loading content' }: { label?: string }) {
+export function CollectionLoadingState({ label }: { label?: string }) {
+  const { t } = useI18n();
   return (
     <INNOCollectionState
       kind="loading"
-      title={label}
-      description="Please wait while INNO.One loads the latest available data."
+      title={label ?? t('feedback.loading.title')}
+      description={t('feedback.loading.description')}
     />
   );
 }
@@ -72,19 +77,28 @@ export function CollectionErrorState({
   error: unknown;
   retry?: () => void;
 }) {
+  const { t } = useI18n();
   const isForbidden = error instanceof ApiError && error.status === 403;
   const isUnauthorized = error instanceof ApiError && error.status === 401;
 
   return (
     <INNOCollectionState
       kind={isForbidden ? 'permission' : 'error'}
-      title={isForbidden ? 'You do not have access' : isUnauthorized ? 'Sign in required' : 'Unable to load content'}
-      description={isForbidden
-        ? 'Your current role does not include permission to view this collection.'
+      title={isForbidden
+        ? t('feedback.permission.title')
         : isUnauthorized
-          ? 'Your current session cannot complete this request. Sign in again, then retry.'
-          : 'INNO.One could not load this collection. Try again when the service is available.'}
-      action={retry && !isForbidden ? <INNOButton variant="secondary" onClick={retry}>Try again</INNOButton> : undefined}
+          ? t('feedback.signIn.title')
+          : t('feedback.error.title')}
+      description={isForbidden
+        ? t('feedback.permission.collectionDescription')
+        : isUnauthorized
+          ? t('feedback.signIn.description')
+          : t('feedback.error.collectionDescription')}
+      action={retry && !isForbidden ? (
+        <INNOButton variant="secondary" onClick={retry}>
+          {t('common.actions.retry')}
+        </INNOButton>
+      ) : undefined}
     />
   );
 }
@@ -98,6 +112,7 @@ export function ErrorState({
   retry?: () => void;
   compact?: boolean;
 }) {
+  const { t } = useI18n();
   const isForbidden = error instanceof ApiError && error.status === 403;
   const isUnauthorized = error instanceof ApiError && error.status === 401;
 
@@ -109,11 +124,15 @@ export function ErrorState({
     <INNOState
       kind="error"
       compact={compact}
-      title={isUnauthorized ? 'Sign in required' : 'Unable to load content'}
+      title={isUnauthorized ? t('feedback.signIn.title') : t('feedback.error.title')}
       description={isUnauthorized
-        ? 'Your current session cannot complete this request. Sign in again, then retry.'
-        : 'INNO.One could not load this content. Try again when the service is available.'}
-      action={retry ? <INNOButton variant="secondary" onClick={retry}>Try again</INNOButton> : undefined}
+        ? t('feedback.signIn.description')
+        : t('feedback.error.description')}
+      action={retry ? (
+        <INNOButton variant="secondary" onClick={retry}>
+          {t('common.actions.retry')}
+        </INNOButton>
+      ) : undefined}
     />
   );
 }

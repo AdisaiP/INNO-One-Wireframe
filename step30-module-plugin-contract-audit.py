@@ -110,14 +110,24 @@ for marker in [
 ]:
     if marker not in app_root:
         issues.append("route " + marker)
-for marker in [
-    'to="/apps" aria-label="Apps"',
-    'to="/admin/apps"><SideNavLabel token="section.modules">Apps & Modules</SideNavLabel></NavLink>',
-    "platform.apps.view",
-    "admin.apps.view",
-]:
-    if marker not in shell:
-        issues.append("shell " + marker)
+shell_markers = [
+    (
+        'Apps launcher navigation',
+        ['to="/apps" aria-label="Apps"', "to=\"/apps\" aria-label={t('navigation.apps')}"],
+    ),
+    (
+        'Admin Apps & Modules navigation',
+        [
+            'to="/admin/apps"><SideNavLabel token="section.modules">Apps & Modules</SideNavLabel></NavLink>',
+            "to=\"/admin/apps\"><SideNavLabel token=\"section.modules\">{t('navigation.appsModules')}</SideNavLabel></NavLink>",
+        ],
+    ),
+    ('platform.apps.view', ['platform.apps.view']),
+    ('admin.apps.view', ['admin.apps.view']),
+]
+for label, markers in shell_markers:
+    if not any(marker in shell for marker in markers):
+        issues.append("shell " + label)
 
 for marker in ["getPlatformApps", "INNOSearchField", "production-app-grid"]:
     if marker not in apps_page:

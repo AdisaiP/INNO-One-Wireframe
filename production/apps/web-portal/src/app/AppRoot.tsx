@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+import { I18nProvider } from '@inno/i18n';
 import { useQuery } from '@tanstack/react-query';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { getCurrentProfile } from '../api/client';
@@ -124,8 +125,9 @@ export function AppRoot() {
   const canManageSla = profile.permissions.includes('helpdesk.sla.manage');
 
   return (
-    <ProfileProvider profile={profile}>
-      <Routes>
+    <I18nProvider locale={profile.locale}>
+      <ProfileProvider profile={profile}>
+        <Routes>
         <Route element={<AppShell />}>
           <Route index element={canWorkspace ? <WorkspaceHomePage /> : <Navigate to="/profile" replace />} />
           <Route path="workspace/continue" element={canWorkspace ? <WorkspaceContinuePage /> : <DeferredPage name="Continue Working" kind="permission" />} />
@@ -228,7 +230,8 @@ export function AppRoot() {
           <Route path="admin/*" element={<DeferredPage name="Admin Center" kind="no-results" />} />
           <Route path="*" element={<DeferredPage name="Not Found" kind="no-results" />} />
         </Route>
-      </Routes>
-    </ProfileProvider>
+        </Routes>
+      </ProfileProvider>
+    </I18nProvider>
   );
 }

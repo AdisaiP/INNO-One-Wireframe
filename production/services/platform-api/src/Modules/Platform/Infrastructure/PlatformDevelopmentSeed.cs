@@ -200,6 +200,14 @@ public static class PlatformDevelopmentSeed
                 UpdatedAt = now
             });
 
+        db.LocalizationSettings.Add(new PlatformLocalizationSettings
+        {
+            Id = 1,
+            DefaultLocale = "en-US",
+            Version = 1,
+            UpdatedAt = now
+        });
+
         db.Locations.Add(new Location
         {
             Id = BangkokLocationId,
@@ -620,6 +628,17 @@ public static class PlatformDevelopmentSeed
         CancellationToken cancellationToken)
     {
         var now = DateTimeOffset.UtcNow;
+
+        if (!await db.LocalizationSettings.AnyAsync(cancellationToken))
+        {
+            db.LocalizationSettings.Add(new PlatformLocalizationSettings
+            {
+                Id = 1,
+                DefaultLocale = "en-US",
+                Version = 1,
+                UpdatedAt = now
+            });
+        }
 
         if (!await db.Permissions.AnyAsync(
             x => x.PermissionId == "devices.deploy",

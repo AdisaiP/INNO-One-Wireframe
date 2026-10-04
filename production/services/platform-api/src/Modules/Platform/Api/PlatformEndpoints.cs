@@ -12,6 +12,8 @@ namespace INNO.One.Modules.Platform.Api;
 
 public static class PlatformEndpoints
 {
+    private static readonly string[] SupportedLocales = ["en-US", "th-TH"];
+
     public static RouteGroupBuilder MapPlatformEndpoints(this RouteGroupBuilder api)
     {
         api.MapGet("/platform/me", GetMeAsync)
@@ -107,6 +109,12 @@ public static class PlatformEndpoints
         }
 
         var permissions = effectivePermissions.OrderBy(x => x).ToArray();
+        var localization = await db.LocalizationSettings.AsNoTracking()
+            .SingleOrDefaultAsync(x => x.Id == 1, cancellationToken);
+        var organizationDefaultLocale = localization?.DefaultLocale ?? "en-US";
+        var effectiveLocale = IsSupportedLocale(profile.PreferredLocale)
+            ? profile.PreferredLocale!
+            : organizationDefaultLocale;
 
         var response = new ProfileResponse(
             OpaqueId.Format("user", profile.Id),
@@ -122,7 +130,11 @@ public static class PlatformEndpoints
             roles,
             permissions,
             "Asia/Bangkok",
-            "connected");
+            "connected",
+            effectiveLocale,
+            profile.PreferredLocale,
+            organizationDefaultLocale,
+            SupportedLocales);
 
         return Results.Ok(new ResourceResponse<ProfileResponse>(response));
     }
@@ -147,12 +159,31 @@ public static class PlatformEndpoints
                 detail: access.Reason);
         }
 
-        if (request.Phone is null && request.Office is null)
+        if (request.Phone is null
+            && request.Office is null
+            && request.PreferredLocale is null
+            && request.UseOrganizationDefault is not true)
         {
             return Results.Problem(
                 statusCode: StatusCodes.Status400BadRequest,
                 title: "No editable profile fields supplied",
-                detail: "Phone or office must be supplied.");
+                detail: "Phone, office or language preference must be supplied.");
+        }
+
+        if (request.UseOrganizationDefault is true && request.PreferredLocale is not null)
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Conflicting language preference",
+                detail: "Choose a preferred locale or the organization default, not both.");
+        }
+
+        if (request.PreferredLocale is not null && !IsSupportedLocale(request.PreferredLocale))
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Unsupported locale",
+                detail: "Preferred locale must be en-US or th-TH.");
         }
 
         if (request.Phone is { Length: > 64 })
@@ -189,6 +220,15 @@ public static class PlatformEndpoints
                 : request.Office.Trim();
         }
 
+        if (request.UseOrganizationDefault is true)
+        {
+            profile.PreferredLocale = null;
+        }
+        else if (request.PreferredLocale is not null)
+        {
+            profile.PreferredLocale = request.PreferredLocale;
+        }
+
         profile.Version += 1;
         profile.UpdatedAt = DateTimeOffset.UtcNow;
         await db.SaveChangesAsync(cancellationToken);
@@ -196,7 +236,14 @@ public static class PlatformEndpoints
         return await GetMeAsync(httpContext, db, accessEvaluator, cancellationToken);
     }
 
-    private sealed record ProfileUpdateRequest(string? Phone, string? Office);
+    private static bool IsSupportedLocale(string? value) =>
+        value is not null && SupportedLocales.Contains(value, StringComparer.Ordinal);
+
+    private sealed record ProfileUpdateRequest(
+        string? Phone,
+        string? Office,
+        string? PreferredLocale,
+        bool? UseOrganizationDefault);
 
     private sealed record ReferenceResponse(string Id, string Name);
 
@@ -214,5 +261,9 @@ public static class PlatformEndpoints
         IReadOnlyList<string> Roles,
         IReadOnlyList<string> Permissions,
         string TimeZone,
-        string SsoStatus);
+        string SsoStatus,
+        string Locale,
+        string? PreferredLocale,
+        string OrganizationDefaultLocale,
+        IReadOnlyList<string> SupportedLocales);
 }

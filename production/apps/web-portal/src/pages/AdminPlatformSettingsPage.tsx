@@ -1,34 +1,77 @@
-import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState, type FormEvent } from 'react';
+import { type Locale, useI18n } from '@inno/i18n';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   INNOButton,
   INNOCollection,
   INNOCollectionHeader,
+  INNOEditorFooter,
+  INNOEditorFooterEnd,
   INNOPage,
   INNOStatus,
   INNOTableWrap,
 } from '@inno/ui';
-import { getAdminPlatformSettings } from '../api/client';
+import {
+  getAdminPlatformSettings,
+  updateAdminPlatformLocalization,
+} from '../api/client';
+import type { AdminPlatformSettingsResponse } from '../api/types';
 import { ErrorState, LoadingState } from '../components/Feedback';
 
-function formatCheckedAt(value: string) {
-  return new Intl.DateTimeFormat(undefined, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(value));
+function localeLabel(locale: Locale, t: (key: string) => string) {
+  return locale === 'th-TH'
+    ? t('common.language.thai')
+    : t('common.language.english');
 }
 
 export function AdminPlatformSettingsPage() {
+  const { t, formatDateTime } = useI18n();
+  const queryClient = useQueryClient();
   const query = useQuery({
     queryKey: ['admin', 'platform-settings'],
     queryFn: getAdminPlatformSettings,
     refetchOnWindowFocus: false,
   });
+  const [defaultLocale, setDefaultLocale] = useState<Locale>('en-US');
+
+  useEffect(() => {
+    if (query.data) {
+      setDefaultLocale(query.data.localization.defaultLocale);
+    }
+  }, [query.data]);
+
+  const localizationMutation = useMutation({
+    mutationFn: () => {
+      if (!query.data) throw new Error('Platform settings are not loaded.');
+      return updateAdminPlatformLocalization(
+        defaultLocale,
+        query.data.localization.eTag,
+      );
+    },
+    onSuccess: (localization) => {
+      queryClient.setQueryData<AdminPlatformSettingsResponse>(
+        ['admin', 'platform-settings'],
+        (current) => current ? { ...current, localization } : current,
+      );
+      void queryClient.invalidateQueries({ queryKey: ['platform', 'me'] });
+    },
+  });
+
+  const localizationDirty = Boolean(
+    query.data && defaultLocale !== query.data.localization.defaultLocale,
+  );
+
+  function saveLocalization(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!localizationDirty || localizationMutation.isPending) return;
+    localizationMutation.mutate();
+  }
 
   return (
     <INNOPage
-      eyebrow="Admin Center · Platform"
-      title="Platform Settings"
-      description="Inspect the effective global platform conventions and deployment-managed values that are defined by the frozen contracts."
+      eyebrow={t('admin.settings.eyebrow')}
+      title={t('admin.settings.title')}
+      description={t('admin.settings.description')}
       actions={(
         <INNOButton
           type="button"
@@ -36,45 +79,106 @@ export function AdminPlatformSettingsPage() {
           busy={query.isFetching}
           onClick={() => void query.refetch()}
         >
-          Refresh Settings
+          {t('common.actions.refresh')}
         </INNOButton>
       )}
     >
-      {query.isPending ? <LoadingState label="Loading platform settings…" /> : null}
+      {query.isPending ? <LoadingState /> : null}
       {query.isError ? <ErrorState error={query.error} retry={() => void query.refetch()} /> : null}
 
       {query.data ? (
         <>
+          <section className="prod-panel">
+            <div className="prod-panel-head">
+              <div>
+                <h3>{t('admin.settings.language.title')}</h3>
+                <p>{t('admin.settings.language.description')}</p>
+              </div>
+              <INNOStatus tone={localizationDirty ? 'warning' : 'success'}>
+                {localizationDirty
+                  ? t('common.status.unsaved')
+                  : t('common.status.saved')}
+              </INNOStatus>
+            </div>
+
+            <form onSubmit={saveLocalization}>
+              <div className="profile-edit-grid">
+                <label className="field-block">
+                  <span>{t('admin.settings.language.default')}</span>
+                  <select
+                    value={defaultLocale}
+                    onChange={(event) => setDefaultLocale(event.target.value as Locale)}
+                  >
+                    {query.data.localization.supportedLocales.map((locale) => (
+                      <option key={locale} value={locale}>
+                        {localeLabel(locale, t)}
+                      </option>
+                    ))}
+                  </select>
+                  <small>{t('admin.settings.language.help')}</small>
+                </label>
+              </div>
+
+              {localizationMutation.isError ? (
+                <div className="profile-save-error" role="alert">
+                  {localizationMutation.error instanceof Error
+                    ? localizationMutation.error.message
+                    : t('feedback.error.title')}
+                </div>
+              ) : null}
+
+              {localizationMutation.isSuccess && !localizationDirty ? (
+                <div className="profile-save-success" role="status">
+                  {t('admin.settings.language.saved')}
+                </div>
+              ) : null}
+
+              <INNOEditorFooter>
+                <INNOEditorFooterEnd>
+                  <INNOButton
+                    type="submit"
+                    busy={localizationMutation.isPending}
+                    disabled={!localizationDirty || localizationMutation.isPending}
+                  >
+                    {t('admin.settings.language.save')}
+                  </INNOButton>
+                </INNOEditorFooterEnd>
+              </INNOEditorFooter>
+            </form>
+          </section>
+
           <div className="production-stat-strip">
             <div>
-              <span>Environment</span>
+              <span>{t('admin.settings.environment')}</span>
               <b className="platform-setting-stat-value">{query.data.environment}</b>
               <small>Current hosting environment</small>
             </div>
             <div>
-              <span>Groups</span>
+              <span>{t('admin.settings.groups')}</span>
               <b>{query.data.groups.length}</b>
               <small>Effective settings groups</small>
             </div>
             <div>
-              <span>Settings</span>
+              <span>{t('admin.settings.settings')}</span>
               <b>{query.data.items.length}</b>
               <small>Safe values exposed</small>
             </div>
             <div>
-              <span>Mode</span>
-              <b className="platform-setting-stat-value">Read only</b>
+              <span>{t('admin.settings.mode')}</span>
+              <b className="platform-setting-stat-value">{t('admin.settings.readOnly')}</b>
               <small>{query.data.configurationMode}</small>
             </div>
           </div>
 
           <INNOCollection>
             <INNOCollectionHeader
-              title="Effective Platform Settings"
-              description={'Last checked ' + formatCheckedAt(query.data.checkedAt) + '. Sensitive deployment configuration is intentionally excluded.'}
+              title={t('admin.settings.effective.title')}
+              description={t('admin.settings.lastChecked', {
+                value: formatDateTime(query.data.checkedAt),
+              })}
               meta={(
                 <INNOStatus tone="success" dot>
-                  Contract aligned
+                  {t('admin.settings.contractAligned')}
                 </INNOStatus>
               )}
             />
@@ -83,12 +187,12 @@ export function AdminPlatformSettingsPage() {
               <table>
                 <thead>
                   <tr>
-                    <th>Group</th>
-                    <th>Setting</th>
-                    <th>Effective value</th>
-                    <th>Source</th>
-                    <th>Status</th>
-                    <th>Detail</th>
+                    <th>{t('admin.settings.table.group')}</th>
+                    <th>{t('admin.settings.table.setting')}</th>
+                    <th>{t('admin.settings.table.value')}</th>
+                    <th>{t('admin.settings.table.source')}</th>
+                    <th>{t('admin.settings.table.status')}</th>
+                    <th>{t('admin.settings.table.detail')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -104,8 +208,13 @@ export function AdminPlatformSettingsPage() {
                       </td>
                       <td>{item.source}</td>
                       <td>
-                        <INNOStatus tone={item.status === 'frozen' ? 'success' : 'neutral'} dot>
-                          {item.status === 'frozen' ? 'Frozen' : 'Effective'}
+                        <INNOStatus
+                          tone={item.status === 'frozen' ? 'success' : 'neutral'}
+                          dot
+                        >
+                          {item.status === 'frozen'
+                            ? t('common.status.frozen')
+                            : t('common.status.effective')}
                         </INNOStatus>
                       </td>
                       <td>{item.detail}</td>
@@ -115,7 +224,6 @@ export function AdminPlatformSettingsPage() {
               </table>
             </INNOTableWrap>
           </INNOCollection>
-
         </>
       ) : null}
     </INNOPage>

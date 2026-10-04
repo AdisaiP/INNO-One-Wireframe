@@ -1,0 +1,18 @@
+{
+  "feedback.loading.title": "กำลังโหลดข้อมูล",
+  "feedback.loading.description": "โปรดรอสักครู่ระหว่างที่ INNO.One โหลดข้อมูลล่าสุด",
+  "feedback.permission.title": "คุณไม่มีสิทธิ์เข้าถึง",
+  "feedback.permission.description": "บทบาทปัจจุบันของคุณไม่มีสิทธิ์ดูข้อมูลนี้",
+  "feedback.permission.collectionDescription": "บทบาทปัจจุบันของคุณไม่มีสิทธิ์ดูรายการนี้",
+  "feedback.moduleDisabled.title": "โมดูลนี้ยังไม่พร้อมใช้งาน",
+  "feedback.moduleDisabled.description": "ผู้ดูแลระบบต้องเปิดใช้งานโมดูลนี้ก่อน",
+  "feedback.signIn.title": "ต้องลงชื่อเข้าใช้",
+  "feedback.signIn.description": "เซสชันปัจจุบันไม่สามารถดำเนินการนี้ได้ โปรดลงชื่อเข้าใช้อีกครั้งแล้วลองใหม่",
+  "feedback.error.title": "ไม่สามารถโหลดข้อมูลได้",
+  "feedback.error.description": "INNO.One ไม่สามารถโหลดข้อมูลนี้ได้ โปรดลองอีกครั้งเมื่อบริการพร้อมใช้งาน",
+  "feedback.error.collectionDescription": "INNO.One ไม่สามารถโหลดรายการนี้ได้ โปรดลองอีกครั้งเมื่อบริการพร้อมใช้งาน",
+  "feedback.auth.connecting": "กำลังเชื่อมต่อระบบลงชื่อเข้าใช้ขององค์กร…",
+  "feedback.auth.notCompleted": "การลงชื่อเข้าใช้ขององค์กรยังไม่เสร็จสมบูรณ์",
+  "feedback.auth.initializeFailed": "ไม่สามารถเริ่มระบบลงชื่อเข้าใช้ขององค์กรได้",
+  "feedback.auth.unableConnect": "ไม่สามารถเชื่อมต่อระบบลงชื่อเข้าใช้ขององค์กรได้"
+}

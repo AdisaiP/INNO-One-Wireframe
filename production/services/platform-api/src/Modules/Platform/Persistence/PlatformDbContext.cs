@@ -18,6 +18,7 @@ public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> option
     public DbSet<AccessAssignmentResource> AccessAssignmentResources => Set<AccessAssignmentResource>();
     public DbSet<AccessAssignmentAction> AccessAssignmentActions => Set<AccessAssignmentAction>();
     public DbSet<AppModule> AppModules => Set<AppModule>();
+    public DbSet<PlatformLocalizationSettings> LocalizationSettings => Set<PlatformLocalizationSettings>();
     public DbSet<PlatformNotification> Notifications => Set<PlatformNotification>();
     public DbSet<PlatformActivityItem> ActivityItems => Set<PlatformActivityItem>();
 
@@ -35,6 +36,7 @@ public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> option
             entity.Property(x => x.EmployeeId).HasMaxLength(64);
             entity.Property(x => x.FullName).HasMaxLength(200);
             entity.Property(x => x.Email).HasMaxLength(320);
+            entity.Property(x => x.PreferredLocale).HasMaxLength(16);
             entity.Property(x => x.Status).HasMaxLength(32);
             entity.HasOne<OrganizationUnit>().WithMany().HasForeignKey(x => x.OrganizationUnitId).OnDelete(DeleteBehavior.Restrict);
             entity.HasOne<Position>().WithMany().HasForeignKey(x => x.PositionId).OnDelete(DeleteBehavior.Restrict);
@@ -134,6 +136,14 @@ public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> option
             entity.HasKey(x => x.Id);
             entity.HasIndex(x => x.AppId).IsUnique();
             entity.Property(x => x.AppId).HasMaxLength(64);
+        });
+
+        modelBuilder.Entity<PlatformLocalizationSettings>(entity =>
+        {
+            entity.ToTable("localization_settings");
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.DefaultLocale).HasMaxLength(16);
+            entity.Property(x => x.Version).IsConcurrencyToken();
         });
 
         modelBuilder.Entity<PlatformNotification>(entity =>

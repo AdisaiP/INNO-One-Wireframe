@@ -1,0 +1,18 @@
+{
+  "common.actions.retry": "Try again",
+  "common.actions.save": "Save",
+  "common.actions.discard": "Discard changes",
+  "common.actions.refresh": "Refresh",
+  "common.actions.signOut": "Sign out",
+  "common.status.saved": "Saved",
+  "common.status.unsaved": "Unsaved",
+  "common.status.healthy": "Healthy",
+  "common.status.connected": "Connected",
+  "common.status.frozen": "Frozen",
+  "common.status.effective": "Effective",
+  "common.user": "User",
+  "common.employee": "Employee",
+  "common.language.english": "English",
+  "common.language.thai": "Thai",
+  "common.language.systemDefault": "Organization default"
+}

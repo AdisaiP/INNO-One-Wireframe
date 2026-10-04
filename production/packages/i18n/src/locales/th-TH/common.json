@@ -1,0 +1,18 @@
+{
+  "common.actions.retry": "ลองอีกครั้ง",
+  "common.actions.save": "บันทึก",
+  "common.actions.discard": "ยกเลิกการแก้ไข",
+  "common.actions.refresh": "รีเฟรช",
+  "common.actions.signOut": "ออกจากระบบ",
+  "common.status.saved": "บันทึกแล้ว",
+  "common.status.unsaved": "ยังไม่บันทึก",
+  "common.status.healthy": "ปกติ",
+  "common.status.connected": "เชื่อมต่อแล้ว",
+  "common.status.frozen": "ล็อกตามสัญญาระบบ",
+  "common.status.effective": "ค่าที่ใช้งานอยู่",
+  "common.user": "ผู้ใช้",
+  "common.employee": "พนักงาน",
+  "common.language.english": "English",
+  "common.language.thai": "ไทย",
+  "common.language.systemDefault": "ค่าเริ่มต้นขององค์กร"
+}
