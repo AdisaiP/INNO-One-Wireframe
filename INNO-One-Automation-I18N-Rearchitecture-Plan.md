@@ -4,13 +4,13 @@
 **Date:** 2026-10-04
 **Base:** `main@1107bc6`
 **Scope:** Product IA, workflow ownership, shared workflow runtime boundaries, and system-wide Thai/English localization
-**Decision:** Dynamic Workflows must not remain a standalone end-user App.
+**Decision:** Dynamic Workflows must not remain a standalone end-user App. Meeting is out of scope for this roadmap until explicitly reintroduced.
 
 ## 1. Direction
 
 INNO.One will keep workflow technology as a shared platform capability, but workflow authoring will be owned by the business module that uses it.
 
-Users must not leave Helpdesk, Devices, Assets, Admin Center, or Meeting just to author an automation for that module.
+Users must not leave Helpdesk, Devices, Assets, or Admin Center just to author an automation for that module.
 
 The shared React Flow + ELK canvas remains reusable infrastructure:
 - `@inno/ui/workflow`
@@ -35,7 +35,6 @@ The Step 45C persistence work is not discarded. It becomes the shared technical 
 | Devices | Yes | P1 | Devices Automation |
 | Assets | Yes | P1 | Assets Automation |
 | Admin Center | Yes, constrained | P1 | Approval / lifecycle automation |
-| Meeting | Yes, later | P2 | Meeting Automation |
 | Reports | No general builder | P2 | Scheduling only; can be called by workflows |
 | Workspace / Apps | No | N/A | Navigation and launch only |
 | Notifications | No | N/A | Shared workflow action provider |
@@ -134,22 +133,6 @@ Use cases:
 Security rule:
 Admin workflows may orchestrate privileged operations but must call the same authorization/audit services as manual actions. No node may grant authority that the workflow actor/service principal does not possess.
 
-### Meeting - P2
-Add only after Meeting product routes are implemented.
-
-Potential triggers:
-- meeting created
-- recording uploaded
-- transcript completed
-- summary completed
-
-Potential actions:
-- generate summary
-- notify/share
-- create Helpdesk follow-up
-- create task/action item
-- publish approved output
-
 ### Reports - no general React Flow builder
 Reports should use a focused Schedule UI. A workflow may call a report-generation or report-delivery action, but Reports itself does not need a graph builder unless future requirements introduce genuine branching.
 
@@ -179,7 +162,6 @@ updatedAt
 - devices
 - assets
 - admin
-- meeting
 
 Runtime state remains separate from definition state:
 ```text
@@ -233,9 +215,6 @@ Replace generic product permissions with module-owned permissions:
 - `admin.automation.view`
 - `admin.automation.manage`
 - `admin.automation.run.view`
-- `meeting.automation.view`
-- `meeting.automation.manage`
-- `meeting.automation.run.view`
 
 Do not use one generic permission to cross module boundaries.
 
@@ -334,7 +313,6 @@ packages/i18n/
         assets.json
         helpdesk.json
         admin.json
-        meeting.json
         reports.json
         workflow.json
       th-TH/
@@ -379,7 +357,6 @@ Examples:
 - notification templates
 - remote-consent messages
 - reusable email templates
-- optional Meeting summary templates
 
 Workflow structure itself stays language-neutral. Product-provided node names/descriptions are translation keys. User-supplied workflow name and custom labels are business content and remain as entered.
 
@@ -476,14 +453,11 @@ Expose report generation/delivery as workflow actions for other modules where us
 ### Step 45L - Endpoint Agent bilingual runtime
 Implement Thai/English localization for real Agent runtime, including consent, ownership, request-help, offline/error states, and workflow-created user prompts.
 
-### Step 45M - Meeting Product + Automation
-Build Meeting product routes first, then add module-owned automation when real Meeting events/actions are available.
-
-### Step 45N - Android Mobile bilingual completion
+### Step 45M - Android Mobile bilingual completion
 Migrate scanner/history/result/error/task surfaces to the same locale model and verify user/org fallback behavior.
 
-### Step 45O - Bilingual completion and cleanup
-- migrate all remaining Web/Admin/Devices/Assets/Helpdesk/Reports/Meeting strings;
+### Step 45N - Bilingual completion and cleanup
+- migrate all remaining Web/Admin/Devices/Assets/Helpdesk/Reports strings;
 - localize notification/template surfaces;
 - remove legacy fixed-language assumptions;
 - remove/deprecate standalone `/workflows` routes and generic permissions;
