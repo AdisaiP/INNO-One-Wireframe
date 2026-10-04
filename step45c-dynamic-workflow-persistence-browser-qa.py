@@ -99,12 +99,13 @@ def login(c):
 
 def nav(c,route):
     c.navigate("http://localhost:5180"+route)
+    time.sleep(.4)
     ready=wait(c,"""(()=> {
       const shell=document.querySelector('.inno-production-shell');
       const page=document.querySelector('.inno-page,.workspace-home-page,.page-error-wrap');
-      return !!shell && !!page && !document.querySelector('.page-loading-wrap,.boot-screen');
-    })()""",20)
-    if ready: time.sleep(.25)
+      return location.pathname===%s && document.readyState==='complete' && !!shell && !!page && !document.querySelector('.page-loading-wrap,.boot-screen');
+    })()""" % json.dumps(route),20)
+    if ready: time.sleep(.35)
     return bool(ready)
 
 def body(c):
