@@ -11,7 +11,6 @@ WIDTHS = (1366, 1024, 768)
 STATIC_ROUTES = [
     "/", "/workspace/continue", "/workspace/attention", "/workspace/recent",
     "/profile", "/notifications", "/search", "/apps",
-    "/workflows", "/workflows/new",
     "/admin", "/admin/organization", "/admin/locations", "/admin/positions",
     "/admin/users", "/admin/users/new", "/admin/roles", "/admin/access-scopes",
     "/admin/integrations", "/admin/security", "/admin/audit",

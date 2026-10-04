@@ -115,24 +115,21 @@
     },
     {
       "id": "workflows",
-      "name": "Dynamic Workflows",
+      "name": "Automation Core",
       "icon": "automation",
       "route": "/workflows",
       "surface": "web",
-      "launcher": true,
+      "launcher": false,
       "entryPermission": "workflows.view",
       "dependencies": ["platform"],
       "permissions": [
         "workflows.view",
         "workflows.manage"
       ],
-      "navigation": [
-        { "id": "definitions", "label": "All Workflows", "route": "/workflows", "permission": "workflows.view" },
-        { "id": "new", "label": "New Workflow", "route": "/workflows/new", "permission": "workflows.manage" }
-      ],
+      "navigation": [],
       "events": [],
       "capabilities": [
-        "navigation"
+        "audit"
       ]
     },
     {

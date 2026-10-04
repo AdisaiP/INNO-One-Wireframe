@@ -17,19 +17,21 @@ public sealed class WorkflowsDbContext(DbContextOptions<WorkflowsDbContext> opti
         {
             entity.ToTable("workflow_definitions");
             entity.HasKey(x => x.Id);
+            entity.Property(x => x.OwnerModule).HasMaxLength(64).HasDefaultValue("legacy_unassigned").IsRequired();
             entity.Property(x => x.Name).HasMaxLength(180).IsRequired();
             entity.Property(x => x.NodesJson).HasColumnType("jsonb").IsRequired();
             entity.Property(x => x.EdgesJson).HasColumnType("jsonb").IsRequired();
             entity.Property(x => x.Orientation).HasMaxLength(16).IsRequired();
             entity.Property(x => x.Status).HasMaxLength(32).IsRequired();
             entity.Property(x => x.Version).IsConcurrencyToken();
-            entity.HasIndex(x => x.UpdatedAt);
+            entity.HasIndex(x => new { x.OwnerModule, x.UpdatedAt });
         });
 
         modelBuilder.Entity<WorkflowDefinitionVersion>(entity =>
         {
             entity.ToTable("workflow_definition_versions");
             entity.HasKey(x => x.Id);
+            entity.Property(x => x.OwnerModule).HasMaxLength(64).HasDefaultValue("legacy_unassigned").IsRequired();
             entity.Property(x => x.Name).HasMaxLength(180).IsRequired();
             entity.Property(x => x.NodesJson).HasColumnType("jsonb").IsRequired();
             entity.Property(x => x.EdgesJson).HasColumnType("jsonb").IsRequired();

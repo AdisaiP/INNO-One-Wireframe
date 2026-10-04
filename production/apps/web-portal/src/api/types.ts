@@ -709,45 +709,6 @@ export interface BusinessCalendar {
   eTag: string;
 }
 
-export interface AutomationRuleSummary {
-  id: string;
-  name: string;
-  ruleType: string;
-  trigger: string;
-  primaryAction: string;
-  status: string;
-  executionCount: number;
-  lastExecutedAt?: string | null;
-  eTag: string;
-}
-
-export interface AutomationExecution {
-  id: string;
-  ticketId: string;
-  trigger: string;
-  result: string;
-  executedAt: string;
-}
-
-export interface AutomationRuleDetail {
-  id: string;
-  code: string;
-  name: string;
-  ruleType: string;
-  trigger: string;
-  scopeType: string;
-  scopeValue?: string | null;
-  conditionField: string;
-  conditionOperator: string;
-  conditionValue: string;
-  actionType: string;
-  actionValue: string;
-  status: string;
-  sortOrder: number;
-  recentExecutions: AutomationExecution[];
-  eTag: string;
-}
-
 export interface ProblemDetails {
   type?: string;
   title?: string;
@@ -1203,6 +1164,7 @@ export interface WorkspaceActivityResponse {
 
 export interface WorkflowDefinitionItem {
   id: string;
+  ownerModule: string;
   name: string;
   status: 'draft';
   version: number;
@@ -1214,6 +1176,7 @@ export interface WorkflowDefinitionItem {
 
 export interface WorkflowDefinitionDetail {
   id: string;
+  ownerModule: string;
   name: string;
   nodes: import('@inno/ui/workflow').INNOWorkflowNode[];
   edges: import('@inno/ui/workflow').INNOWorkflowEdge[];

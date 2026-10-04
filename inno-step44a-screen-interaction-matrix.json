@@ -94,35 +94,6 @@
       "priority": "medium"
     },
     {
-      "route": "workflows",
-      "page": "WorkflowListPage",
-      "pattern": "P02",
-      "surface": "list+persisted-definitions",
-      "wireframe": "—",
-      "remediation": "Step 45C persisted Workflow definitions list; launcher is available when installed, enabled and workflows.view is granted",
-      "priority": "high"
-    },
-    {
-      "route": "workflows/new",
-      "page": "WorkflowBuilderPage",
-      "pattern": "P06",
-      "surface": "builder-route+persisted-definition",
-      "wireframe": "—",
-      "remediation": "P06 authoring route reuses INNOWorkflowCanvas and creates versioned server definitions; execution remains Step 45D",
-      "priority": "high",
-      "specialComponent": "INNOWorkflowCanvas"
-    },
-    {
-      "route": "workflows/:workflowId",
-      "page": "WorkflowBuilderPage",
-      "pattern": "P06",
-      "surface": "builder-route+persisted-definition",
-      "wireframe": "—",
-      "remediation": "P06 edit route loads persisted definitions, saves immutable versions and uses ETag optimistic concurrency; execution remains Step 45D",
-      "priority": "high",
-      "specialComponent": "INNOWorkflowCanvas"
-    },
-    {
       "route": "admin",
       "page": "AdminOverviewPage",
       "pattern": "P01",
@@ -602,28 +573,30 @@
       "route": "helpdesk/automation",
       "page": "AutomationRulesPage",
       "pattern": "P02",
-      "surface": "list",
+      "surface": "module-owned-list+persisted-definitions",
       "wireframe": "helpdesk-automation.html",
-      "remediation": "keep simple-rule list; Dynamic Workflow is a separate future product capability",
-      "priority": "medium"
+      "remediation": "Step 45F Helpdesk-owned automation definitions; shared Automation Core remains technical infrastructure and is hidden from the Apps launcher",
+      "priority": "high"
     },
     {
       "route": "helpdesk/automation/new",
       "page": "AutomationRulePage",
-      "pattern": "P04",
-      "surface": "edit-route",
+      "pattern": "P06",
+      "surface": "builder-route+persisted-definition",
       "wireframe": "helpdesk-automation-rule.html",
-      "remediation": "keep simple Trigger→Condition→Action editor; do not force React Flow",
-      "priority": "medium"
+      "remediation": "Step 45F shared INNOWorkflowCanvas with Helpdesk-specific trigger/action catalog; creates immutable Helpdesk-owned definition versions",
+      "priority": "high",
+      "specialComponent": "INNOWorkflowCanvas"
     },
     {
-      "route": "helpdesk/automation/:ruleId",
+      "route": "helpdesk/automation/:automationId",
       "page": "AutomationRulePage",
-      "pattern": "P04",
-      "surface": "edit-route",
+      "pattern": "P06",
+      "surface": "builder-route+persisted-definition",
       "wireframe": "helpdesk-automation-rule.html",
-      "remediation": "keep simple rule editor; branching workflow must use separate P06 canvas when implemented",
-      "priority": "medium"
+      "remediation": "Step 45F edit route loads Helpdesk-owned definitions, saves immutable versions and uses ETag optimistic concurrency; execution remains Step 45G",
+      "priority": "high",
+      "specialComponent": "INNOWorkflowCanvas"
     }
   ],
   "crossCutting": {

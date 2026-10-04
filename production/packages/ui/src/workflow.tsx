@@ -45,7 +45,11 @@ export type INNOWorkflowNode = {
   id: string;
   kind: INNOWorkflowNodeKind;
   label: string;
+  labelKey?: string;
   description?: string;
+  descriptionKey?: string;
+  catalogKey?: string;
+  configuration?: Record<string, unknown>;
   disabled?: boolean;
   layout?: { x: number; y: number };
 };
@@ -92,6 +96,8 @@ export type INNOWorkflowCanvasProps = {
   autoLayout?: boolean;
   orientation?: 'horizontal' | 'vertical';
   ariaLabel: string;
+  kindLabels?: Partial<Record<INNOWorkflowNodeKind, string>>;
+  severityLabels?: Partial<Record<'warning' | 'error', string>>;
   className?: string;
   height?: number;
 };
@@ -100,6 +106,8 @@ type WorkflowFlowData = Record<string, unknown> & {
   model: INNOWorkflowNode;
   validation: INNOWorkflowValidationIssue[];
   orientation: 'horizontal' | 'vertical';
+  kindLabels: Partial<Record<INNOWorkflowNodeKind, string>>;
+  severityLabels: Partial<Record<'warning' | 'error', string>>;
 };
 
 type WorkflowFlowNode = Node<WorkflowFlowData, 'innoWorkflowNode'>;
@@ -124,7 +132,8 @@ const NODE_KIND_LABELS: Record<INNOWorkflowNodeKind, string> = {
 };
 
 function WorkflowNodeView({ data, selected }: NodeProps<WorkflowFlowNode>) {
-  const { model, validation, orientation } = data;
+  const { model, validation, orientation, kindLabels } = data;
+  const kindLabel = kindLabels[model.kind] ?? NODE_KIND_LABELS[model.kind];
   const hasTarget = model.kind !== 'trigger';
   const hasSource = model.kind !== 'end';
   const targetPosition = orientation === 'horizontal' ? Position.Left : Position.Top;
@@ -141,12 +150,12 @@ function WorkflowNodeView({ data, selected }: NodeProps<WorkflowFlowNode>) {
         highestIssue && 'has-' + highestIssue.severity,
       )}
       data-workflow-node-kind={model.kind}
-      aria-label={NODE_KIND_LABELS[model.kind] + ': ' + model.label}
+      aria-label={kindLabel + ': ' + model.label}
     >
       {hasTarget ? <Handle type="target" position={targetPosition} isConnectable={!model.disabled} /> : null}
       <div className="inno-workflow-node-topline">
-        <span>{NODE_KIND_LABELS[model.kind]}</span>
-        {highestIssue ? <b>{highestIssue.severity}</b> : null}
+        <span>{kindLabel}</span>
+        {highestIssue ? <b>{data.severityLabels[highestIssue.severity] ?? highestIssue.severity}</b> : null}
       </div>
       <strong>{model.label}</strong>
       {model.description ? <small>{model.description}</small> : null}
@@ -175,6 +184,8 @@ function toFlowNodes(
   nodes: INNOWorkflowNode[],
   validation: INNOWorkflowValidationIssue[],
   orientation: 'horizontal' | 'vertical',
+  kindLabels: Partial<Record<INNOWorkflowNodeKind, string>> = {},
+  severityLabels: Partial<Record<'warning' | 'error', string>> = {},
 ): WorkflowFlowNode[] {
   return nodes.map((node, index) => ({
     id: node.id,
@@ -188,12 +199,14 @@ function toFlowNodes(
       model: node,
       validation: validation.filter((issue) => issue.nodeId === node.id),
       orientation,
+      kindLabels,
+      severityLabels,
     },
     draggable: !node.disabled,
     connectable: !node.disabled,
     selectable: true,
     focusable: true,
-    ariaLabel: NODE_KIND_LABELS[node.kind] + ' ' + node.label,
+    ariaLabel: (kindLabels[node.kind] ?? NODE_KIND_LABELS[node.kind]) + ' ' + node.label,
   }));
 }
 
@@ -202,6 +215,8 @@ async function layoutNodes(
   edges: INNOWorkflowEdge[],
   validation: INNOWorkflowValidationIssue[],
   orientation: 'horizontal' | 'vertical',
+  kindLabels: Partial<Record<INNOWorkflowNodeKind, string>> = {},
+  severityLabels: Partial<Record<'warning' | 'error', string>> = {},
 ): Promise<WorkflowFlowNode[]> {
   const graph: ElkNode = {
     id: 'root',
@@ -229,7 +244,7 @@ async function layoutNodes(
     (result.children ?? []).map((node) => [node.id, { x: node.x ?? 0, y: node.y ?? 0 }]),
   );
 
-  return toFlowNodes(nodes, validation, orientation).map((node) => ({
+  return toFlowNodes(nodes, validation, orientation, kindLabels, severityLabels).map((node) => ({
     ...node,
     position: positions.get(node.id) ?? node.position,
   }));
@@ -249,10 +264,12 @@ function INNOWorkflowCanvasInner({
   autoLayout = true,
   orientation = 'horizontal',
   ariaLabel,
+  kindLabels = {},
+  severityLabels = {},
   className,
   height = 460,
 }: INNOWorkflowCanvasProps) {
-  const [flowNodes, setFlowNodes] = useState<WorkflowFlowNode[]>(() => toFlowNodes(nodes, validation, orientation));
+  const [flowNodes, setFlowNodes] = useState<WorkflowFlowNode[]>(() => toFlowNodes(nodes, validation, orientation, kindLabels, severityLabels));
   const [flowEdges, setFlowEdges] = useState<WorkflowFlowEdge[]>(() => toFlowEdges(edges));
 
   const graphSignature = useMemo(
@@ -268,16 +285,16 @@ function INNOWorkflowCanvasInner({
     let cancelled = false;
 
     if (!autoLayout) {
-      setFlowNodes(toFlowNodes(nodes, validation, orientation));
+      setFlowNodes(toFlowNodes(nodes, validation, orientation, kindLabels, severityLabels));
       return () => { cancelled = true; };
     }
 
-    void layoutNodes(nodes, edges, validation, orientation).then((nextNodes) => {
+    void layoutNodes(nodes, edges, validation, orientation, kindLabels, severityLabels).then((nextNodes) => {
       if (!cancelled) setFlowNodes(nextNodes);
     });
 
     return () => { cancelled = true; };
-  }, [graphSignature, autoLayout, nodes, edges, validation, orientation]);
+  }, [graphSignature, autoLayout, nodes, edges, validation, orientation, kindLabels, severityLabels]);
 
   useEffect(() => {
     setFlowEdges(toFlowEdges(edges));
@@ -290,9 +307,11 @@ function INNOWorkflowCanvasInner({
       data: {
         ...node.data,
         validation: validation.filter((issue) => issue.nodeId === node.id),
+        kindLabels,
+        severityLabels,
       },
     })));
-  }, [selectedNodeId, validation]);
+  }, [selectedNodeId, validation, kindLabels, severityLabels]);
 
   const emitLayout = useCallback((nextNodes: WorkflowFlowNode[]) => {
     if (!onLayoutChange) return;

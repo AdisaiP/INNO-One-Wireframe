@@ -8,6 +8,8 @@ public sealed class WorkflowLedgerWriter(WorkflowsDbContext db)
 {
     public Task AppendAuditAsync(
         string action,
+        string module,
+        string targetType,
         string targetId,
         string actorId,
         string correlationId,
@@ -25,7 +27,7 @@ public sealed class WorkflowLedgerWriter(WorkflowsDbContext db)
                  actor_type, actor_id, occurred_at, correlation_id, trace_id,
                  classification, metadata_json)
             VALUES
-                ({auditId}, {action}, 'workflows', 'workflow_definition', {targetId},
+                ({auditId}, {action}, {module}, {targetType}, {targetId},
                  'user', {actorId}, {occurredAt}, {correlationId}, {traceId},
                  'restricted', CAST({metadataJson} AS jsonb))
             """, cancellationToken);

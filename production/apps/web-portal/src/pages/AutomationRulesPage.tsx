@@ -1,124 +1,120 @@
-import { useDeferredValue, useEffect, useMemo, useState } from 'react';
+import { useDeferredValue, useEffect, useState } from 'react';
+import { useI18n } from '@inno/i18n';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOIcon, INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNOPage, INNOPagination, INNOSearchField, INNOSelectField, INNOStatus, INNOTableWrap } from '@inno/ui';
-import { getAutomationRules } from '../api/client';
+import {
+  INNOButton,
+  INNOCollection,
+  INNOCollectionHeader,
+  INNOCollectionState,
+  INNOCollectionToolbar,
+  INNOPage,
+  INNOPagination,
+  INNOSearchField,
+  INNOStatus,
+  INNOTableWrap,
+} from '@inno/ui';
+import { getHelpdeskAutomationDefinitions } from '../api/client';
 import { usePermission } from '../app/ProfileContext';
 import { CollectionErrorState, CollectionLoadingState } from '../components/Feedback';
 import { RouterRowAction } from '../components/RouterRowAction';
 
-function formatRelative(value?: string | null) {
-  if (!value) return 'Never';
-  const date = new Date(value);
-  const minutes = Math.max(0, Math.round((Date.now() - date.getTime()) / 60000));
-  if (minutes < 1) return 'Now';
-  if (minutes < 60) return minutes + ' min';
-  if (minutes < 1440) return Math.round(minutes / 60) + ' h';
-  return date.toLocaleDateString();
-}
-
 export function AutomationRulesPage() {
+  const { t, formatDateTime } = useI18n();
   const canManage = usePermission('helpdesk.automation.manage');
   const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search);
-  const [status, setStatus] = useState('all');
-  const [type, setType] = useState('all');
   const [page, setPage] = useState(1);
 
-  useEffect(() => setPage(1), [deferredSearch, status, type]);
+  useEffect(() => setPage(1), [deferredSearch]);
 
   const query = useQuery({
-    queryKey: ['helpdesk', 'automation-rules', page, deferredSearch, status, type],
-    queryFn: () => getAutomationRules({
+    queryKey: ['helpdesk', 'automation-definitions', page, deferredSearch],
+    queryFn: () => getHelpdeskAutomationDefinitions({
       page,
       pageSize: 25,
       search: deferredSearch,
-      status,
-      type,
     }),
   });
 
-  const stats = useMemo(() => {
-    const items = query.data?.items ?? [];
-    return {
-      active: items.filter((item) => item.status === 'active').length,
-      paused: items.filter((item) => item.status === 'paused').length,
-      executions: items.reduce((sum, item) => sum + item.executionCount, 0),
-      last: items.map((item) => item.lastExecutedAt).filter(Boolean).sort().at(-1) ?? null,
-    };
-  }, [query.data]);
+  const items = query.data?.items ?? [];
 
   return (
     <INNOPage
-      eyebrow="Helpdesk · Manage"
-      title="Automation"
-      description="Assignment, routing, classification and SLA escalation rules."
-      actions={canManage ? <Link className="inno-link-button" to="/helpdesk/automation/new">New Rule</Link> : undefined}
+      eyebrow={t('helpdesk.automation.eyebrow')}
+      title={t('helpdesk.automation.title')}
+      description={t('helpdesk.automation.description')}
+      actions={canManage ? (
+        <Link className="inno-link-button" to="/helpdesk/automation/new">
+          {t('helpdesk.automation.new')}
+        </Link>
+      ) : undefined}
     >
-      <div className="production-stat-strip helpdesk-stat-strip">
-        <div><span>Automation rules</span><b>{query.data?.totalItems ?? 0}</b><small>{stats.active} active · {stats.paused} paused</small></div>
-        <div><span>Executions</span><b>{stats.executions}</b><small>Visible rule sample</small></div>
-        <div><span>Rule types</span><b>{new Set((query.data?.items ?? []).map((item) => item.ruleType)).size}</b><small>Assignment / escalation / routing</small></div>
-        <div><span>Last execution</span><b>{formatRelative(stats.last)}</b><small>Automation worker history</small></div>
+      <div className="workflow-product-boundary" role="status">
+        <b>{t('helpdesk.automation.builder.definitionBoundary.title')}</b>
+        <span>{t('helpdesk.automation.list.description')}</span>
       </div>
 
       <INNOCollection>
         <INNOCollectionHeader
-          title="Automation rules"
-          description="Open one rule to edit its trigger, condition and action."
-          meta={query.data ? <INNOStatus>{query.data.totalItems} rules</INNOStatus> : undefined}
+          title={t('helpdesk.automation.list.title')}
+          description={t('helpdesk.automation.list.description')}
+          meta={query.data ? (
+            <INNOStatus tone="neutral">
+              {t('helpdesk.automation.count', { count: query.data.totalItems })}
+            </INNOStatus>
+          ) : undefined}
         />
         <INNOCollectionToolbar>
           <INNOSearchField
-            label="Search automation rules"
+            label={t('helpdesk.automation.search.label')}
             value={search}
             onChange={setSearch}
-            placeholder="Search rule, trigger or action…"
+            placeholder={t('helpdesk.automation.search.placeholder')}
           />
-          <INNOSelectField label="Filter rules by status" value={status} onChange={setStatus}>
-            <option value="all">Status: All</option>
-            <option value="active">Active</option>
-            <option value="paused">Paused</option>
-          </INNOSelectField>
-          <INNOSelectField label="Filter rules by type" value={type} onChange={setType}>
-            <option value="all">Type: All</option>
-            <option value="assignment">Assignment</option>
-            <option value="escalation">Escalation</option>
-            <option value="classification">Classification</option>
-            <option value="routing">Routing</option>
-          </INNOSelectField>
         </INNOCollectionToolbar>
 
         {query.isPending ? (
-          <CollectionLoadingState label="Loading automation rules…" />
+          <CollectionLoadingState />
         ) : query.isError ? (
           <CollectionErrorState error={query.error} retry={() => void query.refetch()} />
-        ) : query.data.items.length === 0 ? (
-          <INNOCollectionState
-            kind={search || status !== 'all' || type !== 'all' ? 'no-results' : 'empty'}
-            title={search || status !== 'all' || type !== 'all' ? 'No automation rules found' : 'No automation rules yet'}
-            description={search || status !== 'all' || type !== 'all'
-              ? 'Try another search or clear the filters.'
-              : 'Create the first rule when automation is ready for this workspace.'}
-            action={search || status !== 'all' || type !== 'all'
-              ? <INNOButton variant="secondary" onClick={() => { setSearch(''); setStatus('all'); setType('all'); }}>Clear filters</INNOButton>
-              : undefined}
-          />
-        ) : (
+        ) : items.length ? (
           <>
-            <INNOTableWrap width="xwide">
+            <INNOTableWrap>
               <table>
-                <thead><tr><th>Rule</th><th>Type</th><th>Trigger</th><th>Primary action</th><th>Status</th><th>Last execution</th><th className="action-column">Action</th></tr></thead>
+                <thead>
+                  <tr>
+                    <th>{t('helpdesk.automation.table.name')}</th>
+                    <th className="numeric-column">{t('helpdesk.automation.table.version')}</th>
+                    <th className="numeric-column">{t('helpdesk.automation.table.nodes')}</th>
+                    <th className="numeric-column">{t('helpdesk.automation.table.connections')}</th>
+                    <th>{t('helpdesk.automation.table.status')}</th>
+                    <th>{t('helpdesk.automation.table.updated')}</th>
+                    <th className="action-column">{t('helpdesk.automation.table.action')}</th>
+                  </tr>
+                </thead>
                 <tbody>
-                  {query.data.items.map((rule) => (
-                    <tr key={rule.id}>
-                      <td><b>{rule.name}</b><div className="table-meta">{rule.executionCount} executions</div></td>
-                      <td>{rule.ruleType}</td>
-                      <td>{rule.trigger.replaceAll('_', ' ')}</td>
-                      <td>{rule.primaryAction}</td>
-                      <td><INNOStatus tone={rule.status === 'active' ? 'success' : 'neutral'}>{rule.status === 'active' ? 'Active' : 'Paused'}</INNOStatus></td>
-                      <td>{formatRelative(rule.lastExecutedAt)}</td>
-                      <td className="action-column"><RouterRowAction to={'/helpdesk/automation/' + rule.id} ariaLabel={'Open ' + rule.name} /></td>
+                  {items.map((item) => (
+                    <tr key={item.id}>
+                      <td>
+                        <b>{item.name}</b>
+                        <div className="table-meta">{item.id}</div>
+                      </td>
+                      <td className="numeric-column">v{item.version}</td>
+                      <td className="numeric-column">{item.nodeCount}</td>
+                      <td className="numeric-column">{item.edgeCount}</td>
+                      <td>
+                        <INNOStatus tone="neutral">
+                          {item.status === 'draft' ? t('workflow.status.draft') : item.status}
+                        </INNOStatus>
+                      </td>
+                      <td>{formatDateTime(item.updatedAt)}</td>
+                      <td className="action-column">
+                        <RouterRowAction
+                          to={'/helpdesk/automation/' + item.id}
+                          ariaLabel={item.name}
+                        />
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -132,6 +128,27 @@ export function AutomationRulesPage() {
               onPageChange={setPage}
             />
           </>
+        ) : (
+          <INNOCollectionState
+            kind={search ? 'no-results' : 'empty'}
+            title={search
+              ? t('helpdesk.automation.noResults.title')
+              : t('helpdesk.automation.empty.title')}
+            description={search
+              ? t('helpdesk.automation.noResults.description')
+              : t('helpdesk.automation.empty.description')}
+            action={search
+              ? (
+                <INNOButton variant="secondary" onClick={() => setSearch('')}>
+                  {t('helpdesk.automation.clearSearch')}
+                </INNOButton>
+              )
+              : canManage ? (
+                <Link className="inno-link-button" to="/helpdesk/automation/new">
+                  {t('helpdesk.automation.new')}
+                </Link>
+              ) : undefined}
+          />
         )}
       </INNOCollection>
     </INNOPage>

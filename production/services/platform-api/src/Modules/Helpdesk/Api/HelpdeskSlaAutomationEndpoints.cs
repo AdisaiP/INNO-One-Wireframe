@@ -32,17 +32,9 @@ public static class HelpdeskSlaAutomationEndpoints
         api.MapPut("/helpdesk/business-calendar", UpdateBusinessCalendarAsync)
             .WithName("helpdesk.calendar.update");
 
-        api.MapGet("/helpdesk/automation-rules", ListAutomationRulesAsync)
-            .WithName("helpdesk.automation.list");
-
-        api.MapGet("/helpdesk/automation-rules/{ruleId}", GetAutomationRuleAsync)
-            .WithName("helpdesk.automation.get");
-
-        api.MapPost("/helpdesk/automation-rules", CreateAutomationRuleAsync)
-            .WithName("helpdesk.automation.create");
-
-        api.MapPut("/helpdesk/automation-rules/{ruleId}", UpdateAutomationRuleAsync)
-            .WithName("helpdesk.automation.upsert");
+        // Step 45F retires the legacy simple-rule HTTP surface.
+        // The table/entities remain migration inputs only; Product authoring now uses
+        // the module-owned /helpdesk/automations facade in Automation Core.
 
         return api;
     }

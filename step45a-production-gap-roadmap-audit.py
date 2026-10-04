@@ -46,7 +46,7 @@ check("roadmap schema is 1", ROADMAP["schemaVersion"] == 1)
 check("step id is 45A", ROADMAP["step"] == "45A")
 check("frozen design system remains V1.26", ROADMAP["baseline"]["designSystem"] == "V1.26")
 check("frozen UI contract remains 1.20.0", ROADMAP["baseline"]["uiContract"] == "1.20.0")
-check("current route matrix is 64 after Step 45B", len(MATRIX["routes"]) == 64, len(MATRIX["routes"]))
+check("current Product route matrix is 61 after Step 45F consolidation", len(MATRIX["routes"]) == 61, len(MATRIX["routes"]))
 check("45A baseline records 61 route definitions", ROADMAP["baseline"]["productionRouteDefinitions"] == 61)
 check("implemented route groups sum to 61", sum(ROADMAP["baseline"]["implementedRouteGroups"].values()) == 61)
 
@@ -73,9 +73,9 @@ check("legacy User Profiles label removed from production manifest", '"User Prof
 check("workflow classified foundation-only at 45A", surface["workflow"]["status"] == "foundation-only")
 check("workflow canvas foundation exists", "INNOWorkflowCanvas" in workflow and "@xyflow/react" in workflow)
 check("workflow proof remains in internal design system", "INNOWorkflowCanvas" in design_system and 'id="workflow"' in design_system)
-check("45B workflow Product routes now exist", all(marker in app_root for marker in ['path="workflows"', 'path="workflows/new"', 'path="workflows/:workflowId"']))
+check("45F retires standalone workflow Product routes", 'path="workflows/*" element={<Navigate to="/helpdesk/automation" replace />}' in app_root and 'path="helpdesk/automation/new"' in app_root and 'path="helpdesk/automation/:automationId"' in app_root)
 check("45B workflow module contract now exists", "workflows" in modules)
-check("45C workflow module enters normal launcher after persistence", modules["workflows"]["launcher"] is True)
+check("45F workflow module becomes hidden Automation Core", modules["workflows"]["launcher"] is False and modules["workflows"]["name"] == "Automation Core")
 check("45B workflow future permissions are declared", set(modules["workflows"]["permissions"]) == {"workflows.view", "workflows.manage"})
 check("workflow standalone module decision frozen", decisions["workflow-ownership"]["decision"].startswith("Dynamic Workflow is a standalone Web application"))
 check("Helpdesk simple automation route remains separate", 'path="helpdesk/automation"' in app_root)
@@ -136,7 +136,7 @@ check("Meeting production scheduled after Agent runtime", roadmap["48"]["name"] 
 # but there is still no normal launcher/rail entry until persistence exists.
 rail = app_shell.split('<aside className="prod-rail"', 1)[1].split('</aside>', 1)[0]
 check("App rail does not expose Workflow module", 'to="/workflows"' not in rail)
-check("Workflow contextual navigation reflects persisted definitions", 'Definitions are persisted and versioned' in app_shell and "canViewWorkflows" in app_shell and "canManageWorkflows" in app_shell)
+check("Workflow contextual navigation moves into Helpdesk", "canViewWorkflows" not in app_shell and 'to="/helpdesk/automation"' in app_shell)
 check("App shell does not expose Meeting nav", 'to="/meeting"' not in app_shell)
 check("App shell does not expose Reports nav", 'to="/reports"' not in app_shell)
 

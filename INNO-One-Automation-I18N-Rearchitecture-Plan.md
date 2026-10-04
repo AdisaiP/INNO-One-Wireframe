@@ -417,8 +417,8 @@ Completion evidence: `INNO-One-Step45E-Bilingual-Foundation.md`.
 
 No business module should add new hardcoded UI strings after this step.
 
-### Step 45F - Helpdesk Automation consolidation
-Implement:
+### Step 45F - Helpdesk Automation consolidation — IMPLEMENTED, runtime/browser QA gate pending
+Implemented:
 - remove old simple Helpdesk Automation editor;
 - mount shared React Flow builder under Helpdesk routes;
 - add `ownerModule=helpdesk`;
@@ -429,6 +429,8 @@ Implement:
 - no generic global workflow navigation.
 
 This is the first end-to-end proof of the new model.
+
+Implementation is complete on `implementation/step45f-helpdesk-automation-consolidation`, but Step45F must not be marked fully complete until `step45f-helpdesk-automation-browser-qa.py` and the broad Product browser regression run against the real dev PostgreSQL + Keycloak environment. The 2026-10-04 attempt was blocked by dev infrastructure connectivity.
 
 ### Step 45G - Shared execution + Helpdesk Run History
 Only after 45F:
@@ -514,9 +516,11 @@ The re-architecture is complete when:
 
 ## 17. Immediate next action
 
-Step 45E is complete. Do not start the old Step 45D execution work.
+Step 45E is complete and Step 45F implementation is complete. Do not start the old Step 45D execution work.
 
-Next implementation is **Step 45F - Helpdesk Automation consolidation**.
+**Immediate gate:** finish Step 45F runtime/browser QA against the real dev PostgreSQL + Keycloak environment. The first attempt was blocked by infrastructure reachability.
+
+After Step45F browser QA passes, the next implementation is **Step 45G - Shared Execution + Helpdesk Run History**.
 
 Reason:
-the bilingual runtime foundation now exists, and Helpdesk is the clearest first owner for the existing React Flow builder. Step 45F must prove module-owned automation before shared execution/run history begins.
+module-owned Helpdesk authoring now exists, but shared execution must not begin until ownership, persistence, bilingual behavior and responsive Product routing are proven end-to-end.

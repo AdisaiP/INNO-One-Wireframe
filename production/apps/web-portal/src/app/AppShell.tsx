@@ -48,8 +48,6 @@ export function AppShell() {
   const canAdminBranding = usePermission('admin.branding.manage');
   const canAdminSettings = usePermission('admin.settings.manage');
   const canAdminApps = usePermission('admin.apps.view');
-  const canViewWorkflows = profile.permissions.includes('workflows.view');
-  const canManageWorkflows = profile.permissions.includes('workflows.manage');
   const canViewDevices = usePermission('devices.view');
   const canDeployDevices = usePermission('devices.deploy');
   const canViewAssets = usePermission('assets.view');
@@ -64,7 +62,6 @@ export function AppShell() {
   const [sideCollapsed, setSideCollapsed] = useState(() => window.localStorage.getItem('inno.ui.sidebar.collapsed') === '1');
   const [shellSearch, setShellSearch] = useState('');
   const inApps = location.pathname === '/apps';
-  const inWorkflows = location.pathname.startsWith('/workflows');
   const inDesignSystem = location.pathname.startsWith('/internal/design-system');
   const inAdmin = location.pathname === '/admin' || location.pathname.startsWith('/admin/') || inDesignSystem;
   const inAdminApps = location.pathname.startsWith('/admin/apps');
@@ -88,7 +85,6 @@ export function AppShell() {
       : inDesignSystem ? t('navigation.designSystem')
         : inAdmin ? t('navigation.admin')
           : inApps ? t('navigation.apps')
-          : inWorkflows ? t('navigation.dynamicWorkflows')
           : inAssets ? t('navigation.assets')
             : inHelpdesk ? t('navigation.helpdesk')
               : inDevices ? t('navigation.devices')
@@ -298,15 +294,6 @@ export function AppShell() {
               <div className="prod-side-section">{t('navigation.launcher')}</div>
               <NavLink end to="/apps"><SideNavLabel token="nav.apps">{t('navigation.allApps')}</SideNavLabel></NavLink>
               {canAdminApps ? <NavLink to="/admin/apps"><SideNavLabel token="section.modules">{t('navigation.appsModules')}</SideNavLabel></NavLink> : null}
-            </>
-          ) : inWorkflows && canViewWorkflows ? (
-            <>
-              <div className="prod-side-title">Dynamic Workflows</div>
-              <div className="prod-side-section">Definitions</div>
-              <NavLink end to="/workflows"><SideNavLabel token="section.automation">All Workflows</SideNavLabel></NavLink>
-              {canManageWorkflows ? <NavLink to="/workflows/new"><SideNavLabel token="action.add">New Workflow</SideNavLabel></NavLink> : null}
-              <div className="prod-side-section">Step 45C</div>
-              <div className="prod-side-note">Definitions are persisted and versioned. Execution and run history remain unavailable until Step 45D.</div>
             </>
           ) : inAssets ? (
             <>

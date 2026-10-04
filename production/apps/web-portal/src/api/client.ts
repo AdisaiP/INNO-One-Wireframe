@@ -41,8 +41,6 @@ import type {
   AssetContractListResponse,
   OwnershipDecision,
   OwnershipSubmission,
-  AutomationRuleDetail,
-  AutomationRuleSummary,
   BusinessCalendar,
   CreatedTicket,
   DeviceDetail,
@@ -1217,79 +1215,6 @@ export async function updateBusinessCalendar(
   return response.data;
 }
 
-export interface AutomationRuleQuery {
-  page?: number;
-  pageSize?: number;
-  search?: string;
-  status?: string;
-  type?: string;
-}
-
-export interface AutomationRuleInput {
-  name: string;
-  ruleType: string;
-  trigger: string;
-  scopeType: string;
-  scopeValue?: string;
-  conditionField: string;
-  conditionOperator: string;
-  conditionValue: string;
-  actionType: string;
-  actionValue: string;
-  status: string;
-  sortOrder?: number;
-}
-
-export async function getAutomationRules(
-  query: AutomationRuleQuery = {},
-): Promise<PagedResponse<AutomationRuleSummary>> {
-  const params = new URLSearchParams({
-    page: String(query.page ?? 1),
-    pageSize: String(query.pageSize ?? 25),
-  });
-  if (query.search?.trim()) params.set('search', query.search.trim());
-  if (query.status && query.status !== 'all') params.set('status', query.status);
-  if (query.type && query.type !== 'all') params.set('type', query.type);
-  return request<PagedResponse<AutomationRuleSummary>>(
-    '/helpdesk/automation-rules?' + params.toString(),
-  );
-}
-
-export async function getAutomationRule(ruleId: string): Promise<AutomationRuleDetail> {
-  const response = await request<ResourceEnvelope<AutomationRuleDetail>>(
-    '/helpdesk/automation-rules/' + encodeURIComponent(ruleId),
-  );
-  return response.data;
-}
-
-export async function createAutomationRule(
-  input: AutomationRuleInput,
-): Promise<AutomationRuleDetail> {
-  const response = await request<ResourceEnvelope<AutomationRuleDetail>>(
-    '/helpdesk/automation-rules',
-    {
-      method: 'POST',
-      ...jsonRequest(input),
-    },
-  );
-  return response.data;
-}
-
-export async function updateAutomationRule(
-  ruleId: string,
-  eTag: string,
-  input: AutomationRuleInput,
-): Promise<AutomationRuleDetail> {
-  const response = await request<ResourceEnvelope<AutomationRuleDetail>>(
-    '/helpdesk/automation-rules/' + encodeURIComponent(ruleId),
-    {
-      method: 'PUT',
-      ...jsonRequest(input, { 'If-Match': eTag }),
-    },
-  );
-  return response.data;
-}
-
 export async function getSoftwareBaselines(query: { search?: string; status?: string }): Promise<SoftwareBaselineListResponse> {
   const params = new URLSearchParams();
   if (query.search?.trim()) params.set('search', query.search.trim());
@@ -1329,6 +1254,77 @@ export async function evaluateSoftwareBaseline(id: string): Promise<SoftwareBase
   );
 }
 
+
+export async function getHelpdeskAutomationDefinitions(query: {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+} = {}): Promise<WorkflowDefinitionListResponse> {
+  const params = new URLSearchParams({
+    page: String(query.page ?? 1),
+    pageSize: String(query.pageSize ?? 25),
+  });
+  if (query.search?.trim()) params.set('search', query.search.trim());
+  return request<WorkflowDefinitionListResponse>(
+    '/helpdesk/automations?' + params.toString(),
+  );
+}
+
+export async function getHelpdeskAutomationDefinition(
+  automationId: string,
+): Promise<WorkflowDefinitionDetail> {
+  const response = await request<ResourceEnvelope<WorkflowDefinitionDetail>>(
+    '/helpdesk/automations/' + encodeURIComponent(automationId),
+  );
+  return response.data;
+}
+
+export async function createHelpdeskAutomationDefinition(
+  input: WorkflowDefinitionRequest,
+): Promise<WorkflowDefinitionDetail> {
+  const response = await request<ResourceEnvelope<WorkflowDefinitionDetail>>(
+    '/helpdesk/automations',
+    { method: 'POST', ...jsonRequest(input) },
+  );
+  return response.data;
+}
+
+export async function updateHelpdeskAutomationDefinition(
+  automationId: string,
+  eTag: string,
+  input: WorkflowDefinitionRequest,
+): Promise<WorkflowDefinitionDetail> {
+  const response = await request<ResourceEnvelope<WorkflowDefinitionDetail>>(
+    '/helpdesk/automations/' + encodeURIComponent(automationId),
+    { method: 'PUT', ...jsonRequest(input, { 'If-Match': eTag }) },
+  );
+  return response.data;
+}
+
+export async function deleteHelpdeskAutomationDefinition(
+  automationId: string,
+  eTag: string,
+): Promise<void> {
+  await request<void>(
+    '/helpdesk/automations/' + encodeURIComponent(automationId),
+    { method: 'DELETE', headers: { 'If-Match': eTag } },
+  );
+}
+
+export async function getHelpdeskAutomationVersions(
+  automationId: string,
+): Promise<{ items: Array<{
+  version: number;
+  ownerModule: string;
+  name: string;
+  status: string;
+  changedByUserId: string;
+  createdAt: string;
+}> }> {
+  return request(
+    '/helpdesk/automations/' + encodeURIComponent(automationId) + '/versions',
+  );
+}
 
 export async function getWorkflowDefinitions(query: {
   page?: number;

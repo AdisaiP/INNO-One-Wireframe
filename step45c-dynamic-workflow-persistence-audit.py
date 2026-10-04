@@ -28,9 +28,8 @@ approot=text("production/apps/web-portal/src/app/AppRoot.tsx")
 shell=text("production/apps/web-portal/src/app/AppShell.tsx")
 client=text("production/apps/web-portal/src/api/client.ts")
 types=text("production/apps/web-portal/src/api/types.ts")
-list_page=text("production/apps/web-portal/src/pages/WorkflowListPage.tsx")
-builder=text("production/apps/web-portal/src/pages/WorkflowBuilderPage.tsx")
-helpdesk=text("production/apps/web-portal/src/pages/AutomationRulePage.tsx")
+helpdesk_list=text("production/apps/web-portal/src/pages/AutomationRulesPage.tsx")
+helpdesk_builder=text("production/apps/web-portal/src/pages/AutomationRulePage.tsx")
 
 wf=next((x for x in manifest.get("modules", []) if x.get("id")=="workflows"),None)
 migrations=list((ROOT/"production/services/platform-api/src/Modules/Workflows/Persistence/Migrations").glob("*Step45CWorkflowPersistence.cs"))
@@ -51,17 +50,17 @@ check("definition version is EF concurrency token","Property(x => x.Version).IsC
 check("Step45C migration generated",len(migrations)==1,len(migrations))
 
 for route in [
-    'api.MapGet("/workflows", ListAsync)',
-    'api.MapGet("/workflows/{workflowId}", GetAsync)',
-    'api.MapPost("/workflows", CreateAsync)',
-    'api.MapPut("/workflows/{workflowId}", UpdateAsync)',
-    'api.MapDelete("/workflows/{workflowId}", DeleteAsync)',
-    'api.MapGet("/workflows/{workflowId}/versions", ListVersionsAsync)',
+    'api.MapGet("/workflows", ListLegacyAsync)',
+    'api.MapGet("/workflows/{workflowId}", GetLegacyAsync)',
+    'api.MapPost("/workflows", CreateLegacyAsync)',
+    'api.MapPut("/workflows/{workflowId}", UpdateLegacyAsync)',
+    'api.MapDelete("/workflows/{workflowId}", DeleteLegacyAsync)',
+    'api.MapGet("/workflows/{workflowId}/versions", ListLegacyVersionsAsync)',
 ]:
     check("workflow API route "+route.split("(")[0].split(".")[-1], route in api)
 
-check("view permission enforced",api.count('"workflows.view"')>=3)
-check("manage permission enforced",api.count('"workflows.manage"')>=3)
+check("legacy view permission retained",'"workflows.view"' in api and '"legacy_unassigned"' in api)
+check("legacy manage permission retained",'"workflows.manage"' in api and '"legacy_unassigned"' in api)
 check("opaque workflow IDs used",'OpaqueId.Format("wf"' in api and 'OpaqueId.TryParse(workflowId, "wf"' in api)
 check("create snapshots version", "WorkflowDefinitionVersions.Add(version)" in api)
 check("update snapshots version","WorkflowDefinitionVersions.Add(Snapshot" in api)
@@ -70,10 +69,10 @@ check("ETag response emitted","Response.Headers.ETag" in api)
 check("If-Match required","Headers.IfMatch" in api and "428" in api)
 check("stale ETag returns 412","Status412PreconditionFailed" in api)
 check("create update delete are transactional",api.count("BeginTransactionAsync")>=3 and api.count("CommitAsync")>=3)
-check("audit writer targets workflow module","'workflows'" in ledger and "audit.audit_records" in ledger)
-check("create audit action","workflow.definition.created" in api)
-check("update audit action","workflow.definition.updated" in api)
-check("delete audit action","workflow.definition.deleted" in api)
+check("audit writer accepts module ownership","string module" in ledger and "string targetType" in ledger and "audit.audit_records" in ledger)
+check("create audit action remains scope-derived",'scope.AuditActionPrefix + ".created"' in api and '"workflow.definition"' in api)
+check("update audit action remains scope-derived",'scope.AuditActionPrefix + ".updated"' in api and '"workflow.definition"' in api)
+check("delete audit action remains scope-derived",'scope.AuditActionPrefix + ".deleted"' in api and '"workflow.definition"' in api)
 check("concurrency exception maps to 412","DbUpdateConcurrencyException" in api and "ConcurrencyConflict()" in api)
 check("execution endpoint absent","/runs" not in api and "Execute" not in api)
 check("publish endpoint absent","publish" not in api.lower())
@@ -83,34 +82,34 @@ check("workflow manage permission seeded","workflows.manage" in seed)
 check("platform admin receives workflow permissions","Step45CPermissions.Select" in seed)
 check("workflow app installed in development seed",'AppId = "workflows"' in seed and '70000000-0000-0000-0000-000000000004' in seed)
 check("workflow manifest exists",wf is not None)
-check("workflow launcher enabled after persistence",bool(wf and wf.get("launcher") is True))
+check("workflow persistence core hidden from launcher after 45F",bool(wf and wf.get("launcher") is False and wf.get("name")=="Automation Core"))
 check("workflow entry permission is view",bool(wf and wf.get("entryPermission")=="workflows.view"))
 check("workflow manifest permissions",bool(wf and wf.get("permissions")==["workflows.view","workflows.manage"]))
 
-check("AppRoot uses workflow view permission","profile.permissions.includes('workflows.view')" in approot)
-check("AppRoot uses workflow manage permission","profile.permissions.includes('workflows.manage')" in approot)
+check("AppRoot retires generic workflow view permission","profile.permissions.includes('workflows.view')" not in approot and 'path="workflows/*"' in approot)
+check("AppRoot retires generic workflow manage permission","profile.permissions.includes('workflows.manage')" not in approot and 'Navigate to="/helpdesk/automation"' in approot)
 check("admin preview gate removed","canPreviewWorkflows" not in approot)
 check("session draft provider removed","WorkflowDraftProvider" not in approot)
 check("session draft context file removed",not (ROOT/"production/apps/web-portal/src/app/WorkflowDraftContext.tsx").exists())
-check("workflow shell uses real permission","canViewWorkflows" in shell and "canPreviewWorkflows" not in shell)
+check("workflow shell has no standalone Product context","canViewWorkflows" not in shell and "inWorkflows" not in shell and "canPreviewWorkflows" not in shell)
 check("workflow client lists definitions","getWorkflowDefinitions" in client)
 check("workflow client gets definition","getWorkflowDefinition" in client)
 check("workflow client creates definition","createWorkflowDefinition" in client)
 check("workflow client updates with If-Match","updateWorkflowDefinition" in client and "'If-Match': eTag" in client)
 check("workflow API types include ETag","WorkflowDefinitionDetail" in types and "eTag: string" in types)
 
-check("list uses server query","getWorkflowDefinitions" in list_page and "useQuery" in list_page)
-check("list no session language","session draft" not in list_page.lower())
-check("list declares persisted boundary","Persisted definitions" in list_page)
-check("builder gets persisted definition","getWorkflowDefinition" in builder)
-check("builder creates persisted definition","createWorkflowDefinition" in builder)
-check("builder updates persisted definition","updateWorkflowDefinition" in builder)
-check("builder exposes version state","Version " in builder)
-check("builder save creates new version","Save New Version" in builder)
-check("builder has no Run Workflow","Run Workflow" not in builder)
-check("builder has no Publish action","onClick={publish" not in builder and ">Publish<" not in builder and "'Publish'" not in builder)
-check("builder retains shared canvas","INNOWorkflowCanvas" in builder)
-check("Helpdesk simple automation remains separate","INNOWorkflowCanvas" not in helpdesk)
+check("Helpdesk list uses persisted server query","getHelpdeskAutomationDefinitions" in helpdesk_list and "useQuery" in helpdesk_list)
+check("Helpdesk list no session language","session draft" not in helpdesk_list.lower())
+check("Helpdesk list declares module-owned persisted boundary","helpdesk.automation.list.description" in helpdesk_list)
+check("Helpdesk builder gets persisted definition","getHelpdeskAutomationDefinition" in helpdesk_builder)
+check("Helpdesk builder creates persisted definition","createHelpdeskAutomationDefinition" in helpdesk_builder)
+check("Helpdesk builder updates persisted definition","updateHelpdeskAutomationDefinition" in helpdesk_builder)
+check("Helpdesk builder exposes version state","query.data?.version" in helpdesk_builder)
+check("Helpdesk builder save creates new version","helpdesk.automation.builder.save" in helpdesk_builder)
+check("Helpdesk builder has no Run Workflow","Run Workflow" not in helpdesk_builder)
+check("Helpdesk builder has no Publish action","onClick={publish" not in helpdesk_builder and ">Publish<" not in helpdesk_builder and "'Publish'" not in helpdesk_builder)
+check("Helpdesk builder retains shared canvas","INNOWorkflowCanvas" in helpdesk_builder)
+check("standalone Workflow Product page files removed",not (ROOT/"production/apps/web-portal/src/pages/WorkflowListPage.tsx").exists() and not (ROOT/"production/apps/web-portal/src/pages/WorkflowBuilderPage.tsx").exists())
 
 print(f"step45c_checks={checks}")
 print(f"step45c_failures={len(failures)}")

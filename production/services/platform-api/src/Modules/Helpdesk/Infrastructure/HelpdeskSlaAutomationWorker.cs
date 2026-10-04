@@ -53,10 +53,16 @@ public sealed class HelpdeskSlaAutomationWorker(
             businessTime,
             cancellationToken);
 
-        await EvaluateAutomationAsync(
-            db,
-            businessTime,
-            cancellationToken);
+        // Step 45F retires the legacy simple-rule Product surface.
+        // Keep the evaluator behind an explicit compatibility switch only; new
+        // Helpdesk visual definitions remain non-executable until Step 45G.
+        if (configuration.GetValue("Helpdesk:LegacyAutomationExecutionEnabled", false))
+        {
+            await EvaluateAutomationAsync(
+                db,
+                businessTime,
+                cancellationToken);
+        }
     }
 
     private static async Task EvaluateSlaAsync(

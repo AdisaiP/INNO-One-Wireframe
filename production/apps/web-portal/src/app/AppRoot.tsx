@@ -36,7 +36,6 @@ import { SoftwareBaselineEditorPage } from '../pages/SoftwareBaselineEditorPage'
 import { SoftwareBaselinesPage } from '../pages/SoftwareBaselinesPage';
 import { SoftwareLicenseDetailPage } from '../pages/SoftwareLicenseDetailPage';
 import { SoftwareLicensesPage } from '../pages/SoftwareLicensesPage';
-import { AutomationRulePage } from '../pages/AutomationRulePage';
 import { AutomationRulesPage } from '../pages/AutomationRulesPage';
 import { BusinessCalendarPage } from '../pages/BusinessCalendarPage';
 import { ContractDetailPage } from '../pages/ContractDetailPage';
@@ -63,7 +62,6 @@ import {
 import { TicketCreatePage } from '../pages/TicketCreatePage';
 import { TicketDetailPage } from '../pages/TicketDetailPage';
 import { TicketsPage } from '../pages/TicketsPage';
-import { WorkflowListPage } from '../pages/WorkflowListPage';
 import { AppShell } from './AppShell';
 import { ProfileProvider } from './ProfileContext';
 
@@ -72,9 +70,9 @@ const InternalDesignSystemPage = lazy(async () => {
   return { default: module.InternalDesignSystemPage };
 });
 
-const WorkflowBuilderPage = lazy(async () => {
-  const module = await import('../pages/WorkflowBuilderPage');
-  return { default: module.WorkflowBuilderPage };
+const AutomationRulePage = lazy(async () => {
+  const module = await import('../pages/AutomationRulePage');
+  return { default: module.AutomationRulePage };
 });
 
 export function AppRoot() {
@@ -110,8 +108,6 @@ export function AppRoot() {
   const canAdminBranding = profile.permissions.includes('admin.branding.manage');
   const canAdminSettings = profile.permissions.includes('admin.settings.manage');
   const canAdminApps = profile.permissions.includes('admin.apps.view');
-  const canViewWorkflows = profile.permissions.includes('workflows.view');
-  const canManageWorkflows = profile.permissions.includes('workflows.manage');
   const canViewDevices = profile.permissions.includes('devices.view');
   const canDeployDevices = profile.permissions.includes('devices.deploy');
   const canViewAssets = profile.permissions.includes('assets.view');
@@ -122,6 +118,7 @@ export function AppRoot() {
   const canViewHelpdesk = profile.permissions.includes('helpdesk.ticket.view');
   const canCreateTicket = profile.permissions.includes('helpdesk.ticket.create');
   const canViewAutomation = profile.permissions.includes('helpdesk.automation.view');
+  const canManageAutomation = profile.permissions.includes('helpdesk.automation.manage');
   const canManageSla = profile.permissions.includes('helpdesk.sla.manage');
 
   return (
@@ -138,22 +135,8 @@ export function AppRoot() {
           <Route path="search" element={canUseSearch ? <SearchPage /> : <DeferredPage name="Search" kind="permission" />} />
           <Route path="apps" element={canViewApps ? <AppsPage /> : <DeferredPage name="Apps" kind="permission" />} />
 
-          {/* Step 45C persisted workflow definitions. Execution remains Step 45D. */}
-          <Route path="workflows" element={canViewWorkflows ? <WorkflowListPage /> : <DeferredPage name="Dynamic Workflows" kind="permission" />} />
-          <Route path="workflows/new"
-            element={canManageWorkflows ? (
-              <Suspense fallback={<LoadingState label="Loading workflow builder…" />}>
-                <WorkflowBuilderPage />
-              </Suspense>
-            ) : <DeferredPage name="New Workflow" kind="permission" />}
-          />
-          <Route path="workflows/:workflowId"
-            element={canManageWorkflows ? (
-              <Suspense fallback={<LoadingState label="Loading workflow builder…" />}>
-                <WorkflowBuilderPage />
-              </Suspense>
-            ) : <DeferredPage name="Workflow Builder" kind="permission" />}
-          />
+          {/* Step 45F: standalone Dynamic Workflows Product surface is retired. */}
+          <Route path="workflows/*" element={<Navigate to="/helpdesk/automation" replace />} />
 
           <Route path="admin" element={canAdmin ? <AdminOverviewPage /> : <DeferredPage name="Admin Center" kind="permission" />} />
           <Route path="admin/organization" element={canAdminOrganization ? <AdminOrganizationPage /> : <DeferredPage name="Organization Structure" kind="permission" />} />
@@ -220,8 +203,22 @@ export function AppRoot() {
           <Route path="helpdesk/sla" element={canViewHelpdesk ? <HelpdeskSlaPage /> : <DeferredPage name="SLA & Escalation" kind="permission" />} />
           <Route path="helpdesk/calendar" element={canManageSla ? <BusinessCalendarPage /> : <DeferredPage name="Business Calendar" kind="permission" />} />
           <Route path="helpdesk/automation" element={canViewAutomation ? <AutomationRulesPage /> : <DeferredPage name="Automation" kind="permission" />} />
-          <Route path="helpdesk/automation/new" element={canViewAutomation ? <AutomationRulePage /> : <DeferredPage name="New Automation Rule" kind="permission" />} />
-          <Route path="helpdesk/automation/:ruleId" element={canViewAutomation ? <AutomationRulePage /> : <DeferredPage name="Automation Rule" kind="permission" />} />
+          <Route
+            path="helpdesk/automation/new"
+            element={canManageAutomation ? (
+              <Suspense fallback={<LoadingState />}>
+                <AutomationRulePage />
+              </Suspense>
+            ) : <DeferredPage name="New Automation" kind="permission" />}
+          />
+          <Route
+            path="helpdesk/automation/:automationId"
+            element={canManageAutomation ? (
+              <Suspense fallback={<LoadingState />}>
+                <AutomationRulePage />
+              </Suspense>
+            ) : <DeferredPage name="Automation" kind="permission" />}
+          />
 
           <Route path="apps/*" element={<DeferredPage name="Apps" kind="no-results" />} />
           <Route path="assets/manage/*" element={canManageAssets ? <DeferredPage name="Assets Management" /> : <DeferredPage name="Assets" />} />

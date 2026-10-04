@@ -135,67 +135,10 @@ public static class HelpdeskDevelopmentSeed
             }
         }
 
-        if (!await db.AutomationRules.AnyAsync(cancellationToken))
-        {
-            db.AutomationRules.AddRange(
-                new AutomationRule
-                {
-                    Id = NetworkAutomationRuleId,
-                    Code = "route-network-vpn",
-                    Name = "Route Network / VPN by skill",
-                    RuleType = "Assignment",
-                    Trigger = "ticket_created",
-                    ScopeType = "category",
-                    ScopeValue = "network-vpn",
-                    ConditionField = "category",
-                    ConditionOperator = "equals",
-                    ConditionValue = "network-vpn",
-                    ActionType = "assign_team",
-                    ActionValue = "Network Support",
-                    Status = "active",
-                    SortOrder = 10,
-                    CreatedAt = now,
-                    UpdatedAt = now
-                },
-                new AutomationRule
-                {
-                    Id = CriticalAutomationRuleId,
-                    Code = "p1-escalation",
-                    Name = "P1 three-level escalation",
-                    RuleType = "Escalation",
-                    Trigger = "sla_at_risk",
-                    ScopeType = "priority",
-                    ScopeValue = "P1",
-                    ConditionField = "priority",
-                    ConditionOperator = "equals",
-                    ConditionValue = "P1",
-                    ActionType = "escalate_manager_chain",
-                    ActionValue = "Critical Support",
-                    Status = "active",
-                    SortOrder = 20,
-                    CreatedAt = now,
-                    UpdatedAt = now
-                },
-                new AutomationRule
-                {
-                    Id = AfterHoursAutomationRuleId,
-                    Code = "after-hours-routing",
-                    Name = "After-hours queue routing",
-                    RuleType = "Routing",
-                    Trigger = "ticket_created",
-                    ScopeType = "all",
-                    ScopeValue = null,
-                    ConditionField = "business_calendar",
-                    ConditionOperator = "equals",
-                    ConditionValue = "outside",
-                    ActionType = "assign_team",
-                    ActionValue = "After-hours Support",
-                    Status = "paused",
-                    SortOrder = 30,
-                    CreatedAt = now,
-                    UpdatedAt = now
-                });
-        }
+        // Step 45F stops creating the legacy simple automation rules.
+        // Existing installations migrate those rows into the shared Helpdesk-owned
+        // workflow definition store. New installations author automation only through
+        // /helpdesk/automation and the shared Automation Core.
 
         await db.SaveChangesAsync(cancellationToken);
 

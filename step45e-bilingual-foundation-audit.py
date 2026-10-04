@@ -19,7 +19,7 @@ def json_file(path: str) -> dict[str, str]:
     return json.loads(text(path))
 
 locale_root = ROOT / "production/packages/i18n/src/locales"
-catalog_files = ["common.json", "navigation.json", "feedback.json", "profile.json", "admin.json"]
+catalog_files = ["common.json", "navigation.json", "feedback.json", "profile.json", "admin.json", "helpdesk.json", "workflow.json"]
 
 check((ROOT / "production/packages/i18n/package.json").exists(), "@inno/i18n package is missing")
 check((ROOT / "production/packages/i18n/src/index.tsx").exists(), "i18n runtime entrypoint is missing")

@@ -1,0 +1,16 @@
+{
+  "workflow.kind.trigger": "Trigger",
+  "workflow.kind.action": "Action",
+  "workflow.kind.condition": "Condition",
+  "workflow.kind.branch": "Branch",
+  "workflow.kind.approval": "Approval",
+  "workflow.kind.assignment": "Assignment",
+  "workflow.kind.wait": "Wait",
+  "workflow.kind.notification": "Notification",
+  "workflow.kind.ai": "AI",
+  "workflow.kind.subflow": "Subflow",
+  "workflow.kind.end": "End",
+  "workflow.status.draft": "Draft",
+  "workflow.severity.error": "Error",
+  "workflow.severity.warning": "Warning"
+}

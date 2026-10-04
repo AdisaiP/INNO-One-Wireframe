@@ -4,11 +4,15 @@ import enNavigation from './locales/en-US/navigation.json';
 import enFeedback from './locales/en-US/feedback.json';
 import enProfile from './locales/en-US/profile.json';
 import enAdmin from './locales/en-US/admin.json';
+import enHelpdesk from './locales/en-US/helpdesk.json';
+import enWorkflow from './locales/en-US/workflow.json';
 import thCommon from './locales/th-TH/common.json';
 import thNavigation from './locales/th-TH/navigation.json';
 import thFeedback from './locales/th-TH/feedback.json';
 import thProfile from './locales/th-TH/profile.json';
 import thAdmin from './locales/th-TH/admin.json';
+import thHelpdesk from './locales/th-TH/helpdesk.json';
+import thWorkflow from './locales/th-TH/workflow.json';
 
 export const SUPPORTED_LOCALES = ['en-US', 'th-TH'] as const;
 export type Locale = (typeof SUPPORTED_LOCALES)[number];
@@ -23,6 +27,8 @@ const catalogs: Record<Locale, Catalog> = {
     ...enFeedback,
     ...enProfile,
     ...enAdmin,
+    ...enHelpdesk,
+    ...enWorkflow,
   },
   'th-TH': {
     ...thCommon,
@@ -30,6 +36,8 @@ const catalogs: Record<Locale, Catalog> = {
     ...thFeedback,
     ...thProfile,
     ...thAdmin,
+    ...thHelpdesk,
+    ...thWorkflow,
   },
 };
 

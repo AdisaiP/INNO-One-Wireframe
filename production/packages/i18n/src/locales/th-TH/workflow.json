@@ -1,0 +1,16 @@
+{
+  "workflow.kind.trigger": "Trigger",
+  "workflow.kind.action": "Action",
+  "workflow.kind.condition": "เงื่อนไข",
+  "workflow.kind.branch": "แยกเส้นทาง",
+  "workflow.kind.approval": "อนุมัติ",
+  "workflow.kind.assignment": "มอบหมาย",
+  "workflow.kind.wait": "รอ",
+  "workflow.kind.notification": "แจ้งเตือน",
+  "workflow.kind.ai": "AI",
+  "workflow.kind.subflow": "Workflow ย่อย",
+  "workflow.kind.end": "จบ",
+  "workflow.status.draft": "ฉบับร่าง",
+  "workflow.severity.error": "ผิดพลาด",
+  "workflow.severity.warning": "คำเตือน"
+}
