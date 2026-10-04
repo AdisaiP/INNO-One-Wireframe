@@ -46,7 +46,8 @@ export function AppShell() {
   const canAdminBranding = usePermission('admin.branding.manage');
   const canAdminSettings = usePermission('admin.settings.manage');
   const canAdminApps = usePermission('admin.apps.view');
-  const canPreviewWorkflows = canAdminApps;
+  const canViewWorkflows = profile.permissions.includes('workflows.view');
+  const canManageWorkflows = profile.permissions.includes('workflows.manage');
   const canViewDevices = usePermission('devices.view');
   const canDeployDevices = usePermission('devices.deploy');
   const canViewAssets = usePermission('assets.view');
@@ -296,14 +297,14 @@ export function AppShell() {
               <NavLink end to="/apps"><SideNavLabel token="nav.apps">All Apps</SideNavLabel></NavLink>
               {canAdminApps ? <NavLink to="/admin/apps"><SideNavLabel token="section.modules">Apps & Modules</SideNavLabel></NavLink> : null}
             </>
-          ) : inWorkflows && canPreviewWorkflows ? (
+          ) : inWorkflows && canViewWorkflows ? (
             <>
               <div className="prod-side-title">Dynamic Workflows</div>
               <div className="prod-side-section">Definitions</div>
               <NavLink end to="/workflows"><SideNavLabel token="section.automation">All Workflows</SideNavLabel></NavLink>
-              <NavLink to="/workflows/new"><SideNavLabel token="action.add">New Workflow</SideNavLabel></NavLink>
-              <div className="prod-side-section">Step 45B</div>
-              <div className="prod-side-note">Session-only authoring preview. Publishing and execution stay unavailable until persistence is implemented.</div>
+              {canManageWorkflows ? <NavLink to="/workflows/new"><SideNavLabel token="action.add">New Workflow</SideNavLabel></NavLink> : null}
+              <div className="prod-side-section">Step 45C</div>
+              <div className="prod-side-note">Definitions are persisted and versioned. Execution and run history remain unavailable until Step 45D.</div>
             </>
           ) : inAssets ? (
             <>

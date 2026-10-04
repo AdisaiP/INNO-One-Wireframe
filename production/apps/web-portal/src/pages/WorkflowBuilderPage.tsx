@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   INNOButton,
@@ -19,7 +20,8 @@ import {
   type INNOWorkflowValidationIssue,
 } from '@inno/ui/workflow';
 import '@inno/ui/workflow.css';
-import { useWorkflowDrafts } from '../app/WorkflowDraftContext';
+import { createWorkflowDefinition, getWorkflowDefinition, updateWorkflowDefinition } from '../api/client';
+import { ErrorState, LoadingState } from '../components/Feedback';
 import './WorkflowProductPages.css';
 
 const palette: Array<{ kind: INNOWorkflowNodeKind; label: string }> = [
@@ -126,24 +128,30 @@ function buildValidation(nodes: INNOWorkflowNode[], edges: INNOWorkflowEdge[]): 
 export function WorkflowBuilderPage() {
   const { workflowId } = useParams();
   const navigate = useNavigate();
-  const { createDraft, getDraft, updateDraft } = useWorkflowDrafts();
-  const existing = workflowId ? getDraft(workflowId) : null;
+  const queryClient = useQueryClient();
   const isNew = !workflowId;
 
-  const [name, setName] = useState(existing?.name ?? '');
-  const [nodes, setNodes] = useState<INNOWorkflowNode[]>(() => existing?.nodes ?? starterNodes());
-  const [edges, setEdges] = useState<INNOWorkflowEdge[]>(() => existing?.edges ?? starterEdges());
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(nodes[0]?.id ?? null);
+  const query = useQuery({
+    queryKey: ['workflows', 'detail', workflowId],
+    queryFn: () => getWorkflowDefinition(workflowId ?? ''),
+    enabled: !isNew,
+  });
+
+  const [name, setName] = useState('');
+  const [nodes, setNodes] = useState<INNOWorkflowNode[]>(starterNodes);
+  const [edges, setEdges] = useState<INNOWorkflowEdge[]>(starterEdges);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>('trigger');
   const [orientation, setOrientation] = useState<'horizontal' | 'vertical'>('horizontal');
   const [feedback, setFeedback] = useState('');
 
   useEffect(() => {
-    if (isNew || !existing) return;
-    setName(existing.name);
-    setNodes(existing.nodes);
-    setEdges(existing.edges);
-    setSelectedNodeId(existing.nodes[0]?.id ?? null);
-  }, [existing?.id, isNew]);
+    if (!query.data) return;
+    setName(query.data.name);
+    setNodes(query.data.nodes);
+    setEdges(query.data.edges);
+    setOrientation(query.data.orientation);
+    setSelectedNodeId(query.data.nodes[0]?.id ?? null);
+  }, [query.data]);
 
   const selectedNode = nodes.find((node) => node.id === selectedNodeId) ?? null;
   const validation = useMemo(() => buildValidation(nodes, edges), [nodes, edges]);
@@ -151,22 +159,28 @@ export function WorkflowBuilderPage() {
   const warningCount = validation.filter((issue) => issue.severity === 'warning').length;
   const validSessionDraft = Boolean(name.trim()) && nodes.filter((node) => node.kind === 'trigger').length === 1 && nodes.some((node) => node.kind === 'end');
 
-  if (!isNew && !existing) {
-    return (
-      <INNOPage
-        eyebrow="Automation · Dynamic Workflows"
-        title="Workflow draft unavailable"
-        description="Step 45B keeps workflow drafts in memory for the current browser session only."
-        actions={<Link className="inno-link-button" to="/workflows/new">New Workflow</Link>}
-      >
-        <INNOState
-          kind="empty"
-          title="Session draft not found"
-          description="The draft may have been cleared by a page refresh. Return to the workflow list or start a new session draft."
-          action={<Link className="inno-link-button secondary" to="/workflows">Back to Workflows</Link>}
-        />
-      </INNOPage>
-    );
+  const save = useMutation({
+    mutationFn: () => {
+      const payload = { name: name.trim(), nodes, edges, orientation };
+      if (!validSessionDraft) throw new Error('Enter a workflow name and keep a valid Trigger → End definition.');
+      return isNew
+        ? createWorkflowDefinition(payload)
+        : updateWorkflowDefinition(workflowId ?? '', query.data?.eTag ?? '', payload);
+    },
+    onSuccess: async (saved) => {
+      setFeedback(isNew ? 'Workflow definition created' : 'Workflow definition updated');
+      await queryClient.invalidateQueries({ queryKey: ['workflows'] });
+      queryClient.setQueryData(['workflows', 'detail', saved.id], saved);
+      if (isNew) navigate('/workflows/' + saved.id, { replace: true });
+    },
+    onError: (error: Error) => setFeedback(error.message),
+  });
+
+  if (!isNew && query.isPending) {
+    return <div className="page-loading-wrap"><LoadingState label="Loading workflow definition…" /></div>;
+  }
+  if (!isNew && query.isError) {
+    return <div className="page-error-wrap"><ErrorState error={query.error} retry={() => void query.refetch()} /></div>;
   }
 
   const addNode = (kind: INNOWorkflowNodeKind) => {
@@ -182,21 +196,6 @@ export function WorkflowBuilderPage() {
     setFeedback(nodeLabel(kind) + ' node added');
   };
 
-  const keepSessionDraft = () => {
-    if (!validSessionDraft) return;
-    const payload = { name: name.trim(), nodes, edges };
-    if (isNew) {
-      const draft = createDraft(payload);
-      setFeedback('Session draft created');
-      navigate('/workflows/' + draft.id, { replace: true });
-      return;
-    }
-    if (workflowId) {
-      updateDraft(workflowId, payload);
-      setFeedback('Session draft updated');
-    }
-  };
-
   return (
     <INNOPage
       eyebrow="Automation · Dynamic Workflows"
@@ -204,7 +203,7 @@ export function WorkflowBuilderPage() {
       description="Build a branching workflow definition using the shared React Flow + ELK canvas."
       actions={
         <div className="workflow-builder-header-status">
-          <INNOStatus tone="neutral">Session only</INNOStatus>
+          <INNOStatus tone="neutral">{isNew ? 'New definition' : 'Version ' + (query.data?.version ?? 1)}</INNOStatus>
           <INNOStatus tone={errorCount ? 'danger' : warningCount ? 'warning' : 'success'}>
             {errorCount ? errorCount + ' errors' : warningCount ? warningCount + ' warnings' : 'Definition valid'}
           </INNOStatus>
@@ -212,8 +211,8 @@ export function WorkflowBuilderPage() {
       }
     >
       <div className="workflow-product-boundary" role="status">
-        <b>No server persistence or execution in Step 45B</b>
-        <span>Keep in session stores this draft only in React memory. Refreshing the app clears it. Publishing, versions and run history are intentionally absent.</span>
+        <b>Persisted definition · execution still separate</b>
+        <span>Step 45C saves this definition and immutable versions on the server with ETag concurrency. Publishing, execution and run history remain intentionally absent until Step 45D.</span>
       </div>
 
       <section className="workflow-builder-shell" aria-label="Dynamic workflow builder">
@@ -356,16 +355,17 @@ export function WorkflowBuilderPage() {
         <INNOEditorFooterStart>
           <Link className="inno-link-button secondary" to="/workflows">Back to Workflows</Link>
           <INNOEditorFooterNote>
-            {feedback || 'Session drafts are temporary. Step 45C adds persisted definitions and optimistic concurrency.'}
+            {feedback || 'Save creates a new immutable definition version. Concurrent edits are protected by ETag / If-Match.'}
           </INNOEditorFooterNote>
         </INNOEditorFooterStart>
         <INNOEditorFooterEnd>
           <INNOButton
             type="button"
             disabled={!validSessionDraft}
-            onClick={keepSessionDraft}
+            busy={save.isPending}
+            onClick={() => { if (!save.isPending) save.mutate(); }}
           >
-            {isNew ? 'Keep in Session' : 'Update Session Draft'}
+            {isNew ? 'Create Workflow' : 'Save New Version'}
           </INNOButton>
         </INNOEditorFooterEnd>
       </INNOEditorFooter>

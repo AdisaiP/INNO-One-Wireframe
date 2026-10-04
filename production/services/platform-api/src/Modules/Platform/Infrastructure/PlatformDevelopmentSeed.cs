@@ -141,6 +141,12 @@ public static class PlatformDevelopmentSeed
         ("platform.search.use", "platform", "Use global search")
     ];
 
+    private static readonly (string Id, string Module, string Name)[] Step45CPermissions =
+    [
+        ("workflows.view", "workflows", "View dynamic workflows"),
+        ("workflows.manage", "workflows", "Manage dynamic workflows")
+    ];
+
     public static async Task SeedAsync(
         PlatformDbContext db,
         CancellationToken cancellationToken = default)
@@ -387,6 +393,12 @@ public static class PlatformDevelopmentSeed
             Module = x.Module,
             Name = x.Name
         }));
+        db.Permissions.AddRange(Step45CPermissions.Select(x => new Permission
+        {
+            PermissionId = x.Id,
+            Module = x.Module,
+            Name = x.Name
+        }));
 
         db.RolePermissions.AddRange(basePermissions.Select(x => new RolePermission
         {
@@ -470,6 +482,11 @@ public static class PlatformDevelopmentSeed
             PermissionId = x.Id
         }));
         db.RolePermissions.AddRange(Step38Permissions.Select(x => new RolePermission
+        {
+            RoleId = PlatformAdminRoleId,
+            PermissionId = x.Id
+        }));
+        db.RolePermissions.AddRange(Step45CPermissions.Select(x => new RolePermission
         {
             RoleId = PlatformAdminRoleId,
             PermissionId = x.Id
@@ -582,6 +599,14 @@ public static class PlatformDevelopmentSeed
                 Installed = true,
                 Enabled = true,
                 UpdatedAt = now
+            },
+            new AppModule
+            {
+                Id = Guid.Parse("70000000-0000-0000-0000-000000000004"),
+                AppId = "workflows",
+                Installed = true,
+                Enabled = true,
+                UpdatedAt = now
             });
 
         db.Notifications.AddRange(Step37Notifications(now));
@@ -623,7 +648,8 @@ public static class PlatformDevelopmentSeed
             .Concat(Step35Permissions)
             .Concat(Step36Permissions)
             .Concat(Step37Permissions)
-            .Concat(Step38Permissions))
+            .Concat(Step38Permissions)
+            .Concat(Step45CPermissions))
         {
             if (!await db.Permissions.AnyAsync(
                 x => x.PermissionId == permissionId,
@@ -720,7 +746,8 @@ public static class PlatformDevelopmentSeed
             .Concat(Step35Permissions)
             .Concat(Step36Permissions)
             .Concat(Step37Permissions)
-            .Concat(Step38Permissions))
+            .Concat(Step38Permissions)
+            .Concat(Step45CPermissions))
         {
             await EnsureRolePermissionAsync(
                 db,
@@ -836,6 +863,20 @@ public static class PlatformDevelopmentSeed
             {
                 Id = Guid.Parse("70000000-0000-0000-0000-000000000003"),
                 AppId = "assets",
+                Installed = true,
+                Enabled = true,
+                UpdatedAt = now
+            });
+        }
+
+        if (!await db.AppModules.AnyAsync(
+            x => x.AppId == "workflows",
+            cancellationToken))
+        {
+            db.AppModules.Add(new AppModule
+            {
+                Id = Guid.Parse("70000000-0000-0000-0000-000000000004"),
+                AppId = "workflows",
                 Installed = true,
                 Enabled = true,
                 UpdatedAt = now

@@ -75,7 +75,7 @@ check("workflow canvas foundation exists", "INNOWorkflowCanvas" in workflow and 
 check("workflow proof remains in internal design system", "INNOWorkflowCanvas" in design_system and 'id="workflow"' in design_system)
 check("45B workflow Product routes now exist", all(marker in app_root for marker in ['path="workflows"', 'path="workflows/new"', 'path="workflows/:workflowId"']))
 check("45B workflow module contract now exists", "workflows" in modules)
-check("45B workflow module stays out of normal launcher", modules["workflows"]["launcher"] is False)
+check("45C workflow module enters normal launcher after persistence", modules["workflows"]["launcher"] is True)
 check("45B workflow future permissions are declared", set(modules["workflows"]["permissions"]) == {"workflows.view", "workflows.manage"})
 check("workflow standalone module decision frozen", decisions["workflow-ownership"]["decision"].startswith("Dynamic Workflow is a standalone Web application"))
 check("Helpdesk simple automation route remains separate", 'path="helpdesk/automation"' in app_root)
@@ -104,7 +104,7 @@ for file_name in ("meeting.html", "meeting-list.html", "meeting-new.html", "meet
 check("development seed installs devices", 'AppId = "devices"' in seed)
 check("development seed installs assets", 'AppId = "assets"' in seed)
 check("development seed installs helpdesk", 'AppId = "helpdesk"' in seed)
-check("development seed does not install workflows", 'AppId = "workflows"' not in seed)
+check("development seed installs workflows after 45C persistence", 'AppId = "workflows"' in seed)
 check("development seed does not install meeting", 'AppId = "meeting"' not in seed)
 check("development seed does not install reports", 'AppId = "reports"' not in seed)
 
@@ -136,7 +136,7 @@ check("Meeting production scheduled after Agent runtime", roadmap["48"]["name"] 
 # but there is still no normal launcher/rail entry until persistence exists.
 rail = app_shell.split('<aside className="prod-rail"', 1)[1].split('</aside>', 1)[0]
 check("App rail does not expose Workflow module", 'to="/workflows"' not in rail)
-check("Workflow contextual navigation is preview-only", 'Session-only authoring preview' in app_shell and "canPreviewWorkflows = canAdminApps" in app_shell)
+check("Workflow contextual navigation reflects persisted definitions", 'Definitions are persisted and versioned' in app_shell and "canViewWorkflows" in app_shell and "canManageWorkflows" in app_shell)
 check("App shell does not expose Meeting nav", 'to="/meeting"' not in app_shell)
 check("App shell does not expose Reports nav", 'to="/reports"' not in app_shell)
 

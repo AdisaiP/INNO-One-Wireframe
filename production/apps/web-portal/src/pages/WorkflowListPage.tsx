@@ -1,44 +1,72 @@
+import { useDeferredValue, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
+  INNOButton,
   INNOCollection,
   INNOCollectionHeader,
   INNOCollectionState,
+  INNOCollectionToolbar,
   INNOPage,
+  INNOSearchField,
   INNOStatus,
   INNOTableWrap,
 } from '@inno/ui';
+import { getWorkflowDefinitions } from '../api/client';
+import { CollectionErrorState, CollectionLoadingState } from '../components/Feedback';
 import { RouterRowAction } from '../components/RouterRowAction';
-import { useWorkflowDrafts } from '../app/WorkflowDraftContext';
+import { usePermission } from '../app/ProfileContext';
 import './WorkflowProductPages.css';
 
 export function WorkflowListPage() {
-  const { drafts } = useWorkflowDrafts();
+  const canManage = usePermission('workflows.manage');
+  const [search, setSearch] = useState('');
+  const deferredSearch = useDeferredValue(search);
+  const query = useQuery({
+    queryKey: ['workflows', deferredSearch],
+    queryFn: () => getWorkflowDefinitions({ search: deferredSearch }),
+  });
+
+  const items = query.data?.items ?? [];
 
   return (
     <INNOPage
       eyebrow="Automation"
       title="Dynamic Workflows"
-      description="Design branching automation across INNO.One modules without changing the simple Helpdesk Automation rule editor."
-      actions={<Link className="inno-link-button" to="/workflows/new">New Workflow</Link>}
+      description="Design and persist branching automation definitions across INNO.One modules. Execution remains a separate runtime concern."
+      actions={canManage ? <Link className="inno-link-button" to="/workflows/new">New Workflow</Link> : undefined}
     >
       <div className="workflow-product-boundary" role="status">
-        <b>UI foundation preview</b>
-        <span>Step 45B keeps drafts in this browser session only. Persistence, publishing and execution begin in later workflow steps.</span>
+        <b>Persisted definitions</b>
+        <span>Step 45C stores workflow definitions and immutable versions on the server with optimistic concurrency. Run history and execution are still reserved for Step 45D.</span>
       </div>
 
       <INNOCollection className="workflow-list-collection">
         <INNOCollectionHeader
           title="Workflow definitions"
-          description="Session drafts created while validating the Product IA and builder interaction."
-          meta={<INNOStatus tone="neutral">{drafts.length} session drafts</INNOStatus>}
+          description={query.data ? query.data.totalItems + ' matching definitions' : 'Persisted branching workflow definitions'}
+          meta={query.data ? <INNOStatus tone="neutral">{query.data.totalItems} workflows</INNOStatus> : undefined}
         />
+        <INNOCollectionToolbar>
+          <INNOSearchField
+            label="Search workflows"
+            value={search}
+            onChange={setSearch}
+            placeholder="Search workflow name"
+          />
+        </INNOCollectionToolbar>
 
-        {drafts.length ? (
+        {query.isPending ? (
+          <CollectionLoadingState label="Loading workflow definitions…" />
+        ) : query.isError ? (
+          <CollectionErrorState error={query.error} retry={() => void query.refetch()} />
+        ) : items.length ? (
           <INNOTableWrap>
             <table>
               <thead>
                 <tr>
                   <th>Workflow</th>
+                  <th className="numeric-column">Version</th>
                   <th className="numeric-column">Nodes</th>
                   <th className="numeric-column">Connections</th>
                   <th>Status</th>
@@ -47,21 +75,16 @@ export function WorkflowListPage() {
                 </tr>
               </thead>
               <tbody>
-                {drafts.map((draft) => (
-                  <tr key={draft.id}>
-                    <td>
-                      <b>{draft.name}</b>
-                      <div className="table-meta">{draft.id}</div>
-                    </td>
-                    <td className="numeric-column">{draft.nodes.length}</td>
-                    <td className="numeric-column">{draft.edges.length}</td>
-                    <td><INNOStatus tone="neutral">Session draft</INNOStatus></td>
-                    <td>{new Date(draft.updatedAt).toLocaleString()}</td>
+                {items.map((item) => (
+                  <tr key={item.id}>
+                    <td><b>{item.name}</b><div className="table-meta">{item.id}</div></td>
+                    <td className="numeric-column">v{item.version}</td>
+                    <td className="numeric-column">{item.nodeCount}</td>
+                    <td className="numeric-column">{item.edgeCount}</td>
+                    <td><INNOStatus tone="neutral">{item.status}</INNOStatus></td>
+                    <td>{new Date(item.updatedAt).toLocaleString()}</td>
                     <td className="action-column">
-                      <RouterRowAction
-                        to={'/workflows/' + draft.id}
-                        ariaLabel={'Open ' + draft.name}
-                      />
+                      <RouterRowAction to={'/workflows/' + item.id} ariaLabel={'Open ' + item.name} />
                     </td>
                   </tr>
                 ))}
@@ -70,10 +93,14 @@ export function WorkflowListPage() {
           </INNOTableWrap>
         ) : (
           <INNOCollectionState
-            kind="empty"
-            title="No session workflow drafts"
-            description="Create a workflow to validate the branching builder. Nothing is persisted to the server in Step 45B."
-            action={<Link className="inno-link-button" to="/workflows/new">New Workflow</Link>}
+            kind={search ? 'no-results' : 'empty'}
+            title={search ? 'No matching workflows' : 'No workflow definitions yet'}
+            description={search
+              ? 'Try another workflow name.'
+              : 'Create the first persisted branching workflow definition.'}
+            action={search
+              ? <INNOButton variant="secondary" onClick={() => setSearch('')}>Clear search</INNOButton>
+              : canManage ? <Link className="inno-link-button" to="/workflows/new">New Workflow</Link> : undefined}
           />
         )}
       </INNOCollection>

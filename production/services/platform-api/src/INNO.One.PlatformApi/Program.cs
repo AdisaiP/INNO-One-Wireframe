@@ -20,6 +20,9 @@ using INNO.One.Modules.Platform.Api;
 using INNO.One.Modules.Platform.Infrastructure;
 using INNO.One.Modules.Platform.Persistence;
 using INNO.One.Modules.Reports;
+using INNO.One.Modules.Workflows;
+using INNO.One.Modules.Workflows.Api;
+using INNO.One.Modules.Workflows.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,6 +37,7 @@ builder.Services
     .AddAssetsModule(coreDatabase)
     .AddHelpdeskModule(coreDatabase)
     .AddReportsModule(coreDatabase)
+    .AddWorkflowsModule(coreDatabase)
     .AddInnoInfrastructure(coreDatabase);
 
 builder.Services.AddKeycloakIntegration(builder.Configuration);
@@ -62,12 +66,14 @@ if (app.Environment.IsDevelopment()
     var devicesDb = scope.ServiceProvider.GetRequiredService<DevicesDbContext>();
     var assetsDb = scope.ServiceProvider.GetRequiredService<AssetsDbContext>();
     var helpdeskDb = scope.ServiceProvider.GetRequiredService<HelpdeskDbContext>();
+    var workflowsDb = scope.ServiceProvider.GetRequiredService<WorkflowsDbContext>();
 
     await infrastructureDb.Database.MigrateAsync();
     await platformDb.Database.MigrateAsync();
     await devicesDb.Database.MigrateAsync();
     await assetsDb.Database.MigrateAsync();
     await helpdeskDb.Database.MigrateAsync();
+    await workflowsDb.Database.MigrateAsync();
 
     if (builder.Configuration.GetValue("DevelopmentSeed:Enabled", false))
     {
@@ -117,5 +123,6 @@ api.MapSoftwareBaselineEvaluationEndpoints();
 api.MapContractsWarrantyEndpoints();
 api.MapHelpdeskEndpoints();
 api.MapHelpdeskSlaAutomationEndpoints();
+api.MapWorkflowEndpoints();
 
 app.Run();

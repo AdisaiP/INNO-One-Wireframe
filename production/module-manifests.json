@@ -119,7 +119,7 @@
       "icon": "automation",
       "route": "/workflows",
       "surface": "web",
-      "launcher": false,
+      "launcher": true,
       "entryPermission": "workflows.view",
       "dependencies": ["platform"],
       "permissions": [

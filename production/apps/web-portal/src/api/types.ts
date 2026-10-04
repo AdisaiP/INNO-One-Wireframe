@@ -1187,3 +1187,43 @@ export interface WorkspaceAttentionResponse {
 export interface WorkspaceActivityResponse {
   items: WorkspaceActivityItem[];
 }
+
+
+export interface WorkflowDefinitionItem {
+  id: string;
+  name: string;
+  status: 'draft';
+  version: number;
+  nodeCount: number;
+  edgeCount: number;
+  updatedAt: string;
+  eTag: string;
+}
+
+export interface WorkflowDefinitionDetail {
+  id: string;
+  name: string;
+  nodes: import('@inno/ui/workflow').INNOWorkflowNode[];
+  edges: import('@inno/ui/workflow').INNOWorkflowEdge[];
+  orientation: 'horizontal' | 'vertical';
+  status: 'draft';
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+  eTag: string;
+}
+
+export interface WorkflowDefinitionRequest {
+  name: string;
+  nodes: import('@inno/ui/workflow').INNOWorkflowNode[];
+  edges: import('@inno/ui/workflow').INNOWorkflowEdge[];
+  orientation: 'horizontal' | 'vertical';
+}
+
+export interface WorkflowDefinitionListResponse {
+  items: WorkflowDefinitionItem[];
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+}

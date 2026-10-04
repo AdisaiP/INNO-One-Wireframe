@@ -1,5 +1,12 @@
 > [!IMPORTANT]
-> **Current production override — 2026-10-04 — Step 45B**
+> **Current production override — 2026-10-04 — Step 45C**
+>
+> **Step 45C Dynamic Workflow Persistence & Versioning is complete** on `implementation/step45c-dynamic-workflow-persistence-versioning`.
+>
+> Read `INNO-One-Step45C-Next-Chat-Handoff.md` first. Dynamic Workflow now has real server persistence in the `workflows` schema, immutable definition versions, CRUD API, ETag / If-Match optimistic concurrency, append-only create/update/delete audit, and provisioned `workflows.view` / `workflows.manage` permissions. Workflow is installed/enabled and available from the normal Apps launcher; the existing `INNOWorkflowCanvas` remains the Product editor. Execution, workers, retries and run history remain reserved for **Step 45D**. Dedicated QA is **68/68 static, 87/87 browser/runtime**, broad Production is **1628/1628 across 62 concrete routes**, and Design System browser remains **56/56**. Full .NET build is **0 warnings / 0 errors**. Frozen Design System V1.26 / UI Contract 1.20.0 remain unchanged. **Do not merge unless explicitly requested.**
+>
+> [!IMPORTANT]
+> **Previous production override — 2026-10-04 — Step 45B**
 >
 > **Step 45B Dynamic Workflow Product IA + UI Routes is complete** on `ux/step45b-dynamic-workflow-product-ia`.
 >

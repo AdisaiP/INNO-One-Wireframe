@@ -18,6 +18,7 @@
     <ProjectReference Include="..\Modules\Assets\INNO.One.Modules.Assets.csproj" />
     <ProjectReference Include="..\Modules\Helpdesk\INNO.One.Modules.Helpdesk.csproj" />
     <ProjectReference Include="..\Modules\Reports\INNO.One.Modules.Reports.csproj" />
+    <ProjectReference Include="..\Modules\Workflows\INNO.One.Modules.Workflows.csproj" />
     <ProjectReference Include="..\Integrations\Keycloak\INNO.One.Integrations.Keycloak.csproj" />
     <ProjectReference Include="..\Integrations\MeshCentral\INNO.One.Integrations.MeshCentral.csproj" />
   </ItemGroup>

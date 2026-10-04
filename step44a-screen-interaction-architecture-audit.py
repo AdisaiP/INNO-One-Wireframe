@@ -62,9 +62,9 @@ check("all route decisions have wireframe reference marker",
       all("wireframe" in item for item in MATRIX["routes"]))
 
 expected = {
-    "workflows": ("P02", "list+session-drafts", None, "high"),
-    "workflows/new": ("P06", "builder-route+session-draft", "INNOWorkflowCanvas", "high"),
-    "workflows/:workflowId": ("P06", "builder-route+session-draft", "INNOWorkflowCanvas", "high"),
+    "workflows": ("P02", "list+persisted-definitions", None, "high"),
+    "workflows/new": ("P06", "builder-route+persisted-definition", "INNOWorkflowCanvas", "high"),
+    "workflows/:workflowId": ("P06", "builder-route+persisted-definition", "INNOWorkflowCanvas", "high"),
     "admin/organization": ("P02", "hierarchy-list+drawer", "INNOTree", "critical"),
     "admin/locations": ("P02", "hierarchy-list+drawer", "INNOTree", "critical"),
     "admin/positions": ("P02", "list+modal", None, "high"),
