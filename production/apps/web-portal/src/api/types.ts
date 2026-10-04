@@ -715,7 +715,9 @@ export interface ProblemDetails {
   status?: number;
   detail?: string;
   instance?: string;
+  code?: string;
   errors?: Record<string, string[]>;
+  fieldErrors?: Record<string, string[]>;
 }
 
 
@@ -1197,6 +1199,72 @@ export interface WorkflowDefinitionRequest {
 
 export interface WorkflowDefinitionListResponse {
   items: WorkflowDefinitionItem[];
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+}
+
+export type AutomationRunStatus =
+  | 'queued'
+  | 'running'
+  | 'waiting'
+  | 'completed'
+  | 'failed'
+  | 'cancelled';
+
+export interface AutomationRunSummary {
+  id: string;
+  workflowId: string;
+  workflowVersion: number;
+  workflowName: string;
+  status: AutomationRunStatus;
+  ticketId?: string | null;
+  attemptCount: number;
+  maxAttempts: number;
+  errorCode?: string | null;
+  createdAt: string;
+  startedAt?: string | null;
+  completedAt?: string | null;
+}
+
+export interface AutomationRunStep {
+  id: string;
+  nodeId: string;
+  nodeKind: import('@inno/ui/workflow').INNOWorkflowNodeKind;
+  catalogKey: string;
+  status: string;
+  attempt: number;
+  output?: Record<string, unknown> | null;
+  errorCode?: string | null;
+  errorDetail?: string | null;
+  startedAt?: string | null;
+  completedAt?: string | null;
+}
+
+export interface AutomationRunDetail extends AutomationRunSummary {
+  ownerModule: string;
+  input: Record<string, unknown>;
+  definitionSnapshot: {
+    schemaVersion: number;
+    workflowId: string;
+    workflowVersion: number;
+    ownerModule: string;
+    name: string;
+    nodes: import('@inno/ui/workflow').INNOWorkflowNode[];
+    edges: import('@inno/ui/workflow').INNOWorkflowEdge[];
+    orientation: 'horizontal' | 'vertical';
+    status: string;
+  };
+  activeNodeIds: string[];
+  completedNodeIds: string[];
+  failedNodeId?: string | null;
+  errorDetail?: string | null;
+  steps: AutomationRunStep[];
+}
+
+export interface AutomationRunListResponse {
+  items: AutomationRunSummary[];
   page: number;
   pageSize: number;
   totalItems: number;

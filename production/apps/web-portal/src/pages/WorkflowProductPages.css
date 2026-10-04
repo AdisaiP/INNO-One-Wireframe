@@ -254,3 +254,101 @@
     justify-content: flex-start;
   }
 }
+.automation-run-launcher {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(280px, 420px) auto;
+  align-items: end;
+  gap: 12px;
+  margin-bottom: var(--ds-space-4);
+  padding: 14px;
+  border: 1px solid var(--ds-border);
+  border-radius: 12px;
+  background: #fff;
+}
+.automation-run-launcher > div:first-child {
+  display: grid;
+  align-self: center;
+  gap: 4px;
+}
+.automation-run-launcher > div:first-child > b {
+  font-size: 12px;
+}
+.automation-run-launcher > div:first-child > span {
+  color: var(--ds-muted);
+  font-size: 10px;
+  line-height: 1.45;
+}
+.automation-run-launcher .field-error {
+  grid-column: 1 / -1;
+  color: var(--ds-danger, #b42318);
+  font-size: 10px;
+}
+.automation-run-detail {
+  display: grid;
+  gap: 18px;
+}
+.automation-run-detail-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.automation-run-detail-summary > div {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid var(--ds-border);
+  border-radius: 10px;
+  background: var(--ds-surface-muted, #f8fafc);
+}
+.automation-run-detail-summary span {
+  color: var(--ds-muted);
+  font-size: 9px;
+}
+.automation-run-steps {
+  display: grid;
+  gap: 8px;
+}
+.automation-run-steps h3 {
+  margin: 0 0 2px;
+  font-size: 12px;
+}
+.automation-run-step {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--ds-border);
+  border-radius: 10px;
+  background: #fff;
+}
+.automation-run-step > div:first-child {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+.automation-run-step > div:first-child > span,
+.automation-run-step > span,
+.automation-run-step small {
+  color: var(--ds-muted);
+  font-size: 9px;
+}
+.automation-run-step small {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 850px) {
+  .automation-run-launcher {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+  .automation-run-detail-summary {
+    grid-template-columns: 1fr;
+  }
+  .automation-run-step {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .automation-run-step > span {
+    grid-column: 1 / -1;
+  }
+}

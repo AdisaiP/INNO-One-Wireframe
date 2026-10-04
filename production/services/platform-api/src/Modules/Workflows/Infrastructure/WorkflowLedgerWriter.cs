@@ -32,4 +32,31 @@ public sealed class WorkflowLedgerWriter(WorkflowsDbContext db)
                  'restricted', CAST({metadataJson} AS jsonb))
             """, cancellationToken);
     }
+
+    public Task AppendOutboxAsync(
+        string eventType,
+        string originModule,
+        string subjectType,
+        string subjectId,
+        object payload,
+        string? correlationId,
+        string? causationId,
+        string? traceId,
+        CancellationToken cancellationToken = default)
+    {
+        var eventId = Guid.NewGuid();
+        var occurredAt = DateTimeOffset.UtcNow;
+        var payloadJson = JsonSerializer.Serialize(payload);
+
+        return db.Database.ExecuteSqlInterpolatedAsync($"""
+            INSERT INTO integration.outbox_messages
+                (event_id, event_type, event_version, origin_module,
+                 subject_type, subject_id, occurred_at, correlation_id,
+                 causation_id, trace_id, payload_json, status, attempt_count)
+            VALUES
+                ({eventId}, {eventType}, 1, {originModule},
+                 {subjectType}, {subjectId}, {occurredAt}, {correlationId},
+                 {causationId}, {traceId}, CAST({payloadJson} AS jsonb), 'pending', 0)
+            """, cancellationToken);
+    }
 }

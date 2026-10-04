@@ -46,7 +46,7 @@ check("roadmap schema is 1", ROADMAP["schemaVersion"] == 1)
 check("step id is 45A", ROADMAP["step"] == "45A")
 check("frozen design system remains V1.26", ROADMAP["baseline"]["designSystem"] == "V1.26")
 check("frozen UI contract remains 1.20.0", ROADMAP["baseline"]["uiContract"] == "1.20.0")
-check("current Product route matrix is 61 after Step 45F consolidation", len(MATRIX["routes"]) == 61, len(MATRIX["routes"]))
+check("current Product route matrix is 62 after Step 45G run history", len(MATRIX["routes"]) == 62, len(MATRIX["routes"]))
 check("45A baseline records 61 route definitions", ROADMAP["baseline"]["productionRouteDefinitions"] == 61)
 check("implemented route groups sum to 61", sum(ROADMAP["baseline"]["implementedRouteGroups"].values()) == 61)
 
@@ -78,7 +78,7 @@ check("45B workflow module contract now exists", "workflows" in modules)
 check("45F workflow module becomes hidden Automation Core", modules["workflows"]["launcher"] is False and modules["workflows"]["name"] == "Automation Core")
 check("45B workflow future permissions are declared", set(modules["workflows"]["permissions"]) == {"workflows.view", "workflows.manage"})
 check("workflow standalone module decision frozen", decisions["workflow-ownership"]["decision"].startswith("Dynamic Workflow is a standalone Web application"))
-check("Helpdesk simple automation route remains separate", 'path="helpdesk/automation"' in app_root)
+check("Helpdesk owns Automation and P10 Run History routes", 'path="helpdesk/automation"' in app_root and 'path="helpdesk/automation/:automationId/runs"' in app_root)
 
 # Reports is a backend skeleton, not a Product module yet.
 check("reports classified backend-skeleton", surface["reports"]["status"] == "backend-skeleton")

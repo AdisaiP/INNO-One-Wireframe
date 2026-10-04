@@ -90,7 +90,8 @@
         "helpdesk.ticket.resolve",
         "helpdesk.sla.manage",
         "helpdesk.automation.view",
-        "helpdesk.automation.manage"
+        "helpdesk.automation.manage",
+        "helpdesk.automation.run.view"
       ],
       "navigation": [
         { "id": "overview", "label": "Overview", "route": "/helpdesk", "permission": "helpdesk.ticket.view" },

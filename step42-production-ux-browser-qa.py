@@ -214,7 +214,12 @@ def collect_dynamic(cdp, route):
     }
     if route not in action_routes:
         return
-    ready = wait_eval(cdp, "!!document.querySelector('.inno-collection tbody .action-column .inno-row-action')", timeout=5)
+
+    selector = (
+        ".inno-collection tbody .action-column .inno-row-action,"
+        ".inno-collection tbody .action-column .inno-row-actions-trigger"
+    )
+    ready = wait_eval(cdp, "!!document.querySelector("+json.dumps(selector)+")", timeout=5)
     if route == "/assets/software-baselines" and not ready:
         empty = cdp.eval("document.body.innerText.includes('No software baselines yet')")
         check("dynamic route empty state accepted " + route, bool(empty))
@@ -222,6 +227,46 @@ def collect_dynamic(cdp, route):
     check("dynamic route action ready " + route, bool(ready))
     if not ready:
         return
+
+    if route == "/helpdesk/automation":
+        discovered = []
+        for label in ("Edit", "Run History"):
+            cdp.navigate("http://localhost:5180" + route)
+            if not route_ready(cdp):
+                continue
+            trigger_ready = wait_eval(
+                cdp,
+                "!!document.querySelector('.inno-collection tbody .action-column .inno-row-actions-trigger')",
+                timeout=5,
+            )
+            if not trigger_ready:
+                continue
+            opened = cdp.eval("""(()=>{const b=document.querySelector('.inno-collection tbody .action-column .inno-row-actions-trigger');if(!b)return false;b.click();return true})()""")
+            if not opened:
+                continue
+            menu_ready = wait_eval(
+                cdp,
+                "!![...document.querySelectorAll('.inno-row-actions-menu [role=menuitem]')].find(x=>(x.textContent||'').trim()==="+json.dumps(label)+")",
+                timeout=3,
+            )
+            if not menu_ready:
+                continue
+            clicked = cdp.eval("""(()=>{const label=%s;const b=[...document.querySelectorAll('.inno-row-actions-menu [role="menuitem"]')].find(x=>(x.textContent||'').trim()===label);if(!b)return false;b.click();return true})()""" % json.dumps(label))
+            href = wait_eval(
+                cdp,
+                "location.pathname!=="+json.dumps(route)+" ? location.pathname : ''",
+                timeout=5,
+            ) if clicked else ""
+            if href and ":" not in href:
+                dynamic_routes.add(href)
+                discovered.append(href)
+        check(
+            "dynamic route discovered " + route,
+            len(discovered) == 2,
+            ",".join(discovered) or "row action menu did not navigate",
+        )
+        return
+
     clicked = cdp.eval("""(()=>{const b=document.querySelector('.inno-collection tbody .action-column .inno-row-action');if(!b)return false;b.click();return true})()""")
     href = wait_eval(
         cdp,

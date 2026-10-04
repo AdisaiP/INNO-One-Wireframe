@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useState } from 'react';
 import { useI18n } from '@inno/i18n';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   INNOButton,
   INNOCollection,
@@ -10,6 +10,7 @@ import {
   INNOCollectionToolbar,
   INNOPage,
   INNOPagination,
+  INNORowActions,
   INNOSearchField,
   INNOStatus,
   INNOTableWrap,
@@ -17,12 +18,13 @@ import {
 import { getHelpdeskAutomationDefinitions } from '../api/client';
 import { usePermission } from '../app/ProfileContext';
 import { CollectionErrorState, CollectionLoadingState } from '../components/Feedback';
-import { RouterRowAction } from '../components/RouterRowAction';
 import './WorkflowProductPages.css';
 
 export function AutomationRulesPage() {
   const { t, formatDateTime } = useI18n();
+  const navigate = useNavigate();
   const canManage = usePermission('helpdesk.automation.manage');
+  const canViewRuns = usePermission('helpdesk.automation.run.view');
   const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search);
   const [page, setPage] = useState(1);
@@ -53,13 +55,13 @@ export function AutomationRulesPage() {
     >
       <div className="workflow-product-boundary" role="status">
         <b>{t('helpdesk.automation.builder.definitionBoundary.title')}</b>
-        <span>{t('helpdesk.automation.list.description')}</span>
+        <span>{t('helpdesk.automation.runtime.description')}</span>
       </div>
 
       <INNOCollection>
         <INNOCollectionHeader
           title={t('helpdesk.automation.list.title')}
-          description={t('helpdesk.automation.list.description')}
+          description={t('helpdesk.automation.runtime.description')}
           meta={query.data ? (
             <INNOStatus tone="neutral">
               {t('helpdesk.automation.count', { count: query.data.totalItems })}
@@ -111,9 +113,20 @@ export function AutomationRulesPage() {
                       </td>
                       <td>{formatDateTime(item.updatedAt)}</td>
                       <td className="action-column">
-                        <RouterRowAction
-                          to={'/helpdesk/automation/' + item.id}
+                        <INNORowActions
                           ariaLabel={item.name}
+                          items={[
+                            ...(canViewRuns ? [{
+                              id: 'runs',
+                              label: t('helpdesk.automation.runs.open'),
+                              onSelect: () => navigate('/helpdesk/automation/' + item.id + '/runs'),
+                            }] : []),
+                            ...(canManage ? [{
+                              id: 'edit',
+                              label: t('helpdesk.automation.edit'),
+                              onSelect: () => navigate('/helpdesk/automation/' + item.id),
+                            }] : []),
+                          ]}
                         />
                       </td>
                     </tr>

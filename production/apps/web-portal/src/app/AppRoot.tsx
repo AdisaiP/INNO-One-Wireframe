@@ -75,6 +75,11 @@ const AutomationRulePage = lazy(async () => {
   return { default: module.AutomationRulePage };
 });
 
+const AutomationRunsPage = lazy(async () => {
+  const module = await import('../pages/AutomationRunsPage');
+  return { default: module.AutomationRunsPage };
+});
+
 export function AppRoot() {
   const profileQuery = useQuery({
     queryKey: ['platform', 'me'],
@@ -119,6 +124,7 @@ export function AppRoot() {
   const canCreateTicket = profile.permissions.includes('helpdesk.ticket.create');
   const canViewAutomation = profile.permissions.includes('helpdesk.automation.view');
   const canManageAutomation = profile.permissions.includes('helpdesk.automation.manage');
+  const canViewAutomationRuns = profile.permissions.includes('helpdesk.automation.run.view');
   const canManageSla = profile.permissions.includes('helpdesk.sla.manage');
 
   return (
@@ -210,6 +216,14 @@ export function AppRoot() {
                 <AutomationRulePage />
               </Suspense>
             ) : <DeferredPage name="New Automation" kind="permission" />}
+          />
+          <Route
+            path="helpdesk/automation/:automationId/runs"
+            element={canViewAutomationRuns ? (
+              <Suspense fallback={<LoadingState />}>
+                <AutomationRunsPage />
+              </Suspense>
+            ) : <DeferredPage name="Automation Run History" kind="permission" />}
           />
           <Route
             path="helpdesk/automation/:automationId"

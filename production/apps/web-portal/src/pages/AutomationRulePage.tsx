@@ -26,6 +26,7 @@ import {
   getHelpdeskAutomationDefinition,
   updateHelpdeskAutomationDefinition,
 } from '../api/client';
+import { usePermission } from '../app/ProfileContext';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import './WorkflowProductPages.css';
 
@@ -232,6 +233,37 @@ function buildValidation(
   }
 
   for (const node of nodes) {
+    if (
+      node.catalogKey === 'helpdesk.ticket.assign_team'
+      || node.catalogKey === 'helpdesk.ticket.escalate'
+    ) {
+      const team = String(
+        node.configuration?.team
+        ?? node.configuration?.actionValue
+        ?? '',
+      ).trim();
+      if (!team) {
+        issues.push({
+          id: 'team-required-' + node.id,
+          severity: 'error',
+          nodeId: node.id,
+          message: t('helpdesk.automation.validation.teamRequired'),
+        });
+      }
+    }
+
+    if (node.catalogKey === 'workflow.wait') {
+      const duration = Number(node.configuration?.durationSeconds ?? 0);
+      if (!Number.isFinite(duration) || duration < 0 || duration > 300) {
+        issues.push({
+          id: 'wait-duration-' + node.id,
+          severity: 'error',
+          nodeId: node.id,
+          message: t('helpdesk.automation.validation.waitDuration'),
+        });
+      }
+    }
+
     if (node.kind !== 'trigger' && !edges.some((edge) => edge.target === node.id)) {
       issues.push({
         id: 'missing-incoming-' + node.id,
@@ -258,6 +290,7 @@ export function AutomationRulePage() {
   const { automationId } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const canViewRuns = usePermission('helpdesk.automation.run.view');
   const isNew = !automationId || automationId === 'new';
 
   const query = useQuery({
@@ -313,7 +346,8 @@ export function AutomationRulePage() {
   const warningCount = validation.filter((issue) => issue.severity === 'warning').length;
   const validDefinition = Boolean(name.trim())
     && nodes.filter((node) => node.kind === 'trigger').length === 1
-    && nodes.some((node) => node.kind === 'end');
+    && nodes.some((node) => node.kind === 'end')
+    && errorCount === 0;
 
   const save = useMutation({
     mutationFn: () => {
@@ -389,7 +423,7 @@ export function AutomationRulePage() {
     >
       <div className="workflow-product-boundary" role="status">
         <b>{t('helpdesk.automation.builder.definitionBoundary.title')}</b>
-        <span>{t('helpdesk.automation.builder.definitionBoundary.description')}</span>
+        <span>{t('helpdesk.automation.builder.runtimeBoundary.description')}</span>
       </div>
 
       <section
@@ -558,6 +592,59 @@ export function AutomationRulePage() {
                   )))}
                 />
               </label>
+
+              {selectedNode.catalogKey === 'helpdesk.ticket.assign_team'
+                || selectedNode.catalogKey === 'helpdesk.ticket.escalate' ? (
+                <label className="field-block">
+                  <span>{t('helpdesk.automation.builder.team')}</span>
+                  <input
+                    value={String(
+                      selectedNode.configuration?.team
+                      ?? selectedNode.configuration?.actionValue
+                      ?? '',
+                    )}
+                    maxLength={120}
+                    placeholder={t('helpdesk.automation.builder.teamPlaceholder')}
+                    onChange={(event) => setNodes((current) => current.map((node) => (
+                      node.id === selectedNode.id
+                        ? {
+                            ...node,
+                            configuration: {
+                              ...node.configuration,
+                              team: event.target.value,
+                            },
+                          }
+                        : node
+                    )))}
+                  />
+                </label>
+              ) : null}
+
+              {selectedNode.catalogKey === 'workflow.wait' ? (
+                <label className="field-block">
+                  <span>{t('helpdesk.automation.builder.waitSeconds')}</span>
+                  <input
+                    type="number"
+                    min={0}
+                    max={300}
+                    value={Number(selectedNode.configuration?.durationSeconds ?? 0)}
+                    onChange={(event) => {
+                      const value = Math.max(0, Math.min(300, Number(event.target.value) || 0));
+                      setNodes((current) => current.map((node) => (
+                        node.id === selectedNode.id
+                          ? {
+                              ...node,
+                              configuration: {
+                                ...node.configuration,
+                                durationSeconds: value,
+                              },
+                            }
+                          : node
+                      )));
+                    }}
+                  />
+                </label>
+              ) : null}
             </div>
           ) : (
             <INNOState
@@ -604,6 +691,14 @@ export function AutomationRulePage() {
           </INNOEditorFooterNote>
         </INNOEditorFooterStart>
         <INNOEditorFooterEnd>
+          {!isNew && canViewRuns ? (
+            <Link
+              className="inno-link-button secondary"
+              to={'/helpdesk/automation/' + (automationId ?? '') + '/runs'}
+            >
+              {t('helpdesk.automation.runs.open')}
+            </Link>
+          ) : null}
           <INNOButton
             type="button"
             disabled={!validDefinition}

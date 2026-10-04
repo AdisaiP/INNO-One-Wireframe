@@ -14,6 +14,7 @@ public static class WorkflowsModule
                 npgsql.MigrationsHistoryTable("__ef_migrations_history", WorkflowsDbContext.Schema))
             .UseSnakeCaseNamingConvention());
         services.AddScoped<WorkflowLedgerWriter>();
+        services.AddHostedService<WorkflowExecutionWorker>();
         return services;
     }
 }

@@ -2,6 +2,8 @@ import { getAccessToken } from '../auth/keycloak';
 import type {
   AdminAccessAssignment,
   AdminAccessEvaluation,
+  AutomationRunDetail,
+  AutomationRunListResponse,
   AdminAuditDetail,
   AdminAuditFacets,
   AdminAuditListItem,
@@ -1268,6 +1270,42 @@ export async function getHelpdeskAutomationDefinitions(query: {
   return request<WorkflowDefinitionListResponse>(
     '/helpdesk/automations?' + params.toString(),
   );
+}
+
+export async function getHelpdeskAutomationRuns(
+  automationId: string,
+  query: { page?: number; pageSize?: number; status?: string } = {},
+): Promise<AutomationRunListResponse> {
+  const params = new URLSearchParams({
+    page: String(query.page ?? 1),
+    pageSize: String(query.pageSize ?? 25),
+  });
+  if (query.status && query.status !== 'all') params.set('status', query.status);
+  return request<AutomationRunListResponse>(
+    '/helpdesk/automations/' + encodeURIComponent(automationId) + '/runs?' + params.toString(),
+  );
+}
+
+export async function getHelpdeskAutomationRun(
+  automationId: string,
+  runId: string,
+): Promise<AutomationRunDetail> {
+  const response = await request<ResourceEnvelope<AutomationRunDetail>>(
+    '/helpdesk/automations/' + encodeURIComponent(automationId)
+      + '/runs/' + encodeURIComponent(runId),
+  );
+  return response.data;
+}
+
+export async function startHelpdeskAutomationRun(
+  automationId: string,
+  input: { ticketId: string },
+): Promise<AutomationRunDetail> {
+  const response = await request<ResourceEnvelope<AutomationRunDetail>>(
+    '/helpdesk/automations/' + encodeURIComponent(automationId) + '/runs',
+    { method: 'POST', ...jsonRequest({ input }) },
+  );
+  return response.data;
 }
 
 export async function getHelpdeskAutomationDefinition(

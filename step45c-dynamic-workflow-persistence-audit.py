@@ -100,7 +100,7 @@ check("workflow API types include ETag","WorkflowDefinitionDetail" in types and 
 
 check("Helpdesk list uses persisted server query","getHelpdeskAutomationDefinitions" in helpdesk_list and "useQuery" in helpdesk_list)
 check("Helpdesk list no session language","session draft" not in helpdesk_list.lower())
-check("Helpdesk list declares module-owned persisted boundary","helpdesk.automation.list.description" in helpdesk_list)
+check("Helpdesk list declares module-owned persisted boundary","helpdesk.automation.runtime.description" in helpdesk_list)
 check("Helpdesk builder gets persisted definition","getHelpdeskAutomationDefinition" in helpdesk_builder)
 check("Helpdesk builder creates persisted definition","createHelpdeskAutomationDefinition" in helpdesk_builder)
 check("Helpdesk builder updates persisted definition","updateHelpdeskAutomationDefinition" in helpdesk_builder)

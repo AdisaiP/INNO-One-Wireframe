@@ -1,3 +1,4 @@
+using INNO.One.Contracts.Automation;
 using INNO.One.Contracts.Search;
 using INNO.One.Contracts.Workspace;
 using INNO.One.Modules.Helpdesk.Application;
@@ -22,6 +23,7 @@ public static class HelpdeskModule
             .UseSnakeCaseNamingConvention());
 
         services.AddScoped<HelpdeskLedgerWriter>();
+        services.AddScoped<IAutomationNodeExecutor, HelpdeskAutomationNodeExecutor>();
         services.AddScoped<BusinessTimeCalculator>();
         services.AddScoped<IGlobalSearchProvider, HelpdeskGlobalSearchProvider>();
         services.AddScoped<IWorkspaceAttentionProvider, HelpdeskWorkspaceAttentionProvider>();

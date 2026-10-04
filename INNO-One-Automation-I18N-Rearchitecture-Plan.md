@@ -432,15 +432,24 @@ This is the first end-to-end proof of the new model.
 
 Step45F is complete on `implementation/step45f-helpdesk-automation-consolidation`. Dedicated browser/runtime QA passed 105/105 with 8 screenshots, broad Product browser regression passed 1572/1572 across 60 concrete routes, and visual inspection passed after fixing the Helpdesk Automation list boundary spacing. Helpdesk ownership, persistence, bilingual behavior and responsive routing are now proven end-to-end.
 
-### Step 45G - Shared execution + Helpdesk Run History
-Only after 45F:
-- execution contract;
-- run resource/history;
-- worker/scheduler/retry policy;
-- immutable workflow-version snapshot;
-- Helpdesk `/automation/:id/runs`;
-- execution audit/events;
-- bilingual runtime status/error presentation.
+### Step 45G - Shared execution + Helpdesk Run History — COMPLETE
+Completed on `implementation/step45g-shared-execution-helpdesk-run-history`.
+
+Delivered:
+- shared execution contract and module executor boundary;
+- persisted run + run-step history;
+- worker recovery, persisted Wait and bounded retry policy;
+- immutable workflow-version snapshot per run;
+- Helpdesk `/automation/:id/runs` P10 Product surface;
+- owner-scoped run API and `helpdesk.automation.run.view`;
+- execution audit/outbox lifecycle evidence;
+- real Helpdesk Assign Team / Escalate side effects with current RBAC + ticket-scope re-check;
+- bilingual runtime status/error presentation;
+- dedicated runtime QA 52/52 and broad Product browser 1590/1590 across 61 routes.
+
+Frozen Step45G execution scope is deterministic linear execution: Trigger -> supported module action(s) -> Wait -> End. Condition/Branch/fan-out/fan-in/cycles are rejected explicitly before enqueue rather than simulated.
+
+Step45G uses manual ticket-context enqueue. Transactional outbox persistence exists, but a central event dispatcher/consumer for automatic trigger-to-run dispatch is not yet implemented and must not be implied.
 
 ### Step 45H - Devices Automation & Remediation
 Add a module-scoped WHEN / IF / THEN rules and remediation experience for safe Devices triggers/actions, backed by the shared automation runtime where useful. Do not expose the full React Flow canvas by default. High-impact actions must preserve normal authorization, consent and approval requirements.
@@ -516,9 +525,9 @@ The re-architecture is complete when:
 
 ## 17. Immediate next action
 
-Step 45E and Step 45F are complete. Do not start the old Step 45D execution work.
+Step 45E, Step 45F and Step 45G are complete. The old global Step45D direction remains retired.
 
-Next implementation is **Step 45G - Shared Execution + Helpdesk Run History**.
+Next implementation is **Step 45H - Devices Automation & Remediation**.
 
 Reason:
-module-owned Helpdesk authoring, persistence, ownership isolation, bilingual behavior and responsive Product routing are now proven end-to-end. Shared execution can proceed from this frozen boundary without reviving a global workflow Product.
+Helpdesk now proves the shared runtime boundary end-to-end: immutable version snapshots, persisted run history, module-owned execution, current permission re-checks, retry/recovery, real side effects and bilingual Product monitoring. Devices can reuse that technical foundation while keeping its Product experience intentionally simpler as WHEN / IF / THEN and preserving endpoint authorization, consent and approval boundaries.

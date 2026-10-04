@@ -52,6 +52,8 @@ public static class WorkflowEndpoints
         api.MapDelete("/helpdesk/automations/{automationId}", DeleteHelpdeskAsync).WithName("helpdesk.automations.delete");
         api.MapGet("/helpdesk/automations/{automationId}/versions", ListHelpdeskVersionsAsync)
             .WithName("helpdesk.automations.versions.list");
+
+        api.MapWorkflowRunEndpoints();
         return api;
     }
 

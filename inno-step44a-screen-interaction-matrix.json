@@ -594,9 +594,18 @@
       "pattern": "P06",
       "surface": "builder-route+persisted-definition",
       "wireframe": "helpdesk-automation-rule.html",
-      "remediation": "Step 45F edit route loads Helpdesk-owned definitions, saves immutable versions and uses ETag optimistic concurrency; execution remains Step 45G",
+      "remediation": "Step 45G edit route keeps immutable definition versioning and exposes module-owned Run History after the definition is saved",
       "priority": "high",
       "specialComponent": "INNOWorkflowCanvas"
+    },
+    {
+      "route": "helpdesk/automation/:automationId/runs",
+      "page": "AutomationRunsPage",
+      "pattern": "P10",
+      "surface": "history+run-detail",
+      "wireframe": "—",
+      "remediation": "Step 45G Helpdesk-owned run history with immutable workflow-version snapshots, persisted step history, ticket context and bilingual runtime states",
+      "priority": "high"
     }
   ],
   "crossCutting": {
