@@ -1,9 +1,9 @@
 # INNO.One - Step 45H Devices Automation & Remediation
 
-**Status:** IMPLEMENTATION COMPLETE - FINAL RUNTIME QA BLOCKED BY DEV INFRA
+**Status:** COMPLETE
 **Branch:** `implementation/step45h-devices-automation-remediation`
 **Base:** Step45G `5eff479`
-**Next gate:** restore dev Keycloak/PostgreSQL, rerun Step45H runtime + responsive browser QA, then Step 45I - Assets Automation
+**Next:** Step 45I - Assets Automation
 
 ## Goal
 
@@ -229,7 +229,7 @@ English/Thai key parity is enforced by the Step45H audit.
 Final local static chain:
 
 ```text
-Step45H static              121/121
+Step45H static              127/127
 Step45G regression          135/135
 Step45F regression          135/135
 Step45E bilingual            87/87
@@ -240,7 +240,9 @@ git diff --check             PASS
 Python syntax:
 
 - `step45h-devices-automation-api-qa.py`: PASS;
-- `step45h-devices-automation-remediation-audit.py`: PASS.
+- `step45h-devices-automation-browser-qa.py`: PASS;
+- `step45h-devices-automation-remediation-audit.py`: PASS;
+- `step42-production-ux-browser-qa.py`: PASS.
 
 Builds:
 
@@ -253,13 +255,18 @@ Builds:
 
 Web production build retained the known large-chunk warnings for the main/workflow chunks. The Devices Step45H pages themselves remain small lazy chunks.
 
-## Runtime QA status - BLOCKED BY DEV INFRA
+## Runtime/browser QA final
 
-A dedicated runtime API suite was added:
+The restored dev infrastructure was used for final Step45H proof against real Keycloak and PostgreSQL.
 
-- `step45h-devices-automation-api-qa.py`.
+Dedicated API runtime:
 
-It is designed to prove:
+```text
+step45h_api_checks=38
+step45h_api_failures=0
+```
+
+The API suite proved:
 
 - E2E Keycloak token acquisition through `inno-one-e2e`;
 - module-owned permissions;
@@ -268,42 +275,53 @@ It is designed to prove:
 - real local group membership side effect;
 - idempotent replay;
 - immutable v1 run snapshot after later definition versions;
-- WHEN mismatch rejection;
-- IF mismatch rejection;
-- provider-owned group guard when a provider group is available;
-- version/run history;
+- WHEN mismatch rejection before enqueue;
+- IF mismatch rejection before enqueue;
+- provider-owned group execution blocked with `DEVICES_GROUP_PROVIDER_OWNED`;
+- version and run history;
 - QA definition soft-delete.
 
-Final execution could not reach the first authenticated API assertion because the shared dev host became unavailable.
+The real membership created by the API test was removed after the assertion and verified with:
 
-Observed infrastructure failures:
+```text
+MEMBERSHIP_DELETED=1
+MEMBERSHIP_REMAINING=0
+```
 
-- Keycloak `172.10.1.58:8080`: connection timeout;
-- PostgreSQL `172.10.1.58:5432`: connection timeout;
-- the local Platform API host shut down because Devices background workers threw DB connection failures and host behavior is configured to stop on unhandled background-service exceptions.
+Dedicated responsive/bilingual browser QA:
 
-The API QA token request timed out before any Step45H definition/run/remediation mutation occurred, so there is no Step45H runtime side effect from the blocked final attempt requiring cleanup.
+```text
+step45h_browser_checks=86
+step45h_browser_failures=0
+step45h_browser_screenshots=16
+```
 
-Headless browser QA was also abandoned for this gate after the same environment loss plus an unstable Chrome DevTools target. Do not claim responsive/browser runtime coverage is complete.
+Browser coverage proves:
 
-## Required final gate when infra is restored
+- list/editor/history at 1366 / 1024 / 768;
+- no Product page horizontal overflow;
+- focused editor does not mount React Flow;
+- real Keycloak login;
+- UI-dispatched run completes;
+- existing-membership remediation is idempotent and non-mutating;
+- persisted three-step run detail;
+- final English run summary reaches Completed and resolves duration before screenshot capture;
+- Thai list/editor/history critical states at 1366 / 768;
+- Thai `document.lang`;
+- organization and user locale restoration;
+- QA definition cleanup.
 
-1. Confirm Keycloak `172.10.1.58:8080` and PostgreSQL `172.10.1.58:5432` are reachable.
-2. Start Platform API with the normal Step45 runtime overrides.
-3. Run:
-   ```text
-   python step45h-devices-automation-api-qa.py
-   ```
-4. Run responsive Product browser QA for:
-   - `/devices/automation`;
-   - `/devices/automation/new`;
-   - `/devices/automation/:automationId`;
-   - `/devices/automation/:automationId/history`;
-   at 1366 / 1024 / 768 and in English / Thai critical states.
-5. Re-run broad Product regression.
-6. Only after those gates are green, mark Step45H COMPLETE and begin Step45I.
+Broad Product regression was updated to include the new static Devices Automation routes and passed:
 
-## Next after final QA
+```text
+step42_routes=63
+step42_browser_checks=1647
+step42_browser_failures=0
+```
+
+Visual evidence was inspected, including the completed English P10 drawer and Thai mobile-width history. The final evidence shows the completed status, immutable v1 rule version, duration and all three completed execution steps.
+
+## Next
 
 **Step 45I - Assets Automation**
 

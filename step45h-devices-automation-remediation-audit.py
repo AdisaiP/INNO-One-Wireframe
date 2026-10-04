@@ -32,6 +32,18 @@ client = text("production/apps/web-portal/src/api/client.ts")
 types = text("production/apps/web-portal/src/api/types.ts")
 i18n_runtime = text("production/packages/i18n/src/index.tsx")
 matrix = json.loads(text("inno-step44a-screen-interaction-matrix.json"))
+api_qa = text("step45h-devices-automation-api-qa.py")
+browser_qa = text("step45h-devices-automation-browser-qa.py")
+broad_browser_qa = text("step42-production-ux-browser-qa.py")
+
+# QA gate contracts.
+check("step45h_api_checks=" in api_qa, "Step45H API runtime QA summary marker missing")
+check("DEVICES_GROUP_PROVIDER_OWNED" in api_qa, "Step45H API QA does not prove provider-owned group guard")
+check("step45h_browser_checks=" in browser_qa, "Step45H browser QA summary marker missing")
+check("WIDTHS=(1366,1024,768)" in browser_qa, "Step45H browser QA does not cover canonical Web widths")
+check("set_profile_locale(c,\"th-TH\")" in browser_qa, "Step45H browser QA does not cover Thai")
+check('"/devices/automation", "/devices/automation/new"' in broad_browser_qa,
+      "Broad Product browser QA does not include Devices Automation static routes")
 
 # Owner-scoped definition persistence.
 for marker in [

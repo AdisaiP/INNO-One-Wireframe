@@ -15,7 +15,8 @@ STATIC_ROUTES = [
     "/admin/users", "/admin/users/new", "/admin/roles", "/admin/access-scopes",
     "/admin/integrations", "/admin/security", "/admin/audit",
     "/admin/branding", "/admin/settings", "/admin/apps",
-    "/devices", "/devices/discovery", "/devices/query", "/devices/groups", "/devices/add",
+    "/devices", "/devices/discovery", "/devices/query", "/devices/groups",
+    "/devices/automation", "/devices/automation/new", "/devices/add",
     "/assets", "/assets/inventory", "/assets/ownership", "/assets/owners",
     "/assets/ownership/submissions", "/assets/custom-fields", "/assets/qr-labels",
     "/assets/software-baselines", "/assets/software-baselines/new", "/assets/software-licenses", "/assets/contracts",
@@ -203,6 +204,7 @@ def collect_dynamic(cdp, route):
         "/admin/users",
         "/devices",
         "/devices/groups",
+        "/devices/automation",
         "/assets/inventory",
         "/assets/owners",
         "/assets/software-baselines",
@@ -222,6 +224,10 @@ def collect_dynamic(cdp, route):
     ready = wait_eval(cdp, "!!document.querySelector("+json.dumps(selector)+")", timeout=5)
     if route == "/assets/software-baselines" and not ready:
         empty = cdp.eval("document.body.innerText.includes('No software baselines yet')")
+        check("dynamic route empty state accepted " + route, bool(empty))
+        return
+    if route == "/devices/automation" and not ready:
+        empty = cdp.eval("document.body.innerText.includes('No device automation rules yet')")
         check("dynamic route empty state accepted " + route, bool(empty))
         return
     check("dynamic route action ready " + route, bool(ready))

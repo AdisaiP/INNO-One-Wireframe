@@ -1,9 +1,8 @@
 # INNO.One - Step 45H Next Chat Handoff
 
-**Status:** IMPLEMENTATION COMPLETE - FINAL RUNTIME QA BLOCKED BY DEV INFRA
+**Status:** COMPLETE
 **Branch:** `implementation/step45h-devices-automation-remediation`
-**Next immediate action:** finish Step45H runtime/responsive QA after dev infra recovery
-**Next feature after green gate:** Step 45I - Assets Automation
+**Next:** Step 45I - Assets Automation
 
 ## Read first
 
@@ -92,7 +91,7 @@ The executor never trusts only the run snapshot for authority.
 ## QA completed
 
 ```text
-Step45H static              121/121
+Step45H static              127/127
 Step45G regression          135/135
 Step45F regression          135/135
 Step45E bilingual            87/87
@@ -109,41 +108,54 @@ Builds:
 - .NET solution: 0 warnings / 0 errors;
 - `global.json` restored to 10.0.103.
 
-## Runtime QA blocker
+## Final QA
 
-Final runtime QA did **not** complete.
+Dedicated API runtime:
 
-The dev host became unreachable:
+```text
+step45h_api_checks=38
+step45h_api_failures=0
+```
 
-- Keycloak `172.10.1.58:8080` timed out;
-- PostgreSQL `172.10.1.58:5432` timed out;
-- Platform API stopped after background workers failed DB connections.
-
-The final Step45H API suite timed out while acquiring its E2E token, before it created a Step45H definition or remediation run.
-
-Do not report Step45H runtime/browser QA as passed.
-
-## Rerun when infrastructure returns
-
-Use:
-
-- `step45h-devices-automation-api-qa.py`;
-- `step45h-devices-automation-remediation-audit.py`.
-
-Runtime suite must prove:
+Proven against real Keycloak/PostgreSQL:
 
 - real local group membership side effect;
 - idempotent replay;
-- immutable run version snapshot;
-- WHEN mismatch pre-enqueue rejection;
-- IF mismatch pre-enqueue rejection;
-- provider-owned group guard when provider data is available;
-- run/version history;
-- QA cleanup.
+- immutable v1 run snapshot;
+- WHEN mismatch rejected before enqueue;
+- IF mismatch rejected before enqueue;
+- provider-owned group rejected by the executor;
+- version/run history;
+- QA definition cleanup.
 
-Then run responsive browser coverage at 1366 / 1024 / 768 for list/editor/history and bilingual critical states, followed by broad Product regression.
+The mutation created for the first side-effect assertion was cleaned and verified:
 
-## After Step45H becomes fully green
+```text
+MEMBERSHIP_DELETED=1
+MEMBERSHIP_REMAINING=0
+```
+
+Dedicated responsive/bilingual browser:
+
+```text
+step45h_browser_checks=86
+step45h_browser_failures=0
+step45h_browser_screenshots=16
+```
+
+Coverage includes list/editor/history at 1366 / 1024 / 768, Thai critical states at 1366 / 768, no React Flow, no Product page overflow, real UI-dispatched idempotent run, persisted step drawer, final completed summary/duration evidence and locale restoration.
+
+Broad Product baseline now includes Devices Automation static routes:
+
+```text
+step42_routes=63
+step42_browser_checks=1647
+step42_browser_failures=0
+```
+
+Visual inspection passed.
+
+## Next
 
 Start **Step45I - Assets Automation**.
 
