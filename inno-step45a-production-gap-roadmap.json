@@ -98,10 +98,15 @@
       "id": "reports",
       "name": "Reports",
       "surface": "web",
-      "status": "backend-skeleton",
+      "status": "implemented",
       "productionEvidence": [
         "production/module-manifests.json",
-        "production/services/platform-api/src/Modules/Reports/ReportsModule.cs",
+        "production/apps/web-portal/src/pages/ReportsPage.tsx",
+        "production/apps/web-portal/src/pages/ReportEditorPage.tsx",
+        "production/apps/web-portal/src/pages/ReportRunsPage.tsx",
+        "production/apps/web-portal/src/pages/ReportSchedulesPage.tsx",
+        "production/services/platform-api/src/Modules/Reports/Api/ReportsEndpoints.cs",
+        "production/services/platform-api/src/Modules/Reports/Application/ReportGenerationService.cs",
         "production/services/platform-api/src/Modules/Reports/Persistence/ReportsDbContext.cs"
       ],
       "prototypeEvidence": [
@@ -109,14 +114,8 @@
         "reports-saved.html",
         "report-builder.html"
       ],
-      "missing": [
-        "Reports domain model",
-        "Reports API endpoints",
-        "Production React routes",
-        "Saved report persistence",
-        "Builder execution/export behavior"
-      ],
-      "nextStep": "46"
+      "missing": [],
+      "nextStep": null
     },
     {
       "id": "meeting",

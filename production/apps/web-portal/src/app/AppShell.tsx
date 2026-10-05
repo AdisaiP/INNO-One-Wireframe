@@ -56,6 +56,7 @@ export function AppShell() {
   const canManageAssetLicenses = usePermission('assets.license.manage');
   const canViewAssetsAutomation = usePermission('assets.automation.view');
   const canViewHelpdesk = usePermission('helpdesk.ticket.view');
+  const canViewReports = usePermission('reports.view');
   const canViewAutomation = usePermission('helpdesk.automation.view');
   const canManageSla = usePermission('helpdesk.sla.manage');
   const location = useLocation();
@@ -74,13 +75,14 @@ export function AppShell() {
   const inAssetDetail = /^\/assets\/[^/]+$/.test(location.pathname)
     && !['/assets/inventory', '/assets/ownership', '/assets/owners', '/assets/custom-fields', '/assets/qr-labels', '/assets/software-baselines', '/assets/software-licenses', '/assets/contracts', '/assets/automation'].includes(location.pathname);
   const inHelpdesk = location.pathname.startsWith('/helpdesk');
+  const inReports = location.pathname.startsWith('/reports');
   const inTicketWorkspace = /^\/helpdesk\/tickets(?:\/new|\/[^/]+)?$/.test(location.pathname);
   const inProfile = location.pathname.startsWith('/profile');
   const inNotifications = location.pathname.startsWith('/notifications');
   const inSearch = location.pathname.startsWith('/search');
   const inWorkspace = location.pathname === '/' || location.pathname.startsWith('/workspace/');
   const inAccount = inProfile || inNotifications;
-  const homePath = canWorkspace ? '/' : canViewDevices ? '/devices' : canViewHelpdesk ? '/helpdesk' : canViewAssets ? '/assets' : '/profile';
+  const homePath = canWorkspace ? '/' : canViewDevices ? '/devices' : canViewHelpdesk ? '/helpdesk' : canViewAssets ? '/assets' : canViewReports ? '/reports' : '/profile';
   const designSystemHash = location.hash || '#foundations';
   const contextLabel = inWorkspace || inSearch ? t('navigation.workspace')
     : inAccount ? t('navigation.account')
@@ -89,8 +91,9 @@ export function AppShell() {
           : inApps ? t('navigation.apps')
           : inAssets ? t('navigation.assets')
             : inHelpdesk ? t('navigation.helpdesk')
-              : inDevices ? t('navigation.devices')
-                : 'INNO.One';
+              : inReports ? t('reports.title')
+                : inDevices ? t('navigation.devices')
+                  : 'INNO.One';
 
   useEffect(() => setSideOpen(false), [location.pathname, location.hash]);
 
@@ -196,6 +199,9 @@ export function AppShell() {
           ) : null}
           {canViewHelpdesk ? (
             <NavLink className={inHelpdesk ? 'active' : ''} to="/helpdesk" aria-label={t('navigation.helpdesk')} title={t('navigation.helpdesk')}><NavIcon token="nav.helpdesk" /></NavLink>
+          ) : null}
+          {canViewReports ? (
+            <NavLink className={inReports ? 'active' : ''} to="/reports" aria-label={t('reports.title')} title={t('reports.title')}><NavIcon token="section.audit" /></NavLink>
           ) : null}
           <span className="grow" />
           {canAdmin ? (
@@ -327,6 +333,13 @@ export function AppShell() {
               <NavLink to="/helpdesk/sla"><SideNavLabel token="section.sla">{t('navigation.slaEscalation')}</SideNavLabel></NavLink>
               {canManageSla ? <NavLink to="/helpdesk/calendar"><SideNavLabel token="section.calendar">{t('navigation.businessCalendar')}</SideNavLabel></NavLink> : null}
               {canViewAutomation ? <NavLink to="/helpdesk/automation"><SideNavLabel token="section.automation">{t('navigation.automation')}</SideNavLabel></NavLink> : null}
+            </>
+          ) : inReports ? (
+            <>
+              <div className="prod-side-title">{t('reports.title')}</div>
+              <div className="prod-side-section">{t('reports.title')}</div>
+              <NavLink end to="/reports"><SideNavLabel token="section.audit">{t('reports.title')}</SideNavLabel></NavLink>
+              <NavLink to="/reports/schedules"><SideNavLabel token="section.calendar">{t('reports.schedules.title')}</SideNavLabel></NavLink>
             </>
           ) : inDevices ? (
             <>

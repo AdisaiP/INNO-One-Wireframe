@@ -54,6 +54,10 @@ import { HelpdeskOverviewPage } from '../pages/HelpdeskOverviewPage';
 import { HelpdeskSlaPage } from '../pages/HelpdeskSlaPage';
 import { NotificationsPage } from '../pages/NotificationsPage';
 import { ProfilePage } from '../pages/ProfilePage';
+import { ReportEditorPage } from '../pages/ReportEditorPage';
+import { ReportRunsPage } from '../pages/ReportRunsPage';
+import { ReportSchedulesPage } from '../pages/ReportSchedulesPage';
+import { ReportsPage } from '../pages/ReportsPage';
 import { SearchPage } from '../pages/SearchPage';
 import {
   WorkspaceAttentionPage,
@@ -154,6 +158,9 @@ export function AppRoot() {
   const canManageAutomation = profile.permissions.includes('helpdesk.automation.manage');
   const canViewAutomationRuns = profile.permissions.includes('helpdesk.automation.run.view');
   const canManageSla = profile.permissions.includes('helpdesk.sla.manage');
+  const canViewReports = profile.permissions.includes('reports.view');
+  const canCreateReports = profile.permissions.includes('reports.create');
+  const canManageReports = profile.permissions.includes('reports.manage');
 
   return (
     <I18nProvider locale={profile.locale}>
@@ -312,10 +319,16 @@ export function AppRoot() {
             ) : <DeferredPage name="Automation" kind="permission" />}
           />
 
+          <Route path="reports" element={canViewReports ? <ReportsPage /> : <DeferredPage name="Reports" kind="permission" />} />
+          <Route path="reports/new" element={canCreateReports ? <ReportEditorPage /> : <DeferredPage name="New Report" kind="permission" />} />
+          <Route path="reports/schedules" element={canViewReports ? <ReportSchedulesPage /> : <DeferredPage name="Report Schedules" kind="permission" />} />
+          <Route path="reports/:reportId/runs" element={canViewReports ? <ReportRunsPage /> : <DeferredPage name="Report Run History" kind="permission" />} />
+          <Route path="reports/:reportId" element={canManageReports ? <ReportEditorPage /> : <DeferredPage name="Report" kind="permission" />} />
+
           <Route path="apps/*" element={<DeferredPage name="Apps" kind="no-results" />} />
           <Route path="assets/manage/*" element={canManageAssets ? <DeferredPage name="Assets Management" /> : <DeferredPage name="Assets" />} />
           <Route path="meeting/*" element={<DeferredPage name="Meeting" />} />
-          <Route path="reports/*" element={<DeferredPage name="Reports" />} />
+          <Route path="reports/*" element={<DeferredPage name="Reports" kind="no-results" />} />
           <Route path="admin/*" element={<DeferredPage name="Admin Center" kind="no-results" />} />
           <Route path="*" element={<DeferredPage name="Not Found" kind="no-results" />} />
         </Route>

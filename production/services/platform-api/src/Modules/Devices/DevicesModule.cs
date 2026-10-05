@@ -1,5 +1,6 @@
 using INNO.One.Contracts.Automation;
 using INNO.One.Contracts.Directory;
+using INNO.One.Contracts.Reports;
 using INNO.One.Contracts.Search;
 using INNO.One.Contracts.Workspace;
 using INNO.One.Modules.Devices.Application;
@@ -21,6 +22,7 @@ public static class DevicesModule
 
         services.AddScoped<IDeviceDirectoryReader, DeviceDirectoryReader>();
         services.AddScoped<IDeviceSoftwareInventoryReader, DeviceSoftwareInventoryReader>();
+        services.AddScoped<IReportSourceReader, DeviceReportSourceReader>();
         services.AddScoped<IGlobalSearchProvider, DevicesGlobalSearchProvider>();
         services.AddScoped<IWorkspaceAttentionProvider, DevicesWorkspaceAttentionProvider>();
         services.AddScoped<IWorkspaceResourceVisibilityProvider, DevicesWorkspaceAttentionProvider>();

@@ -504,12 +504,15 @@ Delivered:
 
 Automatic event-to-run dispatch is still not implemented; Step45I exposes explicit test-run enqueue only.
 
-### Step 45J - Admin Approval Automation
-Add constrained access/onboarding/offboarding flows with strict privilege boundaries.
+### Step 45J - Admin Approval Automation — DEFERRED
+Deferred by product decision. No Step45J implementation was started.
 
-### Step 45K - Reports Product slice
-Keep Reports focused on reports and schedules.
-Expose report generation/delivery as workflow actions for other modules where useful.
+If revived later, keep access/onboarding/offboarding flows constrained by strict privilege boundaries.
+
+### Step 45K - Reports Product slice — COMPLETE
+Reports now owns real P02/P06/P10/P05 Product routes, saved definitions, module-owned Devices/Assets/Helpdesk source readers, CSV generation/history/download, daily/weekly/monthly schedules, EN/TH Product copy and current permission/scope re-checks.
+
+The shared `IReportGenerationService` is exposed through Contracts and accepts `automation` as a trigger so modules can opt into report generation through their own approved automation catalog. Step45K does not force a generic Report action into every module. Delivery in this slice is persisted/downloadable CSV; email/external storage delivery remains deferred.
 
 ### Step 45L - Endpoint Agent bilingual runtime
 Implement Thai/English localization for real Agent runtime, including consent, ownership, request-help, offline/error states, and workflow-created user prompts.
@@ -572,9 +575,11 @@ The re-architecture is complete when:
 
 ## 17. Immediate next action
 
-Step 45E, Step 45F, Step 45G, Step 45H and Step 45I are complete. The old global Step45D direction remains retired.
+Step 45E, Step 45F, Step 45G, Step 45H, Step 45I and Step 45K are complete. The old global Step45D direction remains retired.
 
-Next implementation is **Step 45J - Admin Approval Automation**.
+**Step 45J - Admin Approval Automation is deferred by product decision and was not implemented.**
+
+Next implementation is **Step 45L - Endpoint Agent bilingual runtime**.
 
 Reason:
-Helpdesk, Devices and Assets now prove the shared runtime across three different Product shapes: a visual Helpdesk builder, focused Devices remediation, and focused Assets lifecycle/ownership/license automation. Admin is the next slice, but it must be more constrained because access, role and account-lifecycle actions are privileged operations. Step45J must preserve existing Admin RBAC/audit semantics and must never allow an automation to gain authority beyond its current actor/service identity.
+The Web Product now has bilingual foundations across Helpdesk, Devices, Assets and Reports, while Endpoint Agent is still boundary-only. Step45L should implement the real Agent runtime in Thai and English for consent, ownership confirmation, Request Help, offline/error states and explicitly contracted workflow-created prompts without moving Agent-owned interactions into normal Web navigation.

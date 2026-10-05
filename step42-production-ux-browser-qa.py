@@ -25,6 +25,7 @@ STATIC_ROUTES = [
     "/helpdesk", "/helpdesk/tickets", "/helpdesk/assigned", "/helpdesk/team",
     "/helpdesk/tickets/new", "/helpdesk/sla", "/helpdesk/calendar",
     "/helpdesk/automation", "/helpdesk/automation/new",
+    "/reports", "/reports/new", "/reports/schedules",
 ]
 
 if OUT.exists():
@@ -214,6 +215,7 @@ def collect_dynamic(cdp, route):
         "/assets/software-licenses",
         "/helpdesk/tickets",
         "/helpdesk/automation",
+        "/reports",
         "/admin/access-scopes",
         "/assets/contracts",
     }
@@ -237,11 +239,15 @@ def collect_dynamic(cdp, route):
         empty = cdp.eval("document.body.innerText.includes('No asset automation rules yet')")
         check("dynamic route empty state accepted " + route, bool(empty))
         return
+    if route == "/reports" and not ready:
+        empty = cdp.eval("document.body.innerText.includes('No reports yet')")
+        check("dynamic route empty state accepted " + route, bool(empty))
+        return
     check("dynamic route action ready " + route, bool(ready))
     if not ready:
         return
 
-    if route in ("/helpdesk/automation", "/assets/automation"):
+    if route in ("/helpdesk/automation", "/assets/automation", "/reports"):
         discovered = []
         for label in ("Edit", "Run History"):
             cdp.navigate("http://localhost:5180" + route)

@@ -678,6 +678,51 @@
       "wireframe": "—",
       "remediation": "Step 45G Helpdesk-owned run history with immutable workflow-version snapshots, persisted step history, ticket context and bilingual runtime states",
       "priority": "high"
+    },
+    {
+      "route": "reports",
+      "page": "ReportsPage",
+      "pattern": "P02",
+      "surface": "saved-report-list",
+      "wireframe": "reports-saved.html",
+      "remediation": "Step 45K replaces the deferred Reports surface with a permission-scoped saved report collection and direct generate/history actions",
+      "priority": "high"
+    },
+    {
+      "route": "reports/new",
+      "page": "ReportEditorPage",
+      "pattern": "P06",
+      "surface": "report-builder",
+      "wireframe": "report-builder.html",
+      "remediation": "Step 45K focused report builder selects module-owned source, columns and optional filters; CSV is the first real export format",
+      "priority": "high"
+    },
+    {
+      "route": "reports/:reportId",
+      "page": "ReportEditorPage",
+      "pattern": "P06",
+      "surface": "report-builder+persisted-definition",
+      "wireframe": "report-builder.html",
+      "remediation": "Step 45K edit route keeps optimistic concurrency and re-validates source permissions",
+      "priority": "high"
+    },
+    {
+      "route": "reports/:reportId/runs",
+      "page": "ReportRunsPage",
+      "pattern": "P10",
+      "surface": "generated-output-history",
+      "wireframe": "reports-overview.html",
+      "remediation": "Step 45K run history pins report version, trigger, row count and downloadable generated CSV output",
+      "priority": "high"
+    },
+    {
+      "route": "reports/schedules",
+      "page": "ReportSchedulesPage",
+      "pattern": "P05",
+      "surface": "schedule-management",
+      "wireframe": "reports-overview.html",
+      "remediation": "Step 45K owns daily, weekly and monthly report schedules and re-checks the report owner's current permissions at execution time",
+      "priority": "high"
     }
   ],
   "crossCutting": {

@@ -188,7 +188,8 @@
         "reports.manage"
       ],
       "navigation": [
-        { "id": "overview", "label": "Overview", "route": "/reports", "permission": "reports.view" }
+        { "id": "reports", "label": "Reports", "route": "/reports", "permission": "reports.view" },
+        { "id": "schedules", "label": "Schedules", "route": "/reports/schedules", "permission": "reports.view" }
       ],
       "events": [],
       "capabilities": [

@@ -35,7 +35,7 @@ screen_matrix = json.loads(text("inno-step44a-screen-interaction-matrix.json"))
 
 # Product route matrix.
 matrix_routes = {item["route"]: item for item in screen_matrix["routes"]}
-check(len(screen_matrix["routes"]) == 70, "Current Product screen matrix must contain 70 screens after Step45I Assets automation")
+check(len(screen_matrix["routes"]) == 75, "Current Product screen matrix must contain 75 screens after Step45K Reports")
 check("workflows" not in matrix_routes and "workflows/new" not in matrix_routes and "workflows/:workflowId" not in matrix_routes, "standalone workflow Product screens remain in the matrix")
 check(matrix_routes.get("helpdesk/automation", {}).get("pattern") == "P02", "Helpdesk Automation list must be P02")
 check(matrix_routes.get("helpdesk/automation/new", {}).get("pattern") == "P06", "Helpdesk new automation must be P06")

@@ -46,12 +46,12 @@ check("roadmap schema is 1", ROADMAP["schemaVersion"] == 1)
 check("step id is 45A", ROADMAP["step"] == "45A")
 check("frozen design system remains V1.26", ROADMAP["baseline"]["designSystem"] == "V1.26")
 check("frozen UI contract remains 1.20.0", ROADMAP["baseline"]["uiContract"] == "1.20.0")
-check("current Product route matrix is 70 after Step 45I Assets automation", len(MATRIX["routes"]) == 70, len(MATRIX["routes"]))
+check("current Product route matrix is 75 after Step 45K Reports", len(MATRIX["routes"]) == 75, len(MATRIX["routes"]))
 check("45A baseline records 61 route definitions", ROADMAP["baseline"]["productionRouteDefinitions"] == 61)
 check("implemented route groups sum to 61", sum(ROADMAP["baseline"]["implementedRouteGroups"].values()) == 61)
 
 # Current implemented Web modules.
-for module_id in ("devices", "assets", "helpdesk"):
+for module_id in ("devices", "assets", "helpdesk", "reports"):
     check(module_id + " production manifest exists", module_id in modules)
     check(module_id + " roadmap status implemented", surface[module_id]["status"] == "implemented")
 
@@ -80,15 +80,22 @@ check("45B workflow future permissions are declared", set(modules["workflows"]["
 check("workflow standalone module decision frozen", decisions["workflow-ownership"]["decision"].startswith("Dynamic Workflow is a standalone Web application"))
 check("Helpdesk owns Automation and P10 Run History routes", 'path="helpdesk/automation"' in app_root and 'path="helpdesk/automation/:automationId/runs"' in app_root)
 
-# Reports is a backend skeleton, not a Product module yet.
-check("reports classified backend-skeleton", surface["reports"]["status"] == "backend-skeleton")
+# Step45K promotes Reports from skeleton to a real Product slice.
+check("reports classified implemented", surface["reports"]["status"] == "implemented")
 check("reports manifest exists", "reports" in modules)
 check("reports service is wired into DI", ".AddReportsModule(coreDatabase)" in program)
-check("reports has DbContext module skeleton", "AddReportsModule" in reports_module)
-check("reports API is not mapped yet", "MapReports" not in program)
+check("reports generation service is registered", "IReportGenerationService" in reports_module)
+check("reports API is mapped", "MapReportsEndpoints" in program)
 report_api_cs = [p for p in (API / "Modules/Reports/Api").glob("*.cs")]
-check("reports API has no endpoint implementation", len(report_api_cs) == 0, report_api_cs)
-check("reports Web remains deferred", 'path="reports/*" element={<DeferredPage name="Reports"' in app_root)
+check("reports API has endpoint implementation", any(p.name == "ReportsEndpoints.cs" for p in report_api_cs), report_api_cs)
+check("reports Web has concrete Product routes",
+      all(marker in app_root for marker in [
+          'path="reports"',
+          'path="reports/new"',
+          'path="reports/schedules"',
+          'path="reports/:reportId/runs"',
+          'path="reports/:reportId"',
+      ]))
 
 # Meeting has a dedicated health/persistence service skeleton, while Product feature routes remain deferred.
 check("meeting classified backend-skeleton", surface["meeting"]["status"] == "backend-skeleton")
@@ -106,7 +113,7 @@ check("development seed installs assets", 'AppId = "assets"' in seed)
 check("development seed installs helpdesk", 'AppId = "helpdesk"' in seed)
 check("development seed installs workflows after 45C persistence", 'AppId = "workflows"' in seed)
 check("development seed does not install meeting", 'AppId = "meeting"' not in seed)
-check("development seed does not install reports", 'AppId = "reports"' not in seed)
+check("development seed installs reports after Step45K", 'AppId = "reports"' in seed)
 
 # Cross-surface state.
 check("Endpoint Agent classified boundary-only", surface["endpoint-agent"]["status"] == "boundary-only")
@@ -128,7 +135,7 @@ for step in ("45B", "45C", "45D", "46", "47", "48"):
 check("45B is UI/IA only", roadmap["45B"]["backend"] is False)
 check("45C adds workflow persistence", roadmap["45C"]["backend"] is True and "45B" in roadmap["45C"]["dependsOn"])
 check("45D depends on workflow persistence", "45C" in roadmap["45D"]["dependsOn"])
-check("Reports vertical slice scheduled", roadmap["46"]["name"] == "Reports Production Vertical Slice")
+check("Reports vertical slice historical roadmap entry remains", roadmap["46"]["name"] == "Reports Production Vertical Slice")
 check("Endpoint Agent runtime scheduled before Meeting", roadmap["47"]["name"] == "Endpoint Agent Runtime Foundation" and "47" in roadmap["48"]["dependsOn"])
 check("Meeting production scheduled after Agent runtime", roadmap["48"]["name"] == "Meeting Production Module")
 
@@ -138,7 +145,7 @@ rail = app_shell.split('<aside className="prod-rail"', 1)[1].split('</aside>', 1
 check("App rail does not expose Workflow module", 'to="/workflows"' not in rail)
 check("Workflow contextual navigation moves into Helpdesk", "canViewWorkflows" not in app_shell and 'to="/helpdesk/automation"' in app_shell)
 check("App shell does not expose Meeting nav", 'to="/meeting"' not in app_shell)
-check("App shell does not expose Reports nav", 'to="/reports"' not in app_shell)
+check("App shell exposes permission-gated Reports nav", 'to="/reports"' in app_shell and "canViewReports" in app_shell)
 
 print(f"step45a_checks={checks}")
 print(f"step45a_failures={len(failures)}")

@@ -241,7 +241,7 @@ for marker in [
 
 # Screen matrix.
 routes = {x["route"]: x for x in matrix["routes"]}
-check(len(routes) == 70, "Current Product matrix must contain 70 screens after Step45I")
+check(len(routes) == 75, "Current Product matrix must contain 75 screens after Step45K Reports")
 expected = {
     "assets/automation": ("AssetsAutomationRulesPage", "P02"),
     "assets/automation/new": ("AssetsAutomationRulePage", "P04"),

@@ -449,3 +449,63 @@
     grid-column: auto;
   }
 }
+
+
+/* Step 45K · Reports */
+.report-column-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--inno-space-3);
+}
+
+.report-column-option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--inno-space-3);
+  min-width: 0;
+  padding: var(--inno-space-3);
+  border: 1px solid var(--inno-border);
+  border-radius: var(--inno-radius-md);
+  background: var(--inno-surface);
+}
+
+.report-column-option input {
+  margin-top: 0.2rem;
+}
+
+.report-column-option span {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.report-column-option small {
+  color: var(--inno-text-muted);
+}
+
+.report-filter-list {
+  display: grid;
+  gap: var(--inno-space-3);
+}
+
+.report-filter-row {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) minmax(150px, 1fr) minmax(180px, 1.5fr) auto;
+  gap: var(--inno-space-3);
+  align-items: end;
+}
+
+.report-schedule-form {
+  display: grid;
+  gap: var(--inno-space-4);
+}
+
+@media (max-width: 768px) {
+  .report-filter-row {
+    grid-template-columns: 1fr;
+  }
+
+  .report-column-grid {
+    grid-template-columns: 1fr;
+  }
+}

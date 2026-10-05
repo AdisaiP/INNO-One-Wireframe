@@ -1,5 +1,6 @@
 using INNO.One.Contracts.Assets;
 using INNO.One.Contracts.Automation;
+using INNO.One.Contracts.Reports;
 using INNO.One.Contracts.Search;
 using INNO.One.Contracts.Workspace;
 using INNO.One.Modules.Assets.Application;
@@ -21,6 +22,7 @@ public static class AssetsModule
 
         services.AddScoped<AssetsLedgerWriter>();
         services.AddScoped<IAssetsAutomationContextReader, AssetsAutomationContextReader>();
+        services.AddScoped<IReportSourceReader, AssetReportSourceReader>();
         services.AddScoped<IAutomationNodeExecutor, AssetsAutomationNodeExecutor>();
         services.AddScoped<AssetCustomFieldValueService>();
         services.AddScoped<IGlobalSearchProvider, AssetsGlobalSearchProvider>();

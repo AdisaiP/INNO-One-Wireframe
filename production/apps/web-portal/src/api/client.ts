@@ -76,6 +76,15 @@ import type {
   PagedResponse,
   ProblemDetails,
   Profile,
+  ReportDetail,
+  ReportListItem,
+  ReportMutationInput,
+  ReportRunDetail,
+  ReportRunListItem,
+  ReportRunStart,
+  ReportSchedule,
+  ReportScheduleMutationInput,
+  ReportSourceDescriptor,
   ResourceEnvelope,
   SlaEscalationLevel,
   SlaMonitorItem,
@@ -126,6 +135,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     throw new ApiError(response.status, problem);
   }
 
+  if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
 }
 
@@ -1622,4 +1632,168 @@ export async function updateWorkflowDefinition(
     { method: 'PUT', ...jsonRequest(input, { 'If-Match': eTag }) },
   );
   return response.data;
+}
+
+
+export async function getReportSources(): Promise<ReportSourceDescriptor[]> {
+  const response = await request<{ items: ReportSourceDescriptor[] }>('/reports/sources');
+  return response.items;
+}
+
+export async function getReports(query: {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+} = {}): Promise<PagedResponse<ReportListItem>> {
+  const params = new URLSearchParams({
+    page: String(query.page ?? 1),
+    pageSize: String(query.pageSize ?? 25),
+  });
+  if (query.search?.trim()) params.set('search', query.search.trim());
+  return request<PagedResponse<ReportListItem>>('/reports?' + params.toString());
+}
+
+export async function getReport(reportId: string): Promise<ReportDetail> {
+  const response = await request<ResourceEnvelope<ReportDetail>>(
+    '/reports/' + encodeURIComponent(reportId),
+  );
+  return response.data;
+}
+
+export async function createReport(input: ReportMutationInput): Promise<ReportDetail> {
+  const response = await request<ResourceEnvelope<ReportDetail>>(
+    '/reports',
+    { method: 'POST', ...jsonRequest(input) },
+  );
+  return response.data;
+}
+
+export async function updateReport(
+  reportId: string,
+  eTag: string,
+  input: ReportMutationInput,
+): Promise<ReportDetail> {
+  const response = await request<ResourceEnvelope<ReportDetail>>(
+    '/reports/' + encodeURIComponent(reportId),
+    { method: 'PUT', ...jsonRequest(input, { 'If-Match': eTag }) },
+  );
+  return response.data;
+}
+
+export async function deleteReport(reportId: string, eTag: string): Promise<void> {
+  await request<void>(
+    '/reports/' + encodeURIComponent(reportId),
+    { method: 'DELETE', headers: { 'If-Match': eTag } },
+  );
+}
+
+export async function startReportRun(reportId: string): Promise<ReportRunStart> {
+  const response = await request<ResourceEnvelope<ReportRunStart>>(
+    '/reports/' + encodeURIComponent(reportId) + '/runs',
+    { method: 'POST' },
+  );
+  return response.data;
+}
+
+export async function getReportRuns(
+  reportId: string,
+  query: { page?: number; pageSize?: number } = {},
+): Promise<PagedResponse<ReportRunListItem>> {
+  const params = new URLSearchParams({
+    page: String(query.page ?? 1),
+    pageSize: String(query.pageSize ?? 25),
+  });
+  return request<PagedResponse<ReportRunListItem>>(
+    '/reports/' + encodeURIComponent(reportId) + '/runs?' + params.toString(),
+  );
+}
+
+export async function getReportRun(
+  reportId: string,
+  runId: string,
+): Promise<ReportRunDetail> {
+  const response = await request<ResourceEnvelope<ReportRunDetail>>(
+    '/reports/' + encodeURIComponent(reportId)
+      + '/runs/' + encodeURIComponent(runId),
+  );
+  return response.data;
+}
+
+export async function downloadReportRun(
+  reportId: string,
+  runId: string,
+  fallbackName = 'report.csv',
+): Promise<void> {
+  const token = await getAccessToken();
+  const response = await fetch(
+    apiBaseUrl + '/reports/' + encodeURIComponent(reportId)
+      + '/runs/' + encodeURIComponent(runId) + '/download',
+    {
+      headers: {
+        Authorization: 'Bearer ' + token,
+      },
+    },
+  );
+  if (!response.ok) {
+    let problem: ProblemDetails | undefined;
+    try {
+      problem = (await response.json()) as ProblemDetails;
+    } catch {
+      problem = undefined;
+    }
+    throw new ApiError(response.status, problem);
+  }
+
+  const disposition = response.headers.get('content-disposition') ?? '';
+  const match = disposition.match(/filename\*?=(?:UTF-8''|")?([^";]+)/i);
+  const fileName = match?.[1] ? decodeURIComponent(match[1].replace(/"/g, '')) : fallbackName;
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  try {
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = fileName;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+export async function getReportSchedules(): Promise<ReportSchedule[]> {
+  const response = await request<{ items: ReportSchedule[] }>('/reports/schedules');
+  return response.items;
+}
+
+export async function createReportSchedule(
+  input: ReportScheduleMutationInput,
+): Promise<ReportSchedule> {
+  const response = await request<ResourceEnvelope<ReportSchedule>>(
+    '/reports/schedules',
+    { method: 'POST', ...jsonRequest(input) },
+  );
+  return response.data;
+}
+
+export async function updateReportSchedule(
+  scheduleId: string,
+  eTag: string,
+  input: ReportScheduleMutationInput,
+): Promise<ReportSchedule> {
+  const response = await request<ResourceEnvelope<ReportSchedule>>(
+    '/reports/schedules/' + encodeURIComponent(scheduleId),
+    { method: 'PUT', ...jsonRequest(input, { 'If-Match': eTag }) },
+  );
+  return response.data;
+}
+
+export async function deleteReportSchedule(
+  scheduleId: string,
+  eTag: string,
+): Promise<void> {
+  await request<void>(
+    '/reports/schedules/' + encodeURIComponent(scheduleId),
+    { method: 'DELETE', headers: { 'If-Match': eTag } },
+  );
 }

@@ -1359,3 +1359,108 @@ export interface AssetsAutomationRunListResponse {
   totalItems: number;
   totalPages: number;
 }
+
+export interface ReportSourceColumn {
+  key: string;
+  label: string;
+  dataType: string;
+}
+
+export interface ReportSourceDescriptor {
+  key: string;
+  name: string;
+  requiredPermission: string;
+  columns: ReportSourceColumn[];
+  filterFields: string[];
+}
+
+export interface ReportFilter {
+  field: string;
+  operator: 'equals' | 'not_equals' | 'contains';
+  value: string;
+}
+
+export interface ReportListItem {
+  id: string;
+  name: string;
+  description?: string | null;
+  sourceKey: string;
+  outputFormat: string;
+  status: string;
+  version: number;
+  updatedAt: string;
+}
+
+export interface ReportDetail extends ReportListItem {
+  sourceName: string;
+  columns: string[];
+  filters: ReportFilter[];
+  createdAt: string;
+  eTag: string;
+}
+
+export interface ReportRunListItem {
+  id: string;
+  reportVersion: number;
+  trigger: 'manual' | 'schedule' | 'automation';
+  status: 'running' | 'completed' | 'failed';
+  rowCount: number;
+  outputFileName?: string | null;
+  errorCode?: string | null;
+  createdAt: string;
+  completedAt?: string | null;
+}
+
+export interface ReportRunDetail extends ReportRunListItem {
+  reportId: string;
+  reportName: string;
+  outputMimeType?: string | null;
+  errorDetail?: string | null;
+  startedAt?: string | null;
+}
+
+export interface ReportRunStart {
+  id: string;
+  status: 'completed' | 'failed';
+  errorCode?: string | null;
+  errorDetail?: string | null;
+}
+
+export interface ReportSchedule {
+  id: string;
+  reportId: string;
+  reportName: string;
+  name: string;
+  cadence: 'daily' | 'weekly' | 'monthly';
+  timeZoneId: string;
+  hour: number;
+  minute: number;
+  dayOfWeek?: number | null;
+  dayOfMonth?: number | null;
+  isEnabled: boolean;
+  nextRunAt?: string | null;
+  lastRunAt?: string | null;
+  lastRunId?: string | null;
+  version: number;
+  eTag: string;
+}
+
+export interface ReportMutationInput {
+  name: string;
+  description?: string | null;
+  sourceKey: string;
+  columns: string[];
+  filters: ReportFilter[];
+}
+
+export interface ReportScheduleMutationInput {
+  name: string;
+  reportId: string;
+  cadence: 'daily' | 'weekly' | 'monthly';
+  timeZoneId: string;
+  hour: number;
+  minute: number;
+  dayOfWeek?: number | null;
+  dayOfMonth?: number | null;
+  isEnabled: boolean;
+}

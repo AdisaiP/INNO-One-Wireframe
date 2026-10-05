@@ -20,6 +20,8 @@ using INNO.One.Modules.Platform.Api;
 using INNO.One.Modules.Platform.Infrastructure;
 using INNO.One.Modules.Platform.Persistence;
 using INNO.One.Modules.Reports;
+using INNO.One.Modules.Reports.Api;
+using INNO.One.Modules.Reports.Persistence;
 using INNO.One.Modules.Workflows;
 using INNO.One.Modules.Workflows.Api;
 using INNO.One.Modules.Workflows.Persistence;
@@ -66,6 +68,7 @@ if (app.Environment.IsDevelopment()
     var devicesDb = scope.ServiceProvider.GetRequiredService<DevicesDbContext>();
     var assetsDb = scope.ServiceProvider.GetRequiredService<AssetsDbContext>();
     var helpdeskDb = scope.ServiceProvider.GetRequiredService<HelpdeskDbContext>();
+    var reportsDb = scope.ServiceProvider.GetRequiredService<ReportsDbContext>();
     var workflowsDb = scope.ServiceProvider.GetRequiredService<WorkflowsDbContext>();
 
     await infrastructureDb.Database.MigrateAsync();
@@ -73,6 +76,7 @@ if (app.Environment.IsDevelopment()
     await devicesDb.Database.MigrateAsync();
     await assetsDb.Database.MigrateAsync();
     await helpdeskDb.Database.MigrateAsync();
+    await reportsDb.Database.MigrateAsync();
     await workflowsDb.Database.MigrateAsync();
 
     if (builder.Configuration.GetValue("DevelopmentSeed:Enabled", false))
@@ -123,6 +127,7 @@ api.MapSoftwareBaselineEvaluationEndpoints();
 api.MapContractsWarrantyEndpoints();
 api.MapHelpdeskEndpoints();
 api.MapHelpdeskSlaAutomationEndpoints();
+api.MapReportsEndpoints();
 api.MapWorkflowEndpoints();
 
 app.Run();
