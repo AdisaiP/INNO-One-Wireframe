@@ -19,7 +19,7 @@ Tauri 2 native host
 
 Target is Windows-first.
 
-The current Windows development machine has Node/pnpm but no Rust/Cargo toolchain, so this checkpoint includes the real Tauri 2 native-host scaffold/config but does not claim a native executable build.
+The Windows development machine now has Rust/Cargo and Visual Studio 2022 Build Tools with MSVC. The Tauri 2 Windows native build is verified: the release executable builds successfully, both MSI and NSIS installers are produced, and the native executable opens a responding `INNO.One Agent` window. Current development artifacts are not code-signed; production code signing remains a release-engineering requirement.
 
 ## Surface ownership
 
@@ -176,7 +176,7 @@ No changes have been made to the model since the last migration.
 ## Final build/static QA
 
 ```text
-Step45L static              152/152
+Step45L static              159/159
 Step45K regression          199/199
 Step45A roadmap              88/88
 Step45I regression          152/152

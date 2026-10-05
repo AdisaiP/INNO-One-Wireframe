@@ -27,7 +27,7 @@ Tauri 2 native host
 
 It is Windows-first and intentionally remains outside Web Portal navigation.
 
-The current Windows machine still has no Rust/Cargo toolchain, so Step45L proves the real renderer/API runtime but does not claim a packaged native executable build.
+The Windows machine now has Rust/Cargo plus Visual Studio 2022 Build Tools/MSVC. Native Tauri packaging is verified for x64 Windows: release EXE, MSI and NSIS installer generation all pass, and the native EXE opens a responding `INNO.One Agent` window. Current development installers are unsigned, so production code signing is still required before release distribution.
 
 ## Implemented runtime
 
@@ -129,7 +129,7 @@ Covered 1366 / 1024 / 768 and dynamic routes.
 ## Final static/build gates
 
 ```text
-Step45L static              152/152
+Step45L static              159/159
 Step45K regression          199/199
 Step45A roadmap              88/88
 Step45I regression          152/152

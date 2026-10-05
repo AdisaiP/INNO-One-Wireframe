@@ -517,7 +517,7 @@ The shared `IReportGenerationService` is exposed through Contracts and accepts `
 ### Step 45L - Endpoint Agent bilingual runtime — COMPLETE
 Endpoint Agent now has a Tauri 2 Windows-first native-host scaffold, React/Vite runtime, Keycloak PKCE, Thai/English locale handling, Request Help, ownership confirmation, durable remote consent, offline/error states and explicit durable Agent prompt contracts/UI.
 
-Authenticated Agent runtime QA passed **54/54** with **9 screenshots** against real Keycloak/PostgreSQL. Broad Web Product regression passed **1791/1791 across 68 routes** at 1366 / 1024 / 768. QA-created Helpdesk/ownership evidence is cleaned up, locale state is restored after tests, and the runtime auth helper self-initializes Keycloak before token access.
+Authenticated Agent runtime QA passed **54/54** with **9 screenshots** against real Keycloak/PostgreSQL. Broad Web Product regression passed **1791/1791 across 68 routes** at 1366 / 1024 / 768. QA-created Helpdesk/ownership evidence is cleaned up, locale state is restored after tests, and the runtime auth helper self-initializes Keycloak before token access. Windows native packaging is verified with Rust/Cargo and Visual Studio 2022 Build Tools/MSVC: release EXE, MSI and NSIS generation pass, and the native Agent window smoke test passes. Production code signing remains deferred to release engineering.
 
 ### Step 45M - Android Mobile bilingual completion
 Migrate scanner/history/result/error/task surfaces to the same locale model and verify user/org fallback behavior.

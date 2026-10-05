@@ -4,8 +4,8 @@
   "version": "0.1.0",
   "identifier": "com.innovationssolutionsservice.innoone.agent",
   "build": {
-    "beforeDevCommand": "pnpm dev",
-    "beforeBuildCommand": "pnpm build",
+    "beforeDevCommand": "corepack pnpm dev",
+    "beforeBuildCommand": "corepack pnpm build",
     "devUrl": "http://localhost:5180",
     "frontendDist": "../dist"
   },
@@ -28,6 +28,6 @@
   "bundle": {
     "active": true,
     "targets": ["msi", "nsis"],
-    "icon": []
+    "icon": ["icons/icon.ico", "icons/icon.png"]
   }
 }

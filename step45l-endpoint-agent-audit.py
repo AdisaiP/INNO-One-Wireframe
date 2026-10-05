@@ -54,6 +54,9 @@ for script in ("dev", "build", "typecheck"):
     check(script in package.get("scripts", {}), "Endpoint Agent package script missing: " + script)
 for dep in ("react", "react-dom", "keycloak-js"):
     check(dep in package.get("dependencies", {}), "Endpoint Agent dependency missing: " + dep)
+check("@tauri-apps/cli" in package.get("devDependencies", {}), "Tauri CLI dev dependency missing")
+for script in ("tauri", "dev:native", "build:native"):
+    check(script in package.get("scripts", {}), "Endpoint Agent native script missing: " + script)
 check("apps/endpoint-agent" in workspace, "Endpoint Agent is not a pnpm workspace package")
 for script in ("dev:agent", "typecheck:agent", "build:agent"):
     check(script in root_package.get("scripts", {}), "Root Agent script missing: " + script)
@@ -65,7 +68,11 @@ check(window.get("width") == 820 and window.get("height") == 900, "Tauri canonic
 check(window.get("minWidth") == 390 and window.get("minHeight") == 640, "Tauri Agent minimum viewport is wrong")
 check('tauri = { version = "2"' in cargo, "Tauri 2 Rust dependency missing")
 check("tauri::Builder::default()" in tauri_main, "Tauri native host entrypoint missing")
-check("does not have Rust/Cargo installed" in readme, "Native build/toolchain limitation is not documented")
+bundle_icons = tauri_config.get("bundle", {}).get("icon", [])
+check("icons/icon.ico" in bundle_icons, "Tauri Windows bundle icon missing")
+check((AGENT / "src-tauri/icons/icon.ico").exists(), "Tauri Windows ICO file missing")
+check("native packaging has been verified" in readme, "Native Windows packaging verification is not documented")
+check("not code-signed" in readme, "Native development signing status is not documented")
 check("must never call MeshCentral" in readme, "MeshCentral boundary warning missing")
 
 # Authentication and locale.
