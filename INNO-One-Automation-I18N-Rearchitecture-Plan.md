@@ -519,12 +519,12 @@ Endpoint Agent now has a Tauri 2 Windows-first native-host scaffold, React/Vite 
 
 Authenticated Agent runtime QA passed **54/54** with **9 screenshots** against real Keycloak/PostgreSQL. Broad Web Product regression passed **1791/1791 across 68 routes** at 1366 / 1024 / 768. QA-created Helpdesk/ownership evidence is cleaned up, locale state is restored after tests, and the runtime auth helper self-initializes Keycloak before token access. Windows native packaging is verified with Rust/Cargo and Visual Studio 2022 Build Tools/MSVC: release EXE, MSI and NSIS generation pass, and the native Agent window smoke test passes. Production code signing remains deferred to release engineering.
 
-### Step 45M - Android Mobile bilingual completion — IMPLEMENTED / DEVICE VISUAL QA PENDING
+### Step 45M - Android Mobile bilingual completion — COMPLETE WITH DEFERRED DEVICE VISUAL QA
 Assets Mobile now implements the Production `th-TH` / `en-US` runtime model across scanner, history, result, busy/task, sign-in, QR error and offline states. Before authentication it uses the supported device locale; after authentication it consumes the effective `locale` from `/platform/me` and persists explicit TH/EN preference through `/platform/me/profile`. Business values remain untranslated and the QR/API ownership boundary is unchanged.
 
-Verified gates: Step45M static **38/38**, Assets Mobile TypeScript PASS, Android Expo export PASS (624 modules, ~1.6 MB HBC), Step45E browser runtime **62/62**, Step45L static **159/159**, Step45L Agent browser **54/54**. Step45M also corrected the Agent profile contract to consume the real `locale` field.
+Verified gates: Step45M static **39/39**, Assets Mobile TypeScript PASS, Android Expo export PASS (624 modules, ~1.6 MB HBC), Step45E browser runtime **62/62**, Step45L static **159/159**, Step45L Agent browser **54/54**. Step45M also corrected the Agent profile contract to consume the real `locale` field.
 
-The remaining gate is visual/runtime QA on a real Android device or emulator. The current Windows environment has neither `adb` nor `emulator`, and React Native Web is not a valid authenticated substitute because Expo SecureStore is unavailable there and the Mobile Keycloak client only permits the native redirect scheme. Do not begin Step45N until that Android gate is green.
+Android device/emulator visual/runtime QA remains unexecuted because the current Windows environment has neither `adb` nor `emulator`, and React Native Web is not a valid authenticated substitute because Expo SecureStore is unavailable there and the Mobile Keycloak client only permits the native redirect scheme. Per product decision this QA is deferred, recorded as technical debt, and no longer blocks Step45N. Step45M does not claim that Android visual QA passed.
 
 ### Step 45N - Bilingual completion and cleanup
 - migrate all remaining Web/Admin/Devices/Assets/Helpdesk/Reports strings;
@@ -585,6 +585,6 @@ Step 45E, Step 45F, Step 45G, Step 45H, Step 45I, Step 45K and Step 45L are comp
 
 **Step 45J - Admin Approval Automation is deferred by product decision and was not implemented.**
 
-Current implementation focus remains **Step 45M - Android Mobile bilingual completion** until real Android device/emulator visual QA passes.
+Step45M is complete for roadmap progression with Android device/emulator visual QA explicitly deferred. The deferred QA must remain noted and be executed later when Android tooling or a real device is available.
 
-The code/runtime-contract portion of Step45M is implemented and automated gates are green. Do not advance to Step45N until the Android sign-in, TH/EN switch, camera permission, scanner, history, result, error/offline and representative phone-layout visual checks are executed on an Android device or emulator.
+**Next implementation is Step 45N - Bilingual completion and cleanup.**

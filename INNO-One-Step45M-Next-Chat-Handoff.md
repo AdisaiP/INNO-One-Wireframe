@@ -1,6 +1,6 @@
 # INNO.One - Step45M Next Chat Handoff
 
-**Status:** IMPLEMENTATION COMPLETE / ANDROID DEVICE VISUAL QA PENDING
+**Status:** COMPLETE WITH DEFERRED ANDROID DEVICE VISUAL QA
 **Branch:** `implementation/step45m-android-mobile-bilingual`
 **Base:** `c921191`
 
@@ -29,7 +29,7 @@ Step45M also corrected Endpoint Agent to consume the real Platform profile field
 ## QA already green
 
 ```text
-Step45M static             38/38
+Step45M static             39/39
 Assets Mobile typecheck    PASS
 Android Expo export        PASS
 Step45E browser            62/62
@@ -38,11 +38,11 @@ Step45L Agent browser      54/54
 Agent typecheck            PASS
 ```
 
-## Blocker
+## Deferred QA note
 
 The Windows machine does not currently expose `adb` or `emulator`.
 
-Do not mark Step45M fully COMPLETE and do not begin Step45N until real Android device/emulator visual QA is executed.
+Real Android device/emulator visual QA has been explicitly deferred by product decision. Step45M is complete for roadmap progression and Step45N may begin.
 
 When Android is available, verify:
 - OIDC login;
@@ -56,10 +56,11 @@ When Android is available, verify:
 - offline/network copy;
 - no clipping/overflow at representative phone sizes.
 
-After that:
-1. update Step45M docs to COMPLETE;
-2. update root handoff;
-3. commit/push final Step45M checkpoint;
-4. next is **Step45N - Bilingual completion and cleanup**.
+When Android QA is resumed later:
+1. execute the deferred device/emulator visual checks;
+2. append the actual results/screenshots to the Step45M QA record;
+3. do not rewrite history to imply those checks existed at the original Step45M checkpoint.
+
+**Next roadmap step now:** **Step45N - Bilingual completion and cleanup**.
 
 Do not merge to `main` unless explicitly requested.

@@ -1,6 +1,6 @@
 # INNO.One - Step45M Android Mobile Bilingual Completion
 
-**Status:** IMPLEMENTATION COMPLETE / ANDROID DEVICE VISUAL QA PENDING
+**Status:** COMPLETE WITH DEFERRED ANDROID DEVICE VISUAL QA
 **Branch:** `implementation/step45m-android-mobile-bilingual`
 **Base:** Step45L native packaging checkpoint `c921191`
 
@@ -86,7 +86,7 @@ A shared profile-contract mismatch discovered during Step45M was also corrected 
 ## QA completed
 
 ```text
-Step45M static audit          38/38
+Step45M static audit          39/39
 Assets Mobile TypeScript     PASS
 Android Expo export          PASS
 Android Metro modules        624
@@ -107,7 +107,7 @@ The shared Step45E browser runtime test also verified:
 
 The Agent regression verified the corrected `profile.locale` contract across Thai/English, Request Help, ownership, Remote Consent, Agent Prompt and offline state.
 
-## Remaining QA gate
+## Deferred QA note
 
 This Windows machine currently has no Android SDK tooling available through the development session:
 
@@ -118,9 +118,9 @@ emulator not available
 
 React Native Web is not a valid substitute for the authenticated Android runtime here because Expo SecureStore's Web implementation is empty and the Keycloak Mobile client only allows the native `innoone-assets` redirect scheme.
 
-Therefore Step45M must not claim Android device/emulator visual QA yet.
+Therefore Step45M does not claim Android device/emulator visual QA. Per product decision, this visual gate is deferred and no longer blocks Step45N.
 
-Required before marking Step45M fully COMPLETE:
+Required when the deferred Android QA is resumed:
 1. attach an Android device or install/configure Android SDK + emulator;
 2. run the real Assets Mobile app;
 3. verify sign-in and profile locale inheritance;
@@ -129,6 +129,6 @@ Required before marking Step45M fully COMPLETE:
 6. verify camera permission and QR scan flow on Android;
 7. rerun the final audit chain.
 
-Do not start Step45N until this device/emulator visual gate is green.
+Step45N may proceed now. Keep this deferred Android QA note open and return to it when an Android device or emulator is available.
 
 Do not merge to `main` unless explicitly requested.
