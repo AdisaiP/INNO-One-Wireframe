@@ -14,6 +14,7 @@ import { getAdminApps, updateAdminApp } from '../api/client';
 import type { AdminAppModule } from '../api/types';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 function statusTone(status: AdminAppModule['status']) {
   if (status === 'enabled') return 'success' as const;
@@ -22,6 +23,7 @@ function statusTone(status: AdminAppModule['status']) {
 }
 
 export function AdminAppsPage() {
+  const { t: t45n } = useStep45NI18n();
   const canManageApps = usePermission('admin.apps.manage');
   const queryClient = useQueryClient();
   const [selected, setSelected] = useState<AdminAppModule | null>(null);
@@ -55,37 +57,37 @@ export function AdminAppsPage() {
 
   return (
     <INNOPage
-      eyebrow="Admin Center"
-      title="Apps & Modules"
-      description="Manage module availability from the central registry."
-      actions={<Link className="inno-link-button secondary" to="/apps">Preview Launcher</Link>}
+      eyebrow={t45n('navigation.admin')}
+      title={t45n('navigation.appsModules')}
+      description={t45n('admin.step45n.adminApps.manageModuleAvailabilityFromTheCentralRegistry')}
+      actions={<Link className="inno-link-button secondary" to="/apps">{t45n('admin.step45n.adminApps.previewLauncher')}</Link>}
     >
-      {query.isPending ? <LoadingState label="Loading module registry…" /> : null}
+      {query.isPending ? <LoadingState label={t45n('admin.step45n.adminApps.loadingModuleRegistry')} /> : null}
       {query.isError ? <ErrorState error={query.error} retry={() => void query.refetch()} /> : null}
       {mutation.isError ? (
         <INNOState
           kind="error"
           compact
-          title="Module availability was not changed"
+          title={t45n('admin.step45n.adminApps.moduleAvailabilityWasNotChanged')}
           description={mutation.error instanceof Error
             ? mutation.error.message
-            : 'Refresh the registry and try again.'}
+            : t45n('admin.step45n.adminApps.refreshTheRegistryAndTryAgain')}
         />
       ) : null}
 
       {query.data ? (
         <>
           <div className="production-stat-strip">
-            <div><span>Registry schema</span><b>{query.data.schemaVersion}</b><small>Manifest contract</small></div>
-            <div><span>Installed</span><b>{installed}</b><small>Packages present</small></div>
-            <div><span>Enabled</span><b>{enabled}</b><small>Organization availability</small></div>
-            <div><span>Available</span><b>{available}</b><small>Install workflow not exposed</small></div>
+            <div><span>{t45n('admin.step45n.adminApps.registrySchema')}</span><b>{query.data.schemaVersion}</b><small>{t45n('admin.step45n.adminApps.manifestContract')}</small></div>
+            <div><span>{t45n('admin.step45n.adminApps.installed')}</span><b>{installed}</b><small>{t45n('admin.step45n.adminApps.packagesPresent')}</small></div>
+            <div><span>{t45n('reports.schedules.enabled')}</span><b>{enabled}</b><small>{t45n('admin.step45n.adminApps.organizationAvailability')}</small></div>
+            <div><span>{t45n('admin.step45n.adminApps.available')}</span><b>{available}</b><small>{t45n('admin.step45n.adminApps.installWorkflowNotExposed')}</small></div>
           </div>
 
           <INNOCollection>
             <INNOCollectionHeader
-              title="Module Registry"
-              description="Installed modules can be enabled or disabled. Inspect opens technical manifest details."
+              title={t45n('admin.step45n.adminApps.moduleRegistry')}
+              description={t45n('admin.step45n.adminApps.installedModulesCanBeEnabledOrDisabledInspect')}
             />
             <div className="production-module-list">
               {items.map((app) => {
@@ -99,10 +101,10 @@ export function AdminAppsPage() {
                       <div className="production-module-title">
                         <b>{app.name}</b>
                         <INNOStatus tone={statusTone(app.status)}>
-                          {app.status === 'not-installed' ? 'Available' : app.status === 'enabled' ? 'Enabled' : 'Disabled'}
+                          {app.status === 'not-installed' ? t45n('admin.step45n.adminApps.available') : app.status === 'enabled' ? t45n('reports.schedules.enabled') : t45n('admin.step45n.adminApps.disabled')}
                         </INNOStatus>
                       </div>
-                      <small>{app.route} · {app.dependencies.length} dependencies</small>
+                      <small>{app.route} · {app.dependencies.length} {t45n('admin.step45n.adminApps.dependencies2')}</small>
                     </div>
 
                     <div className="production-module-actions">
@@ -111,7 +113,7 @@ export function AdminAppsPage() {
                           type="button"
                           role="switch"
                           aria-checked={app.enabled}
-                          aria-label={(app.enabled ? 'Disable ' : 'Enable ') + app.name}
+                          aria-label={(app.enabled ? t45n('admin.step45n.adminApps.disable') + ' ' : t45n('admin.step45n.adminApps.enable') + ' ') + app.name}
                           className={'production-switch' + (app.enabled ? ' on' : '')}
                           disabled={busy}
                           aria-busy={busy || undefined}
@@ -124,7 +126,7 @@ export function AdminAppsPage() {
                           <span aria-hidden="true" />
                         </button>
                       ) : null}
-                      <INNOButton type="button" variant="secondary" onClick={() => setSelected(app)}>Inspect</INNOButton>
+                      <INNOButton type="button" variant="secondary" onClick={() => setSelected(app)}>{t45n('helpdesk.automation.runs.inspect')}</INNOButton>
                     </div>
                   </article>
                 );
@@ -136,20 +138,20 @@ export function AdminAppsPage() {
 
       <INNODrawer
         open={Boolean(selected)}
-        title={selected?.name ?? 'Module'}
-        description="Technical manifest and module capability metadata."
+        title={selected?.name ?? t45n('admin.step45n.adminApps.module')}
+        description={t45n('admin.step45n.adminApps.technicalManifestAndModuleCapabilityMetadata')}
         onClose={() => setSelected(null)}
         size="md"
         className="admin-app-inspect-drawer"
       >
         {selected ? (
           <div className="production-kv-grid">
-            <div className="kv-row"><span>Status</span><b>{selected.status}</b></div>
-            <div className="kv-row"><span>Route</span><b>{selected.route}</b></div>
-            <div className="kv-row"><span>Entry permission</span><b>{selected.entryPermission}</b></div>
-            <div className="kv-row"><span>Dependencies</span><b>{selected.dependencies.join(', ') || 'None'}</b></div>
-            <div className="kv-row"><span>Capabilities</span><b>{selected.capabilities.join(', ') || 'None'}</b></div>
-            <div className="kv-row"><span>Events</span><b>{selected.events.join(', ') || 'None'}</b></div>
+            <div className="kv-row"><span>{t45n('reports.runs.status')}</span><b>{selected.status}</b></div>
+            <div className="kv-row"><span>{t45n('admin.step45n.adminApps.route')}</span><b>{selected.route}</b></div>
+            <div className="kv-row"><span>{t45n('admin.step45n.adminApps.entryPermission')}</span><b>{selected.entryPermission}</b></div>
+            <div className="kv-row"><span>{t45n('admin.step45n.adminApps.dependencies')}</span><b>{selected.dependencies.join(', ') || t45n('admin.step45n.adminApps.none')}</b></div>
+            <div className="kv-row"><span>{t45n('admin.step45n.adminApps.capabilities')}</span><b>{selected.capabilities.join(', ') || t45n('admin.step45n.adminApps.none')}</b></div>
+            <div className="kv-row"><span>{t45n('admin.step45n.adminApps.events')}</span><b>{selected.events.join(', ') || t45n('admin.step45n.adminApps.none')}</b></div>
           </div>
         ) : null}
       </INNODrawer>

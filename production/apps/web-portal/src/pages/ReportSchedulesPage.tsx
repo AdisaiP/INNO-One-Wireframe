@@ -23,6 +23,7 @@ import {
 import type { ReportSchedule, ReportScheduleMutationInput } from '../api/types';
 import { usePermission } from '../app/ProfileContext';
 import { CollectionErrorState, CollectionLoadingState } from '../components/Feedback';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 const blank: ReportScheduleMutationInput = {
   name: '',
@@ -41,6 +42,7 @@ function timeValue(hour: number, minute: number) {
 }
 
 export function ReportSchedulesPage() {
+  const { t: t45n } = useStep45NI18n();
   const { t, locale, formatDateTime } = useI18n();
   const canManage = usePermission('reports.manage');
   const queryClient = useQueryClient();
@@ -281,8 +283,8 @@ export function ReportSchedulesPage() {
           <label className="field-block">
             <span>{t('reports.schedules.timeZone')}</span>
             <select value={form.timeZoneId} onChange={(event) => setForm({ ...form, timeZoneId: event.target.value })}>
-              <option value="Asia/Bangkok">Asia/Bangkok</option>
-              <option value="UTC">UTC</option>
+              <option value="Asia/Bangkok">{t45n('helpdesk.step45n.businessCalendar.asiaBangkok')}</option>
+              <option value="UTC">{t45n('helpdesk.step45n.businessCalendar.utc')}</option>
             </select>
           </label>
           <button

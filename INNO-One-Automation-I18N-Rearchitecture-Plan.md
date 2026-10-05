@@ -526,13 +526,12 @@ Verified gates: Step45M static **39/39**, Assets Mobile TypeScript PASS, Android
 
 Android device/emulator visual/runtime QA remains unexecuted because the current Windows environment has neither `adb` nor `emulator`, and React Native Web is not a valid authenticated substitute because Expo SecureStore is unavailable there and the Mobile Keycloak client only permits the native redirect scheme. Per product decision this QA is deferred, recorded as technical debt, and no longer blocks Step45N. Step45M does not claim that Android visual QA passed.
 
-### Step 45N - Bilingual completion and cleanup
-- migrate all remaining Web/Admin/Devices/Assets/Helpdesk/Reports strings;
-- localize notification/template surfaces;
-- remove legacy fixed-language assumptions;
-- remove/deprecate standalone `/workflows` routes and generic permissions;
-- clean legacy unassigned workflow definitions;
-- freeze the new Language & Terminology Contract.
+### Step 45N - Bilingual completion and cleanup — COMPLETE
+Product Web now completes the shared `en-US` / `th-TH` runtime cleanup across Workspace, Admin, Devices, Assets, Helpdesk, Reports, Search, Notifications and related pages. Durable Platform notifications store bilingual EN/TH copy, resolve effective locale at read time, return `contentLocale`, and declare nested content language in Web. Business/user-authored values and technical identifiers remain untranslated by contract.
+
+The standalone Dynamic Workflows Product remains retired: `/workflows/*` is compatibility-only and redirects to `/helpdesk/automation`; generic `workflows.*` permissions are absent from the active Platform permission catalog; legacy unassigned workflow ownership is migrated to explicit module ownership.
+
+Final gates: Step45N static **3982 checks / 0 failures** with **1945 translation keys** and **0 raw-copy offenders**; AST copy scanner **0 unique / 0 occurrences / 0 missing components**; broad Product browser **1791/1791 across 68 routes** at 1366 / 1024 / 768; dedicated Step45N runtime/browser **122/122** with **21 screenshots**; Language/Terminology and Step30 audits **0 issues**; i18n/Web builds PASS; full .NET **0 warnings / 0 errors**; Platform and Workflows EF pending-model checks report none. Representative EN/TH screenshots were inspected and runtime/QA artifacts were cleaned up.
 
 ## 15. QA gates
 
@@ -587,4 +586,4 @@ Step 45E, Step 45F, Step 45G, Step 45H, Step 45I, Step 45K and Step 45L are comp
 
 Step45M is complete for roadmap progression with Android device/emulator visual QA explicitly deferred. The deferred QA must remain noted and be executed later when Android tooling or a real device is available.
 
-**Next implementation is Step 45N - Bilingual completion and cleanup.**
+**Step45N is complete. The Step45 automation/i18n re-architecture acceptance criteria are satisfied for the implemented Product scope. Step45J Admin Approval Automation remains deferred by product decision. No new implementation step is frozen here; choose the next roadmap slice explicitly before starting additional Product work.**

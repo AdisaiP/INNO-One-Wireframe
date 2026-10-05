@@ -4,6 +4,7 @@ import { INNOIcon, INNOPage, INNOState, type INNOIconToken } from '@inno/ui';
 import { getAdminOverview } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 function AdminTile({
   to,
@@ -25,6 +26,7 @@ function AdminTile({
 }
 
 export function AdminOverviewPage() {
+  const { t: t45n } = useStep45NI18n();
   const canViewIntegrations = usePermission('admin.integrations.view');
   const canViewSecurity = usePermission('admin.security.view');
   const canViewAudit = usePermission('admin.audit.view');
@@ -38,42 +40,42 @@ export function AdminOverviewPage() {
 
   return (
     <INNOPage
-      eyebrow="Admin Center"
-      title="Overview"
-      description="Manage organization structure, people, access, and platform modules from one administration boundary."
+      eyebrow={t45n('navigation.admin')}
+      title={t45n('navigation.overview')}
+      description={t45n('admin.step45n.adminOverview.manageOrganizationStructurePeopleAccessAndPlatformModules')}
     >
-      {query.isPending ? <LoadingState label="Loading Admin Center…" /> : null}
+      {query.isPending ? <LoadingState label={t45n('admin.step45n.adminOverview.loadingAdminCenter')} /> : null}
       {query.isError ? <ErrorState error={query.error} retry={() => void query.refetch()} /> : null}
       {query.data ? (
         <>
           <div className="production-stat-strip">
-            <div><span>Organizations</span><b>{query.data.organizations}</b><small>Organization units</small></div>
-            <div><span>Locations</span><b>{query.data.locations}</b><small>Reusable location nodes</small></div>
-            <div><span>Users</span><b>{query.data.users}</b><small>Organization profiles</small></div>
-            <div><span>Access assignments</span><b>{query.data.accessAssignments}</b><small>Role + scope bindings</small></div>
+            <div><span>{t45n('admin.step45n.adminOverview.organizations')}</span><b>{query.data.organizations}</b><small>{t45n('admin.step45n.adminOverview.organizationUnits')}</small></div>
+            <div><span>{t45n('navigation.locations')}</span><b>{query.data.locations}</b><small>{t45n('admin.step45n.adminOverview.reusableLocationNodes')}</small></div>
+            <div><span>{t45n('navigation.users')}</span><b>{query.data.users}</b><small>{t45n('admin.step45n.adminOverview.organizationProfiles')}</small></div>
+            <div><span>{t45n('admin.step45n.adminOverview.accessAssignments')}</span><b>{query.data.accessAssignments}</b><small>{t45n('admin.step45n.adminOverview.roleScopeBindings')}</small></div>
           </div>
 
           <div className="admin-overview-group">
-            <div className="admin-overview-group-title">Organization & access</div>
+            <div className="admin-overview-group-title">{t45n('admin.step45n.adminOverview.organizationAccess')}</div>
             <div className="admin-overview-grid">
-              <AdminTile to="/admin/organization" icon="section.organization" title="Organization Structure" description="Manage organization units and hierarchy." />
-              <AdminTile to="/admin/locations" icon="section.locations" title="Locations" description="Maintain reusable location hierarchy." />
-              <AdminTile to="/admin/positions" icon="section.positions" title="Positions" description="Maintain canonical job positions." />
-              <AdminTile to="/admin/users" icon="section.users" title="Users" description="Browse and maintain organization profiles." />
-              <AdminTile to="/admin/roles" icon="section.roles" title="Roles & Permissions" description="Inspect centralized RBAC permissions." />
-              <AdminTile to="/admin/access-scopes" icon="section.accessScopes" title="Access Scopes" description="Manage role + resource-scope bindings." />
+              <AdminTile to="/admin/organization" icon="section.organization" title={t45n('admin.step45n.adminOverview.organizationStructure')} description={t45n('admin.step45n.adminOverview.manageOrganizationUnitsAndHierarchy')} />
+              <AdminTile to="/admin/locations" icon="section.locations" title={t45n('navigation.locations')} description={t45n('admin.step45n.adminOverview.maintainReusableLocationHierarchy')} />
+              <AdminTile to="/admin/positions" icon="section.positions" title={t45n('navigation.positions')} description={t45n('admin.step45n.adminOverview.maintainCanonicalJobPositions')} />
+              <AdminTile to="/admin/users" icon="section.users" title={t45n('navigation.users')} description={t45n('admin.step45n.adminOverview.browseAndMaintainOrganizationProfiles')} />
+              <AdminTile to="/admin/roles" icon="section.roles" title={t45n('navigation.rolesPermissions')} description={t45n('admin.step45n.adminOverview.inspectCentralizedRbacPermissions')} />
+              <AdminTile to="/admin/access-scopes" icon="section.accessScopes" title={t45n('navigation.accessScopes')} description={t45n('admin.step45n.adminOverview.manageRoleResourceScopeBindings')} />
             </div>
           </div>
 
           <div className="admin-overview-group">
-            <div className="admin-overview-group-title">Platform</div>
+            <div className="admin-overview-group-title">{t45n('navigation.platform')}</div>
             <div className="admin-overview-grid">
-              {canViewIntegrations ? <AdminTile to="/admin/integrations" icon="section.integrations" title="Integrations" description="Monitor integration health and run safe connection tests." /> : null}
-              {canViewSecurity ? <AdminTile to="/admin/security" icon="section.security" title="Security" description="Inspect identity, transport, authorization, and audit posture." /> : null}
-              {canViewAudit ? <AdminTile to="/admin/audit" icon="section.audit" title="Audit Log" description="Search immutable privileged and operational history." /> : null}
-              {canManageBranding ? <AdminTile to="/admin/branding" icon="section.branding" title="Branding" description="Inspect effective product identity and frozen brand tokens." /> : null}
-              {canManageSettings ? <AdminTile to="/admin/settings" icon="section.settings" title="Platform Settings" description="Inspect effective global platform conventions and deployment-managed values." /> : null}
-              {canViewApps ? <AdminTile to="/admin/apps" icon="section.modules" title="Apps & Modules" description="Manage installed module availability." /> : null}
+              {canViewIntegrations ? <AdminTile to="/admin/integrations" icon="section.integrations" title={t45n('navigation.integrations')} description={t45n('admin.step45n.adminOverview.monitorIntegrationHealthAndRunSafeConnectionTests')} /> : null}
+              {canViewSecurity ? <AdminTile to="/admin/security" icon="section.security" title={t45n('navigation.security')} description={t45n('admin.step45n.adminOverview.inspectIdentityTransportAuthorizationAndAuditPosture')} /> : null}
+              {canViewAudit ? <AdminTile to="/admin/audit" icon="section.audit" title={t45n('navigation.auditLog')} description={t45n('admin.step45n.adminOverview.searchImmutablePrivilegedAndOperationalHistory')} /> : null}
+              {canManageBranding ? <AdminTile to="/admin/branding" icon="section.branding" title={t45n('navigation.branding')} description={t45n('admin.step45n.adminOverview.inspectEffectiveProductIdentityAndFrozenBrandTokens')} /> : null}
+              {canManageSettings ? <AdminTile to="/admin/settings" icon="section.settings" title={t45n('admin.settings.title')} description={t45n('admin.step45n.adminOverview.inspectEffectiveGlobalPlatformConventionsAndDeploymentManaged')} /> : null}
+              {canViewApps ? <AdminTile to="/admin/apps" icon="section.modules" title={t45n('navigation.appsModules')} description={t45n('admin.step45n.adminOverview.manageInstalledModuleAvailability')} /> : null}
             </div>
           </div>
 
@@ -81,8 +83,8 @@ export function AdminOverviewPage() {
             <INNOState
               kind="partial"
               banner
-              title="Administration masters need attention"
-              description="Existing administration data remains available. Configure positions and roles before assigning users and resource scopes."
+              title={t45n('admin.step45n.adminOverview.administrationMastersNeedAttention')}
+              description={t45n('admin.step45n.adminOverview.existingAdministrationDataRemainsAvailableConfigurePositionsAnd')}
             />
           ) : null}
         </>

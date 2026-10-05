@@ -14,16 +14,6 @@ namespace INNO.One.Modules.Workflows.Api;
 
 public static class WorkflowEndpoints
 {
-    private static readonly WorkflowScope LegacyScope = new(
-        "legacy_unassigned",
-        "workflows.view",
-        "workflows.manage",
-        "workflows",
-        "workflow.definition",
-        "workflow_definition",
-        "/api/v1/workflows",
-        "Workflow");
-
     private static readonly WorkflowScope HelpdeskScope = new(
         "helpdesk",
         "helpdesk.automation.view",
@@ -56,14 +46,6 @@ public static class WorkflowEndpoints
 
     public static RouteGroupBuilder MapWorkflowEndpoints(this RouteGroupBuilder api)
     {
-        // Migration-only generic facade. Product navigation no longer exposes it after Step 45F.
-        api.MapGet("/workflows", ListLegacyAsync).WithName("workflows.list");
-        api.MapGet("/workflows/{workflowId}", GetLegacyAsync).WithName("workflows.get");
-        api.MapPost("/workflows", CreateLegacyAsync).WithName("workflows.create");
-        api.MapPut("/workflows/{workflowId}", UpdateLegacyAsync).WithName("workflows.update");
-        api.MapDelete("/workflows/{workflowId}", DeleteLegacyAsync).WithName("workflows.delete");
-        api.MapGet("/workflows/{workflowId}/versions", ListLegacyVersionsAsync).WithName("workflows.versions.list");
-
         // Module-owned Helpdesk automation facade.
         api.MapGet("/helpdesk/automations", ListHelpdeskAsync).WithName("helpdesk.automations.list");
         api.MapGet("/helpdesk/automations/{automationId}", GetHelpdeskAsync).WithName("helpdesk.automations.get");
@@ -97,16 +79,6 @@ public static class WorkflowEndpoints
         return api;
     }
 
-    private static Task<IResult> ListLegacyAsync(
-        HttpContext httpContext,
-        WorkflowsDbContext db,
-        IAccessEvaluator accessEvaluator,
-        int page = 1,
-        int pageSize = 25,
-        string? search = null,
-        CancellationToken cancellationToken = default) =>
-        ListAsync(LegacyScope, httpContext, db, accessEvaluator, page, pageSize, search, cancellationToken);
-
     private static Task<IResult> ListHelpdeskAsync(
         HttpContext httpContext,
         WorkflowsDbContext db,
@@ -137,14 +109,6 @@ public static class WorkflowEndpoints
         CancellationToken cancellationToken = default) =>
         ListAsync(AssetsScope, httpContext, db, accessEvaluator, page, pageSize, search, cancellationToken);
 
-    private static Task<IResult> GetLegacyAsync(
-        string workflowId,
-        HttpContext httpContext,
-        WorkflowsDbContext db,
-        IAccessEvaluator accessEvaluator,
-        CancellationToken cancellationToken) =>
-        GetAsync(LegacyScope, workflowId, httpContext, db, accessEvaluator, cancellationToken);
-
     private static Task<IResult> GetHelpdeskAsync(
         string automationId,
         HttpContext httpContext,
@@ -168,15 +132,6 @@ public static class WorkflowEndpoints
         IAccessEvaluator accessEvaluator,
         CancellationToken cancellationToken) =>
         GetAsync(AssetsScope, automationId, httpContext, db, accessEvaluator, cancellationToken);
-
-    private static Task<IResult> CreateLegacyAsync(
-        UpsertWorkflowRequest request,
-        HttpContext httpContext,
-        WorkflowsDbContext db,
-        IAccessEvaluator accessEvaluator,
-        WorkflowLedgerWriter ledger,
-        CancellationToken cancellationToken) =>
-        CreateAsync(LegacyScope, request, httpContext, db, accessEvaluator, ledger, cancellationToken);
 
     private static Task<IResult> CreateHelpdeskAsync(
         UpsertWorkflowRequest request,
@@ -204,16 +159,6 @@ public static class WorkflowEndpoints
         WorkflowLedgerWriter ledger,
         CancellationToken cancellationToken) =>
         CreateAsync(AssetsScope, request, httpContext, db, accessEvaluator, ledger, cancellationToken);
-
-    private static Task<IResult> UpdateLegacyAsync(
-        string workflowId,
-        UpsertWorkflowRequest request,
-        HttpContext httpContext,
-        WorkflowsDbContext db,
-        IAccessEvaluator accessEvaluator,
-        WorkflowLedgerWriter ledger,
-        CancellationToken cancellationToken) =>
-        UpdateAsync(LegacyScope, workflowId, request, httpContext, db, accessEvaluator, ledger, cancellationToken);
 
     private static Task<IResult> UpdateHelpdeskAsync(
         string automationId,
@@ -245,15 +190,6 @@ public static class WorkflowEndpoints
         CancellationToken cancellationToken) =>
         UpdateAsync(AssetsScope, automationId, request, httpContext, db, accessEvaluator, ledger, cancellationToken);
 
-    private static Task<IResult> DeleteLegacyAsync(
-        string workflowId,
-        HttpContext httpContext,
-        WorkflowsDbContext db,
-        IAccessEvaluator accessEvaluator,
-        WorkflowLedgerWriter ledger,
-        CancellationToken cancellationToken) =>
-        DeleteAsync(LegacyScope, workflowId, httpContext, db, accessEvaluator, ledger, cancellationToken);
-
     private static Task<IResult> DeleteHelpdeskAsync(
         string automationId,
         HttpContext httpContext,
@@ -280,14 +216,6 @@ public static class WorkflowEndpoints
         WorkflowLedgerWriter ledger,
         CancellationToken cancellationToken) =>
         DeleteAsync(AssetsScope, automationId, httpContext, db, accessEvaluator, ledger, cancellationToken);
-
-    private static Task<IResult> ListLegacyVersionsAsync(
-        string workflowId,
-        HttpContext httpContext,
-        WorkflowsDbContext db,
-        IAccessEvaluator accessEvaluator,
-        CancellationToken cancellationToken) =>
-        ListVersionsAsync(LegacyScope, workflowId, httpContext, db, accessEvaluator, cancellationToken);
 
     private static Task<IResult> ListHelpdeskVersionsAsync(
         string automationId,

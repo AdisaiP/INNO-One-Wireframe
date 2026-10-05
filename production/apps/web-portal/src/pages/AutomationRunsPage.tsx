@@ -31,6 +31,7 @@ import {
   LoadingState,
 } from '../components/Feedback';
 import './WorkflowProductPages.css';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 const ACTIVE_STATUSES = new Set<AutomationRunStatus>(['queued', 'running', 'waiting']);
 
@@ -47,6 +48,7 @@ function durationMs(startedAt?: string | null, completedAt?: string | null) {
 }
 
 export function AutomationRunsPage() {
+  const { t: t45n } = useStep45NI18n();
   const { t, formatDateTime } = useI18n();
   const { automationId = '' } = useParams();
   const [params, setParams] = useSearchParams();
@@ -255,7 +257,7 @@ export function AutomationRunsPage() {
                           {formatDateTime(run.startedAt ?? run.createdAt)}
                           <div className="table-meta">{run.id}</div>
                         </td>
-                        <td>v{run.workflowVersion}</td>
+                        <td>{t45n('assets.step45n.assetsAutomationRules.v')}{run.workflowVersion}</td>
                         <td>
                           {ticket ? (
                             <>
@@ -320,7 +322,7 @@ export function AutomationRunsPage() {
               </div>
               <div>
                 <span>{t('helpdesk.automation.runs.detail.version')}</span>
-                <b>v{selectedRun.data.workflowVersion}</b>
+                <b>{t45n('assets.step45n.assetsAutomationRules.v')}{selectedRun.data.workflowVersion}</b>
               </div>
               <div>
                 <span>{t('helpdesk.automation.runs.detail.duration')}</span>

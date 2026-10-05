@@ -10,6 +10,7 @@ import {
 import { usePermission } from '../app/ProfileContext';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import type { SlaEscalationLevel, SlaPolicy } from '../api/types';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 function minutesLabel(minutes: number) {
   if (minutes < 60) return minutes + ' min';
@@ -49,6 +50,7 @@ function SwitchRow({
 }
 
 export function HelpdeskSlaPage() {
+  const { t: t45n } = useStep45NI18n();
   const canManage = usePermission('helpdesk.sla.manage');
   const queryClient = useQueryClient();
   const policiesQuery = useQuery({
@@ -92,7 +94,7 @@ export function HelpdeskSlaPage() {
 
   const mutation = useMutation({
     mutationFn: () => {
-      if (!selected) throw new Error('Select an SLA policy.');
+      if (!selected) throw new Error(t45n('helpdesk.step45n.helpdeskSla.selectAnSlaPolicy'));
       return updateSlaPolicy(selected.id, selected.eTag, {
         responseMinutes,
         resolutionMinutes,
@@ -131,20 +133,20 @@ export function HelpdeskSlaPage() {
 
   return (
     <INNOPage
-      eyebrow="Helpdesk · Manage"
-      title="SLA & Escalation"
-      description="Response and resolution targets, business-time behavior and escalation levels."
-      actions={<Link className="inno-link-button secondary" to="/helpdesk/calendar">Business Calendar</Link>}
+      eyebrow={t45n('helpdesk.step45n.helpdeskSla.helpdeskManage')}
+      title={t45n('navigation.slaEscalation')}
+      description={t45n('helpdesk.step45n.helpdeskSla.responseAndResolutionTargetsBusinessTimeBehaviorAnd')}
+      actions={<Link className="inno-link-button secondary" to="/helpdesk/calendar">{t45n('navigation.businessCalendar')}</Link>}
     >
 
       <div className="production-stat-strip helpdesk-stat-strip">
-        <div><span>Active policies</span><b>{activePolicies}</b><small>Across priority levels</small></div>
-        <div><span>At risk</span><b>{atRisk}</b><small>Current scoped queue</small></div>
-        <div><span>Breached</span><b>{breached}</b><small>{breached ? 'Needs review' : 'No active breach'}</small></div>
-        <div><span>Compliance</span><b>{compliance}%</b><small>Current open-ticket sample</small></div>
+        <div><span>{t45n('helpdesk.step45n.helpdeskSla.activePolicies')}</span><b>{activePolicies}</b><small>{t45n('helpdesk.step45n.helpdeskSla.acrossPriorityLevels')}</small></div>
+        <div><span>{t45n('helpdesk.step45n.helpdeskSla.atRisk')}</span><b>{atRisk}</b><small>{t45n('helpdesk.step45n.helpdeskSla.currentScopedQueue')}</small></div>
+        <div><span>{t45n('helpdesk.step45n.helpdeskSla.breached')}</span><b>{breached}</b><small>{breached ? t45n('helpdesk.step45n.helpdeskSla.needsReview') : t45n('helpdesk.step45n.helpdeskSla.noActiveBreach')}</small></div>
+        <div><span>{t45n('assets.automation.editor.licenseField.compliance')}</span><b>{compliance}%</b><small>{t45n('helpdesk.step45n.helpdeskSla.currentOpenTicketSample')}</small></div>
       </div>
 
-      {policiesQuery.isPending ? <LoadingState label="Loading SLA policies…" /> : null}
+      {policiesQuery.isPending ? <LoadingState label={t45n('helpdesk.step45n.helpdeskSla.loadingSlaPolicies')} /> : null}
       {policiesQuery.isError ? <ErrorState error={policiesQuery.error} retry={() => void policiesQuery.refetch()} /> : null}
 
       {selected ? (
@@ -154,15 +156,15 @@ export function HelpdeskSlaPage() {
               <div className="prod-panel-head">
                 <div>
                   <h3>{selected.name}</h3>
-                  <p>{selected.appliesTo ?? 'Priority default policy'}</p>
+                  <p>{selected.appliesTo ?? t45n('helpdesk.step45n.helpdeskSla.priorityDefaultPolicy')}</p>
                 </div>
-                <INNOStatus tone={selected.isActive ? 'success' : 'neutral'}>{selected.isActive ? 'Active' : 'Inactive'}</INNOStatus>
+                <INNOStatus tone={selected.isActive ? 'success' : 'neutral'}>{selected.isActive ? t45n('reports.status.active') : t45n('admin.step45n.adminAccessScopeEdit.inactive')}</INNOStatus>
               </div>
               <div className="editor-form">
                 {saveError ? <div className="form-error" role="alert">{saveError}</div> : null}
                 <div className="editor-grid">
                   <label className="field-block field-wide">
-                    <span>Policy</span>
+                    <span>{t45n('helpdesk.step45n.helpdeskSla.policy')}</span>
                     <select
                       value={selected.id}
                       onChange={(event) => setSelectedId(event.target.value)}
@@ -173,7 +175,7 @@ export function HelpdeskSlaPage() {
                     </select>
                   </label>
                   <label className="field-block">
-                    <span>First response target · minutes</span>
+                    <span>{t45n('helpdesk.step45n.helpdeskSla.firstResponseTargetMinutes')}</span>
                     <input
                       type="number"
                       min={1}
@@ -184,7 +186,7 @@ export function HelpdeskSlaPage() {
                     <small>{minutesLabel(responseMinutes)}</small>
                   </label>
                   <label className="field-block">
-                    <span>Resolution target · minutes</span>
+                    <span>{t45n('helpdesk.step45n.helpdeskSla.resolutionTargetMinutes')}</span>
                     <input
                       type="number"
                       min={1}
@@ -195,12 +197,12 @@ export function HelpdeskSlaPage() {
                     <small>{minutesLabel(resolutionMinutes)}</small>
                   </label>
                   <label className="field-block">
-                    <span>Business calendar</span>
+                    <span>{t45n('helpdesk.step45n.helpdeskSla.businessCalendar')}</span>
                     <input value={selected.businessCalendar?.name ?? 'No calendar'} readOnly />
-                    <small>{selected.businessCalendar?.timeZoneId ?? 'Calendar time not configured'}</small>
+                    <small>{selected.businessCalendar?.timeZoneId ?? t45n('helpdesk.step45n.helpdeskSla.calendarTimeNotConfigured')}</small>
                   </label>
                   <label className="field-block">
-                    <span>Applies to</span>
+                    <span>{t45n('helpdesk.step45n.helpdeskSla.appliesTo')}</span>
                     <input
                       disabled={!canManage}
                       value={appliesTo}
@@ -213,26 +215,26 @@ export function HelpdeskSlaPage() {
 
             <section className="prod-panel">
               <div className="prod-panel-head">
-                <div><h3>Policy behavior</h3><p>Controls how the SLA clock and escalation path behave.</p></div>
+                <div><h3>{t45n('helpdesk.step45n.helpdeskSla.policyBehavior')}</h3><p>{t45n('helpdesk.step45n.helpdeskSla.controlsHowTheSlaClockAndEscalationPath')}</p></div>
               </div>
               <div className="settings-list sla-settings-list">
                 <SwitchRow
-                  title="Pause SLA on requester wait"
-                  description="Status: Waiting for Requester"
+                  title={t45n('helpdesk.step45n.helpdeskSla.pauseSlaOnRequesterWait')}
+                  description={t45n('helpdesk.step45n.helpdeskSla.statusWaitingForRequester')}
                   checked={pauseOnRequesterWait}
                   disabled={!canManage}
                   onChange={setPauseOnRequesterWait}
                 />
                 <SwitchRow
-                  title="Notify requester on status change"
-                  description="Notification rule consumer may react to status facts"
+                  title={t45n('helpdesk.step45n.helpdeskSla.notifyRequesterOnStatusChange')}
+                  description={t45n('helpdesk.step45n.helpdeskSla.notificationRuleConsumerMayReactToStatusFacts')}
                   checked={notifyRequester}
                   disabled={!canManage}
                   onChange={setNotifyRequester}
                 />
                 <SwitchRow
-                  title="Reassign on breach"
-                  description="Move the ticket to the configured breach escalation team"
+                  title={t45n('helpdesk.step45n.helpdeskSla.reassignOnBreach')}
+                  description={t45n('helpdesk.step45n.helpdeskSla.moveTheTicketToTheConfiguredBreachEscalation')}
                   checked={reassignOnBreach}
                   disabled={!canManage}
                   onChange={setReassignOnBreach}
@@ -242,18 +244,18 @@ export function HelpdeskSlaPage() {
 
             <section className="prod-panel">
               <div className="prod-panel-head">
-                <div><h3>Escalation levels</h3><p>Sequential escalation by elapsed resolution target.</p></div>
-                <INNOStatus>{levels.length} levels</INNOStatus>
+                <div><h3>{t45n('helpdesk.step45n.helpdeskSla.escalationLevels')}</h3><p>{t45n('helpdesk.step45n.helpdeskSla.sequentialEscalationByElapsedResolutionTarget')}</p></div>
+                <INNOStatus>{levels.length} {t45n('helpdesk.step45n.helpdeskSla.levels')}</INNOStatus>
               </div>
               <div className="sla-level-list">
                 {levels.map((level, index) => (
                   <div className="sla-level-row" key={level.level}>
                     <div>
-                      <b>Level {level.level}</b>
-                      <span>{level.percent}% of resolution target</span>
+                      <b>{t45n('helpdesk.step45n.helpdeskSla.level')}{' '}{level.level}</b>
+                      <span>{level.percent}{t45n('helpdesk.step45n.helpdeskSla.ofResolutionTarget')}</span>
                     </div>
                     <label>
-                      <span className="sr-only">Level {level.level} percent</span>
+                      <span className="sr-only">{t45n('helpdesk.step45n.helpdeskSla.level')}{' '}{level.level} {t45n('helpdesk.step45n.helpdeskSla.percent')}</span>
                       <input
                         type="number"
                         min={1}
@@ -264,7 +266,7 @@ export function HelpdeskSlaPage() {
                       />
                     </label>
                     <label>
-                      <span className="sr-only">Level {level.level} target</span>
+                      <span className="sr-only">{t45n('helpdesk.step45n.helpdeskSla.level')}{' '}{level.level} {t45n('helpdesk.step45n.helpdeskSla.target')}</span>
                       <input
                         disabled={!canManage}
                         value={level.targetId}
@@ -272,11 +274,11 @@ export function HelpdeskSlaPage() {
                       />
                     </label>
                     <label>
-                      <span className="sr-only">Level {level.level} reassign team</span>
+                      <span className="sr-only">{t45n('helpdesk.step45n.helpdeskSla.level')}{' '}{level.level} {t45n('helpdesk.step45n.helpdeskSla.reassignTeam2')}</span>
                       <input
                         disabled={!canManage}
                         value={level.reassignTeam ?? ''}
-                        placeholder="Reassign team"
+                        placeholder={t45n('helpdesk.step45n.helpdeskSla.reassignTeam')}
                         onChange={(event) => updateLevel(index, { reassignTeam: event.target.value })}
                       />
                     </label>
@@ -286,10 +288,10 @@ export function HelpdeskSlaPage() {
               {canManage ? (
                 <INNOEditorFooter>
                   <INNOEditorFooterStart>
-                    <INNOEditorFooterNote>Changes recalculate active ticket targets using business time.</INNOEditorFooterNote>
+                    <INNOEditorFooterNote>{t45n('helpdesk.step45n.helpdeskSla.changesRecalculateActiveTicketTargetsUsingBusinessTime')}</INNOEditorFooterNote>
                   </INNOEditorFooterStart>
                   <INNOEditorFooterEnd>
-                    <INNOButton busy={mutation.isPending} onClick={() => mutation.mutate()}>Save Policy</INNOButton>
+                    <INNOButton busy={mutation.isPending} onClick={() => mutation.mutate()}>{t45n('helpdesk.step45n.helpdeskSla.savePolicy')}</INNOButton>
                   </INNOEditorFooterEnd>
                 </INNOEditorFooter>
               ) : null}
@@ -299,29 +301,29 @@ export function HelpdeskSlaPage() {
           <aside className="panel-stack">
             <section className="prod-panel">
               <div className="prod-panel-head">
-                <div><h3>Live SLA monitor</h3><p>Operational context inside your effective ticket scope.</p></div>
-                {monitorQuery.isFetching ? <INNOStatus>Refreshing</INNOStatus> : null}
+                <div><h3>{t45n('helpdesk.step45n.helpdeskSla.liveSlaMonitor')}</h3><p>{t45n('helpdesk.step45n.helpdeskSla.operationalContextInsideYourEffectiveTicketScope')}</p></div>
+                {monitorQuery.isFetching ? <INNOStatus>{t45n('helpdesk.step45n.helpdeskSla.refreshing')}</INNOStatus> : null}
               </div>
               {monitorQuery.isError ? (
-                <INNOState compact kind="error" title="SLA monitor unavailable" description="The live monitor could not be loaded. Policy editing remains available." />
+                <INNOState compact kind="error" title={t45n('helpdesk.step45n.helpdeskSla.slaMonitorUnavailable')} description={t45n('helpdesk.step45n.helpdeskSla.theLiveMonitorCouldNotBeLoadedPolicy')} />
               ) : (
                 <div className="sla-monitor-list">
                   {monitor.slice(0, 8).map((item) => (
                     <Link className="sla-monitor-row" to={'/helpdesk/tickets/' + item.ticketId} key={item.ticketId}>
                       <div>
                         <b>{item.ticketNumber} · {item.priority}</b>
-                        <span>{item.elapsedPercent}% elapsed · {item.policyName}</span>
+                        <span>{item.elapsedPercent}{t45n('helpdesk.step45n.helpdeskSla.elapsed')}{' '}{item.policyName}</span>
                       </div>
                       <span className={'sla-chip ' + item.state}>{item.state.replace('_', ' ')}</span>
                     </Link>
                   ))}
-                  {!monitor.length ? <INNOState compact kind="empty" title="No active SLA timers" description="No open ticket in scope currently has an active SLA timer." /> : null}
+                  {!monitor.length ? <INNOState compact kind="empty" title={t45n('helpdesk.step45n.helpdeskSla.noActiveSlaTimers')} description={t45n('helpdesk.step45n.helpdeskSla.noOpenTicketInScopeCurrentlyHasAn')} /> : null}
                 </div>
               )}
             </section>
             <INNOPurposeNote
-              title="Business time is authoritative."
-              description="Weekends, configured holidays and requester-wait pauses do not consume the SLA target."
+              title={t45n('helpdesk.step45n.helpdeskSla.businessTimeIsAuthoritative')}
+              description={t45n('helpdesk.step45n.helpdeskSla.weekendsConfiguredHolidaysAndRequesterWaitPausesDo')}
             />
           </aside>
         </div>

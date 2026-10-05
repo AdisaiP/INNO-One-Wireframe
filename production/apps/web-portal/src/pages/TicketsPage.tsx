@@ -6,19 +6,38 @@ import { getTicketStatuses, getTickets } from '../api/client';
 import { usePermission } from '../app/ProfileContext';
 import { CollectionErrorState, CollectionLoadingState } from '../components/Feedback';
 import { RouterRowAction } from '../components/RouterRowAction';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 export type TicketQueueMode = 'all' | 'mine' | 'team';
 
-function formatRelative(value: string) {
+function formatRelative(
+  value: string,
+  locale: 'en-US' | 'th-TH',
+  t: (key: string, params?: Record<string, string | number>) => string,
+) {
   const date = new Date(value);
   const minutes = Math.max(0, Math.round((Date.now() - date.getTime()) / 60000));
-  if (minutes < 1) return 'Now';
-  if (minutes < 60) return minutes + 'm ago';
-  if (minutes < 1440) return Math.round(minutes / 60) + 'h ago';
-  return date.toLocaleDateString();
+  if (minutes < 1) return t('common.step45n.workspacePages.time.now');
+  if (minutes < 60) return t('common.step45n.workspacePages.time.minutesAgo', { count: minutes });
+  if (minutes < 1440) return t('common.step45n.workspacePages.time.hoursAgo', { count: Math.round(minutes / 60) });
+  const formatLocale = locale === 'th-TH' ? 'th-TH-u-ca-gregory-nu-latn' : 'en-US';
+  return new Intl.DateTimeFormat(formatLocale).format(date);
+}
+
+function ticketStatusLabel(
+  code: string,
+  fallback: string,
+  t: (key: string) => string,
+) {
+  if (code === 'open') return t('helpdesk.step45n.tickets.status.open');
+  if (code === 'in_progress') return t('helpdesk.step45n.tickets.status.inProgress');
+  if (code === 'waiting') return t('helpdesk.step45n.tickets.status.waiting');
+  if (code === 'resolved') return t('helpdesk.step45n.tickets.status.resolved');
+  return fallback;
 }
 
 export function TicketsPage({ mode = 'all' }: { mode?: TicketQueueMode }) {
+  const { t: t45n, locale } = useStep45NI18n();
   const canCreate = usePermission('helpdesk.ticket.create');
   const canManageSla = usePermission('helpdesk.sla.manage');
   const [search, setSearch] = useState('');
@@ -47,59 +66,62 @@ export function TicketsPage({ mode = 'all' }: { mode?: TicketQueueMode }) {
     }),
   });
 
-  const title = mode === 'mine' ? 'Assigned to Me' : mode === 'team' ? 'Team Queue' : 'Tickets';
-  const helper = mode === 'mine'
-    ? 'Tickets currently assigned to your account.'
+  const title = mode === 'mine'
+    ? t45n('helpdesk.step45n.tickets.assignedTitle')
     : mode === 'team'
-      ? 'Scoped operational queue for your support coverage.'
-      : 'Search and manage support tickets inside your effective access scope.';
+      ? t45n('helpdesk.step45n.tickets.teamTitle')
+      : t45n('helpdesk.step45n.tickets.title');
+  const helper = mode === 'mine'
+    ? t45n('helpdesk.step45n.tickets.assignedDescription')
+    : mode === 'team'
+      ? t45n('helpdesk.step45n.tickets.teamDescription')
+      : t45n('helpdesk.step45n.tickets.description');
 
   const pageActions = mode === 'team'
-    ? (canManageSla ? <Link className="inno-link-button secondary" to="/helpdesk/sla">SLA Monitor</Link> : undefined)
-    : (canCreate ? <Link className="inno-link-button" to="/helpdesk/tickets/new">Create Ticket</Link> : undefined);
+    ? (canManageSla ? <Link className="inno-link-button secondary" to="/helpdesk/sla">{t45n('helpdesk.step45n.tickets.slaMonitor')}</Link> : undefined)
+    : (canCreate ? <Link className="inno-link-button" to="/helpdesk/tickets/new">{t45n('helpdesk.step45n.helpdeskOverview.createTicket')}</Link> : undefined);
 
   return (
-    <INNOPage eyebrow="Helpdesk" title={title} description={helper} actions={pageActions}>
+    <INNOPage eyebrow={t45n('navigation.helpdesk')} title={title} description={helper} actions={pageActions}>
       <INNOCollection>
         <INNOCollectionHeader
-          title={mode === 'mine' ? 'My queue' : mode === 'team' ? 'Team tickets' : 'Active tickets'}
-          description={query.data ? query.data.totalItems + ' tickets in scope' : 'Operational queue'}
-          meta={query.data ? <INNOStatus>{query.data.totalItems} tickets</INNOStatus> : undefined}
+          title={mode === 'mine' ? t45n('helpdesk.step45n.tickets.myQueue') : mode === 'team' ? t45n('helpdesk.step45n.tickets.teamTickets') : t45n('helpdesk.step45n.tickets.activeTickets')}
+          description={query.data ? t45n('helpdesk.step45n.tickets.inScope', { count: query.data.totalItems }) : t45n('helpdesk.step45n.tickets.operationalQueue')}
+          meta={query.data ? <INNOStatus>{query.data.totalItems} {t45n('helpdesk.step45n.tickets.tickets')}</INNOStatus> : undefined}
         />
         <INNOCollectionToolbar>
-          <INNOSearchField label="Search tickets" value={search} onChange={setSearch} placeholder="Search ticket number or subject…" />
-          <INNOSelectField label="Status filter" value={status} onChange={setStatus}>
-            <option value="all">Status: All</option>
+          <INNOSearchField label={t45n('helpdesk.step45n.tickets.searchTickets')} value={search} onChange={setSearch} placeholder={t45n('helpdesk.step45n.tickets.searchTicketNumberOrSubject')} />
+          <INNOSelectField label={t45n('assets.step45n.assetInventory.statusFilter')} value={status} onChange={setStatus}>
+            <option value="all">{t45n('admin.step45n.adminUsers.statusAll')}</option>
             {(statuses.data ?? []).map((item) => (
-              <option key={item.id} value={item.code}>{item.name}</option>
+              <option key={item.id} value={item.code}>{ticketStatusLabel(item.code, item.name, t45n)}</option>
             ))}
           </INNOSelectField>
-          <INNOSelectField label="Priority filter" value={priority} onChange={setPriority}>
-            <option value="all">Priority: All</option>
-            <option value="P1">P1 · Critical</option>
-            <option value="P2">P2 · High</option>
-            <option value="P3">P3 · Normal</option>
-            <option value="P4">P4 · Low</option>
+          <INNOSelectField label={t45n('helpdesk.step45n.tickets.priorityFilter')} value={priority} onChange={setPriority}>
+            <option value="all">{t45n('helpdesk.step45n.tickets.priorityAll')}</option>
+            <option value="P1">{t45n('helpdesk.step45n.tickets.p1Critical')}</option>
+            <option value="P2">{t45n('helpdesk.step45n.tickets.p2High')}</option>
+            <option value="P3">{t45n('helpdesk.step45n.tickets.p3Normal')}</option>
+            <option value="P4">{t45n('helpdesk.step45n.tickets.p4Low')}</option>
           </INNOSelectField>
           <INNOToolbarSpacer />
-          <INNOToolbarMeta>Authorization filtered server-side</INNOToolbarMeta>
+          <INNOToolbarMeta>{t45n('assets.step45n.assetInventory.authorizationFilteredServerSide')}</INNOToolbarMeta>
         </INNOCollectionToolbar>
 
         {query.isPending ? (
-          <CollectionLoadingState label="Loading tickets…" />
+          <CollectionLoadingState label={t45n('helpdesk.step45n.tickets.loadingTickets')} />
         ) : query.isError ? (
           <CollectionErrorState error={query.error} retry={() => void query.refetch()} />
         ) : query.data.items.length === 0 ? (
           <INNOCollectionState
             kind={search || status !== 'all' || priority !== 'all' ? 'no-results' : 'empty'}
-            title={search || status !== 'all' || priority !== 'all' ? 'No tickets found' : 'No tickets in this queue'}
+            title={search || status !== 'all' || priority !== 'all' ? t45n('helpdesk.step45n.tickets.noTicketsFound') : t45n('helpdesk.step45n.tickets.noTicketsInThisQueue')}
             description={search || status !== 'all' || priority !== 'all'
-              ? 'Try another search or clear the filters.'
-              : 'There is no current work in this scoped queue.'}
+              ? t45n('admin.step45n.adminAccessScopes.tryAnotherSearchOrClearTheFilters')
+              : t45n('helpdesk.step45n.tickets.thereIsNoCurrentWorkInThisScoped')}
             action={search || status !== 'all' || priority !== 'all' ? (
               <INNOButton variant="secondary" onClick={() => { setSearch(''); setStatus('all'); setPriority('all'); }}>
-                Clear filters
-              </INNOButton>
+                {t45n('admin.step45n.adminAccessScopes.clearFilters')}</INNOButton>
             ) : undefined}
           />
         ) : mode === 'all' ? (
@@ -108,20 +130,20 @@ export function TicketsPage({ mode = 'all' }: { mode?: TicketQueueMode }) {
               <table>
                 <thead>
                   <tr>
-                    <th>Ticket</th><th>Status</th><th>Priority</th><th>Requester</th><th>Assignee</th><th>SLA</th><th>Updated</th><th className="action-column">Action</th>
+                    <th>{t45n('reports.column.ticketNumber')}</th><th>{t45n('reports.runs.status')}</th><th>{t45n('reports.column.priority')}</th><th>{t45n('reports.column.requester')}</th><th>{t45n('reports.column.assignee')}</th><th>{t45n('helpdesk.step45n.ticketDetail.sla')}</th><th>{t45n('reports.table.updated')}</th><th className="action-column">{t45n('reports.table.action')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {query.data.items.map((ticket) => (
                     <tr key={ticket.id}>
-                      <td><b>{ticket.subject}</b><div className="table-meta">{ticket.ticketNumber} · {ticket.category ?? 'Uncategorized'} · {ticket.organization ?? '—'}</div></td>
-                      <td><INNOStatus tone={ticket.status === 'resolved' ? 'neutral' : 'success'} dot>{ticket.statusName}</INNOStatus></td>
+                      <td><b>{ticket.subject}</b><div className="table-meta">{ticket.ticketNumber} · {ticket.category ?? t45n('helpdesk.step45n.helpdeskOverview.uncategorized')} · {ticket.organization ?? '—'}</div></td>
+                      <td><INNOStatus tone={ticket.status === 'resolved' ? 'neutral' : 'success'} dot>{ticketStatusLabel(ticket.status, ticket.statusName, t45n)}</INNOStatus></td>
                       <td><span className={'priority-chip ' + ticket.priority.toLowerCase()}>{ticket.priority}</span></td>
                       <td>{ticket.requester}</td>
-                      <td>{ticket.assignee ?? ticket.team ?? 'Unassigned'}</td>
-                      <td><span className={'sla-chip ' + (ticket.slaState ?? 'active')}>{ticket.slaState ?? '—'}</span>{ticket.slaState ? <div className="table-meta">{ticket.slaElapsedPercent}% elapsed</div> : null}</td>
-                      <td>{formatRelative(ticket.updatedAt)}</td>
-                      <td className="action-column"><RouterRowAction to={'/helpdesk/tickets/' + ticket.id} ariaLabel={'Open ' + ticket.ticketNumber} /></td>
+                      <td>{ticket.assignee ?? ticket.team ?? t45n('assets.automation.editor.owner.unassigned')}</td>
+                      <td><span className={'sla-chip ' + (ticket.slaState ?? 'active')}>{ticket.slaState ?? '—'}</span>{ticket.slaState ? <div className="table-meta">{ticket.slaElapsedPercent}{t45n('helpdesk.step45n.tickets.elapsed')}</div> : null}</td>
+                      <td>{formatRelative(ticket.updatedAt, locale, t45n)}</td>
+                      <td className="action-column"><RouterRowAction to={'/helpdesk/tickets/' + ticket.id} ariaLabel={t45n('helpdesk.step45n.tickets.openTicket', { ticketNumber: ticket.ticketNumber })} /></td>
                     </tr>
                   ))}
                 </tbody>
@@ -143,11 +165,11 @@ export function TicketsPage({ mode = 'all' }: { mode?: TicketQueueMode }) {
                   <div className="helpdesk-queue-ticket-id">{ticket.ticketNumber}</div>
                   <div className="helpdesk-queue-copy">
                     <b>{ticket.subject}</b>
-                    <span>{ticket.team ?? ticket.category ?? 'Uncategorized'} · {ticket.organization ?? ticket.requester}</span>
+                    <span>{ticket.team ?? ticket.category ?? t45n('helpdesk.step45n.helpdeskOverview.uncategorized')} · {ticket.organization ?? ticket.requester}</span>
                   </div>
                   <span className={'priority-chip ' + ticket.priority.toLowerCase()}>{ticket.priority}</span>
-                  <INNOStatus tone={ticket.status === 'resolved' ? 'neutral' : 'success'}>{ticket.statusName}</INNOStatus>
-                  <div className={'helpdesk-queue-sla ' + (ticket.slaState ?? 'active')}>{ticket.slaState ? ticket.slaElapsedPercent + '% elapsed' : 'No SLA'}</div>
+                  <INNOStatus tone={ticket.status === 'resolved' ? 'neutral' : 'success'}>{ticketStatusLabel(ticket.status, ticket.statusName, t45n)}</INNOStatus>
+                  <div className={'helpdesk-queue-sla ' + (ticket.slaState ?? 'active')}>{ticket.slaState ? ticket.slaElapsedPercent + t45n('helpdesk.step45n.tickets.elapsed') : t45n('helpdesk.step45n.tickets.noSla')}</div>
                   <span className="device-row-action" aria-hidden="true"><INNOIcon token="action.next" size={14} /></span>
                 </Link>
               ))}

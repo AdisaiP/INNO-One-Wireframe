@@ -14,8 +14,10 @@ import {
 import { getPlatformApps } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 export function AppsPage() {
+  const { t: t45n } = useStep45NI18n();
   const canManageApps = usePermission('admin.apps.view');
   const [search, setSearch] = useState('');
   const query = useQuery({
@@ -34,15 +36,15 @@ export function AppsPage() {
   }, [query.data, search]);
   return (
     <INNOPage
-      eyebrow="Workspace"
-      title="Apps"
-      description="Apps available to your organization and role."
+      eyebrow={t45n('navigation.workspace')}
+      title={t45n('navigation.apps')}
+      description={t45n('common.step45n.apps.appsAvailableToYourOrganizationAndRole')}
       actions={canManageApps
-        ? <Link className="inno-link-button secondary" to="/admin/apps">Manage Apps</Link>
+        ? <Link className="inno-link-button secondary" to="/admin/apps">{t45n('common.step45n.apps.manageApps')}</Link>
         : undefined}
       illustration={<img src="/illustrations/apps-ecosystem.svg" alt="" />}
     >
-      {query.isPending ? <LoadingState label="Loading apps…" /> : null}
+      {query.isPending ? <LoadingState label={t45n('common.step45n.apps.loadingApps')} /> : null}
       {query.isError
         ? <ErrorState error={query.error} retry={() => void query.refetch()} />
         : null}
@@ -50,27 +52,27 @@ export function AppsPage() {
       {query.data ? (
         <INNOCollection className="app-launcher-collection">
           <INNOCollectionHeader
-            title="All Apps"
-            description="Open a module without leaving the INNO.One shell."
-            meta={<span>{apps.length} available</span>}
+            title={t45n('navigation.allApps')}
+            description={t45n('common.step45n.apps.openAModuleWithoutLeavingTheInnoOne')}
+            meta={<span>{apps.length} {t45n('common.step45n.apps.available')}</span>}
           />
           <INNOCollectionToolbar>
             <INNOSearchField
-              label="Search apps"
+              label={t45n('common.step45n.apps.searchApps')}
               value={search}
               onChange={setSearch}
-              placeholder="Search apps…"
+              placeholder={t45n('common.step45n.apps.searchApps2')}
             />
           </INNOCollectionToolbar>
 
           {apps.length === 0 ? (
             <INNOCollectionState
               kind={search ? 'no-results' : 'empty'}
-              title={search ? 'No apps match your search' : 'No apps available'}
+              title={search ? t45n('common.step45n.apps.noAppsMatchYourSearch') : t45n('common.step45n.apps.noAppsAvailable')}
               description={search
-                ? 'Try another keyword.'
-                : 'Apps appear here only when installed, enabled and permitted.'}
-              action={search ? <INNOButton variant="secondary" onClick={() => setSearch('')}>Clear search</INNOButton> : undefined}
+                ? t45n('common.step45n.apps.tryAnotherKeyword')
+                : t45n('common.step45n.apps.appsAppearHereOnlyWhenInstalledEnabledAnd')}
+              action={search ? <INNOButton variant="secondary" onClick={() => setSearch('')}>{t45n('assets.automation.clearSearch')}</INNOButton> : undefined}
             />
           ) : (
             <div className="production-app-grid">
@@ -82,7 +84,7 @@ export function AppsPage() {
                   <span className="production-app-copy">
                     <b>{app.name}</b>
                     <small>
-                      {app.navigation.length} {app.navigation.length === 1 ? 'destination' : 'destinations'}
+                      {app.navigation.length} {app.navigation.length === 1 ? t45n('common.step45n.apps.destination') : t45n('common.step45n.apps.destinations')}
                     </small>
                   </span>
                   <span className="production-app-open" aria-hidden="true"><INNOIcon token="action.next" size={15} /></span>

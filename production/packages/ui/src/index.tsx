@@ -239,10 +239,8 @@ export function INNOState({
       data-state={kind}
       role={role}
       aria-live={kind === 'loading' ? 'polite' : undefined}
-      aria-label={kind === 'loading' ? 'Loading content' : undefined}
       aria-busy={kind === 'loading' || undefined}
     >
-      {kind === 'loading' ? <span className="inno-sr-only">Loading content</span> : null}
       <span className="inno-state-icon" aria-hidden="true"><INNOIcon token={iconToken} size={18} /></span>
       <div className="inno-state-copy">
         <h4>{title}</h4>
@@ -271,9 +269,7 @@ export function INNOCollectionState({
     <div className="inno-collection-state">
       <INNOState compact kind={kind} title={title} description={description} action={action} meta={meta} />
       {kind === 'no-results' ? (
-        <div className="inno-pagination inno-pagination--state" data-inno-empty="true">
-          <span>0 matching results</span>
-        </div>
+        <div className="inno-pagination inno-pagination--state" data-inno-empty="true" aria-hidden="true" />
       ) : null}
     </div>
   );

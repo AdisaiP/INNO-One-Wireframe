@@ -10,6 +10,7 @@ import type { SoftwareLicenseItem } from '../api/types';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import { RouterRowAction } from '../components/RouterRowAction';
 import { usePermission } from '../app/ProfileContext';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 function money(value: number | null | undefined, currency = 'THB') {
   if (value == null) return '—';
@@ -43,6 +44,7 @@ function editForm(license: SoftwareLicenseItem) {
 }
 
 export function SoftwareLicenseDetailPage() {
+  const { t: t45n } = useStep45NI18n();
   const { licenseId = '' } = useParams();
   const canManage = usePermission('assets.license.manage');
   const queryClient = useQueryClient();
@@ -64,16 +66,16 @@ export function SoftwareLicenseDetailPage() {
 
   const save = useMutation({
     mutationFn: () => {
-      if (!query.data) throw new Error('License not loaded.');
+      if (!query.data) throw new Error(t45n('devices.step45n.softwareLicenseDetail.licenseNotLoaded'));
       const entitledSeats = Number(form.entitledSeats);
       const unitPrice = form.unitPrice === '' ? null : Number(form.unitPrice);
       if (!Number.isInteger(entitledSeats) || entitledSeats < 0) {
-        throw new Error('Purchased seats must be a whole number of 0 or more.');
+        throw new Error(t45n('devices.step45n.softwareLicenseDetail.purchasedSeatsMustBeAWholeNumberOf'));
       }
       if (unitPrice != null && (!Number.isFinite(unitPrice) || unitPrice < 0)) {
-        throw new Error('Unit price must be 0 or more.');
+        throw new Error(t45n('devices.step45n.softwareLicenseDetail.unitPriceMustBe0OrMore'));
       }
-      if (!form.licenseModel.trim()) throw new Error('License model is required.');
+      if (!form.licenseModel.trim()) throw new Error(t45n('devices.step45n.softwareLicenseDetail.licenseModelIsRequired'));
       return updateSoftwareLicense(query.data.id, query.data.eTag, {
         licenseModel: form.licenseModel.trim(),
         entitledSeats,
@@ -98,9 +100,9 @@ export function SoftwareLicenseDetailPage() {
     setEditOpen(true);
   }
 
-  if (query.isPending) return <div className="page-loading-wrap"><LoadingState label="Loading software license…" /></div>;
+  if (query.isPending) return <div className="page-loading-wrap"><LoadingState label={t45n('devices.step45n.softwareLicenseDetail.loadingSoftwareLicense')} /></div>;
   if (query.isError) return <div className="page-error-wrap"><ErrorState error={query.error} retry={() => void query.refetch()} /></div>;
-  if (!query.data) return <main className="inno-page"><INNOState kind="error" title="Software license not found" /></main>;
+  if (!query.data) return <main className="inno-page"><INNOState kind="error" title={t45n('devices.step45n.softwareLicenseDetail.softwareLicenseNotFound')} /></main>;
 
   const license = query.data;
   const overused = license.compliance === 'overused';
@@ -108,62 +110,62 @@ export function SoftwareLicenseDetailPage() {
   return (
     <main className="inno-page">
       <div className="resource-breadcrumb">
-        <Link to="/assets/software-licenses">Software Licenses</Link><span>›</span><span>{license.productName}</span>
+        <Link to="/assets/software-licenses">{t45n('navigation.softwareLicenses')}</Link><span>›</span><span>{license.productName}</span>
       </div>
 
       <INNOResourceHeader
         title={license.productName}
         status={<INNOStatus tone={overused ? 'danger' : 'success'}>{statusLabel(license.compliance)}</INNOStatus>}
         meta={<><span>{license.vendor}</span><span>·</span><span>{license.licenseModel}</span></>}
-        actions={canManage ? <INNOButton variant="secondary" onClick={openEdit}>Edit Entitlement</INNOButton> : undefined}
+        actions={canManage ? <INNOButton variant="secondary" onClick={openEdit}>{t45n('devices.step45n.softwareLicenseDetail.editEntitlement')}</INNOButton> : undefined}
       />
 
       <INNOResourceSummary>
-        <INNOResourceSummaryItem label="Purchased seats" value={license.entitledSeats} detail="Current entitlement" />
-        <INNOResourceSummaryItem label="Used seats" value={license.usedSeats} detail="Detected allocation" />
+        <INNOResourceSummaryItem label={t45n('devices.step45n.softwareLicenseDetail.purchasedSeats')} value={license.entitledSeats} detail="Current entitlement" />
+        <INNOResourceSummaryItem label={t45n('devices.step45n.softwareLicenseDetail.usedSeats')} value={license.usedSeats} detail="Detected allocation" />
         <INNOResourceSummaryItem
-          label={overused ? 'Overage' : 'Available'}
+          label={overused ? t45n('devices.step45n.softwareLicenseDetail.overage') : t45n('admin.step45n.adminApps.available')}
           value={Math.abs(license.seatBalance)}
           detail={overused ? money(license.estimatedGapCost, license.currency) + ' estimated gap' : 'Seats remaining'}
         />
-        <INNOResourceSummaryItem label="Renewal" value={displayDate(license.renewalAt)} detail={license.contractReference ?? 'No contract reference'} />
+        <INNOResourceSummaryItem label={t45n('devices.step45n.softwareLicenseDetail.renewal')} value={displayDate(license.renewalAt)} detail={license.contractReference ?? 'No contract reference'} />
       </INNOResourceSummary>
 
       <INNOCollection className="license-entitlement-section">
         <INNOCollectionHeader
-          title="Entitlement & Renewal"
-          description="Purchased rights and commercial renewal metadata for this software product."
-          meta={<INNOStatus>{license.entitledSeats} seats</INNOStatus>}
+          title={t45n('devices.step45n.softwareLicenseDetail.entitlementRenewal')}
+          description={t45n('devices.step45n.softwareLicenseDetail.purchasedRightsAndCommercialRenewalMetadataForThis')}
+          meta={<INNOStatus>{license.entitledSeats} {t45n('devices.step45n.softwareLicenseDetail.seats2')}</INNOStatus>}
         />
         <div className="license-entitlement-grid">
-          <div><span>Vendor</span><b>{license.vendor}</b></div>
-          <div><span>License model</span><b>{license.licenseModel}</b></div>
-          <div><span>Purchased seats</span><b>{license.entitledSeats}</b></div>
-          <div><span>Unit price</span><b>{money(license.unitPrice, license.currency)}</b></div>
-          <div><span>Renewal date</span><b>{displayDate(license.renewalAt)}</b></div>
-          <div><span>Contract reference</span><b>{license.contractReference ?? '—'}</b></div>
-          <div><span>Last updated</span><b>{new Date(license.updatedAt).toLocaleString()}</b></div>
-          <div><span>Compliance</span><b>{statusLabel(license.compliance)}</b></div>
+          <div><span>{t45n('assets.automation.editor.licenseField.vendor')}</span><b>{license.vendor}</b></div>
+          <div><span>{t45n('assets.automation.editor.licenseField.licenseModel')}</span><b>{license.licenseModel}</b></div>
+          <div><span>{t45n('devices.step45n.softwareLicenseDetail.purchasedSeats')}</span><b>{license.entitledSeats}</b></div>
+          <div><span>{t45n('devices.step45n.softwareLicenseDetail.unitPrice')}</span><b>{money(license.unitPrice, license.currency)}</b></div>
+          <div><span>{t45n('devices.step45n.softwareLicenseDetail.renewalDate')}</span><b>{displayDate(license.renewalAt)}</b></div>
+          <div><span>{t45n('devices.step45n.softwareLicenseDetail.contractReference')}</span><b>{license.contractReference ?? '—'}</b></div>
+          <div><span>{t45n('devices.step45n.softwareLicenseDetail.lastUpdated')}</span><b>{new Date(license.updatedAt).toLocaleString()}</b></div>
+          <div><span>{t45n('assets.automation.editor.licenseField.compliance')}</span><b>{statusLabel(license.compliance)}</b></div>
         </div>
       </INNOCollection>
 
       <INNOCollection>
         <INNOCollectionHeader
-          title="Detected allocations"
-          description="Endpoint and user records contributing to current seat usage."
-          meta={<INNOStatus>{license.allocations.length} records</INNOStatus>}
+          title={t45n('devices.step45n.softwareLicenseDetail.detectedAllocations')}
+          description={t45n('devices.step45n.softwareLicenseDetail.endpointAndUserRecordsContributingToCurrentSeat')}
+          meta={<INNOStatus>{license.allocations.length} {t45n('admin.step45n.adminAudit.records')}</INNOStatus>}
         />
         {license.allocations.length ? (
           <INNOTableWrap width="wide">
             <table className="supporting-table">
               <thead>
                 <tr>
-                  <th>Endpoint</th>
-                  <th>User / Source</th>
-                  <th className="numeric-column">Seats</th>
-                  <th>Last used</th>
-                  <th>Status</th>
-                  <th className="action-column">Asset</th>
+                  <th>{t45n('admin.step45n.adminIntegrations.endpoint')}</th>
+                  <th>{t45n('devices.step45n.softwareLicenseDetail.userSource')}</th>
+                  <th className="numeric-column">{t45n('devices.step45n.softwareLicenseDetail.seats')}</th>
+                  <th>{t45n('devices.step45n.softwareLicenseDetail.lastUsed')}</th>
+                  <th>{t45n('reports.runs.status')}</th>
+                  <th className="action-column">{t45n('reports.column.name')}</th>
                 </tr>
               </thead>
               <tbody>{license.allocations.map((allocation) => (
@@ -175,8 +177,8 @@ export function SoftwareLicenseDetailPage() {
                   <td><INNOStatus>{allocation.status}</INNOStatus></td>
                   <td className="action-column">
                     {allocation.assetId
-                      ? <RouterRowAction to={'/assets/' + allocation.assetId} ariaLabel={'Open asset for ' + allocation.endpointName} />
-                      : <span className="table-meta">Aggregate</span>}
+                      ? <RouterRowAction to={'/assets/' + allocation.assetId} ariaLabel={t45n('devices.step45n.softwareLicenseDetail.openAssetFor') + ' ' + allocation.endpointName} />
+                      : <span className="table-meta">{t45n('devices.step45n.softwareLicenseDetail.aggregate')}</span>}
                   </td>
                 </tr>
               ))}</tbody>
@@ -184,20 +186,20 @@ export function SoftwareLicenseDetailPage() {
           </INNOTableWrap>
         ) : (
           <div className="collection-state">
-            <INNOState kind="empty" title="No detected allocations" description="No endpoint or aggregate usage is recorded for this license." />
+            <INNOState kind="empty" title={t45n('devices.step45n.softwareLicenseDetail.noDetectedAllocations')} description={t45n('devices.step45n.softwareLicenseDetail.noEndpointOrAggregateUsageIsRecordedFor')} />
           </div>
         )}
       </INNOCollection>
 
       <INNODialog
         open={editOpen}
-        title="Edit Entitlement & Renewal"
-        description="Update purchased rights and renewal metadata. Detected allocations are read-only."
+        title={t45n('devices.step45n.softwareLicenseDetail.editEntitlementRenewal')}
+        description={t45n('devices.step45n.softwareLicenseDetail.updatePurchasedRightsAndRenewalMetadataDetectedAllocations')}
         onClose={() => { if (!save.isPending) setEditOpen(false); }}
         size="md"
         footer={<>
-          <INNOButton type="button" variant="secondary" disabled={save.isPending} onClick={() => setEditOpen(false)}>Cancel</INNOButton>
-          <INNOButton type="submit" form="license-entitlement-form" busy={save.isPending}>Save Entitlement</INNOButton>
+          <INNOButton type="button" variant="secondary" disabled={save.isPending} onClick={() => setEditOpen(false)}>{t45n('reports.action.cancel')}</INNOButton>
+          <INNOButton type="submit" form="license-entitlement-form" busy={save.isPending}>{t45n('devices.step45n.softwareLicenseDetail.saveEntitlement')}</INNOButton>
         </>}
       >
         <form
@@ -206,11 +208,11 @@ export function SoftwareLicenseDetailPage() {
           onSubmit={(event) => { event.preventDefault(); if (!save.isPending) save.mutate(); }}
         >
           <div className="editor-grid">
-            <label className="field-block field-wide"><span>License model</span><input data-autofocus required value={form.licenseModel} onChange={(event) => setForm({ ...form, licenseModel: event.target.value })} /></label>
-            <label className="field-block"><span>Purchased seats</span><input type="number" min="0" step="1" required value={form.entitledSeats} onChange={(event) => setForm({ ...form, entitledSeats: event.target.value })} /></label>
-            <label className="field-block"><span>Unit price · {license.currency} / year</span><input type="number" min="0" step="1" value={form.unitPrice} onChange={(event) => setForm({ ...form, unitPrice: event.target.value })} /></label>
-            <label className="field-block"><span>Renewal date</span><input type="date" value={form.renewalAt} onChange={(event) => setForm({ ...form, renewalAt: event.target.value })} /></label>
-            <label className="field-block"><span>Contract reference</span><input value={form.contractReference} onChange={(event) => setForm({ ...form, contractReference: event.target.value })} /></label>
+            <label className="field-block field-wide"><span>{t45n('assets.automation.editor.licenseField.licenseModel')}</span><input data-autofocus required value={form.licenseModel} onChange={(event) => setForm({ ...form, licenseModel: event.target.value })} /></label>
+            <label className="field-block"><span>{t45n('devices.step45n.softwareLicenseDetail.purchasedSeats')}</span><input type="number" min="0" step="1" required value={form.entitledSeats} onChange={(event) => setForm({ ...form, entitledSeats: event.target.value })} /></label>
+            <label className="field-block"><span>{t45n('devices.step45n.softwareLicenseDetail.unitPrice2')}{' '}{license.currency} {t45n('devices.step45n.softwareLicenseDetail.year')}</span><input type="number" min="0" step="1" value={form.unitPrice} onChange={(event) => setForm({ ...form, unitPrice: event.target.value })} /></label>
+            <label className="field-block"><span>{t45n('devices.step45n.softwareLicenseDetail.renewalDate')}</span><input type="date" value={form.renewalAt} onChange={(event) => setForm({ ...form, renewalAt: event.target.value })} /></label>
+            <label className="field-block"><span>{t45n('devices.step45n.softwareLicenseDetail.contractReference')}</span><input value={form.contractReference} onChange={(event) => setForm({ ...form, contractReference: event.target.value })} /></label>
           </div>
           {formError ? <div className="form-error" role="alert">{formError}</div> : null}
           {save.isError && !formError ? <ErrorState error={save.error} /> : null}

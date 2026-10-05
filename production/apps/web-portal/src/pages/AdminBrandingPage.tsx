@@ -11,6 +11,7 @@ import {
   PRODUCT_BRAND,
   readBrandCssVariable,
 } from '../app/branding';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 type EffectiveToken = {
   id: string;
@@ -20,6 +21,7 @@ type EffectiveToken = {
 };
 
 export function AdminBrandingPage() {
+  const { t: t45n } = useStep45NI18n();
   const [tokens, setTokens] = useState<EffectiveToken[]>([]);
   const [fontValue, setFontValue] = useState('');
 
@@ -33,20 +35,20 @@ export function AdminBrandingPage() {
 
   return (
     <INNOPage
-      eyebrow="Admin Center · Platform"
-      title="Branding"
-      description="Inspect the effective INNO.One product identity and read-only brand tokens used by the Web Portal."
+      eyebrow={t45n('admin.settings.eyebrow')}
+      title={t45n('navigation.branding')}
+      description={t45n('admin.step45n.adminBranding.inspectTheEffectiveInnoOneProductIdentityAnd')}
     >
       <div className="branding-foundation-layout">
         <INNOCollection>
           <INNOCollectionHeader
-            title="Effective Product Identity"
-            description="These values now drive the production shell instead of being duplicated inside navigation markup."
-            meta={<INNOStatus tone="success" dot>Active</INNOStatus>}
+            title={t45n('admin.step45n.adminBranding.effectiveProductIdentity')}
+            description={t45n('admin.step45n.adminBranding.theseValuesNowDriveTheProductionShellInstead')}
+            meta={<INNOStatus tone="success" dot>{t45n('reports.status.active')}</INNOStatus>}
           />
 
           <div className="branding-preview-stage">
-            <div className="branding-shell-preview" aria-label="Current INNO.One header brand preview">
+            <div className="branding-shell-preview" aria-label={t45n('admin.step45n.adminBranding.currentInnoOneHeaderBrandPreview')}>
               <span className="prod-logo-mark branding-preview-mark">
                 {PRODUCT_BRAND.compactMark}
               </span>
@@ -59,28 +61,28 @@ export function AdminBrandingPage() {
 
           <dl className="branding-fact-list">
             <div>
-              <dt>Product name</dt>
+              <dt>{t45n('admin.step45n.adminBranding.productName')}</dt>
               <dd>{PRODUCT_BRAND.productName}</dd>
             </div>
             <div>
-              <dt>Compact mark</dt>
+              <dt>{t45n('admin.step45n.adminBranding.compactMark')}</dt>
               <dd>{PRODUCT_BRAND.compactMark}</dd>
             </div>
             <div>
-              <dt>Browser title</dt>
+              <dt>{t45n('admin.step45n.adminBranding.browserTitle')}</dt>
               <dd>{PRODUCT_BRAND.browserTitle}</dd>
             </div>
             <div>
-              <dt>Brand scope</dt>
-              <dd>Global Web Portal shell</dd>
+              <dt>{t45n('admin.step45n.adminBranding.brandScope')}</dt>
+              <dd>{t45n('admin.step45n.adminBranding.globalWebPortalShell')}</dd>
             </div>
           </dl>
         </INNOCollection>
 
         <INNOCollection>
           <INNOCollectionHeader
-            title="Frozen Brand Tokens"
-            description="Values are read from the effective CSS custom properties in Design System V1.26."
+            title={t45n('admin.step45n.adminBranding.frozenBrandTokens')}
+            description={t45n('admin.step45n.adminBranding.valuesAreReadFromTheEffectiveCssCustom')}
           />
 
           <div className="branding-token-grid">
@@ -94,7 +96,7 @@ export function AdminBrandingPage() {
                 <div>
                   <b>{token.label}</b>
                   <code>{token.cssVariable}</code>
-                  <span>{token.value || 'Unavailable'}</span>
+                  <span>{token.value || t45n('admin.step45n.adminBranding.unavailable')}</span>
                 </div>
               </div>
             ))}
@@ -103,7 +105,7 @@ export function AdminBrandingPage() {
           <div className="branding-font-row">
             <b>{BRAND_FONT_TOKEN.label}</b>
             <code>{BRAND_FONT_TOKEN.cssVariable}</code>
-            <span>{fontValue || 'Unavailable'}</span>
+            <span>{fontValue || t45n('admin.step45n.adminBranding.unavailable')}</span>
           </div>
         </INNOCollection>
       </div>

@@ -15,6 +15,7 @@ import {
 import { getGlobalSearch } from '../api/client';
 import type { GlobalSearchResult } from '../api/types';
 import { ErrorState, LoadingState } from '../components/Feedback';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 function typeLabel(type: string) {
   if (type === 'device') return 'Device';
@@ -37,6 +38,7 @@ function typeTone(type: string): 'neutral' | 'success' | 'warning' {
 }
 
 export function SearchPage() {
+  const { t: t45n } = useStep45NI18n();
   const [params, setParams] = useSearchParams();
   const queryText = (params.get('q') ?? '').trim();
   const [draft, setDraft] = useState(queryText);
@@ -72,49 +74,49 @@ export function SearchPage() {
 
   return (
     <INNOPage
-      eyebrow="Workspace"
-      title="Search"
-      description="Search authorized resources across enabled INNO.One modules."
+      eyebrow={t45n('navigation.workspace')}
+      title={t45n('navigation.search')}
+      description={t45n('common.step45n.search.searchAuthorizedResourcesAcrossEnabledInnoOneModules')}
     >
       <INNOCollection>
         <INNOCollectionHeader
-          title="Global Search"
-          description="Results are filtered by each destination module before they are returned."
-          meta={query.data ? <INNOStatus>{query.data.totalItems} results</INNOStatus> : null}
+          title={t45n('common.step45n.search.globalSearch')}
+          description={t45n('common.step45n.search.resultsAreFilteredByEachDestinationModuleBefore')}
+          meta={query.data ? <INNOStatus>{query.data.totalItems} {t45n('devices.step45n.discovery.results')}</INNOStatus> : null}
         />
         <form onSubmit={submit}>
           <INNOCollectionToolbar>
             <INNOSearchField
-              label="Search INNO.One resources"
+              label={t45n('navigation.searchAria')}
               value={draft}
               onChange={setDraft}
-              placeholder="Search devices, assets and tickets…"
+              placeholder={t45n('navigation.searchPlaceholder')}
             />
             <INNOToolbarSpacer />
-            <INNOButton type="submit">Search</INNOButton>
+            <INNOButton type="submit">{t45n('navigation.search')}</INNOButton>
           </INNOCollectionToolbar>
         </form>
 
         {!queryText ? (
           <INNOState
-            title="Search across your workspace"
-            description="Enter a device name, asset tag, serial number, ticket number, subject, IP address or operating system."
+            title={t45n('common.step45n.search.searchAcrossYourWorkspace')}
+            description={t45n('common.step45n.search.enterADeviceNameAssetTagSerialNumber')}
           />
         ) : null}
 
-        {query.isPending && queryText ? <LoadingState label="Searching INNO.One…" /> : null}
+        {query.isPending && queryText ? <LoadingState label={t45n('common.step45n.search.searchingInnoOne')} /> : null}
         {query.isError ? <ErrorState error={query.error} retry={() => void query.refetch()} /> : null}
 
         {query.data && query.data.items.length === 0 ? (
           <INNOState
-            title="No results"
-            description={'No authorized resources matched “' + query.data.query + '”. Try another keyword.'}
+            title={t45n('common.step45n.search.noResults')}
+            description={t45n('common.step45n.search.noAuthorizedResourcesMatched', { query: query.data.query })}
           />
         ) : null}
 
         {query.data && query.data.items.length > 0 ? (
-          <div className="global-search-results" aria-label="Global search results">
-            <div className="global-search-summary" aria-label="Result summary">
+          <div className="global-search-results" aria-label={t45n('common.step45n.search.globalSearchResults')}>
+            <div className="global-search-summary" aria-label={t45n('common.step45n.search.resultSummary')}>
               {['device', 'asset', 'ticket'].map((type) => (
                 <span key={type}>
                   <b>{counts.get(type) ?? 0}</b>
@@ -133,7 +135,7 @@ export function SearchPage() {
                   <span>{item.subtitle}</span>
                 </span>
                 <INNOStatus tone={typeTone(item.type)}>{typeLabel(item.type)}</INNOStatus>
-                <span className="global-search-open" aria-hidden="true">Open</span>
+                <span className="global-search-open" aria-hidden="true">{t45n('common.step45n.search.open')}</span>
               </Link>
             ))}
           </div>

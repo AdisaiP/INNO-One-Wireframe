@@ -45,6 +45,9 @@ public static class PlatformNotificationEndpoints
             return Forbidden(access.Reason);
         }
 
+        var contentLocale = await ResolveLocaleAsync(db, access.UserId, cancellationToken);
+        var useThai = string.Equals(contentLocale, "th-TH", StringComparison.Ordinal);
+
         page = Math.Max(page, 1);
         pageSize = Math.Clamp(pageSize, 1, 100);
         var query = db.Notifications.AsNoTracking()
@@ -73,8 +76,9 @@ public static class PlatformNotificationEndpoints
                 OpaqueId.Format("notification", x.Id),
                 x.SourceModule,
                 x.NotificationType,
-                x.Title,
-                x.Message,
+                useThai && x.TitleTh != null && x.MessageTh != null ? x.TitleTh : x.TitleEn,
+                useThai && x.TitleTh != null && x.MessageTh != null ? x.MessageTh : x.MessageEn,
+                useThai && x.TitleTh != null && x.MessageTh != null ? "th-TH" : "en-US",
                 x.DestinationPath,
                 x.IsImportant,
                 x.ReadAt != null,
@@ -134,7 +138,8 @@ public static class PlatformNotificationEndpoints
         notification.ReadAt = request.IsRead ? DateTimeOffset.UtcNow : null;
         await db.SaveChangesAsync(cancellationToken);
 
-        return Results.Ok(ToResponse(notification));
+        var contentLocale = await ResolveLocaleAsync(db, access.UserId, cancellationToken);
+        return Results.Ok(ToResponse(notification, contentLocale));
     }
 
     private static async Task<IResult> MarkAllReadAsync(
@@ -163,18 +168,53 @@ public static class PlatformNotificationEndpoints
         return Results.Ok(new MarkAllReadResponse(updated, now));
     }
 
-    private static NotificationItemResponse ToResponse(PlatformNotification notification) =>
-        new(
+    private static NotificationItemResponse ToResponse(
+        PlatformNotification notification,
+        string contentLocale)
+    {
+        var useThai = string.Equals(contentLocale, "th-TH", StringComparison.Ordinal);
+        var hasThaiContent = !string.IsNullOrWhiteSpace(notification.TitleTh)
+            && !string.IsNullOrWhiteSpace(notification.MessageTh);
+        var useThaiContent = useThai && hasThaiContent;
+        return new NotificationItemResponse(
             OpaqueId.Format("notification", notification.Id),
             notification.SourceModule,
             notification.NotificationType,
-            notification.Title,
-            notification.Message,
+            useThaiContent ? notification.TitleTh! : notification.TitleEn,
+            useThaiContent ? notification.MessageTh! : notification.MessageEn,
+            useThaiContent ? "th-TH" : "en-US",
             notification.DestinationPath,
             notification.IsImportant,
             notification.ReadAt != null,
             notification.ReadAt,
             notification.CreatedAt);
+    }
+
+    private static async Task<string> ResolveLocaleAsync(
+        PlatformDbContext db,
+        Guid userId,
+        CancellationToken cancellationToken)
+    {
+        var preferredLocale = await db.UserProfiles.AsNoTracking()
+            .Where(x => x.Id == userId)
+            .Select(x => x.PreferredLocale)
+            .SingleOrDefaultAsync(cancellationToken);
+
+        if (string.Equals(preferredLocale, "th-TH", StringComparison.Ordinal)
+            || string.Equals(preferredLocale, "en-US", StringComparison.Ordinal))
+        {
+            return preferredLocale!;
+        }
+
+        var organizationDefault = await db.LocalizationSettings.AsNoTracking()
+            .Where(x => x.Id == 1)
+            .Select(x => x.DefaultLocale)
+            .SingleOrDefaultAsync(cancellationToken);
+
+        return string.Equals(organizationDefault, "th-TH", StringComparison.Ordinal)
+            ? "th-TH"
+            : "en-US";
+    }
 
     private static IResult Forbidden(string reason) =>
         Results.Problem(
@@ -190,6 +230,7 @@ public static class PlatformNotificationEndpoints
         string NotificationType,
         string Title,
         string Message,
+        string ContentLocale,
         string DestinationPath,
         bool IsImportant,
         bool IsRead,

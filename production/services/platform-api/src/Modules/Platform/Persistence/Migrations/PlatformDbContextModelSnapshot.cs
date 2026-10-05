@@ -407,11 +407,16 @@ namespace INNO.One.Modules.Platform.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_important");
 
-                    b.Property<string>("Message")
+                    b.Property<string>("MessageEn")
                         .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)")
-                        .HasColumnName("message");
+                        .HasColumnName("message_en");
+
+                    b.Property<string>("MessageTh")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("message_th");
 
                     b.Property<string>("NotificationType")
                         .IsRequired()
@@ -429,11 +434,16 @@ namespace INNO.One.Modules.Platform.Persistence.Migrations
                         .HasColumnType("character varying(64)")
                         .HasColumnName("source_module");
 
-                    b.Property<string>("Title")
+                    b.Property<string>("TitleEn")
                         .IsRequired()
                         .HasMaxLength(240)
                         .HasColumnType("character varying(240)")
-                        .HasColumnName("title");
+                        .HasColumnName("title_en");
+
+                    b.Property<string>("TitleTh")
+                        .HasMaxLength(240)
+                        .HasColumnType("character varying(240)")
+                        .HasColumnName("title_th");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")

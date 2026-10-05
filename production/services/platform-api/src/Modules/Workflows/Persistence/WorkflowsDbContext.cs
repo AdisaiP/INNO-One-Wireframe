@@ -19,7 +19,7 @@ public sealed class WorkflowsDbContext(DbContextOptions<WorkflowsDbContext> opti
         {
             entity.ToTable("workflow_definitions");
             entity.HasKey(x => x.Id);
-            entity.Property(x => x.OwnerModule).HasMaxLength(64).HasDefaultValue("legacy_unassigned").IsRequired();
+            entity.Property(x => x.OwnerModule).HasMaxLength(64).IsRequired();
             entity.Property(x => x.Name).HasMaxLength(180).IsRequired();
             entity.Property(x => x.NodesJson).HasColumnType("jsonb").IsRequired();
             entity.Property(x => x.EdgesJson).HasColumnType("jsonb").IsRequired();
@@ -33,7 +33,7 @@ public sealed class WorkflowsDbContext(DbContextOptions<WorkflowsDbContext> opti
         {
             entity.ToTable("workflow_definition_versions");
             entity.HasKey(x => x.Id);
-            entity.Property(x => x.OwnerModule).HasMaxLength(64).HasDefaultValue("legacy_unassigned").IsRequired();
+            entity.Property(x => x.OwnerModule).HasMaxLength(64).IsRequired();
             entity.Property(x => x.Name).HasMaxLength(180).IsRequired();
             entity.Property(x => x.NodesJson).HasColumnType("jsonb").IsRequired();
             entity.Property(x => x.EdgesJson).HasColumnType("jsonb").IsRequired();

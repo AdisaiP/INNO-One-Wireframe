@@ -11,11 +11,13 @@ import {
 import type { AdminRole } from '../api/types';
 import { CollectionErrorState, CollectionLoadingState, ErrorState, LoadingState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 const blankForm = { code: '', name: '', status: 'active', permissions: [] as string[] };
 const protectedPlatformAdminPermissions = new Set(['admin.access', 'admin.roles.view', 'admin.roles.manage']);
 
 export function AdminRolesPage() {
+  const { t: t45n } = useStep45NI18n();
   const canManage = usePermission('admin.roles.manage');
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
@@ -109,9 +111,9 @@ export function AdminRolesPage() {
 
   const saveRole = useMutation({
     mutationFn: () => {
-      if (!form.name.trim()) throw new Error('Enter a role name.');
+      if (!form.name.trim()) throw new Error(t45n('admin.step45n.adminRoles.enterARoleName'));
       if (mode === 'create') {
-        if (!form.code.trim()) throw new Error('Enter a role code.');
+        if (!form.code.trim()) throw new Error(t45n('admin.step45n.adminRoles.enterARoleCode'));
         return createAdminRole({
           code: form.code.trim(),
           name: form.name.trim(),
@@ -119,7 +121,7 @@ export function AdminRolesPage() {
           permissions: form.permissions,
         });
       }
-      if (!editing) throw new Error('Select a role.');
+      if (!editing) throw new Error(t45n('admin.step45n.adminRoles.selectARole'));
       return updateAdminRole(editing.id, editing.eTag, {
         name: form.name.trim(),
         status: form.status,
@@ -138,36 +140,36 @@ export function AdminRolesPage() {
 
   return (
     <INNOPage
-      eyebrow="Admin Center · Access"
-      title="Roles & Permissions"
-      description="Create reusable roles and assign the permissions each role grants before binding it to users and scopes."
-      actions={canManage ? <INNOButton type="button" onClick={openCreate}>New Role</INNOButton> : undefined}
+      eyebrow={t45n('admin.step45n.adminAccessScopeEdit.adminCenterAccess')}
+      title={t45n('navigation.rolesPermissions')}
+      description={t45n('admin.step45n.adminRoles.createReusableRolesAndAssignThePermissionsEach')}
+      actions={canManage ? <INNOButton type="button" onClick={openCreate}>{t45n('admin.step45n.adminRoles.newRole')}</INNOButton> : undefined}
     >
       <INNOCollection className="admin-role-catalog">
         <INNOCollectionHeader
-          title="Roles"
-          description="Role definitions used by access assignments."
-          meta={roles.data ? <INNOStatus>{roles.data.length} roles</INNOStatus> : undefined}
+          title={t45n('admin.step45n.adminRoles.roles')}
+          description={t45n('admin.step45n.adminRoles.roleDefinitionsUsedByAccessAssignments')}
+          meta={roles.data ? <INNOStatus>{roles.data.length} {t45n('admin.step45n.adminRoles.roles2')}</INNOStatus> : undefined}
         />
         <INNOCollectionToolbar>
-          <INNOSearchField label="Search roles" value={search} onChange={setSearch} placeholder="Search role or code…" />
+          <INNOSearchField label={t45n('admin.step45n.adminRoles.searchRoles')} value={search} onChange={setSearch} placeholder={t45n('admin.step45n.adminRoles.searchRoleOrCode')} />
         </INNOCollectionToolbar>
-        {roles.isPending ? <CollectionLoadingState label="Loading roles…" /> : null}
+        {roles.isPending ? <CollectionLoadingState label={t45n('admin.step45n.adminRoles.loadingRoles')} /> : null}
         {roles.isError ? <CollectionErrorState error={roles.error} retry={() => void roles.refetch()} /> : null}
         {filteredRoles.length ? (
           <INNOTableWrap>
             <table>
-              <thead><tr><th>Role</th><th>Code</th><th className="numeric-column">Permissions</th><th>Status</th><th className="action-column">Action</th></tr></thead>
+              <thead><tr><th>{t45n('admin.step45n.adminAccessScopeEdit.role')}</th><th>{t45n('admin.step45n.adminHierarchy.code')}</th><th className="numeric-column">{t45n('admin.step45n.adminRoles.permissions')}</th><th>{t45n('reports.runs.status')}</th><th className="action-column">{t45n('reports.table.action')}</th></tr></thead>
               <tbody>{filteredRoles.map((role) => (
                 <tr key={role.id}>
-                  <td><b>{role.name}</b>{role.code === 'platform_admin' ? <div className="table-meta">Protected platform role</div> : null}</td>
+                  <td><b>{role.name}</b>{role.code === 'platform_admin' ? <div className="table-meta">{t45n('admin.step45n.adminRoles.protectedPlatformRole')}</div> : null}</td>
                   <td><code>{role.code}</code></td>
                   <td className="numeric-column">{role.permissions.length}</td>
                   <td><INNOStatus tone={role.status === 'active' ? 'success' : 'neutral'}>{role.status}</INNOStatus></td>
                   <td className="action-column">
                     {canManage
-                      ? <INNORowActions ariaLabel={'Role ' + role.name} items={[{ id: 'edit', label: 'Edit Role', onSelect: () => openEdit(role) }]} />
-                      : <span className="table-meta">View only</span>}
+                      ? <INNORowActions ariaLabel={t45n('admin.step45n.adminAccessScopeEdit.role') + ' ' + role.name} items={[{ id: 'edit', label: t45n('admin.step45n.adminRoles.editRole'), onSelect: () => openEdit(role) }]} />
+                      : <span className="table-meta">{t45n('admin.step45n.adminAccessScopes.viewOnly')}</span>}
                   </td>
                 </tr>
               ))}</tbody>
@@ -176,37 +178,37 @@ export function AdminRolesPage() {
         ) : roles.data ? (
           <INNOCollectionState
             kind={search ? 'no-results' : 'empty'}
-            title={search ? 'No roles found' : 'No roles yet'}
-            description={search ? 'Try another search.' : 'Create the first reusable role.'}
-            action={search ? <INNOButton variant="secondary" onClick={() => setSearch('')}>Clear search</INNOButton> : undefined}
+            title={search ? t45n('admin.step45n.adminRoles.noRolesFound') : t45n('admin.step45n.adminRoles.noRolesYet')}
+            description={search ? t45n('reports.noResults.description') : t45n('admin.step45n.adminRoles.createTheFirstReusableRole')}
+            action={search ? <INNOButton variant="secondary" onClick={() => setSearch('')}>{t45n('assets.automation.clearSearch')}</INNOButton> : undefined}
           />
         ) : null}
       </INNOCollection>
 
       <INNOCollection className="admin-permission-collection">
         <INNOCollectionHeader
-          title="Permission matrix"
-          description="Reference view of effective permissions granted by each saved role."
-          meta={permissions.data ? <INNOStatus>{permissions.data.length} permissions</INNOStatus> : undefined}
+          title={t45n('admin.step45n.adminRoles.permissionMatrix')}
+          description={t45n('admin.step45n.adminRoles.referenceViewOfEffectivePermissionsGrantedByEach')}
+          meta={permissions.data ? <INNOStatus>{permissions.data.length} {t45n('admin.step45n.adminRoles.permissions2')}</INNOStatus> : undefined}
         />
         <INNOCollectionToolbar>
-          <INNOSearchField label="Search permissions" value={permissionSearch} onChange={setPermissionSearch} placeholder="Search permission, module or description…" />
+          <INNOSearchField label={t45n('admin.step45n.adminRoles.searchPermissions')} value={permissionSearch} onChange={setPermissionSearch} placeholder={t45n('admin.step45n.adminRoles.searchPermissionModuleOrDescription')} />
         </INNOCollectionToolbar>
-        {permissions.isPending ? <CollectionLoadingState label="Loading permissions…" /> : null}
+        {permissions.isPending ? <CollectionLoadingState label={t45n('admin.step45n.adminRoles.loadingPermissions')} /> : null}
         {permissions.isError ? <CollectionErrorState error={permissions.error} retry={() => void permissions.refetch()} /> : null}
         {permissions.data && filteredPermissions.length === 0 ? (
           <INNOCollectionState
             kind={permissionSearch ? 'no-results' : 'empty'}
-            title={permissionSearch ? 'No permissions found' : 'No permissions available'}
-            description={permissionSearch ? 'Try another search.' : 'The permission catalog is empty.'}
-            action={permissionSearch ? <INNOButton variant="secondary" onClick={() => setPermissionSearch('')}>Clear search</INNOButton> : undefined}
+            title={permissionSearch ? t45n('admin.step45n.adminRoles.noPermissionsFound') : t45n('admin.step45n.adminRoles.noPermissionsAvailable')}
+            description={permissionSearch ? t45n('reports.noResults.description') : t45n('admin.step45n.adminRoles.thePermissionCatalogIsEmpty')}
+            action={permissionSearch ? <INNOButton variant="secondary" onClick={() => setPermissionSearch('')}>{t45n('assets.automation.clearSearch')}</INNOButton> : undefined}
           />
         ) : null}
         {filteredPermissions.length ? (
           <INNOTableWrap width="xwide">
             <table className="admin-permission-matrix">
               <thead>
-                <tr><th>Permission</th><th>Module</th>{roles.data?.map((role) => <th key={role.id}>{role.name}</th>)}</tr>
+                <tr><th>{t45n('admin.step45n.adminAccessScopes.permission')}</th><th>{t45n('admin.step45n.adminApps.module')}</th>{roles.data?.map((role) => <th key={role.id}>{role.name}</th>)}</tr>
               </thead>
               <tbody>{filteredPermissions.map((permission) => (
                 <tr key={permission.id}>
@@ -222,22 +224,22 @@ export function AdminRolesPage() {
 
       <INNODrawer
         open={mode !== null}
-        title={mode === 'create' ? 'New Role' : 'Edit Role'}
+        title={mode === 'create' ? t45n('admin.step45n.adminRoles.newRole') : t45n('admin.step45n.adminRoles.editRole')}
         description={mode === 'create'
-          ? 'Define a reusable role and choose the permissions it grants.'
-          : 'Update the role name, status and granted permissions.'}
+          ? t45n('admin.step45n.adminRoles.defineAReusableRoleAndChooseThePermissions')
+          : t45n('admin.step45n.adminRoles.updateTheRoleNameStatusAndGrantedPermissions')}
         onClose={closeEditor}
         size="lg"
         className="admin-role-drawer"
         footer={<>
-          <INNOButton type="button" variant="secondary" disabled={saveRole.isPending} onClick={closeEditor}>Cancel</INNOButton>
+          <INNOButton type="button" variant="secondary" disabled={saveRole.isPending} onClick={closeEditor}>{t45n('reports.action.cancel')}</INNOButton>
           <INNOButton
             type="submit"
             form="role-editor-form"
             busy={saveRole.isPending}
             disabled={!form.name.trim() || (mode === 'create' && !form.code.trim())}
           >
-            {mode === 'create' ? 'Create Role' : 'Save Role'}
+            {mode === 'create' ? t45n('admin.step45n.adminRoles.createRole') : t45n('admin.step45n.adminRoles.saveRole')}
           </INNOButton>
         </>}
       >
@@ -248,30 +250,30 @@ export function AdminRolesPage() {
         >
           <div className="editor-grid">
             <label className="field-block">
-              <span>Role code</span>
+              <span>{t45n('admin.step45n.adminRoles.roleCode')}</span>
               <input
                 data-autofocus
                 required
                 disabled={mode === 'edit'}
                 value={form.code}
                 onChange={(event) => setForm({ ...form, code: event.target.value })}
-                placeholder="e.g. asset_manager"
+                placeholder={t45n('admin.step45n.adminRoles.eGAssetManager')}
               />
-              <small>{mode === 'edit' ? 'Role code is stable after creation.' : 'Use letters, numbers, dot, dash or underscore.'}</small>
+              <small>{mode === 'edit' ? t45n('admin.step45n.adminRoles.roleCodeIsStableAfterCreation') : t45n('admin.step45n.adminRoles.useLettersNumbersDotDashOrUnderscore')}</small>
             </label>
             <label className="field-block">
-              <span>Role name</span>
+              <span>{t45n('admin.step45n.adminRoles.roleName')}</span>
               <input required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
             </label>
             <label className="field-block field-wide">
-              <span>Status</span>
+              <span>{t45n('reports.runs.status')}</span>
               <select
                 value={form.status}
                 disabled={editing?.code === 'platform_admin'}
                 onChange={(event) => setForm({ ...form, status: event.target.value })}
               >
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
+                <option value="active">{t45n('reports.status.active')}</option>
+                <option value="inactive">{t45n('admin.step45n.adminAccessScopeEdit.inactive')}</option>
               </select>
             </label>
           </div>
@@ -279,18 +281,18 @@ export function AdminRolesPage() {
           <section className="admin-role-permissions">
             <div className="admin-role-permissions-head">
               <div>
-                <h3>Assigned permissions</h3>
-                <p>{form.permissions.length} permissions selected. Changes affect access assignments using this role.</p>
+                <h3>{t45n('admin.step45n.adminRoles.assignedPermissions')}</h3>
+                <p>{form.permissions.length} {t45n('admin.step45n.adminRoles.permissionsSelectedChangesAffectAccessAssignmentsUsingThis')}</p>
               </div>
               <INNOSearchField
-                label="Search permissions to assign"
+                label={t45n('admin.step45n.adminRoles.searchPermissionsToAssign')}
                 value={editorPermissionSearch}
                 onChange={setEditorPermissionSearch}
-                placeholder="Search permission or module…"
+                placeholder={t45n('admin.step45n.adminRoles.searchPermissionOrModule')}
               />
             </div>
 
-            {permissions.isPending ? <LoadingState label="Loading permission catalog…" /> : null}
+            {permissions.isPending ? <LoadingState label={t45n('admin.step45n.adminRoles.loadingPermissionCatalog')} /> : null}
             {permissions.isError ? <ErrorState error={permissions.error} retry={() => void permissions.refetch()} /> : null}
             {editorGroups.map(([moduleName, modulePermissions]) => {
               const ids = modulePermissions.map((permission) => permission.id);
@@ -299,9 +301,9 @@ export function AdminRolesPage() {
               return (
                 <div className="admin-permission-group" key={moduleName}>
                   <div className="admin-permission-group-head">
-                    <div><b>{moduleName}</b><span>{modulePermissions.length} permissions</span></div>
+                    <div><b>{moduleName}</b><span>{modulePermissions.length} {t45n('admin.step45n.adminRoles.permissions2')}</span></div>
                     <INNOButton type="button" variant="secondary" onClick={() => toggleModule(ids)}>
-                      {allSelected ? 'Clear module' : 'Select module'}
+                      {allSelected ? t45n('admin.step45n.adminRoles.clearModule') : t45n('admin.step45n.adminRoles.selectModule')}
                     </INNOButton>
                   </div>
                   <div className="admin-permission-checklist">
@@ -315,7 +317,7 @@ export function AdminRolesPage() {
                             disabled={protectedPermission}
                             onChange={() => togglePermission(permission.id)}
                           />
-                          <span><b>{permission.name}</b><small>{permission.id}{protectedPermission ? ' · required for Platform Admin' : ''}</small></span>
+                          <span><b>{permission.name}</b><small>{permission.id}{protectedPermission ? t45n('admin.step45n.adminRoles.requiredForPlatformAdmin') : ''}</small></span>
                         </label>
                       );
                     })}
@@ -326,7 +328,7 @@ export function AdminRolesPage() {
           </section>
           {saveRole.isError ? (
             <div className="form-error" role="alert">
-              {saveRole.error instanceof Error ? saveRole.error.message : 'Unable to save role.'}
+              {saveRole.error instanceof Error ? saveRole.error.message : t45n('admin.step45n.adminRoles.unableToSaveRole')}
             </div>
           ) : null}
         </form>

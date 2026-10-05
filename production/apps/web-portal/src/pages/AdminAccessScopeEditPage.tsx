@@ -13,8 +13,10 @@ import {
 import type { AdminHierarchyItem } from '../api/types';
 import { CollectionErrorState, CollectionLoadingState, ErrorState, LoadingState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 export function AdminAccessScopeEditPage() {
+  const { t: t45n } = useStep45NI18n();
   const { assignmentId = '' } = useParams();
   const canManage = usePermission('admin.access_scopes.manage');
   const navigate = useNavigate();
@@ -57,7 +59,7 @@ export function AdminAccessScopeEditPage() {
   );
   const save = useMutation({
     mutationFn: () => {
-      if (!assignment.data) throw new Error('Access assignment is not loaded.');
+      if (!assignment.data) throw new Error(t45n('admin.step45n.adminAccessScopeEdit.accessAssignmentIsNotLoaded'));
       return updateAdminAccessAssignment(assignment.data.id, assignment.data.eTag, {
         roleId: form.roleId,
         scopeType: form.scopeType,
@@ -78,50 +80,50 @@ export function AdminAccessScopeEditPage() {
   });
 
   if (!canManage) {
-    return <INNOPage eyebrow="Admin Center · Access" title="Access Scope Editor" description="You do not have permission to manage access scopes." />;
+    return <INNOPage eyebrow={t45n('admin.step45n.adminAccessScopeEdit.adminCenterAccess')} title={t45n('admin.step45n.adminAccessScopeEdit.accessScopeEditor')} description={t45n('admin.step45n.adminAccessScopeEdit.youDoNotHavePermissionToManageAccess')} />;
   }
-  if (assignment.isPending) return <div className="page-loading-wrap"><LoadingState label="Loading access assignment…" /></div>;
+  if (assignment.isPending) return <div className="page-loading-wrap"><LoadingState label={t45n('admin.step45n.adminAccessScopeEdit.loadingAccessAssignment')} /></div>;
   if (assignment.isError) return <div className="page-error-wrap"><ErrorState error={assignment.error} retry={() => void assignment.refetch()} /></div>;
   if (!assignment.data) return null;
   const scopeBrowserVisible = form.scopeType === 'organization' || form.scopeType === 'location';
   return (
     <INNOPage
-      eyebrow="Admin Center · Access"
-      title={'Edit Access Assignment · ' + assignment.data.subjectName}
-      description="Update the role and resource scope on a dedicated editor route."
+      eyebrow={t45n('admin.step45n.adminAccessScopeEdit.adminCenterAccess')}
+      title={t45n('admin.step45n.adminAccessScopeEdit.editAccessAssignmentTitle', { name: assignment.data.subjectName })}
+      description={t45n('admin.step45n.adminAccessScopeEdit.updateTheRoleAndResourceScopeOnA')}
     >
       <div className="resource-breadcrumb">
-        <Link to="/admin/access-scopes">Access Scopes</Link><span>›</span><span>{assignment.data.subjectName}</span>
+        <Link to="/admin/access-scopes">{t45n('navigation.accessScopes')}</Link><span>›</span><span>{assignment.data.subjectName}</span>
       </div>
 
       <section className="prod-panel editor-route-panel">
-        <div className="prod-panel-head"><div><h3>Assignment details</h3><p>{assignment.data.subjectName} · {assignment.data.roleName}</p></div></div>
+        <div className="prod-panel-head"><div><h3>{t45n('admin.step45n.adminAccessScopeEdit.assignmentDetails')}</h3><p>{assignment.data.subjectName} · {assignment.data.roleName}</p></div></div>
         <form className="editor-form" onSubmit={(e) => { e.preventDefault(); if (!save.isPending) save.mutate(); }}>
           <div className="editor-grid">
-            <label className="field-block"><span>Role</span><select data-autofocus value={form.roleId} onChange={(e) => setForm({ ...form, roleId: e.target.value })}>{roles.data?.map((role) => <option key={role.id} value={role.id}>{role.name}</option>)}</select></label>
-            <label className="field-block"><span>Scope type</span><select value={form.scopeType} onChange={(e) => { setScopeSearch(''); setForm({ ...form, scopeType: e.target.value, resourceId: '' }); }}><option value="all">All</option><option value="organization">Organization</option><option value="location">Location</option><option value="device_group">Device Group</option></select></label>
+            <label className="field-block"><span>{t45n('admin.step45n.adminAccessScopeEdit.role')}</span><select data-autofocus value={form.roleId} onChange={(e) => setForm({ ...form, roleId: e.target.value })}>{roles.data?.map((role) => <option key={role.id} value={role.id}>{role.name}</option>)}</select></label>
+            <label className="field-block"><span>{t45n('admin.step45n.adminAccessScopeEdit.scopeType')}</span><select value={form.scopeType} onChange={(e) => { setScopeSearch(''); setForm({ ...form, scopeType: e.target.value, resourceId: '' }); }}><option value="all">{t45n('admin.step45n.adminAccessScopeEdit.all')}</option><option value="organization">{t45n('profile.organization')}</option><option value="location">{t45n('profile.location')}</option><option value="device_group">{t45n('admin.step45n.adminAccessScopeEdit.deviceGroup')}</option></select></label>
             {scopeBrowserVisible ? (
-              <div className="field-block field-wide"><span>Resource</span><div className="admin-scope-resource-summary" aria-live="polite"><b>{selectedScopeResource?.name ?? 'No resource selected'}</b><span>{selectedScopeResource ? selectedScopeResource.code : 'Choose a hierarchy row in Scope Browser below.'}</span></div></div>
+              <div className="field-block field-wide"><span>{t45n('assets.automation.runs.table.resource')}</span><div className="admin-scope-resource-summary" aria-live="polite"><b>{selectedScopeResource?.name ?? t45n('admin.step45n.adminAccessScopeEdit.noResourceSelected')}</b><span>{selectedScopeResource ? selectedScopeResource.code : t45n('admin.step45n.adminAccessScopeEdit.chooseAHierarchyRowInScopeBrowserBelow')}</span></div></div>
             ) : null}
-            {form.scopeType === 'device_group' ? <label className="field-block"><span>Device Group ID</span><input value={form.resourceId} onChange={(e) => setForm({ ...form, resourceId: e.target.value })} placeholder="grp_…" /></label> : null}
-            <label className="field-block"><span>Status</span><select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}><option value="active">Active</option><option value="inactive">Inactive</option></select></label>
-            <label className="field-block field-wide"><span>Action overrides</span><input value={form.actionOverrides} onChange={(e) => setForm({ ...form, actionOverrides: e.target.value })} placeholder="permission.id, permission.id" /></label>
-            <label className="field-block admin-check-field"><input type="checkbox" disabled={form.scopeType === 'all'} checked={form.includeChildren} onChange={(e) => setForm({ ...form, includeChildren: e.target.checked })} /><span>Include child resources</span></label>
+            {form.scopeType === 'device_group' ? <label className="field-block"><span>{t45n('admin.step45n.adminAccessScopeEdit.deviceGroupId')}</span><input value={form.resourceId} onChange={(e) => setForm({ ...form, resourceId: e.target.value })} placeholder={t45n('admin.step45n.adminAccessScopeEdit.grp')} /></label> : null}
+            <label className="field-block"><span>{t45n('reports.runs.status')}</span><select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}><option value="active">{t45n('reports.status.active')}</option><option value="inactive">{t45n('admin.step45n.adminAccessScopeEdit.inactive')}</option></select></label>
+            <label className="field-block field-wide"><span>{t45n('admin.step45n.adminAccessScopeEdit.actionOverrides')}</span><input value={form.actionOverrides} onChange={(e) => setForm({ ...form, actionOverrides: e.target.value })} placeholder={t45n('admin.step45n.adminAccessScopeEdit.permissionIdPermissionId')} /></label>
+            <label className="field-block admin-check-field"><input type="checkbox" disabled={form.scopeType === 'all'} checked={form.includeChildren} onChange={(e) => setForm({ ...form, includeChildren: e.target.checked })} /><span>{t45n('admin.step45n.adminAccessScopeEdit.includeChildResources')}</span></label>
           </div>
 
           {scopeBrowserVisible ? (
             <INNOCollection className="admin-access-scope-browser">
               <INNOCollectionHeader
-                title="Scope Browser"
+                title={t45n('admin.step45n.adminAccessScopeEdit.scopeBrowser')}
                 description={form.scopeType === 'organization'
-                  ? 'Choose one organization node. Child resources inherit only when Include child resources is enabled.'
-                  : 'Choose one location node from the canonical location hierarchy.'}
-                meta={<INNOStatus>{scopeOptions.length} resources</INNOStatus>}
+                  ? t45n('admin.step45n.adminAccessScopeEdit.chooseOneOrganizationNodeChildResourcesInheritOnly')
+                  : t45n('admin.step45n.adminAccessScopeEdit.chooseOneLocationNodeFromTheCanonicalLocation')}
+                meta={<INNOStatus>{scopeOptions.length} {t45n('admin.step45n.adminAccessScopeEdit.resources')}</INNOStatus>}
               />
               <INNOCollectionToolbar>
-                <INNOSearchField label="Search scope resources" value={scopeSearch} onChange={setScopeSearch} placeholder="Search name or code…" />
+                <INNOSearchField label={t45n('admin.step45n.adminAccessScopeEdit.searchScopeResources')} value={scopeSearch} onChange={setScopeSearch} placeholder={t45n('admin.step45n.adminAccessScopeEdit.searchNameOrCode')} />
               </INNOCollectionToolbar>
-              {scopeQuery.isPending ? <CollectionLoadingState label="Loading scope hierarchy…" /> : null}
+              {scopeQuery.isPending ? <CollectionLoadingState label={t45n('admin.step45n.adminAccessScopeEdit.loadingScopeHierarchy')} /> : null}
               {scopeQuery.isError ? <CollectionErrorState error={scopeQuery.error} retry={() => void scopeQuery.refetch()} /> : null}
               {!scopeQuery.isPending && !scopeQuery.isError ? (
                 <INNOTreeGrid
@@ -131,16 +133,16 @@ export function AdminAccessScopeEditPage() {
                   getParentId={(item) => item.parentId}
                   getLabel={(item) => item.name}
                   getSearchText={(item) => item.name + ' ' + item.code + ' ' + item.status}
-                  primaryHeader="Resource"
+                  primaryHeader={t45n('assets.automation.runs.table.resource')}
                   columns={[
-                    { id: 'code', header: 'Code', render: (item) => item.code },
-                    { id: 'status', header: 'Status', render: (item) => <INNOStatus tone={item.status === 'active' ? 'success' : 'neutral'}>{item.status}</INNOStatus> },
+                    { id: 'code', header: t45n('admin.step45n.adminHierarchy.code'), render: (item) => item.code },
+                    { id: 'status', header: t45n('reports.runs.status'), render: (item) => <INNOStatus tone={item.status === 'active' ? 'success' : 'neutral'}>{item.status}</INNOStatus> },
                   ]}
                   selectedId={form.resourceId}
                   onSelect={(id) => setForm({ ...form, resourceId: id })}
                   search={scopeSearch}
-                  ariaLabel={form.scopeType === 'organization' ? 'Organization scope browser' : 'Location scope browser'}
-                  emptyContent={scopeSearch ? 'No hierarchy resources match this search.' : 'No hierarchy resources are available.'}
+                  ariaLabel={form.scopeType === 'organization' ? t45n('admin.step45n.adminAccessScopeEdit.organizationScopeBrowser') : t45n('admin.step45n.adminAccessScopeEdit.locationScopeBrowser')}
+                  emptyContent={scopeSearch ? t45n('admin.step45n.adminAccessScopeEdit.noHierarchyResourcesMatchThisSearch') : t45n('admin.step45n.adminAccessScopeEdit.noHierarchyResourcesAreAvailable')}
                 />
               ) : null}
             </INNOCollection>
@@ -148,8 +150,8 @@ export function AdminAccessScopeEditPage() {
 
           {save.isError ? <ErrorState error={save.error} /> : null}
           <INNOEditorFooter>
-            <INNOEditorFooterStart><INNOButton type="button" variant="secondary" disabled={save.isPending} onClick={() => navigate('/admin/access-scopes')}>Cancel</INNOButton></INNOEditorFooterStart>
-            <INNOEditorFooterEnd><INNOButton type="submit" busy={save.isPending}>Save Assignment</INNOButton></INNOEditorFooterEnd>
+            <INNOEditorFooterStart><INNOButton type="button" variant="secondary" disabled={save.isPending} onClick={() => navigate('/admin/access-scopes')}>{t45n('reports.action.cancel')}</INNOButton></INNOEditorFooterStart>
+            <INNOEditorFooterEnd><INNOButton type="submit" busy={save.isPending}>{t45n('admin.step45n.adminAccessScopeEdit.saveAssignment')}</INNOButton></INNOEditorFooterEnd>
           </INNOEditorFooter>
         </form>
       </section>

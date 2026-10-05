@@ -5,13 +5,15 @@ import { getHelpdeskOverview } from '../api/client';
 import { usePermission } from '../app/ProfileContext';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import type { TicketSummary } from '../api/types';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 function TicketRow({ ticket }: { ticket: TicketSummary }) {
+  const { t: t45n } = useStep45NI18n();
   return (
     <Link className="helpdesk-queue-row" to={'/helpdesk/tickets/' + ticket.id}>
       <div>
         <b>{ticket.subject}</b>
-        <span>{ticket.ticketNumber} · {ticket.organization ?? '—'} · {ticket.category ?? 'Uncategorized'}</span>
+        <span>{ticket.ticketNumber} · {ticket.organization ?? '—'} · {ticket.category ?? t45n('helpdesk.step45n.helpdeskOverview.uncategorized')}</span>
       </div>
       <div className="helpdesk-queue-meta">
         <span className={'priority-chip ' + ticket.priority.toLowerCase()}>{ticket.priority}</span>
@@ -22,6 +24,7 @@ function TicketRow({ ticket }: { ticket: TicketSummary }) {
 }
 
 export function HelpdeskOverviewPage() {
+  const { t: t45n } = useStep45NI18n();
   const canCreate = usePermission('helpdesk.ticket.create');
   const query = useQuery({
     queryKey: ['helpdesk', 'overview'],
@@ -30,52 +33,52 @@ export function HelpdeskOverviewPage() {
 
   return (
     <INNOPage
-      eyebrow="Helpdesk"
-      title="Service Desk"
-      description="Tickets, workload and SLA attention in one operational view."
-      actions={canCreate ? <Link className="inno-link-button" to="/helpdesk/tickets/new">Create Ticket</Link> : undefined}
+      eyebrow={t45n('navigation.helpdesk')}
+      title={t45n('helpdesk.step45n.helpdeskOverview.serviceDesk')}
+      description={t45n('helpdesk.step45n.helpdeskOverview.ticketsWorkloadAndSlaAttentionInOneOperational')}
+      actions={canCreate ? <Link className="inno-link-button" to="/helpdesk/tickets/new">{t45n('helpdesk.step45n.helpdeskOverview.createTicket')}</Link> : undefined}
     >
 
-      {query.isPending ? <LoadingState label="Loading Helpdesk…" /> : null}
+      {query.isPending ? <LoadingState label={t45n('helpdesk.step45n.helpdeskOverview.loadingHelpdesk')} /> : null}
       {query.isError ? <ErrorState error={query.error} retry={() => void query.refetch()} /> : null}
 
       {query.data ? (
         <>
           <div className="production-stat-strip helpdesk-stat-strip">
-            <div><span>Open tickets</span><b>{query.data.openTickets}</b><small>Inside your effective scope</small></div>
-            <div><span>Assigned to me</span><b>{query.data.assignedToMe}</b><small>Your active queue</small></div>
-            <div><span>Due today</span><b>{query.data.dueToday}</b><small>{query.data.unassigned} unassigned</small></div>
-            <div><span>SLA at risk</span><b>{query.data.slaAtRisk}</b><small>{query.data.slaBreached} breached</small></div>
+            <div><span>{t45n('helpdesk.step45n.helpdeskOverview.openTickets')}</span><b>{query.data.openTickets}</b><small>{t45n('helpdesk.step45n.helpdeskOverview.insideYourEffectiveScope')}</small></div>
+            <div><span>{t45n('helpdesk.step45n.helpdeskOverview.assignedToMe')}</span><b>{query.data.assignedToMe}</b><small>{t45n('helpdesk.step45n.helpdeskOverview.yourActiveQueue')}</small></div>
+            <div><span>{t45n('helpdesk.step45n.helpdeskOverview.dueToday')}</span><b>{query.data.dueToday}</b><small>{query.data.unassigned} {t45n('assets.step45n.assetsOverview.unassigned')}</small></div>
+            <div><span>{t45n('helpdesk.step45n.helpdeskOverview.slaAtRisk')}</span><b>{query.data.slaAtRisk}</b><small>{query.data.slaBreached} {t45n('helpdesk.step45n.helpdeskOverview.breached')}</small></div>
           </div>
 
           <div className="helpdesk-overview-grid">
             <section className="prod-panel">
               <div className="prod-panel-head">
                 <div>
-                  <h3>Priority tickets</h3>
-                  <p>Highest-priority work visible in your queue.</p>
+                  <h3>{t45n('helpdesk.step45n.helpdeskOverview.priorityTickets')}</h3>
+                  <p>{t45n('helpdesk.step45n.helpdeskOverview.highestPriorityWorkVisibleInYourQueue')}</p>
                 </div>
-                <Link className="open-resource" to="/helpdesk/tickets">View all tickets</Link>
+                <Link className="open-resource" to="/helpdesk/tickets">{t45n('helpdesk.step45n.helpdeskOverview.viewAllTickets')}</Link>
               </div>
               <div className="helpdesk-queue-list">
                 {query.data.priorityTickets.length
                   ? query.data.priorityTickets.map((ticket) => <TicketRow key={ticket.id} ticket={ticket} />)
-                  : <INNOState compact kind="empty" title="No open tickets" description="No active priority tickets are visible in your current scope." />}
+                  : <INNOState compact kind="empty" title={t45n('helpdesk.step45n.helpdeskOverview.noOpenTickets')} description={t45n('helpdesk.step45n.helpdeskOverview.noActivePriorityTicketsAreVisibleInYour')} />}
               </div>
             </section>
 
             <section className="prod-panel">
               <div className="prod-panel-head">
                 <div>
-                  <h3>Assigned to me</h3>
-                  <p>Your current active queue.</p>
+                  <h3>{t45n('helpdesk.step45n.helpdeskOverview.assignedToMe')}</h3>
+                  <p>{t45n('helpdesk.step45n.helpdeskOverview.yourCurrentActiveQueue')}</p>
                 </div>
-                <Link className="open-resource" to="/helpdesk/assigned">View queue</Link>
+                <Link className="open-resource" to="/helpdesk/assigned">{t45n('helpdesk.step45n.helpdeskOverview.viewQueue')}</Link>
               </div>
               <div className="helpdesk-queue-list">
                 {query.data.myTickets.length
                   ? query.data.myTickets.map((ticket) => <TicketRow key={ticket.id} ticket={ticket} />)
-                  : <INNOState compact kind="empty" title="Nothing assigned to you" description="Assigned tickets will appear here when work enters your queue." />}
+                  : <INNOState compact kind="empty" title={t45n('helpdesk.step45n.helpdeskOverview.nothingAssignedToYou')} description={t45n('helpdesk.step45n.helpdeskOverview.assignedTicketsWillAppearHereWhenWorkEnters')} />}
               </div>
             </section>
           </div>

@@ -124,25 +124,6 @@
       ]
     },
     {
-      "id": "workflows",
-      "name": "Automation Core",
-      "icon": "automation",
-      "route": "/workflows",
-      "surface": "web",
-      "launcher": false,
-      "entryPermission": "workflows.view",
-      "dependencies": ["platform"],
-      "permissions": [
-        "workflows.view",
-        "workflows.manage"
-      ],
-      "navigation": [],
-      "events": [],
-      "capabilities": [
-        "audit"
-      ]
-    },
-    {
       "id": "meeting",
       "name": "Meeting",
       "icon": "meeting",

@@ -13,6 +13,7 @@ import { getAdminIntegrations, testAdminIntegration } from '../api/client';
 import type { AdminIntegrationStatus, AdminIntegrationsResponse } from '../api/types';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 function statusTone(status: AdminIntegrationStatus['status']) {
   if (status === 'connected') return 'success' as const;
@@ -34,6 +35,7 @@ function formatCheckedAt(value: string) {
 }
 
 export function AdminIntegrationsPage() {
+  const { t: t45n } = useStep45NI18n();
   const canManage = usePermission('admin.integrations.manage');
   const queryClient = useQueryClient();
   const query = useQuery({
@@ -65,9 +67,9 @@ export function AdminIntegrationsPage() {
 
   return (
     <INNOPage
-      eyebrow="Admin Center · Platform"
-      title="Integrations"
-      description="Monitor registered integration health and run safe connection tests. Configuration remains deployment-managed."
+      eyebrow={t45n('admin.settings.eyebrow')}
+      title={t45n('navigation.integrations')}
+      description={t45n('admin.step45n.adminIntegrations.monitorRegisteredIntegrationHealthAndRunSafeConnection')}
       actions={(
         <INNOButton
           type="button"
@@ -75,33 +77,32 @@ export function AdminIntegrationsPage() {
           busy={query.isFetching}
           onClick={() => void query.refetch()}
         >
-          Refresh Health
-        </INNOButton>
+          {t45n('admin.step45n.adminIntegrations.refreshHealth')}</INNOButton>
       )}
     >
-      {query.isPending ? <LoadingState label="Checking integrations…" /> : null}
+      {query.isPending ? <LoadingState label={t45n('admin.step45n.adminIntegrations.checkingIntegrations')} /> : null}
       {query.isError ? <ErrorState error={query.error} retry={() => void query.refetch()} /> : null}
 
       {query.data ? (
         <>
           <div className="production-stat-strip">
-            <div><span>Registered</span><b>{items.length}</b><small>DI-registered providers</small></div>
-            <div><span>Connected</span><b>{connected}</b><small>Healthy now</small></div>
-            <div><span>Needs attention</span><b>{attention}</b><small>Degraded or not configured</small></div>
-            <div><span>Disabled</span><b>{disabled}</b><small>Disabled by environment</small></div>
+            <div><span>{t45n('reports.column.registeredAt')}</span><b>{items.length}</b><small>{t45n('admin.step45n.adminIntegrations.diRegisteredProviders')}</small></div>
+            <div><span>{t45n('common.status.connected')}</span><b>{connected}</b><small>{t45n('admin.step45n.adminIntegrations.healthyNow')}</small></div>
+            <div><span>{t45n('admin.step45n.adminIntegrations.needsAttention')}</span><b>{attention}</b><small>{t45n('admin.step45n.adminIntegrations.degradedOrNotConfigured')}</small></div>
+            <div><span>{t45n('admin.step45n.adminApps.disabled')}</span><b>{disabled}</b><small>{t45n('admin.step45n.adminIntegrations.disabledByEnvironment')}</small></div>
           </div>
 
           <INNOCollection>
             <INNOCollectionHeader
-              title="Integration Registry"
-              description="Providers register through the shared integration-health contract; future modules can contribute entries without changing this page."
+              title={t45n('admin.step45n.adminIntegrations.integrationRegistry')}
+              description={t45n('admin.step45n.adminIntegrations.providersRegisterThroughTheSharedIntegrationHealthContract')}
             />
             {items.length === 0 ? (
               <div className="collection-state">
                 <INNOState
                   kind="empty"
-                  title="No integrations registered"
-                  description="Register an integration-health provider in the application dependency container."
+                  title={t45n('admin.step45n.adminIntegrations.noIntegrationsRegistered')}
+                  description={t45n('admin.step45n.adminIntegrations.registerAnIntegrationHealthProviderInTheApplication')}
                 />
               </div>
             ) : (
@@ -109,13 +110,13 @@ export function AdminIntegrationsPage() {
                 <table>
                   <thead>
                     <tr>
-                      <th>Integration</th>
-                      <th>Category</th>
-                      <th>Owner</th>
-                      <th>Endpoint</th>
-                      <th>Health</th>
-                      <th>Last check</th>
-                      <th className="action-column">Action</th>
+                      <th>{t45n('admin.step45n.adminIntegrations.integration')}</th>
+                      <th>{t45n('reports.column.category')}</th>
+                      <th>{t45n('reports.column.owner')}</th>
+                      <th>{t45n('admin.step45n.adminIntegrations.endpoint')}</th>
+                      <th>{t45n('admin.step45n.adminIntegrations.health')}</th>
+                      <th>{t45n('admin.step45n.adminIntegrations.lastCheck')}</th>
+                      <th className="action-column">{t45n('reports.table.action')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -145,15 +146,15 @@ export function AdminIntegrationsPage() {
                           </td>
                           <td>
                             {formatCheckedAt(item.checkedAt)}
-                            <div className="table-meta">{item.durationMs} ms</div>
+                            <div className="table-meta">{item.durationMs} {t45n('admin.step45n.adminIntegrations.ms')}</div>
                           </td>
                           <td className="action-column">
                             {canManage && item.canTest ? (
                               <INNORowActions
-                                ariaLabel={'Actions for ' + item.name}
+                                ariaLabel={t45n('admin.step45n.adminIntegrations.actionsFor') + ' ' + item.name}
                                 items={[{
                                   id: 'test',
-                                  label: 'Test',
+                                  label: t45n('admin.step45n.adminIntegrations.test'),
                                   busy: testing,
                                   disabled: test.isPending && !testing,
                                   onSelect: () => test.mutate(item.id),
@@ -161,7 +162,7 @@ export function AdminIntegrationsPage() {
                               />
                             ) : (
                               <span className="table-meta">
-                                {item.canTest ? 'View only' : 'Unavailable'}
+                                {item.canTest ? t45n('admin.step45n.adminAccessScopes.viewOnly') : t45n('admin.step45n.adminBranding.unavailable')}
                               </span>
                             )}
                           </td>
@@ -178,10 +179,10 @@ export function AdminIntegrationsPage() {
             <INNOState
               kind="error"
               compact
-              title="Integration test failed"
+              title={t45n('admin.step45n.adminIntegrations.integrationTestFailed')}
               description={test.error instanceof Error
                 ? test.error.message
-                : 'Refresh the registry and try again.'}
+                : t45n('admin.step45n.adminApps.refreshTheRegistryAndTryAgain')}
             />
           ) : null}
         </>

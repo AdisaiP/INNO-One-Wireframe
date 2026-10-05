@@ -26,6 +26,7 @@ import {
   LoadingState,
 } from '../components/Feedback';
 import './WorkflowProductPages.css';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 function statusTone(status: string): 'neutral' | 'success' | 'danger' {
   if (status === 'completed') return 'success';
@@ -34,6 +35,7 @@ function statusTone(status: string): 'neutral' | 'success' | 'danger' {
 }
 
 export function ReportRunsPage() {
+  const { t: t45n } = useStep45NI18n();
   const { t, formatDateTime } = useI18n();
   const { reportId = '' } = useParams();
   const queryClient = useQueryClient();
@@ -126,7 +128,7 @@ export function ReportRunsPage() {
                   {runs.data.items.map((run) => (
                     <tr key={run.id}>
                       <td>{formatDateTime(run.createdAt)}</td>
-                      <td>v{run.reportVersion}</td>
+                      <td>{t45n('assets.step45n.assetsAutomationRules.v')}{run.reportVersion}</td>
                       <td>{t('reports.trigger.' + run.trigger)}</td>
                       <td>
                         <INNOStatus tone={statusTone(run.status)}>

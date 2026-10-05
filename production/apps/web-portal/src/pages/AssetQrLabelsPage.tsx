@@ -5,16 +5,18 @@ import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionToolbar
 import { createAssetQrLabel, getAssets } from '../api/client';
 import type { AssetListItem, AssetQrLabel } from '../api/types';
 import { ErrorState, LoadingState } from '../components/Feedback';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 type LabelSize = '50x30' | '40x25' | '60x40';
 
-const labelSizes: Record<LabelSize, { label: string; width: number; height: number }> = {
-  '50x30': { label: '50 × 30 mm', width: 50, height: 30 },
-  '40x25': { label: '40 × 25 mm', width: 40, height: 25 },
-  '60x40': { label: '60 × 40 mm', width: 60, height: 40 },
+const labelSizes: Record<LabelSize, { labelKey: string; width: number; height: number }> = {
+  '50x30': { labelKey: 'assets.step45n.assetQrLabels.n5030Mm', width: 50, height: 30 },
+  '40x25': { labelKey: 'assets.step45n.assetQrLabels.n4025Mm', width: 40, height: 25 },
+  '60x40': { labelKey: 'assets.step45n.assetQrLabels.n6040Mm', width: 60, height: 40 },
 };
 
 function QrImage({ value, assetTag }: { value: string; assetTag: string }) {
+  const { t: t45n } = useStep45NI18n();
   const [source, setSource] = useState('');
 
   useEffect(() => {
@@ -31,7 +33,7 @@ function QrImage({ value, assetTag }: { value: string; assetTag: string }) {
 
   return source
     ? <img className="asset-qr-code" src={source} alt={'QR code for ' + assetTag} />
-    : <div className="asset-qr-code-placeholder" aria-label={'Preparing QR code for ' + assetTag} />;
+    : <div className="asset-qr-code-placeholder" aria-label={t45n('assets.step45n.assetQrLabels.preparingQrCodeFor') + ' ' + assetTag} />;
 }
 
 function PrintLabel({
@@ -49,6 +51,7 @@ function PrintLabel({
   showSerial: boolean;
   showCompany: boolean;
 }) {
+  const { t: t45n } = useStep45NI18n();
   const dimensions = labelSizes[size];
   return (
     <article
@@ -57,17 +60,18 @@ function PrintLabel({
     >
       <QrImage value={label.qrValue} assetTag={label.assetTag} />
       <div className="asset-qr-label-copy">
-        {showCompany ? <strong>INNO.One Asset</strong> : null}
+        {showCompany ? <strong>{t45n('assets.step45n.assetQrLabels.innoOneAsset')}</strong> : null}
         {showAssetTag ? <b>{label.assetTag}</b> : null}
         {showModel ? <span>{label.brandModel || label.assetName}</span> : null}
         {showSerial && label.serialNumber ? <small>{label.serialNumber}</small> : null}
-        <em>Secure QR</em>
+        <em>{t45n('assets.step45n.assetQrLabels.secureQr')}</em>
       </div>
     </article>
   );
 }
 
 export function AssetQrLabelsPage() {
+  const { t: t45n } = useStep45NI18n();
   const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search);
   const [category, setCategory] = useState('all');
@@ -173,12 +177,12 @@ export function AssetQrLabelsPage() {
 
   return (
     <INNOPage
-      eyebrow="Assets · Management"
-      title="QR Labels"
-      description="Select assets, define the physical label, generate secure opaque QR values and print."
+      eyebrow={t45n('assets.step45n.assetCustomFields.assetsManagement')}
+      title={t45n('navigation.qrLabels')}
+      description={t45n('assets.step45n.assetQrLabels.selectAssetsDefineThePhysicalLabelGenerateSecure')}
     >
 
-      <div className="qr-flow-strip" aria-label="QR label workflow">
+      <div className="qr-flow-strip" aria-label={t45n('assets.step45n.assetQrLabels.qrLabelWorkflow')}>
         {[
           ['1', 'Select assets', 'Choose labels to generate'],
           ['2', 'Label setup', 'Size, copies and content'],
@@ -198,34 +202,34 @@ export function AssetQrLabelsPage() {
 
       <INNOCollection className="qr-select-section">
         <INNOCollectionHeader
-          title="1 · Select assets"
-          description="Choose equipment that needs a physical QR label."
-          meta={<INNOStatus>{selected.size} selected</INNOStatus>}
+          title={t45n('assets.step45n.assetQrLabels.n1SelectAssets')}
+          description={t45n('assets.step45n.assetQrLabels.chooseEquipmentThatNeedsAPhysicalQrLabel')}
+          meta={<INNOStatus>{selected.size} {t45n('assets.step45n.assetQrLabels.selected')}</INNOStatus>}
         />
         <INNOCollectionToolbar>
-          <INNOSearchField label="Search assets for QR labels" value={search} onChange={setSearch} placeholder="Search asset tag, name, serial, model…" />
-          <INNOSelectField label="Category filter" value={category} onChange={setCategory}>
-            <option value="all">Category: All</option>
-            <option>Computer</option>
-            <option>Notebook</option>
-            <option>Monitor</option>
-            <option>Printer</option>
+          <INNOSearchField label={t45n('assets.step45n.assetQrLabels.searchAssetsForQrLabels')} value={search} onChange={setSearch} placeholder={t45n('assets.step45n.assetQrLabels.searchAssetTagNameSerialModel')} />
+          <INNOSelectField label={t45n('assets.step45n.assetInventory.categoryFilter')} value={category} onChange={setCategory}>
+            <option value="all">{t45n('assets.step45n.assetInventory.categoryAll')}</option>
+            <option>{t45n('assets.step45n.assetEdit.computer')}</option>
+            <option>{t45n('devices.automation.editor.deviceType.notebook')}</option>
+            <option>{t45n('assets.step45n.assetEdit.monitor')}</option>
+            <option>{t45n('assets.step45n.assetEdit.printer')}</option>
           </INNOSelectField>
           <INNOToolbarSpacer />
           <INNOButton variant="secondary" disabled={assets.length === 0} onClick={toggleAllVisible}>
-            {assets.length > 0 && assets.every((asset) => selected.has(asset.id)) ? 'Clear visible' : 'Select visible'}
+            {assets.length > 0 && assets.every((asset) => selected.has(asset.id)) ? t45n('assets.step45n.assetQrLabels.clearVisible') : t45n('assets.step45n.assetQrLabels.selectVisible')}
           </INNOButton>
         </INNOCollectionToolbar>
         {assetsQuery.isPending ? (
-          <div className="collection-state"><LoadingState label="Loading assets…" /></div>
+          <div className="collection-state"><LoadingState label={t45n('assets.step45n.assetInventory.loadingAssets')} /></div>
         ) : assetsQuery.isError ? (
           <div className="collection-state"><ErrorState error={assetsQuery.error} retry={() => void assetsQuery.refetch()} /></div>
         ) : assets.length === 0 ? (
           <div className="collection-state">
             <INNOState
-              title="No assets found"
-              description="Try another search or clear the category filter."
-              action={<INNOButton variant="secondary" onClick={() => { setSearch(''); setCategory('all'); }}>Clear filters</INNOButton>}
+              title={t45n('assets.step45n.assetInventory.noAssetsFound')}
+              description={t45n('assets.step45n.assetQrLabels.tryAnotherSearchOrClearTheCategoryFilter')}
+              action={<INNOButton variant="secondary" onClick={() => { setSearch(''); setCategory('all'); }}>{t45n('admin.step45n.adminAccessScopes.clearFilters')}</INNOButton>}
             />
           </div>
         ) : (
@@ -233,12 +237,12 @@ export function AssetQrLabelsPage() {
             <table className="qr-asset-table">
               <thead>
                 <tr>
-                  <th className="select-column"><span className="sr-only">Select</span></th>
-                  <th>Asset</th>
-                  <th>Category</th>
-                  <th>Brand / Model</th>
-                  <th>Owner</th>
-                  <th>Status</th>
+                  <th className="select-column"><span className="sr-only">{t45n('assets.step45n.assetQrLabels.select')}</span></th>
+                  <th>{t45n('reports.column.name')}</th>
+                  <th>{t45n('reports.column.category')}</th>
+                  <th>{t45n('assets.step45n.assetInventory.brandModel')}</th>
+                  <th>{t45n('reports.column.owner')}</th>
+                  <th>{t45n('reports.runs.status')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -248,14 +252,14 @@ export function AssetQrLabelsPage() {
                       <input
                         type="checkbox"
                         checked={selected.has(asset.id)}
-                        aria-label={'Select ' + asset.assetTag}
+                        aria-label={t45n('assets.step45n.assetQrLabels.select') + ' ' + asset.assetTag}
                         onChange={() => toggleAsset(asset.id)}
                       />
                     </td>
                     <td><b>{asset.assetTag}</b><div className="table-meta">{asset.serialNumber ?? asset.name}</div></td>
                     <td>{asset.category}</td>
                     <td>{asset.brandModel || '—'}</td>
-                    <td>{asset.owner ?? 'Unassigned'}</td>
+                    <td>{asset.owner ?? t45n('assets.automation.editor.owner.unassigned')}</td>
                     <td><INNOStatus>{asset.status.replaceAll('_', ' ')}</INNOStatus></td>
                   </tr>
                 ))}
@@ -267,47 +271,46 @@ export function AssetQrLabelsPage() {
 
       <section className="prod-panel qr-setup-section">
         <div className="prod-panel-head">
-          <div><h3>2 · Label setup</h3><p>These settings affect the printed label only. They are never embedded in the QR token.</p></div>
+          <div><h3>{t45n('assets.step45n.assetQrLabels.n2LabelSetup')}</h3><p>{t45n('assets.step45n.assetQrLabels.theseSettingsAffectThePrintedLabelOnlyThey')}</p></div>
         </div>
         <div className="editor-form">
           <div className="editor-grid">
             <label className="field-block">
-              <span>Label size</span>
+              <span>{t45n('assets.step45n.assetQrLabels.labelSize')}</span>
               <select value={labelSize} onChange={(event) => setLabelSize(event.target.value as LabelSize)}>
-                {Object.entries(labelSizes).map(([value, size]) => <option key={value} value={value}>{size.label}</option>)}
+                {Object.entries(labelSizes).map(([value, size]) => <option key={value} value={value}>{t45n(size.labelKey)}</option>)}
               </select>
             </label>
             <label className="field-block">
-              <span>Copies per asset</span>
+              <span>{t45n('assets.step45n.assetQrLabels.copiesPerAsset')}</span>
               <select value={copies} onChange={(event) => setCopies(Number(event.target.value))}>
-                <option value={1}>1 copy</option>
-                <option value={2}>2 copies</option>
-                <option value={3}>3 copies</option>
+                <option value={1}>{t45n('assets.step45n.assetQrLabels.n1Copy')}</option>
+                <option value={2}>{t45n('assets.step45n.assetQrLabels.n2Copies')}</option>
+                <option value={3}>{t45n('assets.step45n.assetQrLabels.n3Copies')}</option>
               </select>
             </label>
           </div>
           <fieldset className="qr-content-options">
-            <legend>Visible label content</legend>
-            <label className="check-row"><input type="checkbox" checked={showAssetTag} onChange={(event) => setShowAssetTag(event.target.checked)} /><span>Asset No.</span></label>
-            <label className="check-row"><input type="checkbox" checked={showModel} onChange={(event) => setShowModel(event.target.checked)} /><span>Model</span></label>
-            <label className="check-row"><input type="checkbox" checked={showSerial} onChange={(event) => setShowSerial(event.target.checked)} /><span>Serial No.</span></label>
-            <label className="check-row"><input type="checkbox" checked={showCompany} onChange={(event) => setShowCompany(event.target.checked)} /><span>Company name</span></label>
+            <legend>{t45n('assets.step45n.assetQrLabels.visibleLabelContent')}</legend>
+            <label className="check-row"><input type="checkbox" checked={showAssetTag} onChange={(event) => setShowAssetTag(event.target.checked)} /><span>{t45n('assets.step45n.assetQrLabels.assetNo')}</span></label>
+            <label className="check-row"><input type="checkbox" checked={showModel} onChange={(event) => setShowModel(event.target.checked)} /><span>{t45n('reports.column.model')}</span></label>
+            <label className="check-row"><input type="checkbox" checked={showSerial} onChange={(event) => setShowSerial(event.target.checked)} /><span>{t45n('assets.step45n.assetQrLabels.serialNo')}</span></label>
+            <label className="check-row"><input type="checkbox" checked={showCompany} onChange={(event) => setShowCompany(event.target.checked)} /><span>{t45n('assets.step45n.assetQrLabels.companyName')}</span></label>
           </fieldset>
         </div>
       </section>
       <section className="prod-panel qr-preview-section">
         <div className="prod-panel-head">
           <div>
-            <h3>3 · Print preview</h3>
-            <p>Generated QR codes contain only a secure opaque token. Asset data is loaded after authenticated lookup.</p>
+            <h3>{t45n('assets.step45n.assetQrLabels.n3PrintPreview')}</h3>
+            <p>{t45n('assets.step45n.assetQrLabels.generatedQrCodesContainOnlyASecureOpaque')}</p>
           </div>
-          <INNOStatus tone={generatedForSelection.length > 0 ? 'success' : 'neutral'}>{generatedForSelection.length} ready</INNOStatus>
+          <INNOStatus tone={generatedForSelection.length > 0 ? 'success' : 'neutral'}>{generatedForSelection.length} {t45n('assets.step45n.assetQrLabels.ready')}</INNOStatus>
         </div>
 
         {generatedForSelection.length === 0 ? (
           <div className="compact-empty qr-preview-empty">
-            Select assets, then generate the secure preview.
-          </div>
+            {t45n('assets.step45n.assetQrLabels.selectAssetsThenGenerateTheSecurePreview')}</div>
         ) : (
           <div className="asset-qr-preview-grid">
             {generatedForSelection.map((asset) => (
@@ -325,17 +328,16 @@ export function AssetQrLabelsPage() {
         )}
 
         <div className="qr-security-grid">
-          <div><b>Opaque token</b><span>No owner, serial or mutable Asset JSON is encoded in the QR value.</span></div>
-          <div><b>Authenticated lookup</b><span>The scanner must sign in and pass Assets scope checks before data is returned.</span></div>
-          <div><b>Audited scan</b><span>Successful resolutions create restricted scan history and audit records.</span></div>
+          <div><b>{t45n('assets.step45n.assetQrLabels.opaqueToken')}</b><span>{t45n('assets.step45n.assetQrLabels.noOwnerSerialOrMutableAssetJsonIs')}</span></div>
+          <div><b>{t45n('assets.step45n.assetQrLabels.authenticatedLookup')}</b><span>{t45n('assets.step45n.assetQrLabels.theScannerMustSignInAndPassAssets')}</span></div>
+          <div><b>{t45n('assets.step45n.assetQrLabels.auditedScan')}</b><span>{t45n('assets.step45n.assetQrLabels.successfulResolutionsCreateRestrictedScanHistoryAndAudit')}</span></div>
         </div>
       </section>
 
       <INNOEditorFooter>
         <INNOEditorFooterStart>
           <INNOEditorFooterNote>
-            Regenerating replaces each selected Asset’s previous active QR label.
-          </INNOEditorFooterNote>
+            {t45n('assets.step45n.assetQrLabels.regeneratingReplacesEachSelectedAssetSPreviousActive')}</INNOEditorFooterNote>
         </INNOEditorFooterStart>
         <INNOEditorFooterEnd>
           <INNOButton
@@ -344,11 +346,10 @@ export function AssetQrLabelsPage() {
             disabled={selected.size === 0}
             onClick={() => generateMutation.mutate()}
           >
-            {generatedForSelection.length > 0 ? 'Regenerate Preview' : 'Generate Preview'}
+            {generatedForSelection.length > 0 ? t45n('assets.step45n.assetQrLabels.regeneratePreview') : t45n('assets.step45n.assetQrLabels.generatePreview')}
           </INNOButton>
           <INNOButton disabled={!canPrint || generateMutation.isPending} onClick={() => window.print()}>
-            Print Selected
-          </INNOButton>
+            {t45n('assets.step45n.assetQrLabels.printSelected')}</INNOButton>
         </INNOEditorFooterEnd>
       </INNOEditorFooter>
 

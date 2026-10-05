@@ -18,6 +18,7 @@ import {
 import { changeAssetOwnership, getAsset, getAssetOwners } from '../api/client';
 import { usePermission } from '../app/ProfileContext';
 import { ErrorState, LoadingState } from '../components/Feedback';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 function money(value?: number | null) {
   return value == null ? '—' : new Intl.NumberFormat('en-US', {
@@ -38,6 +39,7 @@ function customValueLabel(value: unknown, fieldType: string) {
 }
 
 export function AssetDetailPage() {
+  const { t: t45n } = useStep45NI18n();
   const { assetId = '' } = useParams();
   const canManage = usePermission('assets.manage');
   const queryClient = useQueryClient();
@@ -83,7 +85,7 @@ export function AssetDetailPage() {
     setOwnerError('');
   };
 
-  if (query.isPending) return <div className="page-loading-wrap"><LoadingState label="Loading asset…" /></div>;
+  if (query.isPending) return <div className="page-loading-wrap"><LoadingState label={t45n('assets.step45n.assetDetail.loadingAsset')} /></div>;
   if (query.isError) return <div className="page-error-wrap"><ErrorState error={query.error} retry={() => void query.refetch()} /></div>;
 
   const asset = query.data;
@@ -91,75 +93,75 @@ export function AssetDetailPage() {
   return (
     <main className="inno-page">
       <div className="resource-breadcrumb">
-        <Link to="/assets/inventory">Asset Inventory</Link><span>›</span><span>{asset.assetTag}</span>
+        <Link to="/assets/inventory">{t45n('navigation.assetInventory')}</Link><span>›</span><span>{asset.assetTag}</span>
       </div>
 
       <INNOResourceHeader
         icon={<INNOIcon token="nav.assets" size={20} />}
         title={asset.assetTag}
         status={<INNOStatus tone={asset.status === 'in_use' ? 'success' : asset.status === 'repair' ? 'warning' : 'neutral'}>{statusLabel(asset.status)}</INNOStatus>}
-        meta={<><span>{asset.name}</span><span>·</span><span>{[asset.brand, asset.model].filter(Boolean).join(' ') || asset.category}</span><span>·</span><span>{asset.serialNumber ?? 'No serial'}</span></>}
+        meta={<><span>{asset.name}</span><span>·</span><span>{[asset.brand, asset.model].filter(Boolean).join(' ') || asset.category}</span><span>·</span><span>{asset.serialNumber ?? t45n('assets.step45n.assetDetail.noSerial')}</span></>}
         actions={
           <>
-            {asset.linkedDevice ? <Link className="inno-link-button secondary" to={'/devices/' + asset.linkedDevice.id}>Open Device</Link> : null}
-            {canManage ? <Link className="inno-link-button secondary" to={'/assets/' + asset.id + '/edit'}>Edit Asset</Link> : null}
+            {asset.linkedDevice ? <Link className="inno-link-button secondary" to={'/devices/' + asset.linkedDevice.id}>{t45n('assets.step45n.assetDetail.openDevice')}</Link> : null}
+            {canManage ? <Link className="inno-link-button secondary" to={'/assets/' + asset.id + '/edit'}>{t45n('assets.step45n.assetDetail.editAsset')}</Link> : null}
           </>
         }
       />
 
       <INNOResourceSummary>
-        <INNOResourceSummaryItem label="Purchase price" value={money(asset.purchasePrice)} detail={'Registered ' + new Date(asset.registeredAt).toLocaleDateString()} />
-        <INNOResourceSummaryItem label="Owner" value={asset.owner?.name ?? 'Unassigned'} detail={asset.organization?.name ?? 'No organization'} />
-        <INNOResourceSummaryItem label="Warranty" value={asset.warrantyEndAt ? new Date(asset.warrantyEndAt).toLocaleDateString() : '—'} detail={asset.warrantyEndAt && new Date(asset.warrantyEndAt) > new Date() ? 'Active' : 'No active warranty'} />
-        <INNOResourceSummaryItem label="Source" value={asset.source.replaceAll('_', ' ')} detail={'Updated ' + new Date(asset.updatedAt).toLocaleString()} />
+        <INNOResourceSummaryItem label={t45n('assets.step45n.assetDetail.purchasePrice')} value={money(asset.purchasePrice)} detail={'Registered ' + new Date(asset.registeredAt).toLocaleDateString()} />
+        <INNOResourceSummaryItem label={t45n('reports.column.owner')} value={asset.owner?.name ?? 'Unassigned'} detail={asset.organization?.name ?? 'No organization'} />
+        <INNOResourceSummaryItem label={t45n('assets.step45n.assetDetail.warranty')} value={asset.warrantyEndAt ? new Date(asset.warrantyEndAt).toLocaleDateString() : '—'} detail={asset.warrantyEndAt && new Date(asset.warrantyEndAt) > new Date() ? 'Active' : 'No active warranty'} />
+        <INNOResourceSummaryItem label={t45n('reports.table.source')} value={asset.source.replaceAll('_', ' ')} detail={'Updated ' + new Date(asset.updatedAt).toLocaleString()} />
       </INNOResourceSummary>
 
       <INNOSurfaceTabs
-        ariaLabel="Asset detail sections"
+        ariaLabel={t45n('assets.step45n.assetDetail.assetDetailSections')}
         activeId={activeTab}
         onChange={(id) => setActiveTab(id as 'overview' | 'custom' | 'ownership')}
         items={[
-          { id: 'overview', label: 'Overview' },
-          { id: 'custom', label: 'Custom Fields' },
-          { id: 'ownership', label: 'Ownership' },
+          { id: 'overview', label: t45n('navigation.overview') },
+          { id: 'custom', label: t45n('navigation.customFields') },
+          { id: 'ownership', label: t45n('navigation.ownership') },
         ]}
       />
 
       <div hidden={activeTab !== 'overview'}>
         <div className="device-overview-grid">
           <section className="prod-panel">
-            <div className="prod-panel-head"><div><h3>Asset information</h3><p>Canonical inventory record owned by Assets.</p></div></div>
+            <div className="prod-panel-head"><div><h3>{t45n('assets.step45n.assetDetail.assetInformation')}</h3><p>{t45n('assets.step45n.assetDetail.canonicalInventoryRecordOwnedByAssets')}</p></div></div>
             <div className="kv-grid production-kv-grid">
-              <div className="kv-row"><span>Asset name</span><b>{asset.name}</b></div>
-              <div className="kv-row"><span>Category</span><b>{asset.category}</b></div>
-              <div className="kv-row"><span>Status</span><b>{statusLabel(asset.status)}</b></div>
-              <div className="kv-row"><span>Serial</span><b>{asset.serialNumber ?? '—'}</b></div>
+              <div className="kv-row"><span>{t45n('assets.step45n.assetDetail.assetName')}</span><b>{asset.name}</b></div>
+              <div className="kv-row"><span>{t45n('reports.column.category')}</span><b>{asset.category}</b></div>
+              <div className="kv-row"><span>{t45n('reports.runs.status')}</span><b>{statusLabel(asset.status)}</b></div>
+              <div className="kv-row"><span>{t45n('assets.step45n.assetDetail.serial')}</span><b>{asset.serialNumber ?? '—'}</b></div>
             </div>
           </section>
 
           <div className="panel-stack">
             <section className="prod-panel">
               <div className="prod-panel-head">
-                <div><h3>Current owner</h3><p>Ownership is a business relationship, not an identity record.</p></div>
-                {canManage ? <INNOButton variant="secondary" onClick={openOwnerDialog}>Change Owner</INNOButton> : null}
+                <div><h3>{t45n('assets.step45n.assetDetail.currentOwner')}</h3><p>{t45n('assets.step45n.assetDetail.ownershipIsABusinessRelationshipNotAnIdentity')}</p></div>
+                {canManage ? <INNOButton variant="secondary" onClick={openOwnerDialog}>{t45n('assets.step45n.assetDetail.changeOwner')}</INNOButton> : null}
               </div>
               <div className="settings-stack">
                 <div className="settings-row">
-                  <div><b>{asset.owner?.name ?? 'Unassigned'}</b><span>{asset.organization?.name ?? 'No organization'}</span></div>
+                  <div><b>{asset.owner?.name ?? t45n('assets.automation.editor.owner.unassigned')}</b><span>{asset.organization?.name ?? t45n('assets.step45n.assetDetail.noOrganization')}</span></div>
                 </div>
               </div>
             </section>
 
             <section className="prod-panel">
-              <div className="prod-panel-head"><div><h3>Linked managed endpoint</h3><p>Read through the Devices directory contract.</p></div></div>
+              <div className="prod-panel-head"><div><h3>{t45n('assets.step45n.assetDetail.linkedManagedEndpoint')}</h3><p>{t45n('assets.step45n.assetDetail.readThroughTheDevicesDirectoryContract')}</p></div></div>
               {asset.linkedDevice ? (
                 <div className="settings-stack">
                   <div className="settings-row">
-                    <div><b>{asset.linkedDevice.name}</b><span>{asset.linkedDevice.operatingSystem ?? 'Unknown OS'}</span></div>
+                    <div><b>{asset.linkedDevice.name}</b><span>{asset.linkedDevice.operatingSystem ?? t45n('assets.step45n.assetDetail.unknownOs')}</span></div>
                     <INNOStatus tone={asset.linkedDevice.status === 'online' ? 'success' : 'neutral'} dot>{asset.linkedDevice.status}</INNOStatus>
                   </div>
                 </div>
-              ) : <div className="compact-empty">No managed endpoint linked.</div>}
+              ) : <div className="compact-empty">{t45n('assets.step45n.assetDetail.noManagedEndpointLinked')}</div>}
             </section>
           </div>
         </div>
@@ -168,11 +170,11 @@ export function AssetDetailPage() {
       <div hidden={activeTab !== 'custom'}>
         <section className="prod-panel asset-custom-values-panel">
           <div className="prod-panel-head">
-            <div><h3>Custom fields</h3><p>Organization-defined Asset attributes. Schema is managed separately.</p></div>
-            <Link className="open-resource" to="/assets/custom-fields">Manage schema</Link>
+            <div><h3>{t45n('assets.step45n.assetDetail.customFields')}</h3><p>{t45n('assets.step45n.assetDetail.organizationDefinedAssetAttributesSchemaIsManagedSeparately')}</p></div>
+            <Link className="open-resource" to="/assets/custom-fields">{t45n('assets.step45n.assetDetail.manageSchema')}</Link>
           </div>
           {asset.customFields.length === 0 ? (
-            <div className="compact-empty">No active custom fields are configured.</div>
+            <div className="compact-empty">{t45n('assets.step45n.assetDetail.noActiveCustomFieldsAreConfigured')}</div>
           ) : (
             <div className="kv-grid production-kv-grid">
               {asset.customFields.map((field) => (
@@ -188,19 +190,19 @@ export function AssetDetailPage() {
 
       <div hidden={activeTab !== 'ownership'}>
         <INNOCollection>
-          <INNOCollectionHeader title="Ownership history" description="Immutable ownership changes for this asset." />
+          <INNOCollectionHeader title={t45n('assets.step45n.assetDetail.ownershipHistory')} description={t45n('assets.step45n.assetDetail.immutableOwnershipChangesForThisAsset')} />
           {asset.ownershipHistory.length === 0 ? (
-            <div className="collection-state"><INNOState kind="empty" title="No ownership history" description="Ownership changes will appear here after the first assignment." /></div>
+            <div className="collection-state"><INNOState kind="empty" title={t45n('assets.step45n.assetDetail.noOwnershipHistory')} description={t45n('assets.step45n.assetDetail.ownershipChangesWillAppearHereAfterTheFirst')} /></div>
           ) : (
             <INNOTableWrap width="wide">
               <table>
-                <thead><tr><th>Effective</th><th>Previous owner</th><th>Owner</th><th>Reason</th></tr></thead>
+                <thead><tr><th>{t45n('common.status.effective')}</th><th>{t45n('assets.step45n.assetDetail.previousOwner')}</th><th>{t45n('reports.column.owner')}</th><th>{t45n('assets.step45n.assetDetail.reason')}</th></tr></thead>
                 <tbody>
                   {asset.ownershipHistory.map((item) => (
                     <tr key={item.id}>
                       <td>{new Date(item.effectiveAt).toLocaleString()}</td>
-                      <td>{item.previousOwner ?? 'Unassigned'}</td>
-                      <td>{item.owner ?? 'Unassigned'}</td>
+                      <td>{item.previousOwner ?? t45n('assets.automation.editor.owner.unassigned')}</td>
+                      <td>{item.owner ?? t45n('assets.automation.editor.owner.unassigned')}</td>
                       <td>{item.reasonCode.replaceAll('_', ' ')}</td>
                     </tr>
                   ))}
@@ -213,27 +215,26 @@ export function AssetDetailPage() {
 
       <INNODialog
         open={ownerDialogOpen}
-        title="Change Asset Owner"
-        description="Assign this Asset to a person in the current ownership directory."
+        title={t45n('assets.step45n.assetDetail.changeAssetOwner')}
+        description={t45n('assets.step45n.assetDetail.assignThisAssetToAPersonInThe')}
         onClose={closeOwnerDialog}
         size="sm"
         footer={<>
-          <INNOButton type="button" variant="secondary" disabled={ownerMutation.isPending} onClick={closeOwnerDialog}>Cancel</INNOButton>
+          <INNOButton type="button" variant="secondary" disabled={ownerMutation.isPending} onClick={closeOwnerDialog}>{t45n('reports.action.cancel')}</INNOButton>
           <INNOButton
             type="button"
             busy={ownerMutation.isPending}
             disabled={ownerId === (asset.owner?.id ?? '')}
             onClick={() => ownerMutation.mutate()}
           >
-            Change Owner
-          </INNOButton>
+            {t45n('assets.step45n.assetDetail.changeOwner')}</INNOButton>
         </>}
       >
         <div className="editor-form">
           <label className="field-block">
-            <span>Assigned user</span>
+            <span>{t45n('assets.step45n.assetDetail.assignedUser')}</span>
             <select data-autofocus value={ownerId} disabled={owners.isPending} onChange={(event) => setOwnerId(event.target.value)}>
-              <option value="">Unassigned</option>
+              <option value="">{t45n('assets.automation.editor.owner.unassigned')}</option>
               {owners.data?.items.map((owner) => <option key={owner.id} value={owner.id}>{owner.fullName} · {owner.employeeId}</option>)}
             </select>
           </label>

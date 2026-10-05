@@ -17,6 +17,7 @@ import {
 } from '../api/client';
 import type { AdminPlatformSettingsResponse } from '../api/types';
 import { ErrorState, LoadingState } from '../components/Feedback';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 function localeLabel(locale: Locale, t: (key: string) => string) {
   return locale === 'th-TH'
@@ -25,6 +26,7 @@ function localeLabel(locale: Locale, t: (key: string) => string) {
 }
 
 export function AdminPlatformSettingsPage() {
+  const { t: t45n } = useStep45NI18n();
   const { t, formatDateTime } = useI18n();
   const queryClient = useQueryClient();
   const query = useQuery({
@@ -42,7 +44,7 @@ export function AdminPlatformSettingsPage() {
 
   const localizationMutation = useMutation({
     mutationFn: () => {
-      if (!query.data) throw new Error('Platform settings are not loaded.');
+      if (!query.data) throw new Error(t45n('admin.step45n.adminPlatformSettings.platformSettingsAreNotLoaded'));
       return updateAdminPlatformLocalization(
         defaultLocale,
         query.data.localization.eTag,
@@ -151,17 +153,17 @@ export function AdminPlatformSettingsPage() {
             <div>
               <span>{t('admin.settings.environment')}</span>
               <b className="platform-setting-stat-value">{query.data.environment}</b>
-              <small>Current hosting environment</small>
+              <small>{t45n('admin.step45n.adminPlatformSettings.currentHostingEnvironment')}</small>
             </div>
             <div>
               <span>{t('admin.settings.groups')}</span>
               <b>{query.data.groups.length}</b>
-              <small>Effective settings groups</small>
+              <small>{t45n('admin.step45n.adminPlatformSettings.effectiveSettingsGroups')}</small>
             </div>
             <div>
               <span>{t('admin.settings.settings')}</span>
               <b>{query.data.items.length}</b>
-              <small>Safe values exposed</small>
+              <small>{t45n('admin.step45n.adminPlatformSettings.safeValuesExposed')}</small>
             </div>
             <div>
               <span>{t('admin.settings.mode')}</span>

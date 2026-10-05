@@ -1073,6 +1073,7 @@ export interface PlatformNotificationItem {
   notificationType: string;
   title: string;
   message: string;
+  contentLocale: 'en-US' | 'th-TH';
   destinationPath: string;
   isImportant: boolean;
   isRead: boolean;

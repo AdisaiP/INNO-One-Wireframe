@@ -141,12 +141,6 @@ public static class PlatformDevelopmentSeed
         ("platform.search.use", "platform", "Use global search")
     ];
 
-    private static readonly (string Id, string Module, string Name)[] Step45CPermissions =
-    [
-        ("workflows.view", "workflows", "View dynamic workflows"),
-        ("workflows.manage", "workflows", "Manage dynamic workflows")
-    ];
-
     private static readonly (string Id, string Module, string Name)[] Step45GPermissions =
     [
         ("helpdesk.automation.run.view", "helpdesk", "View helpdesk automation run history")
@@ -427,12 +421,6 @@ public static class PlatformDevelopmentSeed
             Module = x.Module,
             Name = x.Name
         }));
-        db.Permissions.AddRange(Step45CPermissions.Select(x => new Permission
-        {
-            PermissionId = x.Id,
-            Module = x.Module,
-            Name = x.Name
-        }));
         db.Permissions.AddRange(Step45GPermissions.Select(x => new Permission
         {
             PermissionId = x.Id,
@@ -540,11 +528,6 @@ public static class PlatformDevelopmentSeed
             PermissionId = x.Id
         }));
         db.RolePermissions.AddRange(Step38Permissions.Select(x => new RolePermission
-        {
-            RoleId = PlatformAdminRoleId,
-            PermissionId = x.Id
-        }));
-        db.RolePermissions.AddRange(Step45CPermissions.Select(x => new RolePermission
         {
             RoleId = PlatformAdminRoleId,
             PermissionId = x.Id
@@ -707,6 +690,37 @@ public static class PlatformDevelopmentSeed
     {
         var now = DateTimeOffset.UtcNow;
 
+        var retiredWorkflowPermissions = new[] { "workflows.view", "workflows.manage" };
+        var retiredActionOverrides = await db.AccessAssignmentActions
+            .Where(x => retiredWorkflowPermissions.Contains(x.PermissionId))
+            .ToListAsync(cancellationToken);
+        if (retiredActionOverrides.Count > 0)
+        {
+            db.AccessAssignmentActions.RemoveRange(retiredActionOverrides);
+        }
+
+        var retiredRolePermissions = await db.RolePermissions
+            .Where(x => retiredWorkflowPermissions.Contains(x.PermissionId))
+            .ToListAsync(cancellationToken);
+        if (retiredRolePermissions.Count > 0)
+        {
+            db.RolePermissions.RemoveRange(retiredRolePermissions);
+        }
+
+        if (retiredActionOverrides.Count > 0 || retiredRolePermissions.Count > 0)
+        {
+            await db.SaveChangesAsync(cancellationToken);
+        }
+
+        var retiredPermissionRows = await db.Permissions
+            .Where(x => retiredWorkflowPermissions.Contains(x.PermissionId))
+            .ToListAsync(cancellationToken);
+        if (retiredPermissionRows.Count > 0)
+        {
+            db.Permissions.RemoveRange(retiredPermissionRows);
+            await db.SaveChangesAsync(cancellationToken);
+        }
+
         if (!await db.LocalizationSettings.AnyAsync(cancellationToken))
         {
             db.LocalizationSettings.Add(new PlatformLocalizationSettings
@@ -746,7 +760,6 @@ public static class PlatformDevelopmentSeed
             .Concat(Step36Permissions)
             .Concat(Step37Permissions)
             .Concat(Step38Permissions)
-            .Concat(Step45CPermissions)
             .Concat(Step45GPermissions)
             .Concat(Step45HPermissions)
             .Concat(Step45IPermissions)
@@ -848,7 +861,6 @@ public static class PlatformDevelopmentSeed
             .Concat(Step36Permissions)
             .Concat(Step37Permissions)
             .Concat(Step38Permissions)
-            .Concat(Step45CPermissions)
             .Concat(Step45GPermissions)
             .Concat(Step45HPermissions)
             .Concat(Step45IPermissions)
@@ -1014,12 +1026,27 @@ public static class PlatformDevelopmentSeed
     {
         var seeded = Step37Notifications(now).ToArray();
         var ids = seeded.Select(x => x.Id).ToArray();
-        var existing = await db.Notifications.AsNoTracking()
+        var existing = await db.Notifications
             .Where(x => ids.Contains(x.Id))
-            .Select(x => x.Id)
-            .ToHashSetAsync(cancellationToken);
+            .ToDictionaryAsync(x => x.Id, cancellationToken);
 
-        db.Notifications.AddRange(seeded.Where(x => !existing.Contains(x.Id)));
+        foreach (var item in seeded)
+        {
+            if (!existing.TryGetValue(item.Id, out var current))
+            {
+                db.Notifications.Add(item);
+                continue;
+            }
+
+            current.SourceModule = item.SourceModule;
+            current.NotificationType = item.NotificationType;
+            current.TitleEn = item.TitleEn;
+            current.TitleTh = item.TitleTh;
+            current.MessageEn = item.MessageEn;
+            current.MessageTh = item.MessageTh;
+            current.DestinationPath = item.DestinationPath;
+            current.IsImportant = item.IsImportant;
+        }
     }
 
     private static IEnumerable<PlatformNotification> Step37Notifications(DateTimeOffset now)
@@ -1032,8 +1059,10 @@ public static class PlatformDevelopmentSeed
                 UserId = UserId,
                 SourceModule = "devices",
                 NotificationType = "device.offline",
-                Title = "PC-FIN-021 is offline longer than expected",
-                Message = "Devices · anomaly detected · opens Devices workspace",
+                TitleEn = "PC-FIN-021 is offline longer than expected",
+                TitleTh = "PC-FIN-021 ออฟไลน์นานกว่าที่คาด",
+                MessageEn = "Devices · anomaly detected · opens Devices workspace",
+                MessageTh = "Devices · ตรวจพบความผิดปกติ · เปิด Workspace ของ Devices",
                 DestinationPath = "/devices",
                 IsImportant = true,
                 CreatedAt = now.AddMinutes(-12)
@@ -1044,8 +1073,10 @@ public static class PlatformDevelopmentSeed
                 UserId = UserId,
                 SourceModule = "helpdesk",
                 NotificationType = "ticket.assigned",
-                Title = "HD-2026-001048 assigned to you",
-                Message = "Helpdesk · Network / VPN · P2 High",
+                TitleEn = "HD-2026-001048 assigned to you",
+                TitleTh = "HD-2026-001048 ถูกมอบหมายให้คุณ",
+                MessageEn = "Helpdesk · Network / VPN · P2 High",
+                MessageTh = "Helpdesk · Network / VPN · P2 สูง",
                 DestinationPath = "/helpdesk/assigned",
                 IsImportant = true,
                 CreatedAt = now.AddMinutes(-34)
@@ -1056,8 +1087,10 @@ public static class PlatformDevelopmentSeed
                 UserId = UserId,
                 SourceModule = "assets",
                 NotificationType = "contract.expiring",
-                Title = "4 contracts expire within 90 days",
-                Message = "Assets · warranty and contract attention",
+                TitleEn = "4 contracts expire within 90 days",
+                TitleTh = "4 สัญญาจะหมดอายุภายใน 90 วัน",
+                MessageEn = "Assets · warranty and contract attention",
+                MessageTh = "Assets · ต้องตรวจสอบการรับประกันและสัญญา",
                 DestinationPath = "/assets/contracts",
                 IsImportant = false,
                 ReadAt = now.AddMinutes(-45),
@@ -1069,8 +1102,10 @@ public static class PlatformDevelopmentSeed
                 UserId = UserId,
                 SourceModule = "assets",
                 NotificationType = "license.overage",
-                Title = "Adobe Acrobat Pro exceeds purchased seats",
-                Message = "Assets · 13 seats over entitlement",
+                TitleEn = "Adobe Acrobat Pro exceeds purchased seats",
+                TitleTh = "Adobe Acrobat Pro ใช้ Seat เกินจำนวนที่ซื้อ",
+                MessageEn = "Assets · 13 seats over entitlement",
+                MessageTh = "Assets · ใช้เกินสิทธิ์ 13 Seat",
                 DestinationPath = "/assets/software-licenses",
                 IsImportant = true,
                 ReadAt = now.AddHours(-1),
@@ -1082,8 +1117,10 @@ public static class PlatformDevelopmentSeed
                 UserId = UserId,
                 SourceModule = "helpdesk",
                 NotificationType = "sla.at_risk",
-                Title = "2 high-priority tickets are approaching SLA",
-                Message = "Helpdesk · response targets need attention",
+                TitleEn = "2 high-priority tickets are approaching SLA",
+                TitleTh = "ทิกเก็ตความสำคัญสูง 2 รายการใกล้ถึง SLA",
+                MessageEn = "Helpdesk · response targets need attention",
+                MessageTh = "Helpdesk · เป้าหมายการตอบกลับต้องตรวจสอบ",
                 DestinationPath = "/helpdesk/sla",
                 IsImportant = false,
                 ReadAt = now.AddHours(-2),
@@ -1095,8 +1132,10 @@ public static class PlatformDevelopmentSeed
                 UserId = HrViewerUserId,
                 SourceModule = "devices",
                 NotificationType = "device.offline",
-                Title = "HR-NB-014 has not checked in",
-                Message = "Devices · last seen outside the expected interval",
+                TitleEn = "HR-NB-014 has not checked in",
+                TitleTh = "HR-NB-014 ยังไม่ได้เช็กอิน",
+                MessageEn = "Devices · last seen outside the expected interval",
+                MessageTh = "Devices · พบล่าสุดเกินช่วงเวลาที่คาด",
                 DestinationPath = "/devices",
                 IsImportant = true,
                 CreatedAt = now.AddMinutes(-18)

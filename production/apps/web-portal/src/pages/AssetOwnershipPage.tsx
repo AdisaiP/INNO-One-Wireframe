@@ -3,43 +3,45 @@ import { Link } from 'react-router-dom';
 import { INNOCollection, INNOCollectionHeader, INNOPage, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { getAssetOwnership } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 export function AssetOwnershipPage() {
+  const { t: t45n } = useStep45NI18n();
   const query = useQuery({ queryKey: ['assets', 'ownership'], queryFn: getAssetOwnership });
   return (
     <INNOPage
-      eyebrow="Assets · Ownership"
-      title="Asset Ownership"
-      description="Review asset assignments, owner context and Agent-submitted ownership changes. User identity remains administered in Admin Center."
+      eyebrow={t45n('assets.step45n.assetOwners.assetsOwnership')}
+      title={t45n('assets.step45n.assetOwnership.assetOwnership')}
+      description={t45n('assets.step45n.assetOwnership.reviewAssetAssignmentsOwnerContextAndAgentSubmitted')}
     >
-      {query.isPending ? <LoadingState label="Loading ownership…" /> : null}
+      {query.isPending ? <LoadingState label={t45n('assets.step45n.assetOwnership.loadingOwnership')} /> : null}
       {query.isError ? <ErrorState error={query.error} retry={() => void query.refetch()} /> : null}
       {query.data ? <>
         <div className="production-stat-strip">
-          <div><span>Assigned</span><b>{query.data.assignedAssets}</b><small>Assets with an owner</small></div>
-          <div><span>Confirmed</span><b>{query.data.confirmedOwnership}</b><small>Current ownership records</small></div>
-          <div><span>Pending confirmation</span><b>{query.data.pendingSubmissions}</b><small>From Endpoint Agent</small></div>
-          <div><span>Unassigned</span><b>{query.data.unassignedAssets}</b><small>Need an owner or pool</small></div>
+          <div><span>{t45n('assets.automation.editor.owner.assigned')}</span><b>{query.data.assignedAssets}</b><small>{t45n('assets.step45n.assetOwnership.assetsWithAnOwner')}</small></div>
+          <div><span>{t45n('assets.step45n.assetOwnership.confirmed')}</span><b>{query.data.confirmedOwnership}</b><small>{t45n('assets.step45n.assetOwnership.currentOwnershipRecords')}</small></div>
+          <div><span>{t45n('assets.step45n.assetOwnership.pendingConfirmation')}</span><b>{query.data.pendingSubmissions}</b><small>{t45n('assets.step45n.assetOwnership.fromEndpointAgent')}</small></div>
+          <div><span>{t45n('assets.automation.editor.owner.unassigned')}</span><b>{query.data.unassignedAssets}</b><small>{t45n('assets.step45n.assetOwnership.needAnOwnerOrPool')}</small></div>
         </div>
         <div className="asset-ownership-overview-grid">
           <section className="prod-panel">
-            <div className="prod-panel-head"><div><h3>Asset Owners</h3><p>Open ownership profiles for people with assets in your effective scope.</p></div><Link className="open-resource" to="/assets/owners">View asset owners</Link></div>
-            <div className="settings-stack"><div className="settings-row"><div><b>Identity source</b><span>Names, email and organization are read-only here and remain administered in Admin Center.</span></div><INNOStatus tone="success">Connected</INNOStatus></div></div>
+            <div className="prod-panel-head"><div><h3>{t45n('navigation.assetOwners')}</h3><p>{t45n('assets.step45n.assetOwnership.openOwnershipProfilesForPeopleWithAssetsIn')}</p></div><Link className="open-resource" to="/assets/owners">{t45n('assets.step45n.assetOwnership.viewAssetOwners')}</Link></div>
+            <div className="settings-stack"><div className="settings-row"><div><b>{t45n('assets.step45n.assetOwnership.identitySource')}</b><span>{t45n('assets.step45n.assetOwnership.namesEmailAndOrganizationAreReadOnlyHere')}</span></div><INNOStatus tone="success">{t45n('common.status.connected')}</INNOStatus></div></div>
           </section>
           <section className="prod-panel">
-            <div className="prod-panel-head"><div><h3>Agent Submissions</h3><p>Review durable ownership confirmations from the Endpoint Agent.</p></div><Link className="open-resource" to="/assets/ownership/submissions">Review queue</Link></div>
-            <div className="settings-stack"><div className="settings-row"><div><b>Pending review</b><span>Endpoint Agent remains a separate client surface.</span></div><b>{query.data.pendingSubmissions}</b></div></div>
+            <div className="prod-panel-head"><div><h3>{t45n('navigation.agentSubmissions')}</h3><p>{t45n('assets.step45n.assetOwnership.reviewDurableOwnershipConfirmationsFromTheEndpointAgent')}</p></div><Link className="open-resource" to="/assets/ownership/submissions">{t45n('assets.step45n.assetOwnership.reviewQueue')}</Link></div>
+            <div className="settings-stack"><div className="settings-row"><div><b>{t45n('assets.step45n.assetOwnership.pendingReview')}</b><span>{t45n('assets.step45n.assetOwnership.endpointAgentRemainsASeparateClientSurface')}</span></div><b>{query.data.pendingSubmissions}</b></div></div>
           </section>
         </div>
         <INNOCollection>
-          <INNOCollectionHeader title="Recent ownership changes" description="Latest assignment history visible in your scope." />
+          <INNOCollectionHeader title={t45n('assets.step45n.assetOwnership.recentOwnershipChanges')} description={t45n('assets.step45n.assetOwnership.latestAssignmentHistoryVisibleInYourScope')} />
           {query.data.recentChanges.length === 0 ? (
-            <div className="collection-state"><INNOState kind="empty" title="No ownership changes yet" description="Assignment history will appear after ownership changes are recorded." /></div>
+            <div className="collection-state"><INNOState kind="empty" title={t45n('assets.step45n.assetOwnership.noOwnershipChangesYet')} description={t45n('assets.step45n.assetOwnership.assignmentHistoryWillAppearAfterOwnershipChangesAre')} /></div>
           ) : (
             <INNOTableWrap width="wide">
               <table>
-                <thead><tr><th>Asset</th><th>Previous owner</th><th>Owner</th><th>Reason</th><th>Effective</th></tr></thead>
-                <tbody>{query.data.recentChanges.map((item) => <tr key={item.assetId + item.effectiveAt}><td><Link className="open-resource" to={'/assets/' + item.assetId}>{item.assetTag}</Link></td><td>{item.previousOwner ?? 'Unassigned'}</td><td>{item.owner ?? 'Unassigned'}</td><td>{item.reasonCode.replaceAll('_', ' ')}</td><td>{new Date(item.effectiveAt).toLocaleString()}</td></tr>)}</tbody>
+                <thead><tr><th>{t45n('reports.column.name')}</th><th>{t45n('assets.step45n.assetDetail.previousOwner')}</th><th>{t45n('reports.column.owner')}</th><th>{t45n('assets.step45n.assetDetail.reason')}</th><th>{t45n('common.status.effective')}</th></tr></thead>
+                <tbody>{query.data.recentChanges.map((item) => <tr key={item.assetId + item.effectiveAt}><td><Link className="open-resource" to={'/assets/' + item.assetId}>{item.assetTag}</Link></td><td>{item.previousOwner ?? t45n('assets.automation.editor.owner.unassigned')}</td><td>{item.owner ?? t45n('assets.automation.editor.owner.unassigned')}</td><td>{item.reasonCode.replaceAll('_', ' ')}</td><td>{new Date(item.effectiveAt).toLocaleString()}</td></tr>)}</tbody>
               </table>
             </INNOTableWrap>
           )}

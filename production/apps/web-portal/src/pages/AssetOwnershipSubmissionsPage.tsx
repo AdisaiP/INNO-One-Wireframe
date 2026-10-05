@@ -4,8 +4,10 @@ import { INNOCollection, INNOCollectionHeader, INNOCollectionToolbar, INNOPage, 
 import { decideOwnershipSubmission, getOwnershipSubmissions } from '../api/client';
 import { usePermission } from '../app/ProfileContext';
 import { ErrorState, LoadingState } from '../components/Feedback';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 export function AssetOwnershipSubmissionsPage() {
+  const { t: t45n } = useStep45NI18n();
   const canManage = usePermission('assets.manage');
   const [status, setStatus] = useState('pending');
   const queryClient = useQueryClient();
@@ -16,38 +18,38 @@ export function AssetOwnershipSubmissionsPage() {
   });
 
   return <INNOPage
-    eyebrow="Assets · Ownership"
-    title="Agent Submissions"
-    description="Review ownership information submitted by the separate Endpoint Agent surface."
+    eyebrow={t45n('assets.step45n.assetOwners.assetsOwnership')}
+    title={t45n('navigation.agentSubmissions')}
+    description={t45n('assets.step45n.assetOwnershipSubmissions.reviewOwnershipInformationSubmittedByTheSeparateEndpoint')}
   >
     <INNOCollection>
       <INNOCollectionHeader
-        title="Ownership submissions"
-        description="Durable confirmations awaiting Web review."
-        meta={query.data ? <INNOStatus>{query.data.totalItems} submissions</INNOStatus> : undefined}
+        title={t45n('assets.step45n.assetOwnershipSubmissions.ownershipSubmissions')}
+        description={t45n('assets.step45n.assetOwnershipSubmissions.durableConfirmationsAwaitingWebReview')}
+        meta={query.data ? <INNOStatus>{query.data.totalItems} {t45n('assets.step45n.assetOwnershipSubmissions.submissions')}</INNOStatus> : undefined}
       />
       <INNOCollectionToolbar>
-        <INNOSelectField label="Submission status" value={status} onChange={setStatus}>
-          <option value="pending">Status: Pending</option>
-          <option value="all">All</option>
-          <option value="confirmed">Confirmed</option>
-          <option value="rejected">Rejected</option>
+        <INNOSelectField label={t45n('assets.step45n.assetOwnershipSubmissions.submissionStatus')} value={status} onChange={setStatus}>
+          <option value="pending">{t45n('assets.step45n.assetOwnershipSubmissions.statusPending')}</option>
+          <option value="all">{t45n('admin.step45n.adminAccessScopeEdit.all')}</option>
+          <option value="confirmed">{t45n('assets.step45n.assetOwnership.confirmed')}</option>
+          <option value="rejected">{t45n('assets.step45n.assetOwnershipSubmissions.rejected')}</option>
         </INNOSelectField>
         <INNOToolbarSpacer />
-        <INNOToolbarMeta>Endpoint Agent is not embedded in Web</INNOToolbarMeta>
+        <INNOToolbarMeta>{t45n('assets.step45n.assetOwnershipSubmissions.endpointAgentIsNotEmbeddedInWeb')}</INNOToolbarMeta>
       </INNOCollectionToolbar>
       {decision.isError ? <div className="form-error" role="alert">{decision.error.message}</div> : null}
       {query.isPending ? (
-        <div className="collection-state"><LoadingState label="Loading submissions…" /></div>
+        <div className="collection-state"><LoadingState label={t45n('assets.step45n.assetOwnershipSubmissions.loadingSubmissions')} /></div>
       ) : query.isError ? (
         <div className="collection-state"><ErrorState error={query.error} retry={() => void query.refetch()} /></div>
       ) : query.data.items.length === 0 ? (
-        <div className="collection-state"><INNOState kind="empty" title="No ownership submissions" description="No submissions match the selected status." /></div>
+        <div className="collection-state"><INNOState kind="empty" title={t45n('assets.step45n.assetOwnershipSubmissions.noOwnershipSubmissions')} description={t45n('assets.step45n.assetOwnershipSubmissions.noSubmissionsMatchTheSelectedStatus')} /></div>
       ) : (
         <INNOTableWrap width="xwide">
           <table>
-            <thead><tr><th>User / Device</th><th>Asset</th><th>Submitted</th><th>Possession</th><th>Changes</th><th>Status</th>{canManage ? <th className="action-column">Action</th> : null}</tr></thead>
-            <tbody>{query.data.items.map((item) => <tr key={item.id}><td><b>{item.userName}</b><div className="table-meta">{item.deviceName}</div></td><td>{item.assetTag}</td><td>{new Date(item.submittedAt).toLocaleString()}</td><td>{item.possession}</td><td>{item.changes.join(', ') || 'No changes'}</td><td><INNOStatus tone={item.status === 'confirmed' ? 'success' : item.status === 'rejected' ? 'danger' : 'warning'}>{item.status}</INNOStatus></td>{canManage ? <td className="action-column">{item.status === 'pending' ? <INNORowActions ariaLabel={'Ownership submission for ' + item.assetTag} items={[{ id: 'confirm', label: 'Confirm', busy: decision.isPending, onSelect: () => decision.mutate({ id: item.id, eTag: item.eTag, value: 'confirmed' }) }, { id: 'reject', label: 'Reject', tone: 'danger', busy: decision.isPending, onSelect: () => decision.mutate({ id: item.id, eTag: item.eTag, value: 'rejected' }) }]} /> : <span className="table-meta">Reviewed</span>}</td> : null}</tr>)}</tbody>
+            <thead><tr><th>{t45n('assets.step45n.assetOwnershipSubmissions.userDevice')}</th><th>{t45n('reports.column.name')}</th><th>{t45n('assets.step45n.assetOwnershipSubmissions.submitted')}</th><th>{t45n('assets.step45n.assetOwnershipSubmissions.possession')}</th><th>{t45n('assets.step45n.assetOwnershipSubmissions.changes')}</th><th>{t45n('reports.runs.status')}</th>{canManage ? <th className="action-column">{t45n('reports.table.action')}</th> : null}</tr></thead>
+            <tbody>{query.data.items.map((item) => <tr key={item.id}><td><b>{item.userName}</b><div className="table-meta">{item.deviceName}</div></td><td>{item.assetTag}</td><td>{new Date(item.submittedAt).toLocaleString()}</td><td>{item.possession}</td><td>{item.changes.join(', ') || t45n('assets.step45n.assetOwnershipSubmissions.noChanges')}</td><td><INNOStatus tone={item.status === 'confirmed' ? 'success' : item.status === 'rejected' ? 'danger' : 'warning'}>{item.status}</INNOStatus></td>{canManage ? <td className="action-column">{item.status === 'pending' ? <INNORowActions ariaLabel={t45n('assets.step45n.assetOwnershipSubmissions.ownershipSubmissionFor') + ' ' + item.assetTag} items={[{ id: 'confirm', label: t45n('assets.step45n.assetOwnershipSubmissions.confirm'), busy: decision.isPending, onSelect: () => decision.mutate({ id: item.id, eTag: item.eTag, value: 'confirmed' }) }, { id: 'reject', label: t45n('assets.step45n.assetOwnershipSubmissions.reject'), tone: 'danger', busy: decision.isPending, onSelect: () => decision.mutate({ id: item.id, eTag: item.eTag, value: 'rejected' }) }]} /> : <span className="table-meta">{t45n('assets.step45n.assetOwnershipSubmissions.reviewed')}</span>}</td> : null}</tr>)}</tbody>
           </table>
         </INNOTableWrap>
       )}

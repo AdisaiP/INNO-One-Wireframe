@@ -15,6 +15,7 @@ import type {
   AdminSecurityStatus,
 } from '../api/types';
 import { ErrorState, LoadingState } from '../components/Feedback';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 function statusTone(status: AdminSecurityStatus) {
   if (status === 'healthy') return 'success' as const;
@@ -41,6 +42,7 @@ type SecurityRow = {
 };
 
 export function AdminSecurityPage() {
+  const { t: t45n } = useStep45NI18n();
   const query = useQuery({
     queryKey: ['admin', 'security'],
     queryFn: getAdminSecurity,
@@ -52,9 +54,9 @@ export function AdminSecurityPage() {
 
   return (
     <INNOPage
-      eyebrow="Admin Center · Security"
-      title="Security"
-      description="Inspect runtime security posture and verified controls. Policy configuration remains deployment-managed."
+      eyebrow={t45n('admin.step45n.adminAudit.adminCenterSecurity')}
+      title={t45n('navigation.security')}
+      description={t45n('admin.step45n.adminSecurity.inspectRuntimeSecurityPostureAndVerifiedControlsPolicy')}
       actions={(
         <INNOButton
           type="button"
@@ -62,47 +64,46 @@ export function AdminSecurityPage() {
           busy={query.isFetching}
           onClick={() => void query.refetch()}
         >
-          Refresh Posture
-        </INNOButton>
+          {t45n('admin.step45n.adminSecurity.refreshPosture')}</INNOButton>
       )}
     >
-      {query.isPending ? <LoadingState label="Checking security posture…" /> : null}
+      {query.isPending ? <LoadingState label={t45n('admin.step45n.adminSecurity.checkingSecurityPosture')} /> : null}
       {query.isError ? <ErrorState error={query.error} retry={() => void query.refetch()} /> : null}
 
       {query.data ? (
         <>
           <div className="production-stat-strip">
             <div>
-              <span>Providers</span>
+              <span>{t45n('admin.step45n.adminSecurity.providers')}</span>
               <b>{query.data.summary.providers}</b>
-              <small>Registered posture sources</small>
+              <small>{t45n('admin.step45n.adminSecurity.registeredPostureSources')}</small>
             </div>
             <div>
-              <span>Healthy</span>
+              <span>{t45n('common.status.healthy')}</span>
               <b>{query.data.summary.healthy}</b>
-              <small>Controls verified now</small>
+              <small>{t45n('admin.step45n.adminSecurity.controlsVerifiedNow')}</small>
             </div>
             <div>
-              <span>Needs attention</span>
+              <span>{t45n('admin.step45n.adminIntegrations.needsAttention')}</span>
               <b>{query.data.summary.attention}</b>
-              <small>Runtime settings to review</small>
+              <small>{t45n('admin.step45n.adminSecurity.runtimeSettingsToReview')}</small>
             </div>
             <div>
-              <span>Unavailable</span>
+              <span>{t45n('admin.step45n.adminBranding.unavailable')}</span>
               <b>{query.data.summary.unavailable}</b>
-              <small>Checks that could not run</small>
+              <small>{t45n('admin.step45n.adminSecurity.checksThatCouldNotRun')}</small>
             </div>
           </div>
 
           <INNOCollection>
             <INNOCollectionHeader
-              title="Security Posture"
-              description={'Configuration mode: ' + query.data.configurationMode + '. Last checked ' + formatCheckedAt(query.data.checkedAt) + '.'}
+              title={t45n('admin.step45n.adminSecurity.securityPosture')}
+              description={t45n('admin.step45n.adminSecurity.configurationMode') + ' ' + query.data.configurationMode + t45n('admin.step45n.adminSecurity.lastChecked') + ' ' + formatCheckedAt(query.data.checkedAt) + '.'}
               meta={(
                 <INNOStatus tone={query.data.summary.attention || query.data.summary.unavailable ? 'warning' : 'success'} dot>
                   {query.data.summary.attention || query.data.summary.unavailable
-                    ? 'Review recommended'
-                    : 'No detected issues'}
+                    ? t45n('admin.step45n.adminSecurity.reviewRecommended')
+                    : t45n('admin.step45n.adminSecurity.noDetectedIssues')}
                 </INNOStatus>
               )}
             />
@@ -111,8 +112,8 @@ export function AdminSecurityPage() {
               <div className="collection-state">
                 <INNOState
                   kind="empty"
-                  title="No security posture providers"
-                  description="Register a security posture provider before exposing this Admin surface."
+                  title={t45n('admin.step45n.adminSecurity.noSecurityPostureProviders')}
+                  description={t45n('admin.step45n.adminSecurity.registerASecurityPostureProviderBeforeExposingThis')}
                 />
               </div>
             ) : (
@@ -120,12 +121,12 @@ export function AdminSecurityPage() {
                 <table>
                   <thead>
                     <tr>
-                      <th>Area</th>
-                      <th>Control</th>
-                      <th>Status</th>
-                      <th>Observed value</th>
-                      <th>Detail</th>
-                      <th>Last check</th>
+                      <th>{t45n('admin.step45n.adminSecurity.area')}</th>
+                      <th>{t45n('admin.step45n.adminSecurity.control')}</th>
+                      <th>{t45n('reports.runs.status')}</th>
+                      <th>{t45n('admin.step45n.adminSecurity.observedValue')}</th>
+                      <th>{t45n('admin.settings.table.detail')}</th>
+                      <th>{t45n('admin.step45n.adminIntegrations.lastCheck')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -153,7 +154,7 @@ export function AdminSecurityPage() {
                         </td>
                         <td>
                           {formatCheckedAt(provider.checkedAt)}
-                          <div className="table-meta">{provider.durationMs} ms</div>
+                          <div className="table-meta">{provider.durationMs} {t45n('admin.step45n.adminIntegrations.ms')}</div>
                         </td>
                       </tr>
                     ))}

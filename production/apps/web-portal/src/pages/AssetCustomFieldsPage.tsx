@@ -8,16 +8,19 @@ import { getAssetCustomFields, updateAssetCustomFields } from '../api/client';
 import type { AssetCustomFieldDefinition } from '../api/types';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 type EditableField = Pick<
   AssetCustomFieldDefinition,
   'fieldKey' | 'label' | 'fieldType' | 'isRequired' | 'showInAgent' | 'status' | 'options'
 > & { existing: boolean };
 
-const fieldTypes: Array<{ value: EditableField['fieldType']; label: string }> = [
-  { value: 'text', label: 'Text' }, { value: 'number', label: 'Number' },
-  { value: 'date', label: 'Date' }, { value: 'boolean', label: 'Boolean' },
-  { value: 'select', label: 'Select' },
+const fieldTypes: Array<{ value: EditableField['fieldType']; labelKey: string }> = [
+  { value: 'text', labelKey: 'assets.step45n.assetCustomFields.typeText' },
+  { value: 'number', labelKey: 'assets.step45n.assetCustomFields.typeNumber' },
+  { value: 'date', labelKey: 'assets.step45n.assetCustomFields.typeDate' },
+  { value: 'boolean', labelKey: 'assets.step45n.assetCustomFields.typeBoolean' },
+  { value: 'select', labelKey: 'assets.step45n.assetCustomFields.typeSelect' },
 ];
 
 function toEditable(field: AssetCustomFieldDefinition): EditableField {
@@ -35,6 +38,7 @@ function serialize(fields: EditableField[]) {
 }
 
 export function AssetCustomFieldsPage() {
+  const { t: t45n } = useStep45NI18n();
   const canManage = usePermission('assets.manage');
   const queryClient = useQueryClient();
   const query = useQuery({ queryKey: ['assets', 'custom-fields'], queryFn: getAssetCustomFields });
@@ -75,7 +79,7 @@ export function AssetCustomFieldsPage() {
 
   const save = useMutation({
     mutationFn: async () => {
-      if (!query.data) throw new Error('Custom-field schema is not loaded.');
+      if (!query.data) throw new Error(t45n('assets.step45n.assetCustomFields.customFieldSchemaIsNotLoaded'));
       const next = [...fields];
       if (editingIndex === null) next.push(draft);
       else next[editingIndex] = draft;
@@ -91,35 +95,35 @@ export function AssetCustomFieldsPage() {
     },
   });
 
-  if (query.isPending) return <div className="page-loading-wrap"><LoadingState label="Loading custom fields…" /></div>;
+  if (query.isPending) return <div className="page-loading-wrap"><LoadingState label={t45n('assets.step45n.assetCustomFields.loadingCustomFields')} /></div>;
   if (query.isError) return <div className="page-error-wrap"><ErrorState error={query.error} retry={() => void query.refetch()} /></div>;
 
   return (
     <INNOPage
-      eyebrow="Assets · Management"
-      title="Custom Fields"
-      description="Define organization-specific fields for Asset records. User identity remains owned by Platform."
-      actions={canManage ? <INNOButton onClick={openCreate}>Add Field</INNOButton> : undefined}
+      eyebrow={t45n('assets.step45n.assetCustomFields.assetsManagement')}
+      title={t45n('navigation.customFields')}
+      description={t45n('assets.step45n.assetCustomFields.defineOrganizationSpecificFieldsForAssetRecordsUser')}
+      actions={canManage ? <INNOButton onClick={openCreate}>{t45n('assets.step45n.assetCustomFields.addField')}</INNOButton> : undefined}
     >
       <INNOCollection>
         <INNOCollectionHeader
-          title="Asset field schema"
-          description={fields.length + ' organization-defined fields · Active fields appear on Asset Detail.'}
-          meta={<INNOStatus tone="success">{fields.filter((field) => field.status === 'active').length} active</INNOStatus>}
+          title={t45n('assets.step45n.assetCustomFields.assetFieldSchema')}
+          description={t45n('assets.step45n.assetCustomFields.schemaCount', { count: fields.length })}
+          meta={<INNOStatus tone="success">{fields.filter((field) => field.status === 'active').length} {t45n('assets.step45n.assetCustomFields.active')}</INNOStatus>}
         />
         <INNOTableWrap width="wide" stickyAction>
           <table>
-            <thead><tr><th>Field</th><th>Key</th><th>Type</th><th>Required</th><th>Agent</th><th>Status</th><th className="action-column">Action</th></tr></thead>
+            <thead><tr><th>{t45n('reports.editor.filterField')}</th><th>{t45n('assets.step45n.assetCustomFields.key')}</th><th>{t45n('reports.column.type')}</th><th>{t45n('assets.step45n.assetCustomFields.required')}</th><th>{t45n('assets.step45n.assetCustomFields.agent')}</th><th>{t45n('reports.runs.status')}</th><th className="action-column">{t45n('reports.table.action')}</th></tr></thead>
             <tbody>{fields.map((field, index) => (
               <tr key={field.fieldKey}>
                 <td><b>{field.label}</b>{field.fieldType === 'select' && field.options.length ? <div className="table-meta">{field.options.join(', ')}</div> : null}</td>
                 <td>{field.fieldKey}</td>
                 <td>{field.fieldType}</td>
-                <td>{field.isRequired ? 'Yes' : 'No'}</td>
-                <td>{field.showInAgent ? 'Shown' : 'Hidden'}</td>
+                <td>{field.isRequired ? t45n('assets.step45n.assetCustomFields.yes') : t45n('assets.step45n.assetCustomFields.no')}</td>
+                <td>{field.showInAgent ? t45n('assets.step45n.assetCustomFields.shown') : t45n('assets.step45n.assetCustomFields.hidden')}</td>
                 <td><INNOStatus tone={field.status === 'active' ? 'success' : 'neutral'}>{field.status}</INNOStatus></td>
                 <td className="action-column">
-                  {canManage ? <INNORowActions ariaLabel={'Custom field ' + field.label} items={[{ id: 'edit', label: 'Edit', onSelect: () => openEdit(index) }]} /> : <span className="table-meta">View only</span>}
+                  {canManage ? <INNORowActions ariaLabel={t45n('assets.step45n.assetCustomFields.customField') + ' ' + field.label} items={[{ id: 'edit', label: t45n('reports.action.edit'), onSelect: () => openEdit(index) }]} /> : <span className="table-meta">{t45n('admin.step45n.adminAccessScopes.viewOnly')}</span>}
                 </td>
               </tr>
             ))}</tbody>
@@ -128,29 +132,29 @@ export function AssetCustomFieldsPage() {
       </INNOCollection>
       <INNODialog
         open={dialogOpen}
-        title={editingIndex === null ? 'Add Custom Field' : 'Edit Custom Field'}
-        description="Configure one field without turning the settings page into a permanent editor."
+        title={editingIndex === null ? t45n('assets.step45n.assetCustomFields.addCustomField') : t45n('assets.step45n.assetCustomFields.editCustomField')}
+        description={t45n('assets.step45n.assetCustomFields.configureOneFieldWithoutTurningTheSettingsPage')}
         onClose={() => { if (!save.isPending) setDialogOpen(false); }}
         size="sm"
         footer={<>
-          <INNOButton variant="secondary" disabled={save.isPending} onClick={() => setDialogOpen(false)}>Cancel</INNOButton>
+          <INNOButton variant="secondary" disabled={save.isPending} onClick={() => setDialogOpen(false)}>{t45n('reports.action.cancel')}</INNOButton>
           <INNOButton
             type="submit"
             form="custom-field-dialog-form"
             busy={save.isPending}
             disabled={Boolean(validationError)}
-          >{editingIndex === null ? 'Add Field' : 'Save Field'}</INNOButton>
+          >{editingIndex === null ? t45n('assets.step45n.assetCustomFields.addField') : t45n('assets.step45n.assetCustomFields.saveField')}</INNOButton>
         </>}
       >
         <form id="custom-field-dialog-form" className="editor-form" onSubmit={(e) => { e.preventDefault(); if (!save.isPending && !validationError) save.mutate(); }}>
           <div className="editor-grid">
-            <label className="field-block"><span>Label</span><input data-autofocus value={draft.label} onChange={(e) => setDraft({ ...draft, label: e.target.value })} /></label>
-            <label className="field-block"><span>Field key</span><input disabled={draft.existing} value={draft.fieldKey} onChange={(e) => setDraft({ ...draft, fieldKey: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '_') })} /></label>
-            <label className="field-block"><span>Type</span><select value={draft.fieldType} onChange={(e) => { const fieldType = e.target.value as EditableField['fieldType']; setDraft({ ...draft, fieldType, options: fieldType === 'select' ? draft.options : [] }); }}>{fieldTypes.map((type) => <option key={type.value} value={type.value}>{type.label}</option>)}</select></label>
-            <label className="field-block"><span>Status</span><select value={draft.status} onChange={(e) => setDraft({ ...draft, status: e.target.value as EditableField['status'] })}><option value="active">Active</option><option value="draft">Draft</option></select></label>
-            {draft.fieldType === 'select' ? <label className="field-block field-wide"><span>Options · one per line</span><textarea rows={4} value={draft.options.join('\n')} onChange={(e) => setDraft({ ...draft, options: e.target.value.split('\n') })} /></label> : null}
-            <label className="check-row"><input type="checkbox" checked={draft.isRequired} onChange={(e) => setDraft({ ...draft, isRequired: e.target.checked })} /><span>Required on Asset</span></label>
-            <label className="check-row"><input type="checkbox" checked={draft.showInAgent} onChange={(e) => setDraft({ ...draft, showInAgent: e.target.checked })} /><span>Expose to Endpoint Agent form</span></label>
+            <label className="field-block"><span>{t45n('helpdesk.automation.builder.label')}</span><input data-autofocus value={draft.label} onChange={(e) => setDraft({ ...draft, label: e.target.value })} /></label>
+            <label className="field-block"><span>{t45n('assets.step45n.assetCustomFields.fieldKey')}</span><input disabled={draft.existing} value={draft.fieldKey} onChange={(e) => setDraft({ ...draft, fieldKey: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '_') })} /></label>
+            <label className="field-block"><span>{t45n('reports.column.type')}</span><select value={draft.fieldType} onChange={(e) => { const fieldType = e.target.value as EditableField['fieldType']; setDraft({ ...draft, fieldType, options: fieldType === 'select' ? draft.options : [] }); }}>{fieldTypes.map((type) => <option key={type.value} value={type.value}>{t45n(type.labelKey)}</option>)}</select></label>
+            <label className="field-block"><span>{t45n('reports.runs.status')}</span><select value={draft.status} onChange={(e) => setDraft({ ...draft, status: e.target.value as EditableField['status'] })}><option value="active">{t45n('reports.status.active')}</option><option value="draft">{t45n('workflow.status.draft')}</option></select></label>
+            {draft.fieldType === 'select' ? <label className="field-block field-wide"><span>{t45n('assets.step45n.assetCustomFields.optionsOnePerLine')}</span><textarea rows={4} value={draft.options.join('\n')} onChange={(e) => setDraft({ ...draft, options: e.target.value.split('\n') })} /></label> : null}
+            <label className="check-row"><input type="checkbox" checked={draft.isRequired} onChange={(e) => setDraft({ ...draft, isRequired: e.target.checked })} /><span>{t45n('assets.step45n.assetCustomFields.requiredOnAsset')}</span></label>
+            <label className="check-row"><input type="checkbox" checked={draft.showInAgent} onChange={(e) => setDraft({ ...draft, showInAgent: e.target.checked })} /><span>{t45n('assets.step45n.assetCustomFields.exposeToEndpointAgentForm')}</span></label>
           </div>
           {validationError ? <div className="field-error" role="alert">{validationError}</div> : null}
           {save.isError ? <ErrorState error={save.error} /> : null}

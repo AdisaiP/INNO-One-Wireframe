@@ -20,8 +20,10 @@ import {
 import { createDeviceGroup, getDeviceGroups } from '../api/client';
 import { CollectionErrorState, CollectionLoadingState, ErrorState } from '../components/Feedback';
 import { usePermission, useProfile } from '../app/ProfileContext';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 export function DeviceGroupsPage() {
+  const { t: t45n } = useStep45NI18n();
   const profile = useProfile();
   const canManage = usePermission('devices.manage');
   const queryClient = useQueryClient();
@@ -71,42 +73,41 @@ export function DeviceGroupsPage() {
 
   return (
     <INNOPage
-      eyebrow="Devices"
-      title="Device Groups"
-      description="Manage static endpoint groups and keep their membership synchronized with the remote device engine."
+      eyebrow={t45n('navigation.devices')}
+      title={t45n('navigation.deviceGroups')}
+      description={t45n('devices.step45n.deviceGroups.manageStaticEndpointGroupsAndKeepTheirMembership')}
       actions={canManage ? (
         <INNOButton type="button" onClick={() => setCreateOpen(true)}>
-          New Device Group
-        </INNOButton>
+          {t45n('devices.step45n.deviceGroups.newDeviceGroup')}</INNOButton>
       ) : undefined}
     >
       <INNOCollection>
         <INNOCollectionHeader
-          title="Groups"
-          description={groups.data ? groups.data.totalItems + ' groups in your effective scope' : 'Managed endpoint groups'}
-          meta={groups.data ? <INNOStatus>{groups.data.totalItems} groups</INNOStatus> : undefined}
+          title={t45n('admin.settings.groups')}
+          description={groups.data ? groups.data.totalItems + ' ' + t45n('devices.step45n.deviceGroups.groupsInYourEffectiveScope') : t45n('devices.step45n.deviceGroups.managedEndpointGroups')}
+          meta={groups.data ? <INNOStatus>{groups.data.totalItems} {t45n('devices.step45n.deviceGroups.groups')}</INNOStatus> : undefined}
         />
         <INNOCollectionToolbar>
-          <INNOSearchField label="Search device groups" value={search} onChange={setSearch} placeholder="Search group name or code…" />
-          <INNOSelectField label="Group type" value={type} onChange={setType}>
-            <option value="all">Type: All</option>
-            <option value="static">Static</option>
+          <INNOSearchField label={t45n('devices.step45n.deviceGroups.searchDeviceGroups')} value={search} onChange={setSearch} placeholder={t45n('devices.step45n.deviceGroups.searchGroupNameOrCode')} />
+          <INNOSelectField label={t45n('devices.step45n.deviceGroups.groupType')} value={type} onChange={setType}>
+            <option value="all">{t45n('devices.step45n.deviceGroups.typeAll')}</option>
+            <option value="static">{t45n('devices.step45n.deviceGroups.static')}</option>
           </INNOSelectField>
           <INNOToolbarSpacer />
-          <INNOToolbarMeta>Dynamic groups are hidden until the rule engine is implemented</INNOToolbarMeta>
+          <INNOToolbarMeta>{t45n('devices.step45n.deviceGroups.dynamicGroupsAreHiddenUntilTheRuleEngine')}</INNOToolbarMeta>
         </INNOCollectionToolbar>
 
         {groups.isPending ? (
-          <CollectionLoadingState label="Loading device groups…" />
+          <CollectionLoadingState label={t45n('devices.step45n.agentDeployment.loadingDeviceGroups')} />
         ) : groups.isError ? (
           <CollectionErrorState error={groups.error} retry={() => void groups.refetch()} />
         ) : groups.data.items.length === 0 ? (
           <INNOCollectionState
             kind={search || type !== 'all' ? 'no-results' : 'empty'}
-            title={search || type !== 'all' ? 'No groups found' : 'No device groups in scope'}
-            description={search || type !== 'all' ? 'Try another search or filter.' : 'Create a static group to organize managed endpoints.'}
+            title={search || type !== 'all' ? t45n('devices.step45n.deviceGroups.noGroupsFound') : t45n('devices.step45n.deviceGroups.noDeviceGroupsInScope')}
+            description={search || type !== 'all' ? t45n('devices.step45n.deviceGroups.tryAnotherSearchOrFilter') : t45n('devices.step45n.deviceGroups.createAStaticGroupToOrganizeManagedEndpoints')}
             action={search || type !== 'all' ? (
-              <INNOButton variant="secondary" onClick={() => { setSearch(''); setType('all'); }}>Clear filters</INNOButton>
+              <INNOButton variant="secondary" onClick={() => { setSearch(''); setType('all'); }}>{t45n('admin.step45n.adminAccessScopes.clearFilters')}</INNOButton>
             ) : undefined}
           />
         ) : (
@@ -115,7 +116,7 @@ export function DeviceGroupsPage() {
               <table>
                 <thead>
                   <tr>
-                    <th>Group</th><th>Type</th><th>Organization</th><th>Location</th><th>Devices</th><th>Online</th><th>Sync</th><th className="action-column">Action</th>
+                    <th>{t45n('admin.settings.table.group')}</th><th>{t45n('reports.column.type')}</th><th>{t45n('profile.organization')}</th><th>{t45n('profile.location')}</th><th>{t45n('navigation.devices')}</th><th>{t45n('devices.automation.editor.status.online')}</th><th>{t45n('devices.step45n.deviceGroups.sync')}</th><th className="action-column">{t45n('reports.table.action')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -128,7 +129,7 @@ export function DeviceGroupsPage() {
                       <td>{group.members}</td>
                       <td>{group.online}</td>
                       <td><INNOStatus tone={group.syncStatus === 'synced' ? 'success' : 'neutral'}>{group.syncStatus}</INNOStatus></td>
-                      <td className="action-column"><RouterRowAction to={'/devices/groups/' + group.id} ariaLabel={'Open ' + group.name} /></td>
+                      <td className="action-column"><RouterRowAction to={'/devices/groups/' + group.id} ariaLabel={t45n('common.step45n.search.open') + ' ' + group.name} /></td>
                     </tr>
                   ))}
                 </tbody>
@@ -147,13 +148,13 @@ export function DeviceGroupsPage() {
 
       <INNODialog
         open={createOpen}
-        title="New Device Group"
-        description="Create a static managed-endpoint group in the current organization scope."
+        title={t45n('devices.step45n.deviceGroups.newDeviceGroup')}
+        description={t45n('devices.step45n.deviceGroups.createAStaticManagedEndpointGroupInThe')}
         onClose={closeCreate}
         size="md"
         footer={<>
-          <INNOButton type="button" variant="secondary" disabled={create.isPending} onClick={closeCreate}>Cancel</INNOButton>
-          <INNOButton type="submit" form="device-group-create-form" busy={create.isPending} disabled={!name.trim()}>Create Group</INNOButton>
+          <INNOButton type="button" variant="secondary" disabled={create.isPending} onClick={closeCreate}>{t45n('reports.action.cancel')}</INNOButton>
+          <INNOButton type="submit" form="device-group-create-form" busy={create.isPending} disabled={!name.trim()}>{t45n('devices.step45n.deviceGroups.createGroup')}</INNOButton>
         </>}
       >
         <form
@@ -167,20 +168,20 @@ export function DeviceGroupsPage() {
         >
           <div className="editor-grid">
             <label className="field-block">
-              <span>Group name</span>
+              <span>{t45n('devices.step45n.deviceGroupDetail.groupName')}</span>
               <input data-autofocus required value={name} onChange={(event) => setName(event.target.value)} />
             </label>
             <label className="field-block">
-              <span>Code</span>
-              <input value={code} onChange={(event) => setCode(event.target.value)} placeholder="Generated if empty" />
+              <span>{t45n('admin.step45n.adminHierarchy.code')}</span>
+              <input value={code} onChange={(event) => setCode(event.target.value)} placeholder={t45n('devices.step45n.deviceGroups.generatedIfEmpty')} />
             </label>
             <label className="field-block field-wide">
-              <span>Description</span>
+              <span>{t45n('reports.editor.descriptionField')}</span>
               <textarea value={description} onChange={(event) => setDescription(event.target.value)} rows={3} />
             </label>
           </div>
           <div className="editor-scope-note">
-            Scope: {profile.organization?.name ?? 'Current organization'}
+            {t45n('devices.step45n.deviceGroups.scope')}{' '}{profile.organization?.name ?? t45n('devices.step45n.deviceGroups.currentOrganization')}
             {profile.location?.name ? ' · ' + profile.location.name : ''}
           </div>
           {create.isError ? <ErrorState error={create.error} /> : null}

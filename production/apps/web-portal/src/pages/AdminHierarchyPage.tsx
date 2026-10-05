@@ -23,10 +23,12 @@ import {
 import type { AdminHierarchyItem } from '../api/types';
 import { CollectionErrorState, CollectionLoadingState, ErrorState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 type Kind = 'organization' | 'location';
 
 export function AdminHierarchyPage({ kind }: { kind: Kind }) {
+  const { t: t45n } = useStep45NI18n();
   const isOrganization = kind === 'organization';
   const canManage = usePermission(isOrganization ? 'admin.organization.manage' : 'admin.locations.manage');
   const queryClient = useQueryClient();
@@ -72,7 +74,7 @@ export function AdminHierarchyPage({ kind }: { kind: Kind }) {
           ? createAdminOrganizationUnit(input)
           : createAdminLocation(input);
       }
-      if (!selected) throw new Error('Select a record.');
+      if (!selected) throw new Error(t45n('admin.step45n.adminHierarchy.selectARecord'));
       return isOrganization
         ? updateAdminOrganizationUnit(selected.id, selected.eTag, input)
         : updateAdminLocation(selected.id, selected.eTag, input);
@@ -100,41 +102,41 @@ export function AdminHierarchyPage({ kind }: { kind: Kind }) {
 
   return (
     <INNOPage
-      eyebrow="Admin Center · Organization"
+      eyebrow={t45n('admin.step45n.adminHierarchy.adminCenterOrganization')}
       title={title}
       description={isOrganization
-        ? 'Maintain the canonical organization hierarchy used by access scopes and resource ownership.'
-        : 'Maintain the reusable location hierarchy used by users, devices, assets, and access scopes.'}
+        ? t45n('admin.step45n.adminHierarchy.maintainTheCanonicalOrganizationHierarchyUsedByAccess')
+        : t45n('admin.step45n.adminHierarchy.maintainTheReusableLocationHierarchyUsedByUsers')}
       actions={canManage ? (
-        <INNOButton type="button" onClick={beginCreate}>New {isOrganization ? 'Unit' : 'Location'}</INNOButton>
+        <INNOButton type="button" onClick={beginCreate}>{t45n('admin.step45n.adminHierarchy.new')}{' '}{isOrganization ? t45n('admin.step45n.adminHierarchy.unit') : t45n('profile.location')}</INNOButton>
       ) : undefined}
     >
       <INNOCollection className="admin-hierarchy-collection">
           <INNOCollectionHeader
-            title={isOrganization ? 'Organization Tree' : 'Location Tree'}
+            title={isOrganization ? t45n('admin.step45n.adminHierarchy.organizationTree') : t45n('admin.step45n.adminHierarchy.locationTree')}
             description={isOrganization
-              ? 'Select a hierarchy node to inspect or edit the canonical organization structure.'
-              : 'Select a hierarchy node to inspect or edit nested places.'}
-            meta={query.data ? <INNOStatus>{query.data.length} records</INNOStatus> : undefined}
+              ? t45n('admin.step45n.adminHierarchy.selectAHierarchyNodeToInspectOrEdit')
+              : t45n('admin.step45n.adminHierarchy.selectAHierarchyNodeToInspectOrEdit2')}
+            meta={query.data ? <INNOStatus>{query.data.length} {t45n('admin.step45n.adminAudit.records')}</INNOStatus> : undefined}
           />
           <INNOCollectionToolbar>
-            <INNOSearchField label={'Search ' + title.toLowerCase()} value={search} onChange={setSearch} placeholder="Search name or code…" />
+            <INNOSearchField label={t45n('navigation.search') + ' ' + title.toLowerCase()} value={search} onChange={setSearch} placeholder={t45n('admin.step45n.adminAccessScopeEdit.searchNameOrCode')} />
           </INNOCollectionToolbar>
-          {query.isPending ? <CollectionLoadingState label={'Loading ' + title.toLowerCase() + '…'} /> : null}
+          {query.isPending ? <CollectionLoadingState label={t45n('admin.step45n.adminHierarchy.loading') + ' ' + title.toLowerCase() + '…'} /> : null}
           {query.isError ? <CollectionErrorState error={query.error} retry={() => void query.refetch()} /> : null}
           {query.data && records.length === 0 ? (
             <INNOCollectionState
               kind="empty"
-              title="Nothing here yet"
-              description="Create the first hierarchy record when you are ready."
+              title={t45n('admin.step45n.adminHierarchy.nothingHereYet')}
+              description={t45n('admin.step45n.adminHierarchy.createTheFirstHierarchyRecordWhenYouAre')}
             />
           ) : null}
           {query.data && records.length > 0 && !hasSearchMatch ? (
             <INNOCollectionState
               kind="no-results"
-              title="No records found"
-              description="Try another search."
-              action={<INNOButton variant="secondary" onClick={() => setSearch('')}>Clear search</INNOButton>}
+              title={t45n('admin.step45n.adminHierarchy.noRecordsFound')}
+              description={t45n('reports.noResults.description')}
+              action={<INNOButton variant="secondary" onClick={() => setSearch('')}>{t45n('assets.automation.clearSearch')}</INNOButton>}
             />
           ) : null}
           {records.length > 0 && hasSearchMatch ? (
@@ -156,30 +158,29 @@ export function AdminHierarchyPage({ kind }: { kind: Kind }) {
               }}
               search={search}
               ariaLabel={title}
-              emptyContent="No hierarchy records match this search."
+              emptyContent={t45n('admin.step45n.adminHierarchy.noHierarchyRecordsMatchThisSearch')}
             />
           ) : null}
         </INNOCollection>
 
       <INNODrawer
         open={createMode || Boolean(selected)}
-        title={createMode ? 'New ' + (isOrganization ? 'Organization Unit' : 'Location') : selected?.name ?? title}
+        title={createMode ? t45n('admin.step45n.adminHierarchy.new') + ' ' + (isOrganization ? t45n('admin.step45n.adminHierarchy.organizationUnit') : t45n('profile.location')) : selected?.name ?? title}
         description={createMode
-          ? 'Create a canonical administration master while keeping the hierarchy visible behind this drawer.'
-          : 'Inspect or edit the selected hierarchy record.'}
+          ? t45n('admin.step45n.adminHierarchy.createACanonicalAdministrationMasterWhileKeepingThe')
+          : t45n('admin.step45n.adminHierarchy.inspectOrEditTheSelectedHierarchyRecord')}
         onClose={closeEditor}
         size="md"
         footer={(
           <>
-            <INNOButton type="button" variant="secondary" onClick={closeEditor}>Cancel</INNOButton>
+            <INNOButton type="button" variant="secondary" onClick={closeEditor}>{t45n('reports.action.cancel')}</INNOButton>
             <INNOButton
               type="submit"
               form="admin-hierarchy-editor"
               busy={mutation.isPending}
               disabled={!canManage || !form.code.trim() || !form.name.trim()}
             >
-              Save
-            </INNOButton>
+              {t45n('common.actions.save')}</INNOButton>
           </>
         )}
       >
@@ -192,20 +193,20 @@ export function AdminHierarchyPage({ kind }: { kind: Kind }) {
           }}
         >
           <div className="editor-grid">
-            <label className="field-block"><span>Code</span><input required value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} /></label>
-            <label className="field-block"><span>Name</span><input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>
+            <label className="field-block"><span>{t45n('admin.step45n.adminHierarchy.code')}</span><input required value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} /></label>
+            <label className="field-block"><span>{t45n('admin.step45n.adminHierarchy.name')}</span><input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>
             <label className="field-block">
-              <span>Parent</span>
+              <span>{t45n('admin.step45n.adminHierarchy.parent')}</span>
               <select value={form.parentId} onChange={(e) => setForm({ ...form, parentId: e.target.value })}>
-                <option value="">No parent</option>
+                <option value="">{t45n('admin.step45n.adminHierarchy.noParent')}</option>
                 {parentOptions.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
               </select>
             </label>
             <label className="field-block">
-              <span>Status</span>
+              <span>{t45n('reports.runs.status')}</span>
               <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
+                <option value="active">{t45n('reports.status.active')}</option>
+                <option value="inactive">{t45n('admin.step45n.adminAccessScopeEdit.inactive')}</option>
               </select>
             </label>
           </div>

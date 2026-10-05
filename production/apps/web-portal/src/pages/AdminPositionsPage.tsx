@@ -9,10 +9,12 @@ import { createAdminPosition, getAdminPositions, updateAdminPosition } from '../
 import type { AdminPosition } from '../api/types';
 import { CollectionErrorState, CollectionLoadingState, ErrorState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 const blankForm = { code: '', name: '', status: 'active' };
 
 export function AdminPositionsPage() {
+  const { t: t45n } = useStep45NI18n();
   const canManage = usePermission('admin.positions.manage');
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
@@ -48,7 +50,7 @@ export function AdminPositionsPage() {
     mutationFn: () => {
       const input = { code: form.code.trim(), name: form.name.trim(), status: form.status };
       if (dialogMode === 'create') return createAdminPosition(input);
-      if (!editing) throw new Error('Select a position.');
+      if (!editing) throw new Error(t45n('admin.step45n.adminPositions.selectAPosition'));
       return updateAdminPosition(editing.id, editing.eTag, input);
     },
     onSuccess: async () => {
@@ -63,26 +65,26 @@ export function AdminPositionsPage() {
 
   return (
     <INNOPage
-      eyebrow="Admin Center · Organization"
-      title="Positions"
-      description="Maintain canonical organization positions used by user profiles."
-      actions={canManage ? <INNOButton type="button" onClick={openCreate}>New Position</INNOButton> : undefined}
+      eyebrow={t45n('admin.step45n.adminHierarchy.adminCenterOrganization')}
+      title={t45n('navigation.positions')}
+      description={t45n('admin.step45n.adminPositions.maintainCanonicalOrganizationPositionsUsedByUserProfiles')}
+      actions={canManage ? <INNOButton type="button" onClick={openCreate}>{t45n('admin.step45n.adminPositions.newPosition')}</INNOButton> : undefined}
     >
       <INNOCollection>
         <INNOCollectionHeader
-          title="Positions"
-          description="Reusable organization position master."
-          meta={query.data ? <INNOStatus>{query.data.length} positions</INNOStatus> : undefined}
+          title={t45n('navigation.positions')}
+          description={t45n('admin.step45n.adminPositions.reusableOrganizationPositionMaster')}
+          meta={query.data ? <INNOStatus>{query.data.length} {t45n('admin.step45n.adminPositions.positions')}</INNOStatus> : undefined}
         />
         <INNOCollectionToolbar>
-          <INNOSearchField label="Search positions" value={search} onChange={setSearch} placeholder="Search position or code…" />
+          <INNOSearchField label={t45n('admin.step45n.adminPositions.searchPositions')} value={search} onChange={setSearch} placeholder={t45n('admin.step45n.adminPositions.searchPositionOrCode')} />
         </INNOCollectionToolbar>
-        {query.isPending ? <CollectionLoadingState label="Loading positions…" /> : null}
+        {query.isPending ? <CollectionLoadingState label={t45n('admin.step45n.adminPositions.loadingPositions')} /> : null}
         {query.isError ? <CollectionErrorState error={query.error} retry={() => void query.refetch()} /> : null}
         {items.length ? (
           <INNOTableWrap stickyAction>
             <table>
-              <thead><tr><th>Position</th><th>Code</th><th>Status</th><th className="action-column">Action</th></tr></thead>
+              <thead><tr><th>{t45n('admin.step45n.adminPositions.position')}</th><th>{t45n('admin.step45n.adminHierarchy.code')}</th><th>{t45n('reports.runs.status')}</th><th className="action-column">{t45n('reports.table.action')}</th></tr></thead>
               <tbody>{items.map((item) => (
                 <tr key={item.id}>
                   <td><b>{item.name}</b></td>
@@ -90,8 +92,8 @@ export function AdminPositionsPage() {
                   <td><INNOStatus tone={item.status === 'active' ? 'success' : 'neutral'}>{item.status}</INNOStatus></td>
                   <td className="action-column">
                     {canManage
-                      ? <INNORowActions ariaLabel={'Position ' + item.name} items={[{ id: 'edit', label: 'Edit', onSelect: () => openEdit(item) }]} />
-                      : <span className="table-meta">View only</span>}
+                      ? <INNORowActions ariaLabel={t45n('admin.step45n.adminPositions.position') + ' ' + item.name} items={[{ id: 'edit', label: t45n('reports.action.edit'), onSelect: () => openEdit(item) }]} />
+                      : <span className="table-meta">{t45n('admin.step45n.adminAccessScopes.viewOnly')}</span>}
                   </td>
                 </tr>
               ))}</tbody>
@@ -100,28 +102,28 @@ export function AdminPositionsPage() {
         ) : query.data ? (
           <INNOCollectionState
             kind={search ? 'no-results' : 'empty'}
-            title={search ? 'No positions found' : 'Nothing here yet'}
-            description={search ? 'Try another search.' : 'Create the first position.'}
-            action={search ? <INNOButton variant="secondary" onClick={() => setSearch('')}>Clear search</INNOButton> : undefined}
+            title={search ? t45n('admin.step45n.adminPositions.noPositionsFound') : t45n('admin.step45n.adminHierarchy.nothingHereYet')}
+            description={search ? t45n('reports.noResults.description') : t45n('admin.step45n.adminPositions.createTheFirstPosition')}
+            action={search ? <INNOButton variant="secondary" onClick={() => setSearch('')}>{t45n('assets.automation.clearSearch')}</INNOButton> : undefined}
           />
         ) : null}
       </INNOCollection>
 
       <INNODialog
         open={dialogMode !== null}
-        title={dialogMode === 'create' ? 'New Position' : 'Edit Position'}
-        description={dialogMode === 'create' ? 'Create a reusable organization position.' : 'Update this organization position.'}
+        title={dialogMode === 'create' ? t45n('admin.step45n.adminPositions.newPosition') : t45n('admin.step45n.adminPositions.editPosition')}
+        description={dialogMode === 'create' ? t45n('admin.step45n.adminPositions.createAReusableOrganizationPosition') : t45n('admin.step45n.adminPositions.updateThisOrganizationPosition')}
         onClose={closeDialog}
         size="sm"
         footer={<>
-          <INNOButton type="button" variant="secondary" disabled={mutation.isPending} onClick={closeDialog}>Cancel</INNOButton>
+          <INNOButton type="button" variant="secondary" disabled={mutation.isPending} onClick={closeDialog}>{t45n('reports.action.cancel')}</INNOButton>
           <INNOButton
             type="submit"
             form="position-dialog-form"
             busy={mutation.isPending}
             disabled={!form.code.trim() || !form.name.trim()}
           >
-            {dialogMode === 'create' ? 'Create Position' : 'Save Position'}
+            {dialogMode === 'create' ? t45n('admin.step45n.adminPositions.createPosition') : t45n('admin.step45n.adminPositions.savePosition')}
           </INNOButton>
         </>}
       >
@@ -131,9 +133,9 @@ export function AdminPositionsPage() {
           onSubmit={(event) => { event.preventDefault(); if (!mutation.isPending) mutation.mutate(); }}
         >
           <div className="editor-grid">
-            <label className="field-block"><span>Code</span><input data-autofocus required value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} /></label>
-            <label className="field-block"><span>Name</span><input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>
-            <label className="field-block field-wide"><span>Status</span><select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}><option value="active">Active</option><option value="inactive">Inactive</option></select></label>
+            <label className="field-block"><span>{t45n('admin.step45n.adminHierarchy.code')}</span><input data-autofocus required value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} /></label>
+            <label className="field-block"><span>{t45n('admin.step45n.adminHierarchy.name')}</span><input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>
+            <label className="field-block field-wide"><span>{t45n('reports.runs.status')}</span><select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}><option value="active">{t45n('reports.status.active')}</option><option value="inactive">{t45n('admin.step45n.adminAccessScopeEdit.inactive')}</option></select></label>
           </div>
           {mutation.isError ? <ErrorState error={mutation.error} /> : null}
         </form>

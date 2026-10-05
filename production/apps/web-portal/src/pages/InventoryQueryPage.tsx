@@ -15,6 +15,7 @@ import type { InventoryQueryDefinition, InventoryQueryItem } from '../api/types'
 import { usePermission } from '../app/ProfileContext';
 import { CollectionErrorState, CollectionLoadingState } from '../components/Feedback';
 import './InventoryQueryPage.css';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 const blankDefinition: InventoryQueryDefinition = {
   factType: 'software',
@@ -24,19 +25,6 @@ const blankDefinition: InventoryQueryDefinition = {
   scopeType: 'all',
   scopeId: null,
 };
-
-function operatorOptions(field: InventoryQueryDefinition['field']) {
-  if (field === 'version') {
-    return [
-      { value: 'equals', label: 'equals' },
-      { value: 'version_less_than', label: 'is lower than' },
-    ] as const;
-  }
-  return [
-    { value: 'contains', label: 'contains' },
-    { value: 'equals', label: 'equals' },
-  ] as const;
-}
 
 function formatDefinition(item: InventoryQueryItem) {
   const definition = item.definition;
@@ -57,6 +45,7 @@ function clauseLabel(definition: InventoryQueryDefinition) {
 }
 
 export function InventoryQueryPage() {
+  const { t: t45n } = useStep45NI18n();
   const canManage = usePermission('devices.manage');
   const queryClient = useQueryClient();
   const [savedOpen, setSavedOpen] = useState(false);
@@ -103,8 +92,8 @@ export function InventoryQueryPage() {
 
   const save = useMutation({
     mutationFn: () => {
-      if (!queryName.trim()) throw new Error('Enter a name before saving this query.');
-      if (!definition.value.trim()) throw new Error('Enter a condition value.');
+      if (!queryName.trim()) throw new Error(t45n('devices.step45n.inventoryQuery.enterANameBeforeSavingThisQuery'));
+      if (!definition.value.trim()) throw new Error(t45n('devices.step45n.inventoryQuery.enterAConditionValue'));
       return saveInventoryQuery(queryName.trim(), definition);
     },
     onSuccess: async (saved) => {
@@ -121,8 +110,8 @@ export function InventoryQueryPage() {
 
   const run = useMutation({
     mutationFn: () => {
-      if (!definition.value.trim()) throw new Error('Enter a condition value.');
-      if (definition.scopeType === 'group' && !definition.scopeId) throw new Error('Select a Device Group.');
+      if (!definition.value.trim()) throw new Error(t45n('devices.step45n.inventoryQuery.enterAConditionValue'));
+      if (definition.scopeType === 'group' && !definition.scopeId) throw new Error(t45n('devices.step45n.inventoryQuery.selectADeviceGroup'));
       return runInventoryQuery(selectedSavedId ? { savedQueryId: selectedSavedId } : { definition });
     },
     onSuccess: (accepted) => {
@@ -180,7 +169,15 @@ export function InventoryQueryPage() {
   }
 
   const availableGroups = groups.data?.items ?? [];
-  const operatorChoices = operatorOptions(definition.field);
+  const operatorChoices = definition.field === 'version'
+    ? [
+        { value: 'equals', label: t45n('devices.step45n.inventoryQuery.equals') },
+        { value: 'version_less_than', label: t45n('devices.step45n.inventoryQuery.isLowerThan') },
+      ] as const
+    : [
+        { value: 'contains', label: t45n('devices.step45n.inventoryQuery.contains') },
+        { value: 'equals', label: t45n('devices.step45n.inventoryQuery.equals') },
+      ] as const;
   const selectedGroup = availableGroups.find((group) => group.id === definition.scopeId);
   const scopeLabel = definition.scopeType === 'group'
     ? selectedGroup?.name ?? 'Select a Device Group'
@@ -188,10 +185,10 @@ export function InventoryQueryPage() {
 
   return (
     <INNOPage
-      eyebrow="Devices · Inventory"
-      title="Inventory Query"
-      description="Find devices by software name, version or publisher across the device scope you can access."
-      actions={<INNOButton type="button" variant="secondary" onClick={() => setSavedOpen(true)}>Saved Queries</INNOButton>}
+      eyebrow={t45n('devices.step45n.inventoryQuery.devicesInventory')}
+      title={t45n('navigation.inventoryQuery')}
+      description={t45n('devices.step45n.inventoryQuery.findDevicesBySoftwareNameVersionOrPublisher')}
+      actions={<INNOButton type="button" variant="secondary" onClick={() => setSavedOpen(true)}>{t45n('devices.step45n.inventoryQuery.savedQueries')}</INNOButton>}
     >
       {feedback ? <div className="form-success" role="status">{feedback}</div> : null}
       {formError ? <div className="form-error" role="alert">{formError}</div> : null}
@@ -199,19 +196,19 @@ export function InventoryQueryPage() {
       <section className="inventory-query-builder prod-panel">
         <div className="prod-panel-head inventory-builder-head">
           <div>
-            <h3>Build query</h3>
-            <p>Define one software condition and choose where to search.</p>
+            <h3>{t45n('devices.step45n.inventoryQuery.buildQuery')}</h3>
+            <p>{t45n('devices.step45n.inventoryQuery.defineOneSoftwareConditionAndChooseWhereTo')}</p>
           </div>
           <div className="inventory-builder-head-actions">
-            {selectedSaved ? <INNOStatus tone="info">{selectedSaved.name}</INNOStatus> : <INNOStatus>Unsaved</INNOStatus>}
-            <INNOButton type="button" variant="secondary" onClick={newQuery}>New Query</INNOButton>
+            {selectedSaved ? <INNOStatus tone="info">{selectedSaved.name}</INNOStatus> : <INNOStatus>{t45n('common.status.unsaved')}</INNOStatus>}
+            <INNOButton type="button" variant="secondary" onClick={newQuery}>{t45n('devices.step45n.inventoryQuery.newQuery')}</INNOButton>
           </div>
         </div>
 
         <div className="inventory-builder-body">
           <div className="inventory-query-setup">
             <label className="field-block inventory-query-name">
-              <span>Query name</span>
+              <span>{t45n('devices.step45n.inventoryQuery.queryName')}</span>
               <input
                 autoComplete="off"
                 name="inventory-query-name"
@@ -220,31 +217,31 @@ export function InventoryQueryPage() {
                   setQueryName(event.target.value);
                   if (selectedSavedId) setSelectedSavedId('');
                 }}
-                placeholder="Example: Chrome below approved version"
+                placeholder={t45n('devices.step45n.inventoryQuery.exampleChromeBelowApprovedVersion')}
                 maxLength={160}
               />
             </label>
             <label className="field-block">
-              <span>Search scope</span>
+              <span>{t45n('devices.step45n.inventoryQuery.searchScope')}</span>
               <select
                 value={definition.scopeType}
                 onChange={(event) => patchDefinition({
                   scopeType: event.target.value as InventoryQueryDefinition['scopeType'],
                 })}
               >
-                <option value="all">All accessible devices</option>
-                <option value="group">Device Group</option>
+                <option value="all">{t45n('devices.step45n.inventoryQuery.allAccessibleDevices')}</option>
+                <option value="group">{t45n('admin.step45n.adminAccessScopeEdit.deviceGroup')}</option>
               </select>
             </label>
             {definition.scopeType === 'group' ? (
               <label className="field-block">
-                <span>Device Group</span>
+                <span>{t45n('admin.step45n.adminAccessScopeEdit.deviceGroup')}</span>
                 <select
                   value={definition.scopeId ?? ''}
                   disabled={groups.isPending}
                   onChange={(event) => patchDefinition({ scopeId: event.target.value || null })}
                 >
-                  <option value="">Select group</option>
+                  <option value="">{t45n('devices.step45n.inventoryQuery.selectGroup')}</option>
                   {availableGroups.map((group) => <option key={group.id} value={group.id}>{group.name}</option>)}
                 </select>
               </label>
@@ -254,27 +251,27 @@ export function InventoryQueryPage() {
           <div className="inventory-clause-block">
             <div className="inventory-clause-heading">
               <div>
-                <span className="inventory-clause-kicker">Software inventory</span>
-                <h4>Match devices where</h4>
+                <span className="inventory-clause-kicker">{t45n('devices.step45n.inventoryQuery.softwareInventory')}</span>
+                <h4>{t45n('devices.step45n.inventoryQuery.matchDevicesWhere')}</h4>
               </div>
-              <small>Current source: latest endpoint software snapshot</small>
+              <small>{t45n('devices.step45n.inventoryQuery.currentSourceLatestEndpointSoftwareSnapshot')}</small>
             </div>
-            <div className="inventory-condition-row" aria-label="Inventory query condition">
+            <div className="inventory-condition-row" aria-label={t45n('devices.step45n.inventoryQuery.inventoryQueryCondition')}>
               <label className="field-block">
-                <span>Field</span>
+                <span>{t45n('reports.editor.filterField')}</span>
                 <select
                   value={definition.field}
                   onChange={(event) => patchDefinition({
                     field: event.target.value as InventoryQueryDefinition['field'],
                   })}
                 >
-                  <option value="name">Software name</option>
-                  <option value="version">Version</option>
-                  <option value="publisher">Publisher</option>
+                  <option value="name">{t45n('devices.step45n.inventoryQuery.softwareName')}</option>
+                  <option value="version">{t45n('reports.runs.version')}</option>
+                  <option value="publisher">{t45n('devices.step45n.deviceDetail.publisher')}</option>
                 </select>
               </label>
               <label className="field-block">
-                <span>Operator</span>
+                <span>{t45n('reports.editor.filterOperator')}</span>
                 <select
                   value={definition.operator}
                   onChange={(event) => patchDefinition({
@@ -285,13 +282,13 @@ export function InventoryQueryPage() {
                 </select>
               </label>
               <label className="field-block inventory-value-field">
-                <span>Value</span>
+                <span>{t45n('reports.editor.filterValue')}</span>
                 <input
                   autoComplete="off"
                   name="inventory-query-value"
                   value={definition.value}
                   onChange={(event) => patchDefinition({ value: event.target.value })}
-                  placeholder={definition.field === 'version' ? 'e.g. 129.0.0' : 'e.g. Chrome'}
+                  placeholder={definition.field === 'version' ? t45n('devices.step45n.inventoryQuery.eG12900') : t45n('devices.step45n.inventoryQuery.eGChrome')}
                   maxLength={500}
                 />
               </label>
@@ -299,17 +296,17 @@ export function InventoryQueryPage() {
           </div>
 
           <div className="inventory-query-summary" aria-live="polite">
-            <div><span>Condition</span><b>{clauseLabel(definition)}</b></div>
-            <div><span>Scope</span><b>{scopeLabel}</b></div>
+            <div><span>{t45n('workflow.kind.condition')}</span><b>{clauseLabel(definition)}</b></div>
+            <div><span>{t45n('admin.step45n.adminAccessScopes.scope')}</span><b>{scopeLabel}</b></div>
           </div>
 
           {operationId ? (
             <div className="inventory-operation" role="status">
               <div>
-                <span>Query run</span>
-                <b>{currentStatus ?? 'queued'} · {progress}%</b>
+                <span>{t45n('devices.step45n.inventoryQuery.queryRun')}</span>
+                <b>{currentStatus ?? t45n('devices.step45n.inventoryQuery.queued')} · {progress}%</b>
               </div>
-              <div className="scan-progress-track" aria-label={'Inventory query progress ' + progress + '%'}>
+              <div className="scan-progress-track" aria-label={t45n('devices.step45n.inventoryQuery.inventoryQueryProgress') + ' ' + progress + '%'}>
                 <span style={{ width: progress + '%' }} />
               </div>
             </div>
@@ -320,8 +317,8 @@ export function InventoryQueryPage() {
           <INNOEditorFooterStart>
             <INNOEditorFooterNote>
               {selectedSaved
-                ? 'Running uses the saved definition until you change a field. Saving creates a new reusable query.'
-                : 'Run this definition now, or save it for reuse.'}
+                ? t45n('devices.step45n.inventoryQuery.runningUsesTheSavedDefinitionUntilYouChange')
+                : t45n('devices.step45n.inventoryQuery.runThisDefinitionNowOrSaveItFor')}
             </INNOEditorFooterNote>
           </INNOEditorFooterStart>
           <INNOEditorFooterEnd>
@@ -332,7 +329,7 @@ export function InventoryQueryPage() {
                 disabled={!queryName.trim() || !definition.value.trim() || isRunning}
                 onClick={() => save.mutate()}
               >
-                {selectedSavedId ? 'Save as New' : 'Save Query'}
+                {selectedSavedId ? t45n('devices.step45n.inventoryQuery.saveAsNew') : t45n('devices.step45n.inventoryQuery.saveQuery')}
               </INNOButton>
             ) : null}
             <INNOButton
@@ -342,7 +339,7 @@ export function InventoryQueryPage() {
                 || isRunning}
               onClick={() => run.mutate()}
             >
-              {isRunning ? 'Running…' : 'Run Query'}
+              {isRunning ? t45n('devices.step45n.inventoryQuery.running') : t45n('devices.step45n.inventoryQuery.runQuery')}
             </INNOButton>
           </INNOEditorFooterEnd>
         </INNOEditorFooter>
@@ -350,51 +347,51 @@ export function InventoryQueryPage() {
 
       <INNOCollection className="inventory-query-results">
         <INNOCollectionHeader
-          title="Results"
-          description="Devices matched by the latest completed run."
-          meta={results.data ? <INNOStatus>{results.data.totalItems} matches</INNOStatus> : undefined}
+          title={t45n('devices.step45n.inventoryQuery.results')}
+          description={t45n('devices.step45n.inventoryQuery.devicesMatchedByTheLatestCompletedRun')}
+          meta={results.data ? <INNOStatus>{results.data.totalItems} {t45n('devices.step45n.inventoryQuery.matches')}</INNOStatus> : undefined}
         />
         {runId && operation.data?.status === 'succeeded' ? (
           <INNOCollectionToolbar>
             <INNOSearchField
-              label="Search inventory query results"
+              label={t45n('devices.step45n.inventoryQuery.searchInventoryQueryResults')}
               value={resultSearch}
               onChange={setResultSearch}
-              placeholder="Search device, software or publisher"
+              placeholder={t45n('devices.step45n.inventoryQuery.searchDeviceSoftwareOrPublisher')}
             />
           </INNOCollectionToolbar>
         ) : null}
 
         {!runId ? (
-          <INNOCollectionState kind="empty" title="No query run yet" description="Enter a condition above and select Run Query." />
+          <INNOCollectionState kind="empty" title={t45n('devices.step45n.inventoryQuery.noQueryRunYet')} description={t45n('devices.step45n.inventoryQuery.enterAConditionAboveAndSelectRunQuery')} />
         ) : operation.isError ? (
           <CollectionErrorState error={operation.error} retry={() => void operation.refetch()} />
         ) : currentStatus === 'queued' || currentStatus === 'running' ? (
-          <CollectionLoadingState label={'Inventory query ' + (currentStatus ?? 'queued') + '…'} />
+          <CollectionLoadingState label={t45n('devices.step45n.inventoryQuery.inventoryQuery') + ' ' + (currentStatus ?? t45n('devices.step45n.inventoryQuery.queued')) + '…'} />
         ) : currentStatus === 'failed' ? (
           <INNOCollectionState
             kind="error"
-            title="Inventory query failed"
-            description={operation.data?.errorCode ? 'Operation failed with ' + operation.data.errorCode + '.' : 'The query could not be completed.'}
+            title={t45n('devices.step45n.inventoryQuery.inventoryQueryFailed')}
+            description={operation.data?.errorCode ? t45n('devices.step45n.inventoryQuery.operationFailedWith') + ' ' + operation.data.errorCode + '.' : t45n('devices.step45n.inventoryQuery.theQueryCouldNotBeCompleted')}
           />
         ) : results.isPending ? (
-          <CollectionLoadingState label="Loading query results…" />
+          <CollectionLoadingState label={t45n('devices.step45n.inventoryQuery.loadingQueryResults')} />
         ) : results.isError ? (
           <CollectionErrorState error={results.error} retry={() => void results.refetch()} />
         ) : results.data.items.length === 0 ? (
           <INNOCollectionState
             kind={resultSearch ? 'no-results' : 'empty'}
-            title={resultSearch ? 'No matching results' : 'No devices matched'}
-            description={resultSearch ? 'Try another result search.' : 'The completed query returned no matching devices.'}
-            action={resultSearch ? <INNOButton variant="secondary" onClick={() => setResultSearch('')}>Clear search</INNOButton> : undefined}
+            title={resultSearch ? t45n('devices.step45n.inventoryQuery.noMatchingResults') : t45n('devices.step45n.inventoryQuery.noDevicesMatched')}
+            description={resultSearch ? t45n('devices.step45n.inventoryQuery.tryAnotherResultSearch') : t45n('devices.step45n.inventoryQuery.theCompletedQueryReturnedNoMatchingDevices')}
+            action={resultSearch ? <INNOButton variant="secondary" onClick={() => setResultSearch('')}>{t45n('assets.automation.clearSearch')}</INNOButton> : undefined}
           />
         ) : (
           <INNOTableWrap width="xwide" stickyAction>
             <table>
               <thead>
                 <tr>
-                  <th>Device</th><th>User</th><th>IP Address</th><th>Software</th>
-                  <th>Version</th><th>Publisher</th><th>Observed</th><th className="action-column">Action</th>
+                  <th>{t45n('reports.column.hostname')}</th><th>{t45n('common.user')}</th><th>{t45n('reports.column.ipAddress')}</th><th>{t45n('devices.step45n.deviceDetail.software')}</th>
+                  <th>{t45n('reports.runs.version')}</th><th>{t45n('devices.step45n.deviceDetail.publisher')}</th><th>{t45n('devices.step45n.inventoryQuery.observed')}</th><th className="action-column">{t45n('reports.table.action')}</th>
                 </tr>
               </thead>
               <tbody>{results.data.items.map((item) => (
@@ -406,7 +403,7 @@ export function InventoryQueryPage() {
                   <td>{item.factVersion ?? '—'}</td>
                   <td>{item.factPublisher ?? '—'}</td>
                   <td>{new Date(item.observedAt).toLocaleString()}</td>
-                  <td className="action-column"><RouterRowAction to={'/devices/' + item.deviceId} ariaLabel={'Open ' + item.deviceName} /></td>
+                  <td className="action-column"><RouterRowAction to={'/devices/' + item.deviceId} ariaLabel={t45n('common.step45n.search.open') + ' ' + item.deviceName} /></td>
                 </tr>
               ))}</tbody>
             </table>
@@ -416,21 +413,21 @@ export function InventoryQueryPage() {
 
       <INNODrawer
         open={savedOpen}
-        title="Saved Queries"
-        description="Load a reusable query definition into the builder."
+        title={t45n('devices.step45n.inventoryQuery.savedQueries')}
+        description={t45n('devices.step45n.inventoryQuery.loadAReusableQueryDefinitionIntoTheBuilder')}
         onClose={() => setSavedOpen(false)}
         size="md"
         className="inventory-saved-drawer"
       >
         <div className="inventory-saved-drawer-body">
           <INNOSearchField
-            label="Search saved queries"
+            label={t45n('devices.step45n.inventoryQuery.searchSavedQueries')}
             value={savedSearch}
             onChange={setSavedSearch}
-            placeholder="Search saved queries"
+            placeholder={t45n('devices.step45n.inventoryQuery.searchSavedQueries')}
           />
           {savedQueries.isPending ? (
-            <CollectionLoadingState label="Loading saved queries…" />
+            <CollectionLoadingState label={t45n('devices.step45n.inventoryQuery.loadingSavedQueries')} />
           ) : savedQueries.isError ? (
             <CollectionErrorState error={savedQueries.error} retry={() => void savedQueries.refetch()} />
           ) : savedQueries.data.items.length ? (
@@ -443,15 +440,15 @@ export function InventoryQueryPage() {
                   onClick={() => selectSaved(item)}
                 >
                   <span><b>{item.name}</b><small>{formatDefinition(item)}</small></span>
-                  <span className="inventory-saved-meta">{item.lastMatchCount == null ? 'Not run' : item.lastMatchCount + ' matches'}</span>
+                  <span className="inventory-saved-meta">{item.lastMatchCount == null ? t45n('devices.step45n.inventoryQuery.notRun') : item.lastMatchCount + ' ' + t45n('devices.step45n.inventoryQuery.matches')}</span>
                 </button>
               ))}
             </div>
           ) : (
             <INNOCollectionState
               kind={savedSearch ? 'no-results' : 'empty'}
-              title={savedSearch ? 'No saved queries found' : 'No saved queries yet'}
-              description={savedSearch ? 'Try another search.' : canManage ? 'Save a query from the builder for reuse.' : 'No saved query is available.'}
+              title={savedSearch ? t45n('devices.step45n.inventoryQuery.noSavedQueriesFound') : t45n('devices.step45n.inventoryQuery.noSavedQueriesYet')}
+              description={savedSearch ? t45n('reports.noResults.description') : canManage ? t45n('devices.step45n.inventoryQuery.saveAQueryFromTheBuilderForReuse') : t45n('devices.step45n.inventoryQuery.noSavedQueryIsAvailable')}
             />
           )}
         </div>

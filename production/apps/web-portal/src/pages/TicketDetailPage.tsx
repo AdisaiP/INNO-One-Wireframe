@@ -10,6 +10,7 @@ import {
 } from '../api/client';
 import { usePermission } from '../app/ProfileContext';
 import { ErrorState, LoadingState } from '../components/Feedback';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 function formatDate(value: string) {
   return new Date(value).toLocaleString();
@@ -22,6 +23,7 @@ function minutesLabel(minutes: number) {
 }
 
 export function TicketDetailPage() {
+  const { t: t45n } = useStep45NI18n();
   const { ticketId = '' } = useParams();
   const queryClient = useQueryClient();
   const canReply = usePermission('helpdesk.ticket.reply');
@@ -82,7 +84,7 @@ export function TicketDetailPage() {
   });
 
   if (ticketQuery.isPending) {
-    return <div className="page-loading-wrap"><LoadingState label="Loading ticket…" /></div>;
+    return <div className="page-loading-wrap"><LoadingState label={t45n('helpdesk.step45n.ticketDetail.loadingTicket')} /></div>;
   }
 
   if (ticketQuery.isError) {
@@ -95,8 +97,8 @@ export function TicketDetailPage() {
   return (
     <main className="inno-page">
       <div className="resource-breadcrumb">
-        <Link to="/helpdesk">Helpdesk</Link><span>›</span>
-        <Link to="/helpdesk/tickets">Tickets</Link><span>›</span>
+        <Link to="/helpdesk">{t45n('navigation.helpdesk')}</Link><span>›</span>
+        <Link to="/helpdesk/tickets">{t45n('navigation.tickets')}</Link><span>›</span>
         <span>{ticket.ticketNumber}</span>
       </div>
 
@@ -104,11 +106,11 @@ export function TicketDetailPage() {
         icon={<INNOIcon token="section.tickets" size={20} />}
         title={ticket.subject}
         status={<INNOStatus tone={resolved ? 'neutral' : 'warning'}>{ticket.statusName}</INNOStatus>}
-        meta={<><span>{ticket.ticketNumber}</span><span>·</span><span>{ticket.category?.name ?? 'Uncategorized'}</span><span>·</span><span>{ticket.organization?.name ?? '—'}</span></>}
+        meta={<><span>{ticket.ticketNumber}</span><span>·</span><span>{ticket.category?.name ?? t45n('helpdesk.step45n.helpdeskOverview.uncategorized')}</span><span>·</span><span>{ticket.organization?.name ?? '—'}</span></>}
         actions={
           <>
-            {canResolve && !resolved ? <INNOButton busy={resolveMutation.isPending} onClick={() => resolveMutation.mutate()}>Resolve</INNOButton> : null}
-            {canAssign && !resolved ? <INNOButton variant="secondary" onClick={() => setShowAssign((value) => !value)}>Reassign</INNOButton> : null}
+            {canResolve && !resolved ? <INNOButton busy={resolveMutation.isPending} onClick={() => resolveMutation.mutate()}>{t45n('helpdesk.step45n.ticketDetail.resolve')}</INNOButton> : null}
+            {canAssign && !resolved ? <INNOButton variant="secondary" onClick={() => setShowAssign((value) => !value)}>{t45n('helpdesk.step45n.ticketDetail.reassign')}</INNOButton> : null}
           </>
         }
       />
@@ -116,37 +118,37 @@ export function TicketDetailPage() {
       {actionError ? <div className="form-error ticket-action-error" role="alert">{actionError}</div> : null}
 
       <INNOResourceSummary>
-        <INNOResourceSummaryItem label="Priority" value={ticket.priority} detail={'Urgency: ' + ticket.urgency} />
-        <INNOResourceSummaryItem label="Assignee" value={ticket.assignee?.name ?? ticket.team ?? 'Unassigned'} detail={ticket.team ?? 'No queue'} />
-        <INNOResourceSummaryItem label="SLA" value={ticket.sla ? ticket.sla.elapsedPercent + '% elapsed' : '—'} detail={ticket.sla?.state ?? 'No SLA'} />
-        <INNOResourceSummaryItem label="Requester" value={ticket.requester.name} detail={ticket.organization?.name ?? '—'} />
+        <INNOResourceSummaryItem label={t45n('reports.column.priority')} value={ticket.priority} detail={'Urgency: ' + ticket.urgency} />
+        <INNOResourceSummaryItem label={t45n('reports.column.assignee')} value={ticket.assignee?.name ?? ticket.team ?? 'Unassigned'} detail={ticket.team ?? 'No queue'} />
+        <INNOResourceSummaryItem label={t45n('helpdesk.step45n.ticketDetail.sla')} value={ticket.sla ? ticket.sla.elapsedPercent + '% elapsed' : '—'} detail={ticket.sla?.state ?? 'No SLA'} />
+        <INNOResourceSummaryItem label={t45n('reports.column.requester')} value={ticket.requester.name} detail={ticket.organization?.name ?? '—'} />
       </INNOResourceSummary>
 
       <INNODialog
         open={showAssign}
-        title="Reassign Ticket"
-        description="Choose the support queue and optional assignee."
+        title={t45n('helpdesk.step45n.ticketDetail.reassignTicket')}
+        description={t45n('helpdesk.step45n.ticketDetail.chooseTheSupportQueueAndOptionalAssignee')}
         onClose={() => { if (!assignMutation.isPending) setShowAssign(false); }}
         size="sm"
         footer={<>
-          <INNOButton type="button" variant="secondary" disabled={assignMutation.isPending} onClick={() => setShowAssign(false)}>Cancel</INNOButton>
-          <INNOButton type="button" busy={assignMutation.isPending} onClick={() => assignMutation.mutate()}>Reassign</INNOButton>
+          <INNOButton type="button" variant="secondary" disabled={assignMutation.isPending} onClick={() => setShowAssign(false)}>{t45n('reports.action.cancel')}</INNOButton>
+          <INNOButton type="button" busy={assignMutation.isPending} onClick={() => assignMutation.mutate()}>{t45n('helpdesk.step45n.ticketDetail.reassign')}</INNOButton>
         </>}
       >
         <div className="editor-form">
           <div className="editor-grid">
             <label className="field-block">
-              <span>Team</span>
+              <span>{t45n('reports.column.team')}</span>
               <select data-autofocus value={team} onChange={(event) => setTeam(event.target.value)}>
-                <option>Support L1</option>
-                <option>Network Support</option>
-                <option>Application Team</option>
+                <option>{t45n('helpdesk.step45n.ticketDetail.supportL1')}</option>
+                <option>{t45n('helpdesk.step45n.ticketDetail.networkSupport')}</option>
+                <option>{t45n('helpdesk.step45n.ticketDetail.applicationTeam')}</option>
               </select>
             </label>
             <label className="field-block">
-              <span>Assignee</span>
+              <span>{t45n('reports.column.assignee')}</span>
               <select value={assigneeUserId} onChange={(event) => setAssigneeUserId(event.target.value)}>
-                <option value="">Queue only</option>
+                <option value="">{t45n('helpdesk.step45n.ticketDetail.queueOnly')}</option>
                 {ticket.assigneeOptions.map((user) => (
                   <option key={user.id} value={user.id}>{user.name}</option>
                 ))}
@@ -157,13 +159,13 @@ export function TicketDetailPage() {
       </INNODialog>
 
       <INNOSurfaceTabs
-        ariaLabel="Ticket detail sections"
+        ariaLabel={t45n('helpdesk.step45n.ticketDetail.ticketDetailSections')}
         activeId={activeTab}
         onChange={(id) => setActiveTab(id as 'conversation' | 'activity' | 'details')}
         items={[
-          { id: 'conversation', label: 'Conversation' },
-          { id: 'activity', label: 'Activity' },
-          { id: 'details', label: 'Details' },
+          { id: 'conversation', label: t45n('helpdesk.step45n.ticketDetail.conversation') },
+          { id: 'activity', label: t45n('helpdesk.step45n.ticketDetail.activity') },
+          { id: 'details', label: t45n('helpdesk.step45n.ticketDetail.details') },
         ]}
       />
 
@@ -171,8 +173,8 @@ export function TicketDetailPage() {
         <div className="panel-stack">
           <section className="prod-panel" hidden={activeTab !== 'conversation'}>
             <div className="prod-panel-head">
-              <div><h3>Conversation</h3><p>Requester and support updates.</p></div>
-              <INNOStatus>{ticket.messages.length} messages</INNOStatus>
+              <div><h3>{t45n('helpdesk.step45n.ticketDetail.conversation')}</h3><p>{t45n('helpdesk.step45n.ticketDetail.requesterAndSupportUpdates')}</p></div>
+              <INNOStatus>{ticket.messages.length} {t45n('helpdesk.step45n.ticketDetail.messages')}</INNOStatus>
             </div>
             <div className="ticket-thread">
               {ticket.messages.map((message) => (
@@ -181,7 +183,7 @@ export function TicketDetailPage() {
                   <div>
                     <div className="ticket-message-head">
                       <b>{message.authorName}</b>
-                      {message.visibility === 'internal' ? <INNOStatus>Internal note</INNOStatus> : null}
+                      {message.visibility === 'internal' ? <INNOStatus>{t45n('helpdesk.step45n.ticketDetail.internalNote')}</INNOStatus> : null}
                       <span>{formatDate(message.createdAt)}</span>
                     </div>
                     <div className="ticket-message-body">{message.body}</div>
@@ -192,12 +194,12 @@ export function TicketDetailPage() {
               {canReply && !resolved ? (
                 <div className="ticket-composer">
                   <label className="field-block">
-                    <span>{visibility === 'internal' ? 'Internal note' : 'Reply'}</span>
+                    <span>{visibility === 'internal' ? t45n('helpdesk.step45n.ticketDetail.internalNote') : t45n('helpdesk.step45n.ticketDetail.reply')}</span>
                     <textarea
                       rows={5}
                       value={replyBody}
                       onChange={(event) => setReplyBody(event.target.value)}
-                      placeholder={visibility === 'internal' ? 'Write an internal note…' : 'Write a reply…'}
+                      placeholder={visibility === 'internal' ? t45n('helpdesk.step45n.ticketDetail.writeAnInternalNote') : t45n('helpdesk.step45n.ticketDetail.writeAReply')}
                     />
                   </label>
                   <div className="ticket-composer-foot">
@@ -207,14 +209,13 @@ export function TicketDetailPage() {
                         checked={visibility === 'internal'}
                         onChange={(event) => setVisibility(event.target.checked ? 'internal' : 'public')}
                       />
-                      Internal note
-                    </label>
+                      {t45n('helpdesk.step45n.ticketDetail.internalNote')}{' '}</label>
                     <INNOButton
                       busy={replyMutation.isPending}
                       disabled={!replyBody.trim()}
                       onClick={() => replyMutation.mutate()}
                     >
-                      {visibility === 'internal' ? 'Add Note' : 'Send Reply'}
+                      {visibility === 'internal' ? t45n('helpdesk.step45n.ticketDetail.addNote') : t45n('helpdesk.step45n.ticketDetail.sendReply')}
                     </INNOButton>
                   </div>
                 </div>
@@ -223,7 +224,7 @@ export function TicketDetailPage() {
           </section>
 
           <section className="prod-panel" hidden={activeTab !== 'activity'}>
-            <div className="prod-panel-head"><div><h3>Activity</h3><p>Ticket status and assignment history.</p></div></div>
+            <div className="prod-panel-head"><div><h3>{t45n('helpdesk.step45n.ticketDetail.activity')}</h3><p>{t45n('helpdesk.step45n.ticketDetail.ticketStatusAndAssignmentHistory')}</p></div></div>
             <div className="ticket-activity-list">
               {ticket.activities.map((activity) => (
                 <div className="ticket-activity-row" key={activity.id}>
@@ -241,43 +242,43 @@ export function TicketDetailPage() {
 
         <aside className="panel-stack" hidden={activeTab !== 'details'}>
           <section className="prod-panel">
-            <div className="prod-panel-head"><div><h3>Properties</h3><p>Canonical ticket context.</p></div></div>
+            <div className="prod-panel-head"><div><h3>{t45n('helpdesk.automation.builder.properties.title')}</h3><p>{t45n('helpdesk.step45n.ticketDetail.canonicalTicketContext')}</p></div></div>
             <div className="production-kv-grid ticket-properties">
-              <div className="kv-row"><span>Requester</span><b>{ticket.requester.name}</b></div>
-              <div className="kv-row"><span>Organization</span><b>{ticket.organization?.name ?? '—'}</b></div>
-              <div className="kv-row"><span>Category</span><b>{ticket.category?.name ?? '—'}</b></div>
-              <div className="kv-row"><span>Impact</span><b>{ticket.impact}</b></div>
-              <div className="kv-row"><span>Urgency</span><b>{ticket.urgency}</b></div>
-              <div className="kv-row"><span>Priority</span><b>{ticket.priority}</b></div>
-              <div className="kv-row"><span>Assignee</span><b>{ticket.assignee?.name ?? '—'}</b></div>
-              <div className="kv-row"><span>Team</span><b>{ticket.team ?? '—'}</b></div>
+              <div className="kv-row"><span>{t45n('reports.column.requester')}</span><b>{ticket.requester.name}</b></div>
+              <div className="kv-row"><span>{t45n('profile.organization')}</span><b>{ticket.organization?.name ?? '—'}</b></div>
+              <div className="kv-row"><span>{t45n('reports.column.category')}</span><b>{ticket.category?.name ?? '—'}</b></div>
+              <div className="kv-row"><span>{t45n('helpdesk.step45n.ticketCreate.impact')}</span><b>{ticket.impact}</b></div>
+              <div className="kv-row"><span>{t45n('helpdesk.step45n.ticketCreate.urgency')}</span><b>{ticket.urgency}</b></div>
+              <div className="kv-row"><span>{t45n('reports.column.priority')}</span><b>{ticket.priority}</b></div>
+              <div className="kv-row"><span>{t45n('reports.column.assignee')}</span><b>{ticket.assignee?.name ?? '—'}</b></div>
+              <div className="kv-row"><span>{t45n('reports.column.team')}</span><b>{ticket.team ?? '—'}</b></div>
             </div>
           </section>
 
           <section className="prod-panel">
-            <div className="prod-panel-head"><div><h3>SLA</h3><p>Resolved service target for this ticket.</p></div></div>
+            <div className="prod-panel-head"><div><h3>{t45n('helpdesk.step45n.ticketDetail.sla')}</h3><p>{t45n('helpdesk.step45n.ticketDetail.resolvedServiceTargetForThisTicket')}</p></div></div>
             {ticket.sla ? (
               <div className="ticket-sla-panel">
-                <div className="kv-row"><span>Response</span><b>{minutesLabel(ticket.sla.responseMinutes)}</b></div>
-                <div className="kv-row"><span>Resolution</span><b>{minutesLabel(ticket.sla.resolutionMinutes)}</b></div>
-                <div className="kv-row"><span>State</span><b>{ticket.sla.state}</b></div>
+                <div className="kv-row"><span>{t45n('helpdesk.step45n.ticketDetail.response')}</span><b>{minutesLabel(ticket.sla.responseMinutes)}</b></div>
+                <div className="kv-row"><span>{t45n('helpdesk.step45n.ticketDetail.resolution')}</span><b>{minutesLabel(ticket.sla.resolutionMinutes)}</b></div>
+                <div className="kv-row"><span>{t45n('helpdesk.step45n.ticketDetail.state')}</span><b>{ticket.sla.state}</b></div>
                 <div className="sla-progress"><span style={{ width: Math.min(ticket.sla.elapsedPercent, 100) + '%' }} /></div>
-                <small>Resolution due {formatDate(ticket.sla.resolutionDueAt)}</small>
+                <small>{t45n('helpdesk.step45n.ticketDetail.resolutionDue')}{' '}{formatDate(ticket.sla.resolutionDueAt)}</small>
               </div>
-            ) : <INNOState compact kind="empty" title="No SLA policy resolved" description="No SLA policy is currently applied to this ticket." />}
+            ) : <INNOState compact kind="empty" title={t45n('helpdesk.step45n.ticketDetail.noSlaPolicyResolved')} description={t45n('helpdesk.step45n.ticketDetail.noSlaPolicyIsCurrentlyAppliedToThis')} />}
           </section>
 
           <section className="prod-panel">
-            <div className="prod-panel-head"><div><h3>Related context</h3><p>Cross-module references only.</p></div></div>
+            <div className="prod-panel-head"><div><h3>{t45n('helpdesk.step45n.ticketDetail.relatedContext')}</h3><p>{t45n('helpdesk.step45n.ticketDetail.crossModuleReferencesOnly')}</p></div></div>
             {ticket.relatedDevice ? (
               <Link className="related-resource-row" to={'/devices/' + ticket.relatedDevice.id}>
                 <div>
                   <b>{ticket.relatedDevice.name}</b>
-                  <span>{ticket.relatedDevice.operatingSystem ?? 'Unknown OS'} · {ticket.relatedDevice.status}</span>
+                  <span>{ticket.relatedDevice.operatingSystem ?? t45n('assets.step45n.assetDetail.unknownOs')} · {ticket.relatedDevice.status}</span>
                 </div>
-                <span>Open</span>
+                <span>{t45n('common.step45n.search.open')}</span>
               </Link>
-            ) : <INNOState compact kind="empty" title="No related device" description="No managed Device is linked to this ticket." />}
+            ) : <INNOState compact kind="empty" title={t45n('helpdesk.step45n.ticketCreate.noRelatedDevice')} description={t45n('helpdesk.step45n.ticketDetail.noManagedDeviceIsLinkedToThisTicket')} />}
           </section>
         </aside>
       </div>

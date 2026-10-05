@@ -23,6 +23,7 @@ import {
   getAdminAuditFacets,
 } from '../api/client';
 import { CollectionErrorState, CollectionLoadingState, ErrorState, LoadingState } from '../components/Feedback';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 function formatWhen(value: string) {
   return new Intl.DateTimeFormat(undefined, {
@@ -46,6 +47,7 @@ function prettyMetadata(value: unknown) {
 }
 
 export function AdminAuditPage() {
+  const { t: t45n } = useStep45NI18n();
   const [params, setParams] = useSearchParams();
   const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search);
@@ -143,58 +145,58 @@ export function AdminAuditPage() {
 
   return (
     <INNOPage
-      eyebrow="Admin Center · Security"
-      title="Audit Log"
-      description="Read the immutable audit ledger across platform and module boundaries."
+      eyebrow={t45n('admin.step45n.adminAudit.adminCenterSecurity')}
+      title={t45n('navigation.auditLog')}
+      description={t45n('admin.step45n.adminAudit.readTheImmutableAuditLedgerAcrossPlatformAnd')}
     >
       <INNOPurposeNote
-        title="Audit records are read-only"
-        description="This view shows persisted audit facts exactly as stored. It does not infer canonical envelope fields that are not present in the current ledger."
+        title={t45n('admin.step45n.adminAudit.auditRecordsAreReadOnly')}
+        description={t45n('admin.step45n.adminAudit.thisViewShowsPersistedAuditFactsExactlyAs')}
       />
 
       <INNOCollection className="admin-audit-collection">
           <INNOCollectionHeader
-            title="Audit Records"
-            description="Newest records first. Filters are applied on the server."
-            meta={list.data ? <INNOStatus>{list.data.totalItems} records</INNOStatus> : undefined}
+            title={t45n('admin.step45n.adminAudit.auditRecords')}
+            description={t45n('admin.step45n.adminAudit.newestRecordsFirstFiltersAreAppliedOnThe')}
+            meta={list.data ? <INNOStatus>{list.data.totalItems} {t45n('admin.step45n.adminAudit.records')}</INNOStatus> : undefined}
           />
 
           <INNOCollectionToolbar>
             <INNOSearchField
-              label="Search audit records"
+              label={t45n('admin.step45n.adminAudit.searchAuditRecords')}
               value={search}
               onChange={setSearch}
-              placeholder="Search action, target, actor, correlation or trace…"
+              placeholder={t45n('admin.step45n.adminAudit.searchActionTargetActorCorrelationOrTrace')}
             />
-            <INNOSelectField label="Module" value={module} onChange={setModule}>
-              <option value="all">Module: All</option>
+            <INNOSelectField label={t45n('admin.step45n.adminApps.module')} value={module} onChange={setModule}>
+              <option value="all">{t45n('admin.step45n.adminAudit.moduleAll')}</option>
               {facets.data?.modules.map((value) => <option key={value} value={value}>{value}</option>)}
             </INNOSelectField>
-            <INNOSelectField label="Action" value={action} onChange={setAction}>
-              <option value="all">Action: All</option>
+            <INNOSelectField label={t45n('reports.table.action')} value={action} onChange={setAction}>
+              <option value="all">{t45n('admin.step45n.adminAudit.actionAll')}</option>
               {facets.data?.actions.map((value) => <option key={value} value={value}>{value}</option>)}
             </INNOSelectField>
-            <INNOSelectField label="Target type" value={targetType} onChange={setTargetType}>
-              <option value="all">Target: All</option>
+            <INNOSelectField label={t45n('admin.step45n.adminAudit.targetType')} value={targetType} onChange={setTargetType}>
+              <option value="all">{t45n('admin.step45n.adminAudit.targetAll')}</option>
               {facets.data?.targetTypes.map((value) => <option key={value} value={value}>{value}</option>)}
             </INNOSelectField>
-            <INNOSelectField label="Classification" value={classification} onChange={setClassification}>
-              <option value="all">Class: All</option>
+            <INNOSelectField label={t45n('admin.step45n.adminAudit.classification')} value={classification} onChange={setClassification}>
+              <option value="all">{t45n('admin.step45n.adminAudit.classAll')}</option>
               {facets.data?.classifications.map((value) => <option key={value} value={value}>{value}</option>)}
             </INNOSelectField>
           </INNOCollectionToolbar>
 
           <div className="admin-audit-filter-row">
             <label className="field-block">
-              <span>Actor ID</span>
+              <span>{t45n('admin.step45n.adminAudit.actorId')}</span>
               <input
                 value={actor}
                 onChange={(event) => setActor(event.target.value)}
-                placeholder="user_…"
+                placeholder={t45n('admin.step45n.adminAudit.user')}
               />
             </label>
             <label className="field-block">
-              <span>From</span>
+              <span>{t45n('admin.step45n.adminAudit.from')}</span>
               <input
                 type="datetime-local"
                 value={from}
@@ -202,7 +204,7 @@ export function AdminAuditPage() {
               />
             </label>
             <label className="field-block">
-              <span>To</span>
+              <span>{t45n('admin.step45n.adminAudit.to')}</span>
               <input
                 type="datetime-local"
                 value={to}
@@ -211,18 +213,17 @@ export function AdminAuditPage() {
             </label>
             {hasFilters ? (
               <button type="button" className="audit-clear-button" onClick={clearFilters}>
-                Clear filters
-              </button>
+                {t45n('admin.step45n.adminAccessScopes.clearFilters')}</button>
             ) : null}
           </div>
 
-          {list.isPending ? <CollectionLoadingState label="Loading audit records…" /> : null}
+          {list.isPending ? <CollectionLoadingState label={t45n('admin.step45n.adminAudit.loadingAuditRecords')} /> : null}
           {list.isError ? <CollectionErrorState error={list.error} retry={() => void list.refetch()} /> : null}
           {list.data?.items.length === 0 ? (
             <INNOCollectionState
               kind={hasFilters ? 'no-results' : 'empty'}
-              title={hasFilters ? 'No matching audit records' : 'No audit records'}
-              description={hasFilters ? 'Adjust the search or filters.' : 'Audit facts will appear after privileged or auditable activity occurs.'}
+              title={hasFilters ? t45n('admin.step45n.adminAudit.noMatchingAuditRecords') : t45n('admin.step45n.adminAudit.noAuditRecords')}
+              description={hasFilters ? t45n('admin.step45n.adminAudit.adjustTheSearchOrFilters') : t45n('admin.step45n.adminAudit.auditFactsWillAppearAfterPrivilegedOrAuditable')}
             />
           ) : null}
 
@@ -232,12 +233,12 @@ export function AdminAuditPage() {
                 <table>
                   <thead>
                     <tr>
-                      <th>Occurred</th>
-                      <th>Action</th>
-                      <th>Actor</th>
-                      <th>Target</th>
-                      <th>Correlation</th>
-                      <th className="action-column">Action</th>
+                      <th>{t45n('admin.step45n.adminAudit.occurred')}</th>
+                      <th>{t45n('reports.table.action')}</th>
+                      <th>{t45n('admin.step45n.adminAudit.actor')}</th>
+                      <th>{t45n('admin.step45n.adminAudit.target')}</th>
+                      <th>{t45n('admin.step45n.adminAudit.correlation')}</th>
+                      <th className="action-column">{t45n('reports.table.action')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -264,8 +265,8 @@ export function AdminAuditPage() {
                         </td>
                         <td className="action-column">
                           <INNORowActions
-                            ariaLabel={'Audit record ' + item.auditId}
-                            items={[{ id: 'open', label: 'Open', onSelect: () => selectAudit(item.auditId) }]}
+                            ariaLabel={t45n('admin.step45n.adminAudit.auditRecord') + ' ' + item.auditId}
+                            items={[{ id: 'open', label: t45n('common.step45n.search.open'), onSelect: () => selectAudit(item.auditId) }]}
                           />
                         </td>
                       </tr>
@@ -286,29 +287,29 @@ export function AdminAuditPage() {
 
       <INNODrawer
         open={Boolean(selectedId)}
-        title="Audit Detail"
-        description="Immutable stored audit fact."
+        title={t45n('admin.step45n.adminAudit.auditDetail')}
+        description={t45n('admin.step45n.adminAudit.immutableStoredAuditFact')}
         onClose={clearSelection}
         size="lg"
       >
-        {detail.isPending ? <div className="collection-state"><LoadingState label="Loading audit detail…" /></div> : null}
+        {detail.isPending ? <div className="collection-state"><LoadingState label={t45n('admin.step45n.adminAudit.loadingAuditDetail')} /></div> : null}
         {detail.isError ? <div className="collection-state"><ErrorState error={detail.error} retry={() => void detail.refetch()} /></div> : null}
         {detail.data ? (
           <div className="admin-audit-detail-body">
             <dl className="audit-detail-list">
-              <div><dt>Audit ID</dt><dd>{detail.data.auditId}</dd></div>
-              <div><dt>Occurred</dt><dd>{formatWhen(detail.data.occurredAt)}</dd></div>
-              <div><dt>Action</dt><dd>{detail.data.action}</dd></div>
-              <div><dt>Module</dt><dd>{detail.data.module}</dd></div>
-              <div><dt>Actor</dt><dd>{detail.data.actorName ?? detail.data.actorId}</dd></div>
-              <div><dt>Actor ID</dt><dd>{detail.data.actorId}</dd></div>
-              <div><dt>Target</dt><dd>{detail.data.targetType} · {detail.data.targetId}</dd></div>
-              <div><dt>Classification</dt><dd>{detail.data.classification}</dd></div>
-              <div><dt>Correlation ID</dt><dd>{detail.data.correlationId ?? '—'}</dd></div>
-              <div><dt>Trace ID</dt><dd>{detail.data.traceId ?? '—'}</dd></div>
+              <div><dt>{t45n('admin.step45n.adminAudit.auditId')}</dt><dd>{detail.data.auditId}</dd></div>
+              <div><dt>{t45n('admin.step45n.adminAudit.occurred')}</dt><dd>{formatWhen(detail.data.occurredAt)}</dd></div>
+              <div><dt>{t45n('reports.table.action')}</dt><dd>{detail.data.action}</dd></div>
+              <div><dt>{t45n('admin.step45n.adminApps.module')}</dt><dd>{detail.data.module}</dd></div>
+              <div><dt>{t45n('admin.step45n.adminAudit.actor')}</dt><dd>{detail.data.actorName ?? detail.data.actorId}</dd></div>
+              <div><dt>{t45n('admin.step45n.adminAudit.actorId')}</dt><dd>{detail.data.actorId}</dd></div>
+              <div><dt>{t45n('admin.step45n.adminAudit.target')}</dt><dd>{detail.data.targetType} · {detail.data.targetId}</dd></div>
+              <div><dt>{t45n('admin.step45n.adminAudit.classification')}</dt><dd>{detail.data.classification}</dd></div>
+              <div><dt>{t45n('admin.step45n.adminAudit.correlationId')}</dt><dd>{detail.data.correlationId ?? '—'}</dd></div>
+              <div><dt>{t45n('admin.step45n.adminAudit.traceId')}</dt><dd>{detail.data.traceId ?? '—'}</dd></div>
             </dl>
             <div className="audit-metadata-block">
-              <b>Metadata</b>
+              <b>{t45n('admin.step45n.adminAudit.metadata')}</b>
               <pre>{prettyMetadata(detail.data.metadata)}</pre>
             </div>
           </div>

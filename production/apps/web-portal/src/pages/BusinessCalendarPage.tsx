@@ -9,6 +9,7 @@ import {
 import { usePermission } from '../app/ProfileContext';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import type { BusinessWorkingDay } from '../api/types';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -19,6 +20,7 @@ function minuteLabel(value: number) {
 }
 
 export function BusinessCalendarPage() {
+  const { t: t45n } = useStep45NI18n();
   const canManage = usePermission('helpdesk.sla.manage');
   const queryClient = useQueryClient();
   const query = useQuery({
@@ -47,7 +49,7 @@ export function BusinessCalendarPage() {
 
   const mutation = useMutation({
     mutationFn: () => {
-      if (!query.data) throw new Error('Business Calendar is not loaded.');
+      if (!query.data) throw new Error(t45n('helpdesk.step45n.businessCalendar.businessCalendarIsNotLoaded'));
       return updateBusinessCalendar(query.data.eTag, {
         name,
         timeZoneId,
@@ -78,13 +80,13 @@ export function BusinessCalendarPage() {
 
   return (
     <INNOPage
-      eyebrow="Helpdesk · Configuration"
-      title="Business Calendar"
-      description="Working hours and holidays used for SLA calculations."
-      actions={<Link className="inno-link-button secondary" to="/helpdesk/sla">Open SLA policies</Link>}
+      eyebrow={t45n('helpdesk.step45n.businessCalendar.helpdeskConfiguration')}
+      title={t45n('navigation.businessCalendar')}
+      description={t45n('helpdesk.step45n.businessCalendar.workingHoursAndHolidaysUsedForSlaCalculations')}
+      actions={<Link className="inno-link-button secondary" to="/helpdesk/sla">{t45n('helpdesk.step45n.businessCalendar.openSlaPolicies')}</Link>}
     >
 
-      {query.isPending ? <LoadingState label="Loading Business Calendar…" /> : null}
+      {query.isPending ? <LoadingState label={t45n('helpdesk.step45n.businessCalendar.loadingBusinessCalendar')} /> : null}
       {query.isError ? <ErrorState error={query.error} retry={() => void query.refetch()} /> : null}
 
       {query.data ? (
@@ -92,21 +94,21 @@ export function BusinessCalendarPage() {
           <div className="panel-stack">
             <section className="prod-panel">
               <div className="prod-panel-head">
-                <div><h3>Working hours</h3><p>The SLA clock runs only inside these windows.</p></div>
+                <div><h3>{t45n('helpdesk.step45n.businessCalendar.workingHours')}</h3><p>{t45n('helpdesk.step45n.businessCalendar.theSlaClockRunsOnlyInsideTheseWindows')}</p></div>
                 <INNOStatus>{timeZoneId}</INNOStatus>
               </div>
               <div className="editor-form">
                 {saveError ? <div className="form-error" role="alert">{saveError}</div> : null}
                 <div className="editor-grid calendar-meta-grid">
                   <label className="field-block">
-                    <span>Calendar name</span>
+                    <span>{t45n('helpdesk.step45n.businessCalendar.calendarName')}</span>
                     <input disabled={!canManage} value={name} onChange={(event) => setName(event.target.value)} />
                   </label>
                   <label className="field-block">
-                    <span>Time zone</span>
+                    <span>{t45n('profile.timeZone')}</span>
                     <select disabled={!canManage} value={timeZoneId} onChange={(event) => setTimeZoneId(event.target.value)}>
-                      <option value="Asia/Bangkok">Asia/Bangkok</option>
-                      <option value="UTC">UTC</option>
+                      <option value="Asia/Bangkok">{t45n('helpdesk.step45n.businessCalendar.asiaBangkok')}</option>
+                      <option value="UTC">{t45n('helpdesk.step45n.businessCalendar.utc')}</option>
                     </select>
                   </label>
                 </div>
@@ -121,7 +123,7 @@ export function BusinessCalendarPage() {
                           className={'production-switch ' + (day.isWorking ? 'on' : '')}
                           role="switch"
                           aria-checked={day.isWorking}
-                          aria-label={'Enable ' + dayNames[day.dayOfWeek]}
+                          aria-label={t45n('admin.step45n.adminApps.enable') + ' ' + dayNames[day.dayOfWeek]}
                           disabled={!canManage}
                           onClick={() => updateDay(day.dayOfWeek, { isWorking: !day.isWorking })}
                         >
@@ -131,7 +133,7 @@ export function BusinessCalendarPage() {
                       {day.isWorking ? (
                         <div className="business-day-times">
                           <label>
-                            <span>Start</span>
+                            <span>{t45n('helpdesk.step45n.businessCalendar.start')}</span>
                             <input
                               type="time"
                               disabled={!canManage}
@@ -143,7 +145,7 @@ export function BusinessCalendarPage() {
                             />
                           </label>
                           <label>
-                            <span>End</span>
+                            <span>{t45n('workflow.kind.end')}</span>
                             <input
                               type="time"
                               disabled={!canManage}
@@ -155,7 +157,7 @@ export function BusinessCalendarPage() {
                             />
                           </label>
                         </div>
-                      ) : <span className="business-day-off-label">Off</span>}
+                      ) : <span className="business-day-off-label">{t45n('helpdesk.step45n.businessCalendar.off')}</span>}
                     </div>
                   ))}
                 </div>
@@ -164,18 +166,18 @@ export function BusinessCalendarPage() {
 
             <section className="prod-panel">
               <div className="prod-panel-head">
-                <div><h3>Holiday exceptions</h3><p>Read-only dates removed from SLA timer calculations.</p></div>
-                <INNOStatus>{query.data.holidays.length} dates</INNOStatus>
+                <div><h3>{t45n('helpdesk.step45n.businessCalendar.holidayExceptions')}</h3><p>{t45n('helpdesk.step45n.businessCalendar.readOnlyDatesRemovedFromSlaTimerCalculations')}</p></div>
+                <INNOStatus>{query.data.holidays.length} {t45n('helpdesk.step45n.businessCalendar.dates')}</INNOStatus>
               </div>
               <INNOTableWrap>
                 <table>
-                  <thead><tr><th>Date</th><th>Holiday</th><th>Type</th></tr></thead>
+                  <thead><tr><th>{t45n('helpdesk.step45n.businessCalendar.date')}</th><th>{t45n('helpdesk.step45n.businessCalendar.holiday')}</th><th>{t45n('reports.column.type')}</th></tr></thead>
                   <tbody>
                     {query.data.holidays.map((holiday) => (
                       <tr key={holiday.date}>
                         <td>{new Date(holiday.date + 'T00:00:00').toLocaleDateString()}</td>
                         <td>{holiday.name}</td>
-                        <td><INNOStatus tone={holiday.isWorking ? 'warning' : 'neutral'}>{holiday.isWorking ? 'Working exception' : 'Public holiday'}</INNOStatus></td>
+                        <td><INNOStatus tone={holiday.isWorking ? 'warning' : 'neutral'}>{holiday.isWorking ? t45n('helpdesk.step45n.businessCalendar.workingException') : t45n('helpdesk.step45n.businessCalendar.publicHoliday')}</INNOStatus></td>
                       </tr>
                     ))}
                   </tbody>
@@ -187,10 +189,10 @@ export function BusinessCalendarPage() {
             {canManage ? (
               <INNOEditorFooter>
                 <INNOEditorFooterStart>
-                  <INNOEditorFooterNote>Saving recalculates due dates for active tickets that use this calendar.</INNOEditorFooterNote>
+                  <INNOEditorFooterNote>{t45n('helpdesk.step45n.businessCalendar.savingRecalculatesDueDatesForActiveTicketsThat')}</INNOEditorFooterNote>
                 </INNOEditorFooterStart>
                 <INNOEditorFooterEnd>
-                  <INNOButton busy={mutation.isPending} onClick={() => mutation.mutate()}>Save Calendar</INNOButton>
+                  <INNOButton busy={mutation.isPending} onClick={() => mutation.mutate()}>{t45n('helpdesk.step45n.businessCalendar.saveCalendar')}</INNOButton>
                 </INNOEditorFooterEnd>
               </INNOEditorFooter>
             ) : null}
@@ -199,14 +201,14 @@ export function BusinessCalendarPage() {
           <aside className="panel-stack">
             <section className="prod-panel">
               <div className="prod-panel-head">
-                <div><h3>SLA calendar usage</h3><p>Default working-time source.</p></div>
-                <INNOStatus tone="success">In use</INNOStatus>
+                <div><h3>{t45n('helpdesk.step45n.businessCalendar.slaCalendarUsage')}</h3><p>{t45n('helpdesk.step45n.businessCalendar.defaultWorkingTimeSource')}</p></div>
+                <INNOStatus tone="success">{t45n('assets.automation.editor.lifecycle.in_use')}</INNOStatus>
               </div>
               <div className="production-kv-grid ticket-properties">
-                <div className="kv-row"><span>Calendar</span><b>{query.data.name}</b></div>
-                <div className="kv-row"><span>Time zone</span><b>{query.data.timeZoneId}</b></div>
-                <div className="kv-row"><span>Working days</span><b>{days.filter((day) => day.isWorking).length}</b></div>
-                <div className="kv-row"><span>Holiday exceptions</span><b>{query.data.holidays.length}</b></div>
+                <div className="kv-row"><span>{t45n('helpdesk.step45n.businessCalendar.calendar')}</span><b>{query.data.name}</b></div>
+                <div className="kv-row"><span>{t45n('profile.timeZone')}</span><b>{query.data.timeZoneId}</b></div>
+                <div className="kv-row"><span>{t45n('helpdesk.step45n.businessCalendar.workingDays')}</span><b>{days.filter((day) => day.isWorking).length}</b></div>
+                <div className="kv-row"><span>{t45n('helpdesk.step45n.businessCalendar.holidayExceptions')}</span><b>{query.data.holidays.length}</b></div>
               </div>
             </section>
 

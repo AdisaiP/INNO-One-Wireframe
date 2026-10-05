@@ -3,8 +3,10 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { INNOButton, INNOEditorFooter, INNOPage, INNOPurposeNote, INNOState, INNOStatus } from '@inno/ui';
 import { createAgentInstaller, getDeviceGroups } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 export function AgentDeploymentPage() {
+  const { t: t45n } = useStep45NI18n();
   const groups = useQuery({
     queryKey: ['device-groups', 'installer'],
     queryFn: () => getDeviceGroups({ page: 1, pageSize: 100, status: 'active', type: 'static' }),
@@ -25,20 +27,20 @@ export function AgentDeploymentPage() {
 
   return (
     <INNOPage
-      eyebrow="Devices"
-      title="Agent Deployment"
-      description="Generate a time-limited enrollment link for installing the managed endpoint agent into a Device Group."
+      eyebrow={t45n('navigation.devices')}
+      title={t45n('navigation.agentDeployment')}
+      description={t45n('devices.step45n.agentDeployment.generateATimeLimitedEnrollmentLinkForInstalling')}
       illustration={<img src="/illustrations/device-setup.svg" alt="" />}
     >
 
       <div className="deployment-layout">
         <section className="prod-panel deployment-card">
           {groups.isPending ? (
-            <div className="collection-state"><LoadingState label="Loading device groups…" /></div>
+            <div className="collection-state"><LoadingState label={t45n('devices.step45n.agentDeployment.loadingDeviceGroups')} /></div>
           ) : groups.isError ? (
             <div className="collection-state"><ErrorState error={groups.error} retry={() => void groups.refetch()} /></div>
           ) : groups.data.items.length === 0 ? (
-            <div className="collection-state"><INNOState title="No active groups available" description="Create a Device Group before generating an enrollment link." /></div>
+            <div className="collection-state"><INNOState title={t45n('devices.step45n.agentDeployment.noActiveGroupsAvailable')} description={t45n('devices.step45n.agentDeployment.createADeviceGroupBeforeGeneratingAnEnrollment')} /></div>
           ) : (
             <form
               className="editor-form"
@@ -49,45 +51,45 @@ export function AgentDeploymentPage() {
             >
               <div className="editor-grid">
                 <label className="field-block">
-                  <span>Device group</span>
+                  <span>{t45n('devices.automation.editor.conditionField.groupId')}</span>
                   <select required value={groupId} onChange={(event) => setGroupId(event.target.value)}>
-                    <option value="">Select a group…</option>
+                    <option value="">{t45n('devices.step45n.agentDeployment.selectAGroup')}</option>
                     {groups.data.items.map((group) => (
                       <option key={group.id} value={group.id}>{group.name}</option>
                     ))}
                   </select>
                 </label>
                 <label className="field-block">
-                  <span>Operating system</span>
+                  <span>{t45n('devices.automation.editor.conditionField.operatingSystem')}</span>
                   <select value={operatingSystem} onChange={(event) => setOperatingSystem(event.target.value)}>
-                    <option value="windows">Windows</option>
-                    <option value="macos">macOS</option>
-                    <option value="linux">Linux</option>
+                    <option value="windows">{t45n('devices.step45n.agentDeployment.windows')}</option>
+                    <option value="macos">{t45n('devices.step45n.agentDeployment.macos')}</option>
+                    <option value="linux">{t45n('devices.step45n.agentDeployment.linux')}</option>
                   </select>
                 </label>
                 <label className="field-block">
-                  <span>Installer profile</span>
+                  <span>{t45n('devices.step45n.agentDeployment.installerProfile')}</span>
                   <select value={profile} onChange={(event) => setProfile(event.target.value)}>
-                    <option value="standard">Standard</option>
-                    <option value="unattended">Unattended support</option>
+                    <option value="standard">{t45n('devices.step45n.agentDeployment.standard')}</option>
+                    <option value="unattended">{t45n('devices.step45n.agentDeployment.unattendedSupport')}</option>
                   </select>
                 </label>
               </div>
               {generate.isError ? <ErrorState error={generate.error} /> : null}
               <INNOEditorFooter>
-                <INNOButton type="submit" busy={generate.isPending} disabled={!groupId}>Generate Installer</INNOButton>
+                <INNOButton type="submit" busy={generate.isPending} disabled={!groupId}>{t45n('devices.step45n.agentDeployment.generateInstaller')}</INNOButton>
               </INNOEditorFooter>
             </form>
           )}
         </section>
 
         <section className="prod-panel deployment-card">
-          <div className="deployment-section-title"><h3>How Enrollment Works</h3></div>
+          <div className="deployment-section-title"><h3>{t45n('devices.step45n.agentDeployment.howEnrollmentWorks')}</h3></div>
           <div className="enrollment-steps">
-            <div><b>1</b><span>Generate installer</span></div>
-            <div><b>2</b><span>Install agent on target device</span></div>
-            <div><b>3</b><span>Agent connects to MeshCentral</span></div>
-            <div><b>4</b><span>INNO.One synchronization creates or updates the canonical Device</span></div>
+            <div><b>1</b><span>{t45n('devices.step45n.agentDeployment.generateInstaller2')}</span></div>
+            <div><b>2</b><span>{t45n('devices.step45n.agentDeployment.installAgentOnTargetDevice')}</span></div>
+            <div><b>3</b><span>{t45n('devices.step45n.agentDeployment.agentConnectsToMeshcentral')}</span></div>
+            <div><b>4</b><span>{t45n('devices.step45n.agentDeployment.innoOneSynchronizationCreatesOrUpdatesTheCanonical')}</span></div>
           </div>
         </section>
       </div>
@@ -95,19 +97,19 @@ export function AgentDeploymentPage() {
       {generate.data ? (
         <section className="prod-panel enrollment-result">
           <div className="prod-panel-head">
-            <div><h3>Enrollment ready</h3><p>{generate.data.groupName} · {generate.data.operatingSystem} · expires {generate.data.expiresAt ? new Date(generate.data.expiresAt).toLocaleString() : 'according to provider policy'}</p></div>
+            <div><h3>{t45n('devices.step45n.agentDeployment.enrollmentReady')}</h3><p>{generate.data.groupName} · {generate.data.operatingSystem} {t45n('devices.step45n.agentDeployment.expires')}{' '}{generate.data.expiresAt ? new Date(generate.data.expiresAt).toLocaleString() : t45n('devices.step45n.agentDeployment.accordingToProviderPolicy')}</p></div>
             <INNOStatus tone="success">{generate.data.status}</INNOStatus>
           </div>
           <div className="enrollment-link-row">
             <div>
-              <span>Enrollment link</span>
+              <span>{t45n('devices.step45n.agentDeployment.enrollmentLink')}</span>
               <code>{generate.data.enrollmentUrl}</code>
             </div>
-            <a className="inno-link-button" href={generate.data.enrollmentUrl} target="_blank" rel="noreferrer">Open Enrollment</a>
+            <a className="inno-link-button" href={generate.data.enrollmentUrl} target="_blank" rel="noreferrer">{t45n('devices.step45n.agentDeployment.openEnrollment')}</a>
           </div>
           <INNOPurposeNote
-            title="Vendor IDs stay private."
-            description="This authorized link is time-limited. INNO.One public resource identifiers never expose the MeshCentral group or node ID."
+            title={t45n('devices.step45n.agentDeployment.vendorIdsStayPrivate')}
+            description={t45n('devices.step45n.agentDeployment.thisAuthorizedLinkIsTimeLimitedInnoOne')}
           />
         </section>
       ) : null}

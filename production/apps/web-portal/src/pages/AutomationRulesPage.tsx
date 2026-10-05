@@ -19,8 +19,10 @@ import { getHelpdeskAutomationDefinitions } from '../api/client';
 import { usePermission } from '../app/ProfileContext';
 import { CollectionErrorState, CollectionLoadingState } from '../components/Feedback';
 import './WorkflowProductPages.css';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 export function AutomationRulesPage() {
+  const { t: t45n } = useStep45NI18n();
   const { t, formatDateTime } = useI18n();
   const navigate = useNavigate();
   const canManage = usePermission('helpdesk.automation.manage');
@@ -103,7 +105,7 @@ export function AutomationRulesPage() {
                         <b>{item.name}</b>
                         <div className="table-meta">{item.id}</div>
                       </td>
-                      <td className="numeric-column">v{item.version}</td>
+                      <td className="numeric-column">{t45n('assets.step45n.assetsAutomationRules.v')}{item.version}</td>
                       <td className="numeric-column">{item.nodeCount}</td>
                       <td className="numeric-column">{item.edgeCount}</td>
                       <td>

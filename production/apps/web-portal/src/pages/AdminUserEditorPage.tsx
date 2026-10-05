@@ -11,6 +11,7 @@ import {
 } from '../api/client';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 const blankForm = {
   keycloakSubject: '', employeeId: '', fullName: '', email: '', phone: '', office: '',
@@ -18,6 +19,7 @@ const blankForm = {
 };
 
 export function AdminUserEditorPage() {
+  const { t: t45n } = useStep45NI18n();
   const { userId } = useParams();
   const editing = Boolean(userId);
   const canManage = usePermission('admin.users.manage');
@@ -50,9 +52,9 @@ export function AdminUserEditorPage() {
   }, [user.data]);
   const save = useMutation({
     mutationFn: async () => {
-      if (!canManage) throw new Error('You do not have permission to manage users.');
+      if (!canManage) throw new Error(t45n('admin.step45n.adminUserEditor.youDoNotHavePermissionToManageUsers'));
       if (editing) {
-        if (!user.data) throw new Error('User profile is not loaded.');
+        if (!user.data) throw new Error(t45n('admin.step45n.adminUserEditor.userProfileIsNotLoaded'));
         return updateAdminUser(user.data.id, user.data.eTag, {
           employeeId: form.employeeId.trim(),
           fullName: form.fullName.trim(),
@@ -89,40 +91,40 @@ export function AdminUserEditorPage() {
   });
 
   if (!canManage) {
-    return <INNOPage eyebrow="Admin Center · Organization" title="User Editor" description="You do not have permission to manage users." />;
+    return <INNOPage eyebrow={t45n('admin.step45n.adminHierarchy.adminCenterOrganization')} title={t45n('admin.step45n.adminUserEditor.userEditor')} description={t45n('admin.step45n.adminUserEditor.youDoNotHavePermissionToManageUsers')} />;
   }
-  if (editing && user.isPending) return <div className="page-loading-wrap"><LoadingState label="Loading user…" /></div>;
+  if (editing && user.isPending) return <div className="page-loading-wrap"><LoadingState label={t45n('admin.step45n.adminUserDetail.loadingUser')} /></div>;
   if (editing && user.isError) return <div className="page-error-wrap"><ErrorState error={user.error} retry={() => void user.refetch()} /></div>;
 
   const title = editing ? 'Edit User Profile' : 'New User Profile';
   return (
     <INNOPage
-      eyebrow="Admin Center · Organization"
+      eyebrow={t45n('admin.step45n.adminHierarchy.adminCenterOrganization')}
       title={title}
-      description={editing ? 'Update organization profile data for this user.' : 'Link an existing Keycloak identity to an INNO.One organization profile.'}
+      description={editing ? t45n('admin.step45n.adminUserEditor.updateOrganizationProfileDataForThisUser') : t45n('admin.step45n.adminUserEditor.linkAnExistingKeycloakIdentityToAnInno')}
     >
       <div className="resource-breadcrumb">
-        <Link to="/admin/users">Users</Link><span>›</span><span>{title}</span>
+        <Link to="/admin/users">{t45n('navigation.users')}</Link><span>›</span><span>{title}</span>
       </div>
       <section className="prod-panel editor-route-panel">
-        <div className="prod-panel-head"><div><h3>Profile details</h3><p>Authentication identity and organization metadata remain separate.</p></div></div>
+        <div className="prod-panel-head"><div><h3>{t45n('admin.step45n.adminUserEditor.profileDetails')}</h3><p>{t45n('admin.step45n.adminUserEditor.authenticationIdentityAndOrganizationMetadataRemainSeparate')}</p></div></div>
         <form className="editor-form" onSubmit={(event) => { event.preventDefault(); if (!save.isPending) save.mutate(); }}>
           <div className="editor-grid">
-            {!editing ? <label className="field-block"><span>Keycloak subject</span><input data-autofocus required value={form.keycloakSubject} onChange={(e) => setForm({ ...form, keycloakSubject: e.target.value })} /></label> : null}
-            <label className="field-block"><span>Employee ID</span><input data-autofocus={editing || undefined} required value={form.employeeId} onChange={(e) => setForm({ ...form, employeeId: e.target.value })} /></label>
-            <label className="field-block"><span>Full name</span><input required value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} /></label>
-            <label className="field-block"><span>Email</span><input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></label>
-            <label className="field-block"><span>Phone</span><input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></label>
-            <label className="field-block"><span>Office</span><input value={form.office} onChange={(e) => setForm({ ...form, office: e.target.value })} /></label>
-            <label className="field-block"><span>Organization unit</span><select value={form.organizationId} onChange={(e) => setForm({ ...form, organizationId: e.target.value })}><option value="">Unassigned</option>{organizations.data?.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
-            <label className="field-block"><span>Position</span><select value={form.positionId} onChange={(e) => setForm({ ...form, positionId: e.target.value })}><option value="">Unassigned</option>{positions.data?.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
-            <label className="field-block"><span>Location</span><select value={form.locationId} onChange={(e) => setForm({ ...form, locationId: e.target.value })}><option value="">Unassigned</option>{locations.data?.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
-            <label className="field-block"><span>Status</span><select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}><option value="active">Active</option><option value="inactive">Inactive</option></select></label>
+            {!editing ? <label className="field-block"><span>{t45n('admin.step45n.adminUserEditor.keycloakSubject')}</span><input data-autofocus required value={form.keycloakSubject} onChange={(e) => setForm({ ...form, keycloakSubject: e.target.value })} /></label> : null}
+            <label className="field-block"><span>{t45n('profile.employeeId')}</span><input data-autofocus={editing || undefined} required value={form.employeeId} onChange={(e) => setForm({ ...form, employeeId: e.target.value })} /></label>
+            <label className="field-block"><span>{t45n('admin.step45n.adminUserEditor.fullName')}</span><input required value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} /></label>
+            <label className="field-block"><span>{t45n('profile.email')}</span><input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></label>
+            <label className="field-block"><span>{t45n('profile.phone')}</span><input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></label>
+            <label className="field-block"><span>{t45n('profile.office')}</span><input value={form.office} onChange={(e) => setForm({ ...form, office: e.target.value })} /></label>
+            <label className="field-block"><span>{t45n('admin.step45n.adminUserEditor.organizationUnit')}</span><select value={form.organizationId} onChange={(e) => setForm({ ...form, organizationId: e.target.value })}><option value="">{t45n('assets.automation.editor.owner.unassigned')}</option>{organizations.data?.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+            <label className="field-block"><span>{t45n('admin.step45n.adminPositions.position')}</span><select value={form.positionId} onChange={(e) => setForm({ ...form, positionId: e.target.value })}><option value="">{t45n('assets.automation.editor.owner.unassigned')}</option>{positions.data?.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+            <label className="field-block"><span>{t45n('profile.location')}</span><select value={form.locationId} onChange={(e) => setForm({ ...form, locationId: e.target.value })}><option value="">{t45n('assets.automation.editor.owner.unassigned')}</option>{locations.data?.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+            <label className="field-block"><span>{t45n('reports.runs.status')}</span><select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}><option value="active">{t45n('reports.status.active')}</option><option value="inactive">{t45n('admin.step45n.adminAccessScopeEdit.inactive')}</option></select></label>
           </div>
           {save.isError ? <ErrorState error={save.error} /> : null}
           <INNOEditorFooter>
             <INNOEditorFooterStart>
-              <INNOButton type="button" variant="secondary" disabled={save.isPending} onClick={() => navigate(editing ? '/admin/users/' + userId : '/admin/users')}>Cancel</INNOButton>
+              <INNOButton type="button" variant="secondary" disabled={save.isPending} onClick={() => navigate(editing ? '/admin/users/' + userId : '/admin/users')}>{t45n('reports.action.cancel')}</INNOButton>
             </INNOEditorFooterStart>
             <INNOEditorFooterEnd>
               <INNOButton
@@ -130,7 +132,7 @@ export function AdminUserEditorPage() {
                 busy={save.isPending}
                 disabled={!form.employeeId.trim() || !form.fullName.trim() || !form.email.trim() || (!editing && !form.keycloakSubject.trim())}
               >
-                {editing ? 'Save Profile' : 'Create User'}
+                {editing ? t45n('admin.step45n.adminUserEditor.saveProfile') : t45n('admin.step45n.adminUserEditor.createUser')}
               </INNOButton>
             </INNOEditorFooterEnd>
           </INNOEditorFooter>

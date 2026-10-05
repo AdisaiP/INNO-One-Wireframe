@@ -10,8 +10,10 @@ import { getAdminOrganizationTree, getAdminUsers } from '../api/client';
 import { CollectionErrorState, CollectionLoadingState } from '../components/Feedback';
 import { RouterRowAction } from '../components/RouterRowAction';
 import { usePermission } from '../app/ProfileContext';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 export function AdminUsersPage() {
+  const { t: t45n } = useStep45NI18n();
   const canManage = usePermission('admin.users.manage');
   const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search);
@@ -28,38 +30,38 @@ export function AdminUsersPage() {
   const organizations = useQuery({ queryKey: ['admin', 'organization'], queryFn: getAdminOrganizationTree });
   return (
     <INNOPage
-      eyebrow="Admin Center · Organization"
-      title="Users"
-      description="Browse organization profiles separately from authentication identity."
-      actions={canManage ? <Link className="inno-btn inno-btn-primary" to="/admin/users/new">New User</Link> : undefined}
+      eyebrow={t45n('admin.step45n.adminHierarchy.adminCenterOrganization')}
+      title={t45n('navigation.users')}
+      description={t45n('admin.step45n.adminUsers.browseOrganizationProfilesSeparatelyFromAuthenticationIdentity')}
+      actions={canManage ? <Link className="inno-btn inno-btn-primary" to="/admin/users/new">{t45n('admin.step45n.adminUsers.newUser')}</Link> : undefined}
     >
       <INNOCollection>
         <INNOCollectionHeader
-          title="User directory"
-          description="Authentication identity is separate from the organization profile."
-          meta={users.data ? <INNOStatus>{users.data.totalItems} users</INNOStatus> : undefined}
+          title={t45n('admin.step45n.adminUsers.userDirectory')}
+          description={t45n('admin.step45n.adminUsers.authenticationIdentityIsSeparateFromTheOrganizationProfile')}
+          meta={users.data ? <INNOStatus>{users.data.totalItems} {t45n('admin.step45n.adminUsers.users')}</INNOStatus> : undefined}
         />
         <INNOCollectionToolbar>
-          <INNOSearchField label="Search users" value={search} onChange={setSearch} placeholder="Search name, employee ID or email…" />
-          <INNOSelectField label="User status" value={status} onChange={setStatus}>
-            <option value="all">Status: All</option><option value="active">Active</option><option value="inactive">Inactive</option>
+          <INNOSearchField label={t45n('admin.step45n.adminUsers.searchUsers')} value={search} onChange={setSearch} placeholder={t45n('admin.step45n.adminUsers.searchNameEmployeeIdOrEmail')} />
+          <INNOSelectField label={t45n('admin.step45n.adminUsers.userStatus')} value={status} onChange={setStatus}>
+            <option value="all">{t45n('admin.step45n.adminUsers.statusAll')}</option><option value="active">{t45n('reports.status.active')}</option><option value="inactive">{t45n('admin.step45n.adminAccessScopeEdit.inactive')}</option>
           </INNOSelectField>
-          <INNOSelectField label="Organization unit" value={organizationId} onChange={setOrganizationId}>
-            <option value="all">Unit: All</option>
+          <INNOSelectField label={t45n('admin.step45n.adminUserEditor.organizationUnit')} value={organizationId} onChange={setOrganizationId}>
+            <option value="all">{t45n('admin.step45n.adminUsers.unitAll')}</option>
             {organizations.data?.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
           </INNOSelectField>
         </INNOCollectionToolbar>
-        {users.isPending ? <CollectionLoadingState label="Loading users…" /> : null}
+        {users.isPending ? <CollectionLoadingState label={t45n('admin.step45n.adminUsers.loadingUsers')} /> : null}
         {users.isError ? <CollectionErrorState error={users.error} retry={() => void users.refetch()} /> : null}
         {users.data?.items.length === 0 ? (
           <INNOCollectionState
             kind={search || status !== 'all' || organizationId !== 'all' ? 'no-results' : 'empty'}
-            title={search || status !== 'all' || organizationId !== 'all' ? 'No users found' : 'No users in scope'}
+            title={search || status !== 'all' || organizationId !== 'all' ? t45n('admin.step45n.adminUsers.noUsersFound') : t45n('admin.step45n.adminUsers.noUsersInScope')}
             description={search || status !== 'all' || organizationId !== 'all'
-              ? 'Try another search or clear the filters.'
-              : 'No organization profile is currently visible in your scope.'}
+              ? t45n('admin.step45n.adminAccessScopes.tryAnotherSearchOrClearTheFilters')
+              : t45n('admin.step45n.adminUsers.noOrganizationProfileIsCurrentlyVisibleInYour')}
             action={search || status !== 'all' || organizationId !== 'all'
-              ? <INNOButton variant="secondary" onClick={() => { setSearch(''); setStatus('all'); setOrganizationId('all'); }}>Clear filters</INNOButton>
+              ? <INNOButton variant="secondary" onClick={() => { setSearch(''); setStatus('all'); setOrganizationId('all'); }}>{t45n('admin.step45n.adminAccessScopes.clearFilters')}</INNOButton>
               : undefined}
           />
         ) : null}
@@ -67,7 +69,7 @@ export function AdminUsersPage() {
           <>
             <INNOTableWrap width="wide">
               <table>
-                <thead><tr><th>User</th><th>Employee ID</th><th>Organization</th><th>Position</th><th>Location</th><th>Status</th><th className="action-column">Action</th></tr></thead>
+                <thead><tr><th>{t45n('common.user')}</th><th>{t45n('profile.employeeId')}</th><th>{t45n('profile.organization')}</th><th>{t45n('admin.step45n.adminPositions.position')}</th><th>{t45n('profile.location')}</th><th>{t45n('reports.runs.status')}</th><th className="action-column">{t45n('reports.table.action')}</th></tr></thead>
                 <tbody>{users.data.items.map((user) => (
                   <tr key={user.id}>
                     <td><b>{user.fullName}</b><div className="table-meta">{user.email}</div></td>
@@ -76,7 +78,7 @@ export function AdminUsersPage() {
                     <td>{user.position?.name ?? '—'}</td>
                     <td>{user.location?.name ?? '—'}</td>
                     <td><INNOStatus tone={user.status === 'active' ? 'success' : 'neutral'}>{user.status}</INNOStatus></td>
-                    <td className="action-column"><RouterRowAction to={'/admin/users/' + user.id} ariaLabel={'Open ' + user.fullName} /></td>
+                    <td className="action-column"><RouterRowAction to={'/admin/users/' + user.id} ariaLabel={t45n('common.step45n.search.open') + ' ' + user.fullName} /></td>
                   </tr>
                 ))}</tbody>
               </table>

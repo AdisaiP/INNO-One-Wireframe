@@ -6,6 +6,7 @@ import { getDevices } from '../api/client';
 import { CollectionErrorState, CollectionLoadingState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
 import { RouterRowAction } from '../components/RouterRowAction';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 function formatLastSeen(value?: string | null): string {
   if (!value) return '—';
@@ -38,6 +39,7 @@ function DeviceTypeGlyph({ type }: { type: string }) {
 }
 
 export function DevicesPage() {
+  const { t: t45n } = useStep45NI18n();
   const canDeploy = usePermission('devices.deploy');
   const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search);
@@ -75,51 +77,51 @@ export function DevicesPage() {
 
   return (
     <INNOPage
-      eyebrow="Devices"
-      title="All Devices"
-      description="Find, filter and open managed endpoints inside your effective access scope."
+      eyebrow={t45n('navigation.devices')}
+      title={t45n('devices.step45n.devices.allDevices')}
+      description={t45n('devices.step45n.devices.findFilterAndOpenManagedEndpointsInsideYour')}
       actions={
         <>
-          <Link className="inno-link-button secondary" to="/devices/discovery">Discover</Link>
-          {canDeploy ? <Link className="inno-link-button" to="/devices/add">Add Device</Link> : null}
+          <Link className="inno-link-button secondary" to="/devices/discovery">{t45n('devices.step45n.devices.discover')}</Link>
+          {canDeploy ? <Link className="inno-link-button" to="/devices/add">{t45n('devices.step45n.devices.addDevice')}</Link> : null}
         </>
       }
     >
       <INNOCollection>
         <INNOCollectionHeader
-          title="Devices"
-          description={query.data ? `${query.data.totalItems} managed endpoints in scope` : 'Managed endpoints'}
-          meta={query.data ? <INNOStatus>{query.data.totalItems} devices</INNOStatus> : undefined}
+          title={t45n('navigation.devices')}
+          description={query.data ? t45n('devices.step45n.devices.inScopeCount', { count: query.data.totalItems }) : t45n('devices.step45n.devices.managedEndpoints')}
+          meta={query.data ? <INNOStatus>{query.data.totalItems} {t45n('devices.step45n.deviceGroupDetail.devices')}</INNOStatus> : undefined}
         />
 
         <INNOCollectionToolbar>
           <INNOSearchField
-            label="Search devices"
+            label={t45n('devices.step45n.devices.searchDevices')}
             value={search}
             onChange={setSearch}
-            placeholder="Search name, IP, serial, OS…"
+            placeholder={t45n('devices.step45n.devices.searchNameIpSerialOs')}
           />
-          <INNOSelectField label="Status filter" value={status} onChange={setStatus}>
-            <option value="all">Status: All</option>
-            <option value="online">Online</option>
-            <option value="offline">Offline</option>
+          <INNOSelectField label={t45n('assets.step45n.assetInventory.statusFilter')} value={status} onChange={setStatus}>
+            <option value="all">{t45n('admin.step45n.adminUsers.statusAll')}</option>
+            <option value="online">{t45n('devices.automation.editor.status.online')}</option>
+            <option value="offline">{t45n('devices.automation.editor.status.offline')}</option>
           </INNOSelectField>
-          <INNOSelectField label="Operating system filter" value={os} onChange={setOs}>
-            <option value="all">OS: All</option>
-            <option value="Windows 11">Windows 11</option>
-            <option value="Windows 10">Windows 10</option>
-            <option value="Windows Server">Windows Server</option>
+          <INNOSelectField label={t45n('devices.step45n.devices.operatingSystemFilter')} value={os} onChange={setOs}>
+            <option value="all">{t45n('devices.step45n.devices.osAll')}</option>
+            <option value="Windows 11">{t45n('devices.step45n.devices.windows11')}</option>
+            <option value="Windows 10">{t45n('devices.step45n.devices.windows10')}</option>
+            <option value="Windows Server">{t45n('devices.step45n.devices.windowsServer')}</option>
           </INNOSelectField>
           <INNOToolbarSpacer />
           <details className="device-columns-menu">
-            <summary className="inno-btn inno-btn--secondary">Columns</summary>
-            <div className="device-columns-popover" role="group" aria-label="Visible device columns">
+            <summary className="inno-btn inno-btn--secondary">{t45n('reports.editor.columns')}</summary>
+            <div className="device-columns-popover" role="group" aria-label={t45n('devices.step45n.devices.visibleDeviceColumns')}>
               {([
-                ['type', 'Type'],
-                ['status', 'Status'],
-                ['user', 'User'],
-                ['os', 'OS'],
-                ['group', 'Group'],
+                ['type', t45n('reports.column.type')],
+                ['status', t45n('reports.runs.status')],
+                ['user', t45n('common.user')],
+                ['os', t45n('devices.step45n.devices.os')],
+                ['group', t45n('admin.settings.table.group')],
                 ['lastSeen', 'Last Seen'],
               ] as Array<[DeviceColumn, string]>).map(([column, label]) => (
                 <label key={column}>
@@ -132,20 +134,19 @@ export function DevicesPage() {
         </INNOCollectionToolbar>
 
         {query.isPending ? (
-          <CollectionLoadingState label="Loading devices…" />
+          <CollectionLoadingState label={t45n('devices.step45n.devices.loadingDevices')} />
         ) : query.isError ? (
           <CollectionErrorState error={query.error} retry={() => void query.refetch()} />
         ) : query.data.items.length === 0 ? (
           <INNOCollectionState
             kind={search || status !== 'all' || os !== 'all' ? 'no-results' : 'empty'}
-            title={search || status !== 'all' || os !== 'all' ? 'No devices found' : 'No devices in scope'}
+            title={search || status !== 'all' || os !== 'all' ? t45n('devices.step45n.devices.noDevicesFound') : t45n('devices.step45n.devices.noDevicesInScope')}
             description={search || status !== 'all' || os !== 'all'
-              ? 'Try another search or clear the filters.'
-              : 'No managed endpoint is visible inside your effective resource scope.'}
+              ? t45n('admin.step45n.adminAccessScopes.tryAnotherSearchOrClearTheFilters')
+              : t45n('devices.step45n.devices.noManagedEndpointIsVisibleInsideYourEffective')}
             action={search || status !== 'all' || os !== 'all' ? (
               <INNOButton variant="secondary" onClick={() => { setSearch(''); setStatus('all'); setOs('all'); }}>
-                Clear filters
-              </INNOButton>
+                {t45n('admin.step45n.adminAccessScopes.clearFilters')}</INNOButton>
             ) : undefined}
           />
         ) : (
@@ -154,14 +155,14 @@ export function DevicesPage() {
               <table>
                 <thead>
                   <tr>
-                    <th>Device</th>
-                    {columns.type ? <th>Type</th> : null}
-                    {columns.status ? <th>Status</th> : null}
-                    {columns.user ? <th>User</th> : null}
-                    {columns.os ? <th>OS</th> : null}
-                    {columns.group ? <th>Group</th> : null}
-                    {columns.lastSeen ? <th>Last Seen</th> : null}
-                    <th className="action-column">Action</th>
+                    <th>{t45n('reports.column.hostname')}</th>
+                    {columns.type ? <th>{t45n('reports.column.type')}</th> : null}
+                    {columns.status ? <th>{t45n('reports.runs.status')}</th> : null}
+                    {columns.user ? <th>{t45n('common.user')}</th> : null}
+                    {columns.os ? <th>{t45n('devices.step45n.devices.os')}</th> : null}
+                    {columns.group ? <th>{t45n('admin.settings.table.group')}</th> : null}
+                    {columns.lastSeen ? <th>{t45n('reports.column.lastSeenAt')}</th> : null}
+                    <th className="action-column">{t45n('reports.table.action')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -180,7 +181,7 @@ export function DevicesPage() {
                       {columns.group ? <td>{device.group ?? device.organization ?? '—'}</td> : null}
                       {columns.lastSeen ? <td>{formatLastSeen(device.lastSeenAt)}</td> : null}
                       <td className="action-column">
-                        <RouterRowAction to={`/devices/${device.id}`} ariaLabel={`Open ${device.name}`} />
+                        <RouterRowAction to={`/devices/${device.id}`} ariaLabel={t45n('devices.step45n.devices.openDevice', { name: device.name })} />
                       </td>
                     </tr>
                   ))}

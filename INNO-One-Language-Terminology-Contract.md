@@ -1,19 +1,21 @@
 # INNO.One — Language & Terminology Contract
 
 > [!IMPORTANT]
-> **Current Production runtime override — Step 45E (2026-10-04)**
+> **Current Production runtime override — Step 45N (2026-10-05)**
 >
 > INNO.One Production is bilingual at runtime. Supported locales are `en-US` and `th-TH` across Web Portal, Endpoint Agent and Android Mobile as each surface is migrated. Locale resolution is: explicit user preference -> organization/platform default -> browser/device locale -> `en-US` fallback. UI translation keys are stable identifiers; API fields, enum/status codes, permissions, event names and audit action codes remain language-neutral. User-authored business content is preserved as entered and is never silently translated.
 >
-> The historical fixed-language rules below remain the regression baseline for the frozen HTML prototype only. They no longer define the language ownership of Production React. `language-terminology-audit.py` continues to protect that frozen prototype. Production bilingual behavior is guarded by `step45e-bilingual-foundation-audit.py` and runtime/browser QA.
+> The historical fixed-language rules below remain the regression baseline for the frozen HTML prototype only. They no longer define the language ownership of Production React. `language-terminology-audit.py` continues to protect that frozen prototype. Production bilingual behavior is guarded by `step45e-bilingual-foundation-audit.py`, `step45n-bilingual-cleanup-audit.py` and runtime/browser QA.
 >
 > Profile & Settings owns the personal language preference. Admin Center -> Platform Settings owns the organization/platform default. A user may explicitly return to the organization default. The active runtime locale must update `document.documentElement.lang`, preserve route/resource context, and must not alter authorization.
+>
+> **Step45N Web Product runtime freeze — 2026-10-05:** Workspace, Admin, Devices, Assets, Helpdesk, Reports, Search, Notifications and related Product Web chrome complete the shared `en-US` / `th-TH` runtime cleanup. Business records, technical identifiers, permission IDs, event names, audit codes and user-authored values remain language-neutral or preserved as authored. Durable Platform notifications store EN/TH title/message pairs; the API resolves the effective locale, returns `contentLocale`, and Web declares nested content language explicitly. The standalone Dynamic Workflows Product remains retired; `/workflows/*` is compatibility-only and redirects to the owning Helpdesk Automation surface, while generic `workflows.*` permissions are retired from the active Platform catalog.
 >
 > **Step45L Agent runtime override — 2026-10-05:** Endpoint Agent now implements the same `en-US` / `th-TH` preference model in its real React runtime. Request Help, ownership confirmation, remote-consent state, offline/error state and Agent prompt chrome are bilingual. Prompt/business content remains explicitly bilingual or user-authored; permissions, statuses, event names and audit codes remain language-neutral. Endpoint Agent remains a separate native/client surface and is not added to Web Portal navigation.
 >
 > **Step45M Android Mobile runtime override — 2026-10-05:** Assets Mobile now implements the same `en-US` / `th-TH` runtime model. Before authentication it derives a supported locale from the device; after authentication it applies the effective `locale` from `/platform/me`, which already resolves explicit user preference over organization default. The Mobile TH/EN control persists an explicit preference through `/platform/me/profile`. Scanner, scan history, result, busy/task, sign-in, QR error and offline copy are bilingual. Asset/business values remain language-neutral or user-authored and are not silently translated. Android Assets Mobile remains a separate client surface and is not added to Web Portal navigation.
 
-**Status:** Historical prototype baseline — UX/UI final polish Step 3; superseded for Production runtime by Step 45E
+**Status:** Historical prototype baseline — UX/UI final polish Step 3; superseded for Production runtime by Step 45N
 **Date:** 2026-09-25
 **UI Contract:** 1.15.0
 **Documentation:** Design System V1.21

@@ -129,8 +129,10 @@ public sealed class PlatformNotification
     public Guid UserId { get; set; }
     public required string SourceModule { get; set; }
     public required string NotificationType { get; set; }
-    public required string Title { get; set; }
-    public required string Message { get; set; }
+    public required string TitleEn { get; set; }
+    public string? TitleTh { get; set; }
+    public required string MessageEn { get; set; }
+    public string? MessageTh { get; set; }
     public required string DestinationPath { get; set; }
     public bool IsImportant { get; set; }
     public DateTimeOffset? ReadAt { get; set; }

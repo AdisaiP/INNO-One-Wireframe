@@ -16,6 +16,7 @@ import {
 } from '../api/client';
 import type { SoftwareBaselineRequest } from '../api/types';
 import { ErrorState, LoadingState } from '../components/Feedback';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 const blank: SoftwareBaselineRequest = {
   code: '',
@@ -26,6 +27,7 @@ const blank: SoftwareBaselineRequest = {
 };
 
 export function SoftwareBaselineEditorPage() {
+  const { t: t45n } = useStep45NI18n();
   const { baselineId } = useParams();
   const editing = Boolean(baselineId);
   const navigate = useNavigate();
@@ -62,7 +64,7 @@ export function SoftwareBaselineEditorPage() {
         requiredPackages: packageText.split(/\r?\n/).map((value) => value.trim()).filter(Boolean),
       };
       if (!payload.code || !payload.name || !payload.requiredPackages.length) {
-        throw new Error('Enter a code, name and at least one software package.');
+        throw new Error(t45n('devices.step45n.softwareBaselineEditor.enterACodeNameAndAtLeastOne'));
       }
       return editing && query.data
         ? updateSoftwareBaseline(query.data.id, query.data.eTag, payload)
@@ -78,7 +80,7 @@ export function SoftwareBaselineEditorPage() {
   });
 
   if (editing && query.isPending) {
-    return <div className="page-loading-wrap"><LoadingState label="Loading software baseline…" /></div>;
+    return <div className="page-loading-wrap"><LoadingState label={t45n('devices.step45n.softwareBaselineDetail.loadingSoftwareBaseline')} /></div>;
   }
   if (editing && query.isError) {
     return <div className="page-error-wrap"><ErrorState error={query.error} retry={() => void query.refetch()} /></div>;
@@ -91,18 +93,18 @@ export function SoftwareBaselineEditorPage() {
   return (
     <main className="inno-page">
       <div className="resource-breadcrumb">
-        <Link to="/assets/software-baselines">Software Baselines</Link><span>›</span>
+        <Link to="/assets/software-baselines">{t45n('navigation.softwareBaselines')}</Link><span>›</span>
         {editing && query.data ? (
           <><Link to={'/assets/software-baselines/' + query.data.id}>{query.data.name}</Link><span>›</span></>
         ) : null}
-        <span>{editing ? 'Edit' : 'New Baseline'}</span>
+        <span>{editing ? t45n('reports.action.edit') : t45n('devices.step45n.softwareBaselineEditor.newBaseline')}</span>
       </div>
 
       <section className="prod-panel editor-route-panel baseline-editor-route">
         <div className="prod-panel-head">
           <div>
-            <h3>{editing ? 'Edit software baseline' : 'New software baseline'}</h3>
-            <p>Define the required software policy. Evaluation results live on the resource detail page.</p>
+            <h3>{editing ? t45n('devices.step45n.softwareBaselineEditor.editSoftwareBaseline') : t45n('devices.step45n.softwareBaselineEditor.newSoftwareBaseline')}</h3>
+            <p>{t45n('devices.step45n.softwareBaselineEditor.defineTheRequiredSoftwarePolicyEvaluationResultsLive')}</p>
           </div>
           <INNOStatus tone={form.status === 'active' ? 'success' : 'neutral'}>{form.status}</INNOStatus>
         </div>
@@ -116,7 +118,7 @@ export function SoftwareBaselineEditorPage() {
         >
           <div className="editor-grid">
             <label className="field-block">
-              <span>Code</span>
+              <span>{t45n('admin.step45n.adminHierarchy.code')}</span>
               <input
                 data-autofocus={!editing || undefined}
                 value={form.code}
@@ -124,10 +126,10 @@ export function SoftwareBaselineEditorPage() {
                 maxLength={64}
                 onChange={(event) => setForm({ ...form, code: event.target.value.toUpperCase().replace(/[^A-Z0-9_-]/g, '') })}
               />
-              <small>{editing ? 'Code is stable after creation.' : 'Letters, numbers, underscores and hyphens.'}</small>
+              <small>{editing ? t45n('devices.step45n.softwareBaselineEditor.codeIsStableAfterCreation') : t45n('devices.step45n.softwareBaselineEditor.lettersNumbersUnderscoresAndHyphens')}</small>
             </label>
             <label className="field-block">
-              <span>Name</span>
+              <span>{t45n('admin.step45n.adminHierarchy.name')}</span>
               <input
                 data-autofocus={editing || undefined}
                 value={form.name}
@@ -136,7 +138,7 @@ export function SoftwareBaselineEditorPage() {
               />
             </label>
             <label className="field-block">
-              <span>Asset category (optional)</span>
+              <span>{t45n('devices.step45n.softwareBaselineEditor.assetCategoryOptional')}</span>
               <input
                 value={form.targetCategory || ''}
                 maxLength={80}
@@ -144,36 +146,36 @@ export function SoftwareBaselineEditorPage() {
               />
             </label>
             <label className="field-block">
-              <span>Status</span>
+              <span>{t45n('reports.runs.status')}</span>
               <select
                 value={form.status}
                 onChange={(event) => setForm({ ...form, status: event.target.value as SoftwareBaselineRequest['status'] })}
               >
-                <option value="draft">Draft</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
+                <option value="draft">{t45n('workflow.status.draft')}</option>
+                <option value="active">{t45n('reports.status.active')}</option>
+                <option value="inactive">{t45n('admin.step45n.adminAccessScopeEdit.inactive')}</option>
               </select>
             </label>
           </div>
 
           <label className="field-block">
-            <span>Required software</span>
+            <span>{t45n('devices.step45n.softwareBaselineDetail.requiredSoftware')}</span>
             <textarea
               value={packageText}
               rows={8}
               onChange={(event) => setPackageText(event.target.value)}
-              placeholder={'Microsoft 365 Apps\nEndpoint Protection'}
+              placeholder={t45n('devices.step45n.softwareBaselineEditor.microsoft365AppsEndpointProtection')}
             />
-            <small>One software package per line, up to 30 unique package names.</small>
+            <small>{t45n('devices.step45n.softwareBaselineEditor.oneSoftwarePackagePerLineUpTo30')}</small>
           </label>
 
           {saveError ? <div className="form-error" role="alert">{saveError}</div> : null}
 
           <INNOEditorFooter>
             <INNOEditorFooterStart>
-              <Link className="inno-link-button secondary" to={cancelTo}>Cancel</Link>
+              <Link className="inno-link-button secondary" to={cancelTo}>{t45n('reports.action.cancel')}</Link>
               <INNOEditorFooterNote>
-                {editing ? 'Changes make existing evaluation evidence stale until the baseline is evaluated again.' : 'Create the baseline first, then evaluate it from the detail page.'}
+                {editing ? t45n('devices.step45n.softwareBaselineEditor.changesMakeExistingEvaluationEvidenceStaleUntilThe') : t45n('devices.step45n.softwareBaselineEditor.createTheBaselineFirstThenEvaluateItFrom')}
               </INNOEditorFooterNote>
             </INNOEditorFooterStart>
             <INNOEditorFooterEnd>
@@ -182,7 +184,7 @@ export function SoftwareBaselineEditorPage() {
                 busy={save.isPending}
                 disabled={!form.code.trim() || !form.name.trim() || !packageText.trim()}
               >
-                {editing ? 'Save Baseline' : 'Create Baseline'}
+                {editing ? t45n('devices.step45n.softwareBaselineEditor.saveBaseline') : t45n('devices.step45n.softwareBaselineEditor.createBaseline')}
               </INNOButton>
             </INNOEditorFooterEnd>
           </INNOEditorFooter>

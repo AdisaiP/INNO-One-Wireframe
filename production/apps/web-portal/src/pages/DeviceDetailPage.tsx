@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom';
 import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNOIcon, INNOResourceHeader, INNOResourceSummary, INNOResourceSummaryItem, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOSurfaceTabs, INNOTableWrap } from '@inno/ui';
 import { getDevice, getDeviceSoftwareInventory } from '../api/client';
 import { CollectionErrorState, CollectionLoadingState, ErrorState, LoadingState } from '../components/Feedback';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 function metric(value?: number | null, suffix = '') {
   return value == null ? '—' : `${value}${suffix}`;
@@ -20,6 +21,7 @@ function lastSeen(value?: string | null) {
 }
 
 export function DeviceDetailPage() {
+  const { t: t45n } = useStep45NI18n();
   const { deviceId = '' } = useParams();
   const [activeTab, setActiveTab] = useState<'overview' | 'software'>('overview');
   const [softwareSearch, setSoftwareSearch] = useState('');
@@ -50,7 +52,7 @@ export function DeviceDetailPage() {
   }, [publisher, softwareQuery.data?.packages, softwareSearch]);
 
   if (query.isPending) {
-    return <div className="page-loading-wrap"><LoadingState label="Loading device…" /></div>;
+    return <div className="page-loading-wrap"><LoadingState label={t45n('devices.step45n.deviceDetail.loadingDevice')} /></div>;
   }
 
   if (query.isError) {
@@ -64,39 +66,39 @@ export function DeviceDetailPage() {
   return (
     <main className="inno-page">
       <div className="resource-breadcrumb">
-        <Link to="/devices">Devices</Link><span>›</span><span>{device.name}</span>
+        <Link to="/devices">{t45n('navigation.devices')}</Link><span>›</span><span>{device.name}</span>
       </div>
 
       <INNOResourceHeader
         icon={<INNOIcon token="nav.devices" size={20} />}
         title={device.name}
         status={<INNOStatus tone={device.status === 'online' ? 'success' : 'neutral'} dot>{device.status}</INNOStatus>}
-        meta={<><span>{model}</span><span>·</span><span>{device.operatingSystem ?? 'Unknown OS'}</span><span>·</span><span>{group}</span></>}
+        meta={<><span>{model}</span><span>·</span><span>{device.operatingSystem ?? t45n('assets.step45n.assetDetail.unknownOs')}</span><span>·</span><span>{group}</span></>}
       />
 
       {device.isOffline ? (
         <INNOState
           banner
           kind="offline"
-          title="Resource offline"
-          description={'Showing the latest cached inventory. Last seen ' + lastSeen(device.lastSeenAt) + '. Live-only actions are unavailable until the device reconnects.'}
+          title={t45n('devices.step45n.deviceDetail.resourceOffline')}
+          description={t45n('devices.step45n.deviceDetail.showingTheLatestCachedInventoryLastSeen') + ' ' + lastSeen(device.lastSeenAt) + t45n('devices.step45n.deviceDetail.liveOnlyActionsAreUnavailableUntilTheDevice')}
         />
       ) : null}
 
       <INNOResourceSummary>
-        <INNOResourceSummaryItem label="CPU" value={metric(device.cpuPercent, '%')} detail={device.isOffline ? 'cached' : 'current snapshot'} />
-        <INNOResourceSummaryItem label="Memory" value={device.memoryUsedGb != null && device.memoryTotalGb != null ? `${device.memoryUsedGb} / ${device.memoryTotalGb} GB` : '—'} detail="normalized inventory" />
-        <INNOResourceSummaryItem label="Disk" value={device.diskUsedGb != null && device.diskTotalGb != null ? `${device.diskUsedGb} / ${device.diskTotalGb} GB` : '—'} detail="used / total" />
-        <INNOResourceSummaryItem label="Last seen" value={lastSeen(device.lastSeenAt)} detail={device.agentVersion ? `Agent ${device.agentVersion}` : 'Agent version unknown'} />
+        <INNOResourceSummaryItem label={t45n('devices.step45n.deviceDetail.cpu')} value={metric(device.cpuPercent, '%')} detail={device.isOffline ? 'cached' : 'current snapshot'} />
+        <INNOResourceSummaryItem label={t45n('devices.step45n.deviceDetail.memory')} value={device.memoryUsedGb != null && device.memoryTotalGb != null ? `${device.memoryUsedGb} / ${device.memoryTotalGb} GB` : '—'} detail="normalized inventory" />
+        <INNOResourceSummaryItem label={t45n('devices.step45n.deviceDetail.disk')} value={device.diskUsedGb != null && device.diskTotalGb != null ? `${device.diskUsedGb} / ${device.diskTotalGb} GB` : '—'} detail="used / total" />
+        <INNOResourceSummaryItem label={t45n('devices.step45n.deviceDetail.lastSeen')} value={lastSeen(device.lastSeenAt)} detail={device.agentVersion ? `Agent ${device.agentVersion}` : 'Agent version unknown'} />
       </INNOResourceSummary>
 
       <INNOSurfaceTabs
-        ariaLabel="Device detail sections"
+        ariaLabel={t45n('devices.step45n.deviceDetail.deviceDetailSections')}
         activeId={activeTab}
         onChange={(id) => setActiveTab(id as 'overview' | 'software')}
         items={[
-          { id: 'overview', label: 'Overview' },
-          { id: 'software', label: 'Software' },
+          { id: 'overview', label: t45n('navigation.overview') },
+          { id: 'software', label: t45n('devices.step45n.deviceDetail.software') },
         ]}
       />
 
@@ -105,20 +107,20 @@ export function DeviceDetailPage() {
         <section className="prod-panel">
           <div className="prod-panel-head">
             <div>
-              <h3>Device information</h3>
-              <p>Canonical INNO.One device identity and cached endpoint inventory.</p>
+              <h3>{t45n('devices.step45n.deviceDetail.deviceInformation')}</h3>
+              <p>{t45n('devices.step45n.deviceDetail.canonicalInnoOneDeviceIdentityAndCachedEndpoint')}</p>
             </div>
-            <span className="prod-tag success">Managed</span>
+            <span className="prod-tag success">{t45n('devices.step45n.deviceDetail.managed')}</span>
           </div>
           <div className="kv-grid production-kv-grid">
-            <div className="kv-row"><span>Hostname</span><b>{device.name}</b></div>
-            <div className="kv-row"><span>Assigned user</span><b>{device.assignedUser ?? '—'}</b></div>
-            <div className="kv-row"><span>Brand / model</span><b>{model}</b></div>
-            <div className="kv-row"><span>Serial number</span><b>{device.serialNumber ?? '—'}</b></div>
-            <div className="kv-row"><span>IP address</span><b>{device.ipAddress ?? '—'}</b></div>
-            <div className="kv-row"><span>MAC address</span><b>{device.macAddress ?? '—'}</b></div>
-            <div className="kv-row"><span>Operating system</span><b>{device.operatingSystem ?? '—'}</b></div>
-            <div className="kv-row"><span>Device group</span><b>{group}</b></div>
+            <div className="kv-row"><span>{t45n('devices.step45n.deviceDetail.hostname')}</span><b>{device.name}</b></div>
+            <div className="kv-row"><span>{t45n('assets.step45n.assetDetail.assignedUser')}</span><b>{device.assignedUser ?? '—'}</b></div>
+            <div className="kv-row"><span>{t45n('devices.step45n.deviceDetail.brandModel')}</span><b>{model}</b></div>
+            <div className="kv-row"><span>{t45n('devices.step45n.deviceDetail.serialNumber')}</span><b>{device.serialNumber ?? '—'}</b></div>
+            <div className="kv-row"><span>{t45n('devices.step45n.deviceDetail.ipAddress')}</span><b>{device.ipAddress ?? '—'}</b></div>
+            <div className="kv-row"><span>{t45n('devices.step45n.deviceDetail.macAddress')}</span><b>{device.macAddress ?? '—'}</b></div>
+            <div className="kv-row"><span>{t45n('devices.automation.editor.conditionField.operatingSystem')}</span><b>{device.operatingSystem ?? '—'}</b></div>
+            <div className="kv-row"><span>{t45n('devices.automation.editor.conditionField.groupId')}</span><b>{group}</b></div>
           </div>
         </section>
 
@@ -126,36 +128,36 @@ export function DeviceDetailPage() {
           <section className="prod-panel">
             <div className="prod-panel-head">
               <div>
-                <h3>Inventory summary</h3>
-                <p>Normalized data owned by the Devices module.</p>
+                <h3>{t45n('devices.step45n.deviceDetail.inventorySummary')}</h3>
+                <p>{t45n('devices.step45n.deviceDetail.normalizedDataOwnedByTheDevicesModule')}</p>
               </div>
             </div>
             <div className="summary-grid">
-              <div><span>Processor</span><b>{device.processor ?? '—'}</b></div>
-              <div><span>BIOS</span><b>{device.biosVersion ?? '—'}</b></div>
-              <div><span>Logged-on user</span><b>{device.loggedOnUser ?? '—'}</b></div>
-              <div><span>Asset</span><b>{device.assetReference ?? '—'}</b></div>
+              <div><span>{t45n('devices.step45n.deviceDetail.processor')}</span><b>{device.processor ?? '—'}</b></div>
+              <div><span>{t45n('devices.step45n.deviceDetail.bios')}</span><b>{device.biosVersion ?? '—'}</b></div>
+              <div><span>{t45n('devices.step45n.deviceDetail.loggedOnUser')}</span><b>{device.loggedOnUser ?? '—'}</b></div>
+              <div><span>{t45n('reports.column.name')}</span><b>{device.assetReference ?? '—'}</b></div>
             </div>
           </section>
 
           <section className="prod-panel">
             <div className="prod-panel-head">
               <div>
-                <h3>Management</h3>
-                <p>Vendor identifiers remain behind the adapter boundary.</p>
+                <h3>{t45n('navigation.management')}</h3>
+                <p>{t45n('devices.step45n.deviceDetail.vendorIdentifiersRemainBehindTheAdapterBoundary')}</p>
               </div>
             </div>
             <div className="settings-stack">
               <div className="settings-row">
-                <div><b>Management engine</b><span>Mapped from canonical INNO.One Device ID</span></div>
-                <span className="prod-tag">{device.managementEngine ?? 'Unmapped'}</span>
+                <div><b>{t45n('devices.step45n.deviceDetail.managementEngine')}</b><span>{t45n('devices.step45n.deviceDetail.mappedFromCanonicalInnoOneDeviceId')}</span></div>
+                <span className="prod-tag">{device.managementEngine ?? t45n('devices.step45n.deviceDetail.unmapped')}</span>
               </div>
               <div className="settings-row">
-                <div><b>Organization</b><span>Authorization relationship</span></div>
+                <div><b>{t45n('profile.organization')}</b><span>{t45n('devices.step45n.deviceDetail.authorizationRelationship')}</span></div>
                 <b>{device.organization?.name ?? '—'}</b>
               </div>
               <div className="settings-row">
-                <div><b>Location</b><span>Authorization relationship</span></div>
+                <div><b>{t45n('profile.location')}</b><span>{t45n('devices.step45n.deviceDetail.authorizationRelationship')}</span></div>
                 <b>{device.location?.name ?? '—'}</b>
               </div>
             </div>
@@ -167,47 +169,47 @@ export function DeviceDetailPage() {
       <div hidden={activeTab !== 'software'}>
         <INNOCollection className="device-software-card">
         <INNOCollectionHeader
-          title="Installed software"
-          description="Latest Devices-owned observation used as evidence for software baselines."
+          title={t45n('devices.step45n.deviceDetail.installedSoftware')}
+          description={t45n('devices.step45n.deviceDetail.latestDevicesOwnedObservationUsedAsEvidenceFor')}
           meta={softwareQuery.data ? (
             <INNOStatus tone={softwareQuery.data.inventoryStatus === 'complete' ? 'success' : softwareQuery.data.inventoryStatus === 'partial' ? 'warning' : 'neutral'}>
-              {softwareQuery.data.inventoryStatus === 'not_reported' ? 'Not reported' : softwareQuery.data.inventoryStatus}
+              {softwareQuery.data.inventoryStatus === 'not_reported' ? t45n('devices.step45n.deviceDetail.notReported') : softwareQuery.data.inventoryStatus}
             </INNOStatus>
           ) : undefined}
         />
         {softwareQuery.data && softwareQuery.data.inventoryStatus !== 'not_reported' ? (
           <INNOCollectionToolbar>
-            <INNOSearchField label="Search installed software" value={softwareSearch} onChange={setSoftwareSearch} placeholder="Search installed software…" />
-            <INNOSelectField label="Publisher filter" value={publisher} onChange={setPublisher}>
-              <option value="all">All publishers</option>
+            <INNOSearchField label={t45n('devices.step45n.deviceDetail.searchInstalledSoftware')} value={softwareSearch} onChange={setSoftwareSearch} placeholder={t45n('devices.step45n.deviceDetail.searchInstalledSoftware2')} />
+            <INNOSelectField label={t45n('devices.step45n.deviceDetail.publisherFilter')} value={publisher} onChange={setPublisher}>
+              <option value="all">{t45n('devices.step45n.deviceDetail.allPublishers')}</option>
               {publishers.map((item) => <option key={item} value={item}>{item}</option>)}
             </INNOSelectField>
             <span className="toolbar-spacer" />
-            <span className="collection-scope">Observed {lastSeen(softwareQuery.data.observedAt)}</span>
+            <span className="collection-scope">{t45n('devices.step45n.inventoryQuery.observed')}{' '}{lastSeen(softwareQuery.data.observedAt)}</span>
           </INNOCollectionToolbar>
         ) : null}
         {softwareQuery.isPending ? (
-          <CollectionLoadingState label="Loading installed software…" />
+          <CollectionLoadingState label={t45n('devices.step45n.deviceDetail.loadingInstalledSoftware')} />
         ) : softwareQuery.isError ? (
           <CollectionErrorState error={softwareQuery.error} retry={() => void softwareQuery.refetch()} />
         ) : softwareQuery.data.inventoryStatus === 'not_reported' ? (
-          <INNOCollectionState kind="empty" title="Software inventory not reported" description="No software observation has been reported. Baseline evaluation remains unknown." />
+          <INNOCollectionState kind="empty" title={t45n('devices.step45n.deviceDetail.softwareInventoryNotReported')} description={t45n('devices.step45n.deviceDetail.noSoftwareObservationHasBeenReportedBaselineEvaluation')} />
         ) : visibleSoftware.length === 0 ? (
           <INNOCollectionState
             kind="no-results"
-            title="No installed software found"
-            description="Try another software name or publisher."
-            action={<INNOButton variant="secondary" onClick={() => { setSoftwareSearch(''); setPublisher('all'); }}>Clear filters</INNOButton>}
+            title={t45n('devices.step45n.deviceDetail.noInstalledSoftwareFound')}
+            description={t45n('devices.step45n.deviceDetail.tryAnotherSoftwareNameOrPublisher')}
+            action={<INNOButton variant="secondary" onClick={() => { setSoftwareSearch(''); setPublisher('all'); }}>{t45n('admin.step45n.adminAccessScopes.clearFilters')}</INNOButton>}
           />
         ) : (
           <>
             <div className="software-evidence-bar">
-              <span><b>Source</b> {(softwareQuery.data.source ?? 'unknown').replaceAll('_', ' ')}</span>
-              <span><b>Evidence</b> {softwareQuery.data.inventoryStatus === 'complete' ? 'Complete snapshot' : 'Partial snapshot · absence is unknown'}</span>
+              <span><b>{t45n('reports.table.source')}</b> {(softwareQuery.data.source ?? 'unknown').replaceAll('_', ' ')}</span>
+              <span><b>{t45n('devices.step45n.deviceDetail.evidence')}</b> {softwareQuery.data.inventoryStatus === 'complete' ? t45n('devices.step45n.deviceDetail.completeSnapshot') : t45n('devices.step45n.deviceDetail.partialSnapshotAbsenceIsUnknown')}</span>
             </div>
             <INNOTableWrap width="wide">
               <table>
-                <thead><tr><th>Software</th><th>Publisher</th><th>Version</th><th>Architecture</th></tr></thead>
+                <thead><tr><th>{t45n('devices.step45n.deviceDetail.software')}</th><th>{t45n('devices.step45n.deviceDetail.publisher')}</th><th>{t45n('reports.runs.version')}</th><th>{t45n('devices.step45n.deviceDetail.architecture')}</th></tr></thead>
                 <tbody>{visibleSoftware.map((item) => (
                   <tr key={item.productKey}>
                     <td><b>{item.displayName}</b><div className="table-meta">{item.productKey}</div></td>

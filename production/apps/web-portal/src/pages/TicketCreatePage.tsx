@@ -6,6 +6,7 @@ import { createTicket, getDevices, getTicketCategories } from '../api/client';
 import { usePermission, useProfile } from '../app/ProfileContext';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import type { TicketCategoryNode } from '../api/types';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 function flattenCategories(
   nodes: TicketCategoryNode[],
@@ -21,6 +22,7 @@ function flattenCategories(
 }
 
 export function TicketCreatePage() {
+  const { t: t45n } = useStep45NI18n();
   const profile = useProfile();
   const canViewDevices = usePermission('devices.view');
   const navigate = useNavigate();
@@ -85,20 +87,20 @@ export function TicketCreatePage() {
 
   return (
     <INNOPage
-      eyebrow="Helpdesk"
-      title="Create Ticket"
-      description="Capture the problem first. Routing and operational details stay secondary until they are needed."
+      eyebrow={t45n('navigation.helpdesk')}
+      title={t45n('helpdesk.step45n.helpdeskOverview.createTicket')}
+      description={t45n('helpdesk.step45n.ticketCreate.captureTheProblemFirstRoutingAndOperationalDetails')}
       breadcrumb={(
         <>
-          <Link to="/helpdesk">Helpdesk</Link>
+          <Link to="/helpdesk">{t45n('navigation.helpdesk')}</Link>
           <INNOIcon token="action.next" size={11} />
-          <Link to="/helpdesk/tickets">Tickets</Link>
+          <Link to="/helpdesk/tickets">{t45n('navigation.tickets')}</Link>
           <INNOIcon token="action.next" size={11} />
-          <span>New ticket</span>
+          <span>{t45n('helpdesk.step45n.ticketCreate.newTicket')}</span>
         </>
       )}
     >
-      {categories.isPending ? <LoadingState label="Loading ticket form…" /> : null}
+      {categories.isPending ? <LoadingState label={t45n('helpdesk.step45n.ticketCreate.loadingTicketForm')} /> : null}
       {categories.isError ? <ErrorState error={categories.error} retry={() => void categories.refetch()} /> : null}
 
       {!categories.isPending && !categories.isError ? (
@@ -111,33 +113,33 @@ export function TicketCreatePage() {
                 <div className="ticket-create-section-title">
                   <span className="ticket-create-step">1</span>
                   <div>
-                    <h3>Describe the issue</h3>
-                    <p>Give Helpdesk enough information to understand what is wrong.</p>
+                    <h3>{t45n('helpdesk.step45n.ticketCreate.describeTheIssue')}</h3>
+                    <p>{t45n('helpdesk.step45n.ticketCreate.giveHelpdeskEnoughInformationToUnderstandWhatIs')}</p>
                   </div>
                 </div>
               </div>
               <div className="editor-grid">
                 <label className="field-block field-wide">
-                  <span>Subject</span>
+                  <span>{t45n('reports.column.subject')}</span>
                   <input
                     value={subject}
                     onChange={(event) => setSubject(event.target.value)}
-                    placeholder="Briefly describe the issue"
+                    placeholder={t45n('helpdesk.step45n.ticketCreate.brieflyDescribeTheIssue')}
                   />
                 </label>
                 <label className="field-block field-wide">
-                  <span>Description</span>
+                  <span>{t45n('reports.editor.descriptionField')}</span>
                   <textarea
                     value={description}
                     onChange={(event) => setDescription(event.target.value)}
                     rows={7}
-                    placeholder="Describe what happened, when it started and what was already tried"
+                    placeholder={t45n('helpdesk.step45n.ticketCreate.describeWhatHappenedWhenItStartedAndWhat')}
                   />
                 </label>
                 <label className="field-block field-wide">
-                  <span>Category</span>
+                  <span>{t45n('reports.column.category')}</span>
                   <select value={categoryId} onChange={(event) => setCategoryId(event.target.value)}>
-                    <option value="">Select category</option>
+                    <option value="">{t45n('helpdesk.step45n.ticketCreate.selectCategory')}</option>
                     {categoryOptions.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
                   </select>
                 </label>
@@ -148,56 +150,56 @@ export function TicketCreatePage() {
                 <div className="ticket-create-section-title">
                   <span className="ticket-create-step">2</span>
                   <div>
-                    <h3>Add context</h3>
-                    <p>Link the affected device when it helps investigation.</p>
+                    <h3>{t45n('helpdesk.step45n.ticketCreate.addContext')}</h3>
+                    <p>{t45n('helpdesk.step45n.ticketCreate.linkTheAffectedDeviceWhenItHelpsInvestigation')}</p>
                   </div>
                 </div>
-                <INNOStatus>Optional</INNOStatus>
+                <INNOStatus>{t45n('helpdesk.step45n.ticketCreate.optional')}</INNOStatus>
               </div>
               <div className="editor-grid">
                 <label className="field-block field-wide">
-                  <span>Related device</span>
+                  <span>{t45n('helpdesk.step45n.ticketCreate.relatedDevice')}</span>
                   <select
                     value={relatedDeviceId}
                     onChange={(event) => setRelatedDeviceId(event.target.value)}
                     disabled={!canViewDevices}
                   >
-                    <option value="">No related device</option>
+                    <option value="">{t45n('helpdesk.step45n.ticketCreate.noRelatedDevice')}</option>
                     {(devices.data?.items ?? []).map((device) => (
                       <option key={device.id} value={device.id}>{device.name} · {device.status}</option>
                     ))}
                   </select>
-                  {!canViewDevices ? <small>Device linking is hidden without Devices access.</small> : null}
+                  {!canViewDevices ? <small>{t45n('helpdesk.step45n.ticketCreate.deviceLinkingIsHiddenWithoutDevicesAccess')}</small> : null}
                 </label>
               </div>
             </section>
 
             <details className="ticket-create-advanced">
               <summary>
-                <span>Advanced routing & priority</span>
+                <span>{t45n('helpdesk.step45n.ticketCreate.advancedRoutingPriority')}</span>
                 <INNOStatus tone={priorityTone}>{calculatedPriority}</INNOStatus>
               </summary>
               <div className="ticket-create-advanced-body">
                 <div className="editor-grid">
                   <label className="field-block">
-                    <span>Impact</span>
+                    <span>{t45n('helpdesk.step45n.ticketCreate.impact')}</span>
                     <select value={impact} onChange={(event) => setImpact(event.target.value)}>
-                      <option>Individual</option>
-                      <option>Team</option>
-                      <option>Department</option>
-                      <option>Organization</option>
+                      <option>{t45n('helpdesk.step45n.ticketCreate.individual')}</option>
+                      <option>{t45n('reports.column.team')}</option>
+                      <option>{t45n('helpdesk.step45n.ticketCreate.department')}</option>
+                      <option>{t45n('profile.organization')}</option>
                     </select>
                   </label>
                   <label className="field-block">
-                    <span>Urgency</span>
+                    <span>{t45n('helpdesk.step45n.ticketCreate.urgency')}</span>
                     <select value={urgency} onChange={(event) => setUrgency(event.target.value)}>
-                      <option>Normal</option>
-                      <option>High</option>
-                      <option>Critical</option>
+                      <option>{t45n('helpdesk.step45n.ticketCreate.normal')}</option>
+                      <option>{t45n('helpdesk.step45n.ticketCreate.high')}</option>
+                      <option>{t45n('helpdesk.step45n.ticketCreate.critical')}</option>
                     </select>
                   </label>
                   <label className="field-block field-wide">
-                    <span>Calculated priority</span>
+                    <span>{t45n('helpdesk.step45n.ticketCreate.calculatedPriority')}</span>
                     <input value={calculatedPriority} readOnly />
                   </label>
                 </div>
@@ -206,10 +208,10 @@ export function TicketCreatePage() {
 
             <INNOEditorFooter>
               <INNOEditorFooterStart>
-                <INNOButton variant="secondary" onClick={() => navigate('/helpdesk')}>Cancel</INNOButton>
+                <INNOButton variant="secondary" onClick={() => navigate('/helpdesk')}>{t45n('reports.action.cancel')}</INNOButton>
               </INNOEditorFooterStart>
               <INNOEditorFooterEnd>
-                <INNOButton busy={mutation.isPending} onClick={submit}>Create Ticket</INNOButton>
+                <INNOButton busy={mutation.isPending} onClick={submit}>{t45n('helpdesk.step45n.helpdeskOverview.createTicket')}</INNOButton>
               </INNOEditorFooterEnd>
             </INNOEditorFooter>
           </div>
@@ -217,14 +219,14 @@ export function TicketCreatePage() {
           <aside className="panel-stack">
             <section className="prod-panel">
               <div className="prod-panel-head">
-                <div><h3>Requester</h3><p>Resolved from your signed-in INNO.One profile.</p></div>
-                <INNOStatus tone="success">Matched</INNOStatus>
+                <div><h3>{t45n('reports.column.requester')}</h3><p>{t45n('helpdesk.step45n.ticketCreate.resolvedFromYourSignedInInnoOneProfile')}</p></div>
+                <INNOStatus tone="success">{t45n('helpdesk.step45n.ticketCreate.matched')}</INNOStatus>
               </div>
               <div className="production-kv-grid">
-                <div className="kv-row"><span>Name</span><b>{profile.fullName}</b></div>
-                <div className="kv-row"><span>Organization</span><b>{profile.organization?.name ?? '—'}</b></div>
-                <div className="kv-row"><span>Location</span><b>{profile.location?.name ?? '—'}</b></div>
-                <div className="kv-row"><span>Employee ID</span><b>{profile.employeeId}</b></div>
+                <div className="kv-row"><span>{t45n('admin.step45n.adminHierarchy.name')}</span><b>{profile.fullName}</b></div>
+                <div className="kv-row"><span>{t45n('profile.organization')}</span><b>{profile.organization?.name ?? '—'}</b></div>
+                <div className="kv-row"><span>{t45n('profile.location')}</span><b>{profile.location?.name ?? '—'}</b></div>
+                <div className="kv-row"><span>{t45n('profile.employeeId')}</span><b>{profile.employeeId}</b></div>
               </div>
             </section>
           </aside>

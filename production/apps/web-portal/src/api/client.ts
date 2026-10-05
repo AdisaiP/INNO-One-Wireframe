@@ -1592,49 +1592,6 @@ export async function getHelpdeskAutomationVersions(
   );
 }
 
-export async function getWorkflowDefinitions(query: {
-  page?: number;
-  pageSize?: number;
-  search?: string;
-} = {}): Promise<WorkflowDefinitionListResponse> {
-  const params = new URLSearchParams({
-    page: String(query.page ?? 1),
-    pageSize: String(query.pageSize ?? 25),
-  });
-  if (query.search?.trim()) params.set('search', query.search.trim());
-  return request<WorkflowDefinitionListResponse>('/workflows?' + params.toString());
-}
-
-export async function getWorkflowDefinition(workflowId: string): Promise<WorkflowDefinitionDetail> {
-  const response = await request<ResourceEnvelope<WorkflowDefinitionDetail>>(
-    '/workflows/' + encodeURIComponent(workflowId),
-  );
-  return response.data;
-}
-
-export async function createWorkflowDefinition(
-  input: WorkflowDefinitionRequest,
-): Promise<WorkflowDefinitionDetail> {
-  const response = await request<ResourceEnvelope<WorkflowDefinitionDetail>>(
-    '/workflows',
-    { method: 'POST', ...jsonRequest(input) },
-  );
-  return response.data;
-}
-
-export async function updateWorkflowDefinition(
-  workflowId: string,
-  eTag: string,
-  input: WorkflowDefinitionRequest,
-): Promise<WorkflowDefinitionDetail> {
-  const response = await request<ResourceEnvelope<WorkflowDefinitionDetail>>(
-    '/workflows/' + encodeURIComponent(workflowId),
-    { method: 'PUT', ...jsonRequest(input, { 'If-Match': eTag }) },
-  );
-  return response.data;
-}
-
-
 export async function getReportSources(): Promise<ReportSourceDescriptor[]> {
   const response = await request<{ items: ReportSourceDescriptor[] }>('/reports/sources');
   return response.items;

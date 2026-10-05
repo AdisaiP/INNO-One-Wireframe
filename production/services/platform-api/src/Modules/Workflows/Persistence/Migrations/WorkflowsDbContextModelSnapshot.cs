@@ -62,10 +62,8 @@ namespace INNO.One.Modules.Workflows.Persistence.Migrations
 
                     b.Property<string>("OwnerModule")
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)")
-                        .HasDefaultValue("legacy_unassigned")
                         .HasColumnName("owner_module");
 
                     b.Property<string>("Status")
@@ -135,10 +133,8 @@ namespace INNO.One.Modules.Workflows.Persistence.Migrations
 
                     b.Property<string>("OwnerModule")
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)")
-                        .HasDefaultValue("legacy_unassigned")
                         .HasColumnName("owner_module");
 
                     b.Property<string>("Status")

@@ -152,8 +152,10 @@ public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> option
             entity.HasKey(x => x.Id);
             entity.Property(x => x.SourceModule).HasMaxLength(64);
             entity.Property(x => x.NotificationType).HasMaxLength(64);
-            entity.Property(x => x.Title).HasMaxLength(240);
-            entity.Property(x => x.Message).HasMaxLength(1000);
+            entity.Property(x => x.TitleEn).HasMaxLength(240);
+            entity.Property(x => x.TitleTh).HasMaxLength(240);
+            entity.Property(x => x.MessageEn).HasMaxLength(1000);
+            entity.Property(x => x.MessageTh).HasMaxLength(1000);
             entity.Property(x => x.DestinationPath).HasMaxLength(500);
             entity.HasIndex(x => new { x.UserId, x.ReadAt, x.CreatedAt });
             entity.HasIndex(x => new { x.UserId, x.IsImportant, x.CreatedAt });

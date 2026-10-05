@@ -9,6 +9,7 @@ import {
 } from '../api/client';
 import { CollectionErrorState, CollectionLoadingState, ErrorState } from '../components/Feedback';
 import { usePermission } from '../app/ProfileContext';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 function splitRanges(value: string): string[] {
   return value
@@ -18,6 +19,7 @@ function splitRanges(value: string): string[] {
 }
 
 export function DiscoveryPage() {
+  const { t: t45n } = useStep45NI18n();
   const canManage = usePermission('devices.manage');
   const [rangeInput, setRangeInput] = useState('');
   const [scanId, setScanId] = useState<string | null>(null);
@@ -71,9 +73,9 @@ export function DiscoveryPage() {
 
   return (
     <INNOPage
-      eyebrow="Devices"
-      title="Network Discovery"
-      description="Scan approved private IPv4 ranges to find reachable endpoints that are not yet managed by INNO.One."
+      eyebrow={t45n('navigation.devices')}
+      title={t45n('devices.step45n.discovery.networkDiscovery')}
+      description={t45n('devices.step45n.discovery.scanApprovedPrivateIpv4RangesToFindReachable')}
       actions={canManage ? (
         <INNOButton
           type="button"
@@ -81,7 +83,7 @@ export function DiscoveryPage() {
           disabled={ranges.length === 0 || operationStatus === 'queued' || operationStatus === 'running'}
           onClick={() => create.mutate()}
         >
-          {operationStatus === 'queued' || operationStatus === 'running' ? 'Scanning…' : 'Run Scan'}
+          {operationStatus === 'queued' || operationStatus === 'running' ? t45n('devices.step45n.discovery.scanning') : t45n('devices.step45n.discovery.runScan')}
         </INNOButton>
       ) : undefined}
     >
@@ -89,42 +91,42 @@ export function DiscoveryPage() {
       <div className="discovery-layout">
         <section className="prod-panel">
           <div className="prod-panel-head">
-            <div><h3>Run scan</h3><p>Private/loopback IPv4 only · maximum 512 addresses per scan.</p></div>
+            <div><h3>{t45n('devices.step45n.discovery.runScan2')}</h3><p>{t45n('devices.step45n.discovery.privateLoopbackIpv4OnlyMaximum512AddressesPer')}</p></div>
             {operationStatus ? <INNOStatus tone={operationStatus === 'succeeded' ? 'success' : operationStatus === 'failed' ? 'danger' : 'info'}>{operationStatus}</INNOStatus> : null}
           </div>
           <div className="editor-form">
             <label className="field-block field-wide">
-              <span>Network ranges</span>
+              <span>{t45n('devices.step45n.discovery.networkRanges')}</span>
               <textarea
                 rows={4}
                 value={rangeInput}
                 onChange={(event) => setRangeInput(event.target.value)}
-                placeholder={'Example: 10.20.1.0/24\n10.20.3.0/24'}
+                placeholder={t45n('devices.step45n.discovery.example102010241020')}
                 disabled={!canManage || create.isPending || operationStatus === 'queued' || operationStatus === 'running'}
               />
-              <small>Public ranges are rejected server-side.</small>
+              <small>{t45n('devices.step45n.discovery.publicRangesAreRejectedServerSide')}</small>
             </label>
             {create.isError ? <ErrorState error={create.error} /> : null}
           </div>
         </section>
 
         <section className="prod-panel">
-          <div className="prod-panel-head"><div><h3>Current scan</h3><p>Canonical progress from the shared INNO.One operation resource.</p></div></div>
+          <div className="prod-panel-head"><div><h3>{t45n('devices.step45n.discovery.currentScan')}</h3><p>{t45n('devices.step45n.discovery.canonicalProgressFromTheSharedInnoOneOperation')}</p></div></div>
           {!current ? (
-            <div className="compact-empty">No scan started in this session.</div>
+            <div className="compact-empty">{t45n('devices.step45n.discovery.noScanStartedInThisSession')}</div>
           ) : (
             <div className="scan-summary">
-              <div className="scan-progress-track" aria-label={'Scan progress ' + progress + '%'}>
+              <div className="scan-progress-track" aria-label={t45n('devices.step45n.discovery.scanProgress') + ' ' + progress + '%'}>
                 <span style={{ width: progress + '%' }} />
               </div>
               <div className="scan-metrics">
-                <div><b>{current.addressesScanned}</b><span>Addresses scanned</span></div>
-                <div><b>{current.devicesFound}</b><span>Devices found</span></div>
-                <div><b>{current.unmanagedCount}</b><span>Unmanaged</span></div>
+                <div><b>{current.addressesScanned}</b><span>{t45n('devices.step45n.discovery.addressesScanned')}</span></div>
+                <div><b>{current.devicesFound}</b><span>{t45n('devices.step45n.discovery.devicesFound')}</span></div>
+                <div><b>{current.unmanagedCount}</b><span>{t45n('devices.step45n.discovery.unmanaged')}</span></div>
               </div>
               {operation.data ? (
                 <div className="table-meta">
-                  Operation {operation.data.operationId} · {operation.data.originModule}
+                  {t45n('devices.step45n.discovery.operation')}{' '}{operation.data.operationId} · {operation.data.originModule}
                 </div>
               ) : null}
               <div className="table-meta">{current.ranges.join(' · ')}</div>
@@ -135,42 +137,42 @@ export function DiscoveryPage() {
 
       <INNOCollection>
         <INNOCollectionHeader
-          title="Discovery results"
-          description="Reachable endpoints from the current completed scan."
-          meta={results.data ? <INNOStatus>{results.data.totalItems} results</INNOStatus> : undefined}
+          title={t45n('devices.step45n.discovery.discoveryResults')}
+          description={t45n('devices.step45n.discovery.reachableEndpointsFromTheCurrentCompletedScan')}
+          meta={results.data ? <INNOStatus>{results.data.totalItems} {t45n('devices.step45n.discovery.results')}</INNOStatus> : undefined}
         />
         <INNOCollectionToolbar>
-          <INNOSearchField label="Search discovery results" value={search} onChange={setSearch} placeholder="Search IP, hostname or OS…" />
-          <INNOSelectField label="Management status" value={resultStatus} onChange={setResultStatus}>
-            <option value="all">Status: All</option>
-            <option value="unmanaged">Unmanaged</option>
-            <option value="managed">Managed</option>
+          <INNOSearchField label={t45n('devices.step45n.discovery.searchDiscoveryResults')} value={search} onChange={setSearch} placeholder={t45n('devices.step45n.discovery.searchIpHostnameOrOs')} />
+          <INNOSelectField label={t45n('devices.step45n.discovery.managementStatus')} value={resultStatus} onChange={setResultStatus}>
+            <option value="all">{t45n('admin.step45n.adminUsers.statusAll')}</option>
+            <option value="unmanaged">{t45n('devices.step45n.discovery.unmanaged')}</option>
+            <option value="managed">{t45n('devices.step45n.deviceDetail.managed')}</option>
           </INNOSelectField>
         </INNOCollectionToolbar>
 
         {!scanId ? (
-          <INNOCollectionState kind="empty" title="Run discovery to see results" description="Start a scan above using one or more approved private CIDR ranges." />
+          <INNOCollectionState kind="empty" title={t45n('devices.step45n.discovery.runDiscoveryToSeeResults')} description={t45n('devices.step45n.discovery.startAScanAboveUsingOneOrMore')} />
         ) : scan.isPending || current?.status === 'queued' || current?.status === 'running' ? (
-          <CollectionLoadingState label="Discovery scan in progress…" />
+          <CollectionLoadingState label={t45n('devices.step45n.discovery.discoveryScanInProgress')} />
         ) : scan.isError ? (
           <CollectionErrorState error={scan.error} retry={() => void scan.refetch()} />
         ) : current?.status === 'failed' ? (
-          <INNOCollectionState kind="error" title="Discovery scan failed" description="The scan could not be completed. Review the scan settings and try again." />
+          <INNOCollectionState kind="error" title={t45n('devices.step45n.discovery.discoveryScanFailed')} description={t45n('devices.step45n.discovery.theScanCouldNotBeCompletedReviewThe')} />
         ) : results.isPending ? (
-          <CollectionLoadingState label="Loading discovery results…" />
+          <CollectionLoadingState label={t45n('devices.step45n.discovery.loadingDiscoveryResults')} />
         ) : results.isError ? (
           <CollectionErrorState error={results.error} retry={() => void results.refetch()} />
         ) : results.data.items.length === 0 ? (
           <INNOCollectionState
             kind={search || resultStatus !== 'all' ? 'no-results' : 'empty'}
-            title={search || resultStatus !== 'all' ? 'No discovery results found' : 'No endpoints matched'}
-            description={search || resultStatus !== 'all' ? 'Try another search or clear the filters.' : 'No reachable endpoints were returned by this scan.'}
-            action={search || resultStatus !== 'all' ? <INNOButton variant="secondary" onClick={() => { setSearch(''); setResultStatus('all'); }}>Clear filters</INNOButton> : undefined}
+            title={search || resultStatus !== 'all' ? t45n('devices.step45n.discovery.noDiscoveryResultsFound') : t45n('devices.step45n.discovery.noEndpointsMatched')}
+            description={search || resultStatus !== 'all' ? t45n('admin.step45n.adminAccessScopes.tryAnotherSearchOrClearTheFilters') : t45n('devices.step45n.discovery.noReachableEndpointsWereReturnedByThisScan')}
+            action={search || resultStatus !== 'all' ? <INNOButton variant="secondary" onClick={() => { setSearch(''); setResultStatus('all'); }}>{t45n('admin.step45n.adminAccessScopes.clearFilters')}</INNOButton> : undefined}
           />
         ) : (
           <INNOTableWrap width="wide">
             <table>
-              <thead><tr><th>IP Address</th><th>Hostname</th><th>Detected OS</th><th>Vendor</th><th>Discovery</th><th>Status</th></tr></thead>
+              <thead><tr><th>{t45n('reports.column.ipAddress')}</th><th>{t45n('devices.step45n.deviceDetail.hostname')}</th><th>{t45n('devices.step45n.discovery.detectedOs')}</th><th>{t45n('assets.automation.editor.licenseField.vendor')}</th><th>{t45n('navigation.discovery')}</th><th>{t45n('reports.runs.status')}</th></tr></thead>
               <tbody>
                 {results.data.items.map((row) => (
                   <tr key={row.id}>

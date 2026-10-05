@@ -9,6 +9,7 @@ import { getSoftwareLicenses } from '../api/client';
 import type { SoftwareLicenseItem } from '../api/types';
 import { ErrorState, LoadingState } from '../components/Feedback';
 import { RouterRowAction } from '../components/RouterRowAction';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
 function money(value: number, currency = 'THB') {
   return new Intl.NumberFormat('en-US', {
@@ -24,6 +25,7 @@ function utilization(item: SoftwareLicenseItem) {
 }
 
 export function SoftwareLicensesPage() {
+  const { t: t45n } = useStep45NI18n();
   const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search);
   const [compliance, setCompliance] = useState('all');
@@ -50,69 +52,69 @@ export function SoftwareLicensesPage() {
 
   return (
     <INNOPage
-      eyebrow="Assets · Management"
-      title="Software Licenses"
-      description="Monitor purchased software entitlements against detected endpoint usage."
+      eyebrow={t45n('assets.step45n.assetCustomFields.assetsManagement')}
+      title={t45n('navigation.softwareLicenses')}
+      description={t45n('devices.step45n.softwareLicenses.monitorPurchasedSoftwareEntitlementsAgainstDetectedEndpointUsage')}
     >
       <div className="production-stat-strip license-stat-strip">
         <div>
-          <span>Products</span>
+          <span>{t45n('devices.step45n.softwareLicenses.products')}</span>
           <b>{summary?.products ?? '—'}</b>
-          <small>Tracked license products</small>
+          <small>{t45n('devices.step45n.softwareLicenses.trackedLicenseProducts')}</small>
         </div>
         <div>
-          <span>Purchased seats</span>
+          <span>{t45n('devices.step45n.softwareLicenseDetail.purchasedSeats')}</span>
           <b>{summary?.purchasedSeats ?? '—'}</b>
-          <small>Current entitlements</small>
+          <small>{t45n('devices.step45n.softwareLicenses.currentEntitlements')}</small>
         </div>
         <div>
-          <span>Installed</span>
+          <span>{t45n('admin.step45n.adminApps.installed')}</span>
           <b>{summary?.installedSeats ?? '—'}</b>
-          <small>Detected seat usage</small>
+          <small>{t45n('devices.step45n.softwareLicenses.detectedSeatUsage')}</small>
         </div>
         <div>
-          <span>Estimated gap cost</span>
+          <span>{t45n('devices.step45n.softwareLicenses.estimatedGapCost')}</span>
           <b>{summary ? money(summary.estimatedGapCost) : '—'}</b>
-          <small>{summary ? summary.overusedProducts + ' overused products' : 'Compliance summary'}</small>
+          <small>{summary ? summary.overusedProducts + ' ' + t45n('devices.step45n.softwareLicenses.overusedProducts') : t45n('devices.step45n.softwareLicenses.complianceSummary')}</small>
         </div>
       </div>
 
       <INNOCollection className="license-collection">
         <INNOCollectionHeader
-          title="License products"
-          description="Open a product to review entitlement, renewal details and detected allocations."
-          meta={query.data ? <INNOStatus>{query.data.totalItems} products</INNOStatus> : undefined}
+          title={t45n('devices.step45n.softwareLicenses.licenseProducts')}
+          description={t45n('devices.step45n.softwareLicenses.openAProductToReviewEntitlementRenewalDetails')}
+          meta={query.data ? <INNOStatus>{query.data.totalItems} {t45n('devices.step45n.softwareLicenses.products2')}</INNOStatus> : undefined}
         />
         <INNOCollectionToolbar>
           <INNOSearchField
-            label="Search software licenses"
+            label={t45n('devices.step45n.softwareLicenses.searchSoftwareLicenses')}
             value={search}
             onChange={setSearch}
-            placeholder="Search product, vendor, model or contract…"
+            placeholder={t45n('devices.step45n.softwareLicenses.searchProductVendorModelOrContract')}
           />
-          <INNOSelectField label="Compliance filter" value={compliance} onChange={setCompliance}>
-            <option value="all">Compliance: All</option>
-            <option value="compliant">Compliant</option>
-            <option value="overused">Overused</option>
+          <INNOSelectField label={t45n('devices.step45n.softwareLicenses.complianceFilter')} value={compliance} onChange={setCompliance}>
+            <option value="all">{t45n('devices.step45n.softwareLicenses.complianceAll')}</option>
+            <option value="compliant">{t45n('assets.automation.editor.compliance.compliant')}</option>
+            <option value="overused">{t45n('assets.automation.editor.compliance.overused')}</option>
           </INNOSelectField>
-          <INNOSelectField label="Vendor filter" value={vendor} onChange={setVendor}>
-            <option value="all">Vendor: All</option>
+          <INNOSelectField label={t45n('devices.step45n.softwareLicenses.vendorFilter')} value={vendor} onChange={setVendor}>
+            <option value="all">{t45n('devices.step45n.softwareLicenses.vendorAll')}</option>
             {query.data?.vendors.map((value) => <option key={value} value={value}>{value}</option>)}
           </INNOSelectField>
           <INNOToolbarSpacer />
-          <INNOToolbarMeta>Open a product for details</INNOToolbarMeta>
+          <INNOToolbarMeta>{t45n('devices.step45n.softwareLicenses.openAProductForDetails')}</INNOToolbarMeta>
         </INNOCollectionToolbar>
 
         {query.isPending ? (
-          <div className="collection-state"><LoadingState label="Loading software licenses…" /></div>
+          <div className="collection-state"><LoadingState label={t45n('devices.step45n.softwareLicenses.loadingSoftwareLicenses')} /></div>
         ) : query.isError ? (
           <div className="collection-state"><ErrorState error={query.error} retry={() => void query.refetch()} /></div>
         ) : query.data.items.length === 0 ? (
           <div className="collection-state">
             <INNOState
               kind={search || compliance !== 'all' || vendor !== 'all' ? 'no-results' : 'empty'}
-              title="No license products found"
-              description="Try another search or clear the filters."
+              title={t45n('devices.step45n.softwareLicenses.noLicenseProductsFound')}
+              description={t45n('admin.step45n.adminAccessScopes.tryAnotherSearchOrClearTheFilters')}
               action={
                 <INNOButton
                   variant="secondary"
@@ -122,8 +124,7 @@ export function SoftwareLicensesPage() {
                     setVendor('all');
                   }}
                 >
-                  Clear filters
-                </INNOButton>
+                  {t45n('admin.step45n.adminAccessScopes.clearFilters')}</INNOButton>
               }
             />
           </div>
@@ -133,14 +134,14 @@ export function SoftwareLicensesPage() {
               <table className="license-table">
                 <thead>
                   <tr>
-                    <th>Product</th>
-                    <th>Vendor</th>
-                    <th className="numeric-column">Purchased</th>
-                    <th className="numeric-column">Used</th>
-                    <th>Utilization</th>
-                    <th>Compliance</th>
-                    <th className="numeric-column">Estimated gap cost</th>
-                    <th className="action-column">Action</th>
+                    <th>{t45n('devices.step45n.softwareLicenses.product')}</th>
+                    <th>{t45n('assets.automation.editor.licenseField.vendor')}</th>
+                    <th className="numeric-column">{t45n('devices.step45n.softwareLicenses.purchased')}</th>
+                    <th className="numeric-column">{t45n('devices.step45n.softwareLicenses.used')}</th>
+                    <th>{t45n('devices.step45n.softwareLicenses.utilization')}</th>
+                    <th>{t45n('assets.automation.editor.licenseField.compliance')}</th>
+                    <th className="numeric-column">{t45n('devices.step45n.softwareLicenses.estimatedGapCost')}</th>
+                    <th className="action-column">{t45n('reports.table.action')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -159,15 +160,15 @@ export function SoftwareLicensesPage() {
                       <td>
                         <INNOStatus tone={item.compliance === 'overused' ? 'danger' : 'success'}>
                           {item.compliance === 'overused'
-                            ? Math.abs(item.seatBalance) + ' seats over'
-                            : item.seatBalance + ' available'}
+                            ? Math.abs(item.seatBalance) + ' ' + t45n('devices.step45n.softwareLicenses.seatsOver')
+                            : item.seatBalance + ' ' + t45n('common.step45n.apps.available')}
                         </INNOStatus>
                       </td>
                       <td className="numeric-column">{money(item.estimatedGapCost, item.currency)}</td>
                       <td className="action-column">
                         <RouterRowAction
                           to={'/assets/software-licenses/' + item.id}
-                          ariaLabel={'Open ' + item.productName}
+                          ariaLabel={t45n('common.step45n.search.open') + ' ' + item.productName}
                         />
                       </td>
                     </tr>

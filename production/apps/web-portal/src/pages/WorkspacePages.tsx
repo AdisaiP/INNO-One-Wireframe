@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+﻿import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
   INNOIcon,
@@ -18,12 +18,17 @@ import type {
   WorkspaceAttentionItem,
 } from '../api/types';
 import { ErrorState, LoadingState } from '../components/Feedback';
+import { useI18n as useStep45NI18n } from '@inno/i18n';
 
-function moduleLabel(value: string) {
-  if (value === 'devices') return 'Devices';
-  if (value === 'helpdesk') return 'Helpdesk';
-  if (value === 'assets') return 'Assets';
-  return value.charAt(0).toUpperCase() + value.slice(1);
+function moduleLabel(
+  value: string,
+  t: (key: string, params?: Record<string, string | number>) => string,
+) {
+  if (value === 'devices') return t('navigation.devices');
+  if (value === 'helpdesk') return t('navigation.helpdesk');
+  if (value === 'assets') return t('navigation.assets');
+  if (value === 'reports') return t('navigation.reports');
+  return value;
 }
 function moduleMark(value: string) {
   if (value === 'devices') return 'D';
@@ -32,24 +37,29 @@ function moduleMark(value: string) {
   return 'W';
 }
 
-function relativeTime(value: string) {
+function relativeTime(
+  value: string,
+  locale: 'en-US' | 'th-TH',
+  t: (key: string, params?: Record<string, string | number>) => string,
+) {
   const date = new Date(value);
   const diff = Math.max(0, Date.now() - date.getTime());
   const minutes = Math.floor(diff / 60000);
-  if (minutes < 1) return 'Now';
-  if (minutes < 60) return minutes + 'm ago';
+  if (minutes < 1) return t('common.step45n.workspacePages.time.now');
+  if (minutes < 60) return t('common.step45n.workspacePages.time.minutesAgo', { count: minutes });
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return hours + 'h ago';
+  if (hours < 24) return t('common.step45n.workspacePages.time.hoursAgo', { count: hours });
   const days = Math.floor(hours / 24);
-  if (days < 7) return days + 'd ago';
-  return new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' }).format(date);
+  if (days < 7) return t('common.step45n.workspacePages.time.daysAgo', { count: days });
+  const formatLocale = locale === 'th-TH' ? 'th-TH-u-ca-gregory-nu-latn' : 'en-US';
+  return new Intl.DateTimeFormat(formatLocale, { month: 'short', day: 'numeric' }).format(date);
 }
 
-function greeting() {
+function greeting(t: (key: string) => string) {
   const hour = new Date().getHours();
-  if (hour < 12) return 'Good morning';
-  if (hour < 18) return 'Good afternoon';
-  return 'Good evening';
+  if (hour < 12) return t('common.step45n.workspacePages.greetingMorning');
+  if (hour < 18) return t('common.step45n.workspacePages.greetingAfternoon');
+  return t('common.step45n.workspacePages.greetingEvening');
 }
 function severityTone(value: string): 'neutral' | 'info' | 'warning' | 'danger' {
   if (value === 'danger') return 'danger';
@@ -59,8 +69,9 @@ function severityTone(value: string): 'neutral' | 'info' | 'warning' | 'danger' 
 }
 
 function ActivityFeed({ items }: { items: WorkspaceActivityItem[] }) {
+  const { t: t45n, locale } = useStep45NI18n();
   if (items.length === 0) {
-    return <INNOState compact title="Nothing to continue yet" description="Recent resources will appear here as you work across INNO.One." />;
+    return <INNOState compact title={t45n('common.step45n.workspacePages.nothingToContinueYet')} description={t45n('common.step45n.workspacePages.recentResourcesWillAppearHereAsYouWork')} />;
   }
 
   return (
@@ -74,17 +85,18 @@ function ActivityFeed({ items }: { items: WorkspaceActivityItem[] }) {
           <span className={'workspace-module-mark module-' + item.sourceModule}>{moduleMark(item.sourceModule)}</span>
           <span className="workspace-feed-copy">
             <b>{item.title}</b>
-            <span>{moduleLabel(item.sourceModule)} · {item.activity}</span>
+            <span>{moduleLabel(item.sourceModule, t45n)} · {item.activity}</span>
           </span>
-          <small>{relativeTime(item.occurredAt)}</small>
+          <small>{relativeTime(item.occurredAt, locale, t45n)}</small>
         </Link>
       ))}
     </div>
   );
 }
 function AttentionFeed({ items }: { items: WorkspaceAttentionItem[] }) {
+  const { t: t45n, locale } = useStep45NI18n();
   if (items.length === 0) {
-    return <INNOState compact title="Nothing needs attention" description="There are no cross-app items requiring action in your current scope." />;
+    return <INNOState compact title={t45n('common.step45n.workspacePages.nothingNeedsAttention')} description={t45n('common.step45n.workspacePages.thereAreNoCrossAppItemsRequiringAction')} />;
   }
 
   return (
@@ -95,7 +107,7 @@ function AttentionFeed({ items }: { items: WorkspaceAttentionItem[] }) {
           <span className="workspace-feed-copy">
             <span className="workspace-attention-title">
               <b>{item.title}</b>
-              <INNOStatus tone={severityTone(item.severity)}>{moduleLabel(item.module)}</INNOStatus>
+              <INNOStatus tone={severityTone(item.severity)}>{moduleLabel(item.module, t45n)}</INNOStatus>
             </span>
             <span>{item.detail}</span>
           </span>
@@ -107,12 +119,13 @@ function AttentionFeed({ items }: { items: WorkspaceAttentionItem[] }) {
 }
 
 export function WorkspaceHomePage() {
+  const { t: t45n, locale } = useStep45NI18n();
   const query = useQuery({
     queryKey: ['platform', 'workspace'],
     queryFn: getWorkspaceHome,
     refetchOnWindowFocus: true,
   });
-  if (query.isPending) return <LoadingState label="Loading your workspace…" />;
+  if (query.isPending) return <LoadingState label={t45n('common.step45n.workspacePages.loadingYourWorkspace')} />;
   if (query.isError) return <ErrorState error={query.error} retry={() => void query.refetch()} />;
   const data = query.data;
   const firstName = data.fullName.split(/\s+/)[0] || data.fullName;
@@ -121,13 +134,13 @@ export function WorkspaceHomePage() {
     <div className="workspace-home-page">
       <section className="workspace-welcome">
         <div>
-          <div className="eyebrow">Workspace</div>
-          <h1>{greeting()}, {firstName}</h1>
-          <p>Continue where you left off or open an app to start working.</p>
+          <div className="eyebrow">{t45n('navigation.workspace')}</div>
+          <h1>{greeting(t45n)}, {firstName}</h1>
+          <p>{t45n('common.step45n.workspacePages.continueWhereYouLeftOffOrOpenAn')}</p>
           <div className="workspace-welcome-meta">
-            <span>{data.apps.length} available apps</span>
-            <span>{data.continueItems.length} recent resources</span>
-            <span>{data.attentionTotal} attention items</span>
+            <span>{data.apps.length} {t45n('common.step45n.workspacePages.availableApps')}</span>
+            <span>{data.continueItems.length} {t45n('common.step45n.workspacePages.recentResources')}</span>
+            <span>{data.attentionTotal} {t45n('common.step45n.workspacePages.attentionItems')}</span>
           </div>
         </div>
         <div className="workspace-welcome-art" aria-hidden="true">
@@ -137,74 +150,73 @@ export function WorkspaceHomePage() {
 
       <section className="workspace-section">
         <div className="workspace-section-head">
-          <h2>Your Apps</h2>
-          <Link to="/apps">All apps <INNOIcon token="action.next" size={13} /></Link>
+          <h2>{t45n('common.step45n.workspacePages.yourApps')}</h2>
+          <Link to="/apps">{t45n('common.step45n.workspacePages.allApps')}{' '}<INNOIcon token="action.next" size={13} /></Link>
         </div>
         {data.apps.length ? (
           <div className="workspace-app-grid">
             {data.apps.map((app) => (
               <Link className="workspace-app-card" to={app.route} key={app.id}>
                 <span className={'workspace-app-mark module-' + app.id}>{moduleMark(app.id)}</span>
-                <span><b>{app.name}</b><small>Open {app.name}</small></span>
+                <span><b>{app.name}</b><small>{t45n('common.step45n.search.open')}{' '}{app.name}</small></span>
               </Link>
             ))}
           </div>
         ) : (
-          <INNOState compact title="No apps available" description="Apps appear here when they are enabled and permitted for your role." />
+          <INNOState compact title={t45n('common.step45n.apps.noAppsAvailable')} description={t45n('common.step45n.workspacePages.appsAppearHereWhenTheyAreEnabledAnd')} />
         )}
       </section>
 
       <div className="workspace-home-columns">
         <section className="prod-panel">
           <div className="prod-panel-head">
-            <div><h3>Continue Working</h3><p>Recent resources across your workspace.</p></div>
-            <Link to="/workspace/continue">View all</Link>
+            <div><h3>{t45n('navigation.continueWorking')}</h3><p>{t45n('common.step45n.workspacePages.recentResourcesAcrossYourWorkspace')}</p></div>
+            <Link to="/workspace/continue">{t45n('assets.step45n.assetsOverview.viewAll')}</Link>
           </div>
           <ActivityFeed items={data.continueItems} />
         </section>
 
         <section className="prod-panel">
           <div className="prod-panel-head">
-            <div><h3>Needs Attention</h3><p>Cross-app items that may need action soon.</p></div>
+            <div><h3>{t45n('navigation.needsAttention')}</h3><p>{t45n('common.step45n.workspacePages.crossAppItemsThatMayNeedActionSoon')}</p></div>
             <INNOStatus tone={data.attentionTotal ? 'warning' : 'success'}>
-              {data.attentionTotal} items
-            </INNOStatus>
+              {data.attentionTotal} {t45n('common.step45n.workspacePages.items')}{' '}</INNOStatus>
           </div>
           <AttentionFeed items={data.attentionItems} />
         </section>
       </div>
       <section className="prod-panel workspace-recent-panel">
         <div className="prod-panel-head">
-          <div><h3>Recent Activity</h3><p>Resources you recently opened or changed.</p></div>
-          <Link to="/workspace/recent">View history</Link>
+          <div><h3>{t45n('common.step45n.workspacePages.recentActivity')}</h3><p>{t45n('common.step45n.workspacePages.resourcesYouRecentlyOpenedOrChanged')}</p></div>
+          <Link to="/workspace/recent">{t45n('common.step45n.workspacePages.viewHistory')}</Link>
         </div>
         {data.recentItems.length ? (
           <INNOTableWrap>
             <table className="inno-table workspace-recent-table">
-              <thead><tr><th>Item</th><th>App</th><th>Activity</th><th>Last Used</th><th>Action</th></tr></thead>
+              <thead><tr><th>{t45n('common.step45n.workspacePages.item')}</th><th>{t45n('common.step45n.workspacePages.app')}</th><th>{t45n('helpdesk.step45n.ticketDetail.activity')}</th><th>{t45n('common.step45n.workspacePages.lastUsed')}</th><th>{t45n('reports.table.action')}</th></tr></thead>
               <tbody>
                 {data.recentItems.map((item) => (
                   <tr key={item.sourceModule + ':' + item.resourceId + ':' + item.occurredAt}>
                     <td><b>{item.title}</b></td>
-                    <td>{moduleLabel(item.sourceModule)}</td>
+                    <td>{moduleLabel(item.sourceModule, t45n)}</td>
                     <td>{item.activity}</td>
-                    <td>{relativeTime(item.occurredAt)}</td>
-                    <td><Link to={item.destinationPath}>Open</Link></td>
+                    <td>{relativeTime(item.occurredAt, locale, t45n)}</td>
+                    <td><Link to={item.destinationPath}>{t45n('common.step45n.search.open')}</Link></td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </INNOTableWrap>
         ) : (
-          <INNOState compact title="No recent activity" description="Your latest workspace activity will appear here." />
+          <INNOState compact title={t45n('common.step45n.workspacePages.noRecentActivity')} description={t45n('common.step45n.workspacePages.yourLatestWorkspaceActivityWillAppearHere')} />
         )}
       </section>
       {data.partialFailures.length ? (
         <INNOState
           banner
           kind="partial"
-          title="Some workspace signals are temporarily unavailable"
-          description={'Available workspace data is preserved. Unavailable providers: ' + data.partialFailures.join(', ')}
+          title={t45n('common.step45n.workspacePages.someWorkspaceSignalsAreTemporarilyUnavailable')}
+          description={t45n('common.step45n.workspacePages.partialAvailable', { providers: data.partialFailures.join(', ') })}
         />
       ) : null}
     </div>
@@ -212,6 +224,7 @@ export function WorkspaceHomePage() {
 }
 
 export function WorkspaceContinuePage() {
+  const { t: t45n, locale } = useStep45NI18n();
   const query = useQuery({
     queryKey: ['platform', 'workspace', 'continue'],
     queryFn: getWorkspaceContinue,
@@ -219,17 +232,18 @@ export function WorkspaceContinuePage() {
 
   return (
     <INNOPage
-      eyebrow="Workspace"
-      title="Continue Working"
-      description="Open resources you were recently working with across permitted apps."
+      eyebrow={t45n('navigation.workspace')}
+      title={t45n('navigation.continueWorking')}
+      description={t45n('common.step45n.workspacePages.openResourcesYouWereRecentlyWorkingWithAcross')}
     >
-      {query.isPending ? <LoadingState label="Loading recent work…" /> : null}
+      {query.isPending ? <LoadingState label={t45n('common.step45n.workspacePages.loadingRecentWork')} /> : null}
       {query.isError ? <ErrorState error={query.error} retry={() => void query.refetch()} /> : null}
       {query.data ? <section className="prod-panel"><ActivityFeed items={query.data.items} /></section> : null}
     </INNOPage>
   );
 }
 export function WorkspaceAttentionPage() {
+  const { t: t45n, locale } = useStep45NI18n();
   const query = useQuery({
     queryKey: ['platform', 'workspace', 'attention'],
     queryFn: getWorkspaceAttention,
@@ -238,18 +252,18 @@ export function WorkspaceAttentionPage() {
 
   return (
     <INNOPage
-      eyebrow="Workspace"
-      title="Needs Attention"
-      description="Cross-app items prioritized from the resources you are permitted to access."
+      eyebrow={t45n('navigation.workspace')}
+      title={t45n('navigation.needsAttention')}
+      description={t45n('common.step45n.workspacePages.crossAppItemsPrioritizedFromTheResourcesYou')}
     >
-      {query.isPending ? <LoadingState label="Loading attention items…" /> : null}
+      {query.isPending ? <LoadingState label={t45n('common.step45n.workspacePages.loadingAttentionItems')} /> : null}
       {query.isError ? <ErrorState error={query.error} retry={() => void query.refetch()} /> : null}
       {query.data ? (
         <>
           <section className="prod-panel">
             <div className="prod-panel-head">
-              <div><h3>Attention queue</h3><p>Live signals from enabled modules.</p></div>
-              <INNOStatus tone={query.data.totalCount ? 'warning' : 'success'}>{query.data.totalCount} items</INNOStatus>
+              <div><h3>{t45n('common.step45n.workspacePages.attentionQueue')}</h3><p>{t45n('common.step45n.workspacePages.liveSignalsFromEnabledModules')}</p></div>
+              <INNOStatus tone={query.data.totalCount ? 'warning' : 'success'}>{query.data.totalCount} {t45n('common.step45n.workspacePages.items')}</INNOStatus>
             </div>
             <AttentionFeed items={query.data.items} />
           </section>
@@ -257,8 +271,8 @@ export function WorkspaceAttentionPage() {
             <INNOState
               banner
               kind="partial"
-              title="Partial workspace data"
-              description={'Available attention items are preserved. Unavailable providers: ' + query.data.partialFailures.join(', ')}
+              title={t45n('common.step45n.workspacePages.partialWorkspaceData')}
+              description={t45n('common.step45n.workspacePages.partialAttention', { providers: query.data.partialFailures.join(', ') })}
             />
           ) : null}
         </>
@@ -267,6 +281,7 @@ export function WorkspaceAttentionPage() {
   );
 }
 export function WorkspaceRecentPage() {
+  const { t: t45n, locale } = useStep45NI18n();
   const query = useQuery({
     queryKey: ['platform', 'activity'],
     queryFn: () => getWorkspaceActivity(50),
@@ -274,25 +289,25 @@ export function WorkspaceRecentPage() {
 
   return (
     <INNOPage
-      eyebrow="Workspace"
-      title="Recent Activity"
-      description="Review your latest resource activity across INNO.One."
+      eyebrow={t45n('navigation.workspace')}
+      title={t45n('common.step45n.workspacePages.recentActivity')}
+      description={t45n('common.step45n.workspacePages.reviewYourLatestResourceActivityAcrossInnoOne')}
     >
-      {query.isPending ? <LoadingState label="Loading recent activity…" /> : null}
+      {query.isPending ? <LoadingState label={t45n('common.step45n.workspacePages.loadingRecentActivity')} /> : null}
       {query.isError ? <ErrorState error={query.error} retry={() => void query.refetch()} /> : null}
       {query.data?.items.length ? (
         <section className="prod-panel">
           <INNOTableWrap>
             <table className="inno-table workspace-recent-table">
-              <thead><tr><th>Item</th><th>App</th><th>Activity</th><th>Last Used</th><th>Action</th></tr></thead>
+              <thead><tr><th>{t45n('common.step45n.workspacePages.item')}</th><th>{t45n('common.step45n.workspacePages.app')}</th><th>{t45n('helpdesk.step45n.ticketDetail.activity')}</th><th>{t45n('common.step45n.workspacePages.lastUsed')}</th><th>{t45n('reports.table.action')}</th></tr></thead>
               <tbody>
                 {query.data.items.map((item) => (
                   <tr key={item.sourceModule + ':' + item.resourceId + ':' + item.occurredAt}>
                     <td><b>{item.title}</b></td>
-                    <td>{moduleLabel(item.sourceModule)}</td>
+                    <td>{moduleLabel(item.sourceModule, t45n)}</td>
                     <td>{item.activity}</td>
-                    <td>{relativeTime(item.occurredAt)}</td>
-                    <td><Link to={item.destinationPath}>Open</Link></td>
+                    <td>{relativeTime(item.occurredAt, locale, t45n)}</td>
+                    <td><Link to={item.destinationPath}>{t45n('common.step45n.search.open')}</Link></td>
                   </tr>
                 ))}
               </tbody>
@@ -300,7 +315,7 @@ export function WorkspaceRecentPage() {
           </INNOTableWrap>
         </section>
       ) : query.data ? (
-        <INNOState title="No recent activity" description="Your latest resource activity will appear here as you use INNO.One." />
+        <INNOState title={t45n('common.step45n.workspacePages.noRecentActivity')} description={t45n('common.step45n.workspacePages.yourLatestResourceActivityWillAppearHereAs')} />
       ) : null}
     </INNOPage>
   );
