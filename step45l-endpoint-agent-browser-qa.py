@@ -1,8 +1,10 @@
 from pathlib import Path
-import json, shutil, sys, time
+import base64, json, shutil, sys, time
+import requests, websocket
 
 sys.stdout.reconfigure(encoding="utf-8")
 ROOT=Path(__file__).resolve().parent
+REALM=ROOT/"production/infrastructure/docker/keycloak/realm-inno-one.json"
 OUT=ROOT/"qa-step45l-endpoint-agent-browser"
 PORT=9241
 WIDTHS=(820,640,390)
@@ -29,6 +31,60 @@ helpers=helpers.replace("timeout=10,origin=", "timeout=30,origin=")
 helpers=helpers.replace('self.call("Page.enable"); self.call("Runtime.enable")', '')
 exec(helpers)
 
+TOKEN_URL="http://172.10.1.58:8080/realms/inno-one/protocol/openid-connect/token"
+token_response=requests.post(
+    TOKEN_URL,
+    data={
+        "grant_type":"password",
+        "client_id":"inno-one-e2e",
+        "username":"adisai",
+        "password":realm_password("adisai"),
+        "scope":"openid",
+    },
+    timeout=10,
+)
+if token_response.status_code!=200:
+    raise RuntimeError("Step45L QA token grant failed: "+str(token_response.status_code))
+API_TOKEN=token_response.json()["access_token"]
+API_BASE="http://127.0.0.1:5080/api/v1"
+
+def py_api(method,path,body=None,extra=None):
+    headers={"Authorization":"Bearer "+API_TOKEN,"Accept":"application/json"}
+    if body is not None:
+        headers["Content-Type"]="application/json"
+    if extra:
+        headers.update(extra)
+    response=requests.request(
+        method,
+        API_BASE+path,
+        headers=headers,
+        data=None if body is None else json.dumps(body),
+        timeout=20,
+    )
+    try:
+        payload=None if response.status_code==204 else response.json()
+    except ValueError:
+        payload=response.text
+    return {"status":response.status_code,"data":payload,"headers":dict(response.headers)}
+
+# Step45L runs the standalone Endpoint Agent, not the Web Portal.
+def login(c):
+    c.navigate("http://localhost:5180/")
+    password=realm_password("adisai")
+    deadline=time.time()+35
+    while time.time()<deadline:
+        href=c.ev("location.href") or ""
+        if any(host in href for host in ("172.10.1.58:8080","localhost:8080","127.0.0.1:8080")) and c.ev("!!document.querySelector('#kc-login')"):
+            c.ev("document.querySelector('#username').value="+json.dumps("adisai")+";document.querySelector('#password').value="+json.dumps(password)+";document.querySelector('#kc-login').click();true")
+            time.sleep(.5)
+        if href.startswith("http://localhost:5180") and wait(c,"!!document.querySelector('.agent-app')",2):
+            return True
+        time.sleep(.2)
+    return False
+
+def api(c,script):
+    return c.ev("""(async()=>{const headers={Authorization:'Bearer '+%s};%s})()""" % (json.dumps(API_TOKEN),script))
+
 def reload_agent(c):
     c.call("Page.reload", {"ignoreCache": True})
     return bool(wait(c, "document.body.innerText.includes('INNO.One')", 12))
@@ -38,15 +94,16 @@ def click_button(c, text_value):
       (()=>{const b=[...document.querySelectorAll('button')].find(x=>(x.textContent||'').trim().includes(%s));if(!b)return false;b.click();return true})()
     """ % json.dumps(text_value)))
 
+original_profile_response=py_api("GET","/platform/me")
+original_profile=(original_profile_response.get("data") or {}).get("data",{})
+original_pref=original_profile.get("preferredLocale")
+thai_response=py_api("PATCH","/platform/me/profile",{"preferredLocale":"th-TH"})
+check("Force Agent Thai locale before boot", thai_response.get("status")==200, thai_response.get("status"))
+
 c=CDP()
 c.viewport(820)
 check("Keycloak login completes", login(c), c.ev("location.href") or "")
 check("Agent shell loads", bool(wait(c, "document.body.innerText.includes('INNO.One')", 12)), body(c)[:240])
-
-original_profile=profile_state(c)
-original_pref=original_profile.get("preferredLocale")
-check("Force Agent Thai locale", set_profile_locale(c,"th-TH").get("status")==200)
-check("Reload Agent after locale change", reload_agent(c))
 check("Thai document language", c.ev("document.documentElement.lang")=="th", c.ev("document.documentElement.lang"))
 
 profile=api(c,"""
@@ -76,6 +133,25 @@ ownership=api(c,"""
 ownership_data=ownership.get("data",{}).get("data",{})
 check("Agent ownership context 200", ownership.get("status")==200, ownership)
 check("Linked asset is AST-NB-000003", ownership_data.get("assetTag")=="AST-NB-000003", ownership_data.get("assetTag"))
+
+# Clean interrupted Request Help QA tickets without touching non-QA tickets.
+help_cleanup=api(c,"""
+ const list=await (await fetch('/api/v1/helpdesk/tickets?search='+encodeURIComponent('QA Step45L Agent')+'&status=open&page=1&pageSize=100',{headers})).json();
+ const out=[];
+ for(const item of (list.items||[]).filter(x=>(x.subject||'').startsWith('QA Step45L Agent '))){
+   const detailResponse=await fetch('/api/v1/helpdesk/tickets/'+encodeURIComponent(item.id),{headers});
+   if(!detailResponse.ok){out.push({id:item.id,status:detailResponse.status});continue;}
+   const detail=(await detailResponse.json()).data;
+   const resolved=await fetch('/api/v1/helpdesk/tickets/'+encodeURIComponent(item.id)+'/resolve',{
+     method:'POST',
+     headers:{...headers,'Content-Type':'application/json','If-Match':detail.eTag},
+     body:JSON.stringify({resolutionCode:'qa_cleanup',note:'Step45L interrupted QA cleanup'})
+   });
+   out.push({id:item.id,status:resolved.status});
+ }
+ return out;
+""")
+check("Interrupted Request Help QA tickets cleaned", all(x.get("status")==200 for x in help_cleanup), help_cleanup)
 
 # Clean interrupted QA submissions by rejecting only Step45L QA rows.
 cleanup=api(c,"""
@@ -109,12 +185,29 @@ c.viewport(820)
 check("Open Request Help", click_button(c,"ขอความช่วยเหลือ"))
 check("Request Help form visible", bool(wait(c, "document.body.innerText.includes('แจ้งปัญหาการใช้งาน')", 5)))
 stamp=str(int(time.time()))
-c.ev("""(()=>{const inputs=[...document.querySelectorAll('input')];const s=inputs[0];s.value=%s;s.dispatchEvent(new Event('input',{bubbles:true}));const t=document.querySelector('textarea');t.value='Step45L browser QA request';t.dispatchEvent(new Event('input',{bubbles:true}));return true})()""" % json.dumps("QA Step45L Agent "+stamp))
-# React controlled inputs need native setter.
-c.ev("""(()=>{const set=(el,v)=>{const d=Object.getOwnPropertyDescriptor(el.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype,'value');d.set.call(el,v);el.dispatchEvent(new Event('input',{bubbles:true}));};const i=document.querySelector('input');const ta=document.querySelector('textarea');set(i,%s);set(ta,'Step45L browser QA request');return true})()""" % json.dumps("QA Step45L Agent "+stamp))
+subject_value="QA Step45L Agent "+stamp
+description_value="Step45L browser QA request"
+form_values=c.ev("""(()=>{const set=(el,v)=>{const proto=el.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;const d=Object.getOwnPropertyDescriptor(proto,'value');d.set.call(el,v);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));};const i=document.querySelector('input[required]');const ta=document.querySelector('textarea[required]');if(!i||!ta)return null;set(i,%s);set(ta,%s);return {subject:i.value,description:ta.value,valid:i.checkValidity()&&ta.checkValidity()}})()""" % (json.dumps(subject_value),json.dumps(description_value)))
+check("Request Help form values set", bool(form_values and form_values.get("subject")==subject_value and form_values.get("description")==description_value and form_values.get("valid")), form_values)
 check("Send Request Help", click_button(c,"ส่งคำขอ"))
 check("Ticket created through Agent UI", bool(wait(c, "document.body.innerText.includes('สร้าง Ticket แล้ว')", 12)), body(c)[:320])
 c.shot("820__agent-help-success-th.png")
+ticket_cleanup=api(c,"""
+ const subject=%s;
+ const list=await (await fetch('/api/v1/helpdesk/tickets?search='+encodeURIComponent(subject)+'&page=1&pageSize=20',{headers})).json();
+ const item=(list.items||[]).find(x=>x.subject===subject);
+ if(!item)return {found:false,status:0};
+ const detailResponse=await fetch('/api/v1/helpdesk/tickets/'+encodeURIComponent(item.id),{headers});
+ if(!detailResponse.ok)return {found:true,status:detailResponse.status,id:item.id};
+ const detail=(await detailResponse.json()).data;
+ const resolved=await fetch('/api/v1/helpdesk/tickets/'+encodeURIComponent(item.id)+'/resolve',{
+   method:'POST',
+   headers:{...headers,'Content-Type':'application/json','If-Match':detail.eTag},
+   body:JSON.stringify({resolutionCode:'qa_cleanup',note:'Step45L browser QA cleanup'})
+ });
+ return {found:true,status:resolved.status,id:item.id};
+""" % json.dumps(subject_value))
+check("Request Help QA ticket resolved", ticket_cleanup.get("found") is True and ticket_cleanup.get("status")==200, ticket_cleanup)
 
 # Ownership UI.
 check("Open ownership view", click_button(c,"ยืนยันผู้ใช้งาน"))
@@ -214,7 +307,9 @@ check("English document language", bool(wait(c, "document.documentElement.lang==
 check("English Agent copy visible", "INNO.One Agent is ready" in body(c) or "Request Help" in body(c), body(c)[:280])
 c.shot("820__agent-home-en.png")
 
-check("Restore user locale", set_profile_locale(c,original_pref).get("status")==200)
+restore_body={"useOrganizationDefault":True} if original_pref is None else {"preferredLocale":original_pref}
+restore_response=py_api("PATCH","/platform/me/profile",restore_body)
+check("Restore user locale", restore_response.get("status")==200, restore_response.get("status"))
 
 print(f"step45l_browser_checks={checks}")
 print(f"step45l_browser_failures={len(failures)}")

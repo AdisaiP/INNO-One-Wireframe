@@ -148,6 +148,15 @@ while time.time() < deadline:
 check("Keycloak login completes", logged_in, c.eval("location.href") if logged_in else "timeout")
 if not logged_in:
     sys.exit(1)
+
+def api(cdp, script):
+    return cdp.eval("""(async()=>{const auth=await import('/src/auth/keycloak.ts');const token=await auth.getAccessToken();const headers={Authorization:'Bearer '+token};%s})()""" % script)
+
+original_profile=api(c,"const r=await fetch('/api/v1/platform/me',{headers});return (await r.json()).data;")
+original_pref=original_profile.get("preferredLocale")
+force_locale=api(c,"""const r=await fetch('/api/v1/platform/me/profile',{method:'PATCH',headers:{...headers,'Content-Type':'application/json'},body:JSON.stringify({preferredLocale:'en-US'})});return r.status;""")
+check("broad QA forces English locale", force_locale==200, str(force_locale))
+
 def route_ready(cdp):
     return bool(wait_eval(
         cdp,
@@ -342,6 +351,10 @@ for width in (1024, 768):
         check(f"no runtime error {width} {route}", not m["bodyError"], str(m))
         shot = c.shot(str(width) + "__" + slug(route) + ".png")
         manifest["routes"].setdefault(route, {})[str(width)] = {**m, "shot": shot}
+
+restore_payload={"useOrganizationDefault": True} if original_pref is None else {"preferredLocale": original_pref}
+restore_locale=api(c,"""const r=await fetch('/api/v1/platform/me/profile',{method:'PATCH',headers:{...headers,'Content-Type':'application/json'},body:JSON.stringify(%s)});return r.status;""" % json.dumps(restore_payload))
+check("broad QA restores user locale", restore_locale==200, str(restore_locale))
 
 manifest["dynamicRoutes"] = sorted(dynamic_routes)
 manifest["checks"] = checks

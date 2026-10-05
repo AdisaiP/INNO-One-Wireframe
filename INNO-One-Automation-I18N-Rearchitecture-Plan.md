@@ -514,12 +514,10 @@ Reports now owns real P02/P06/P10/P05 Product routes, saved definitions, module-
 
 The shared `IReportGenerationService` is exposed through Contracts and accepts `automation` as a trigger so modules can opt into report generation through their own approved automation catalog. Step45K does not force a generic Report action into every module. Delivery in this slice is persisted/downloadable CSV; email/external storage delivery remains deferred.
 
-### Step 45L - Endpoint Agent bilingual runtime — IMPLEMENTED / RUNTIME QA BLOCKED
-Implementation is present: Tauri 2 Windows-first native-host scaffold, React/Vite Agent renderer, Keycloak PKCE, Thai/English locale handling, Request Help, ownership confirmation, durable remote consent, offline/error states and explicit durable Agent prompt contracts/UI.
+### Step 45L - Endpoint Agent bilingual runtime — COMPLETE
+Endpoint Agent now has a Tauri 2 Windows-first native-host scaffold, React/Vite runtime, Keycloak PKCE, Thai/English locale handling, Request Help, ownership confirmation, durable remote consent, offline/error states and explicit durable Agent prompt contracts/UI.
 
-Current Windows QA host cannot reach the development PostgreSQL/Keycloak network and has no local Docker/PostgreSQL/Keycloak fallback. Step45L must remain open until authenticated runtime/browser QA and the broad Web regression are executed after connectivity returns.
-
-Do not begin Step45M until that runtime gate is green.
+Authenticated Agent runtime QA passed **54/54** with **9 screenshots** against real Keycloak/PostgreSQL. Broad Web Product regression passed **1791/1791 across 68 routes** at 1366 / 1024 / 768. QA-created Helpdesk/ownership evidence is cleaned up, locale state is restored after tests, and the runtime auth helper self-initializes Keycloak before token access.
 
 ### Step 45M - Android Mobile bilingual completion
 Migrate scanner/history/result/error/task surfaces to the same locale model and verify user/org fallback behavior.
@@ -579,12 +577,10 @@ The re-architecture is complete when:
 
 ## 17. Immediate next action
 
-Step 45E, Step 45F, Step 45G, Step 45H, Step 45I and Step 45K are complete. The old global Step45D direction remains retired.
+Step 45E, Step 45F, Step 45G, Step 45H, Step 45I, Step 45K and Step 45L are complete. The old global Step45D direction remains retired.
 
 **Step 45J - Admin Approval Automation is deferred by product decision and was not implemented.**
 
-Current implementation focus remains **Step 45L - Endpoint Agent bilingual runtime** until its authenticated runtime QA passes.
+Next implementation is **Step 45M - Android Mobile bilingual completion**.
 
-Step45L implementation is in place, but the QA host currently has no route to PostgreSQL/Keycloak development infrastructure. Do not treat this as complete and do not advance to Step45M until the prepared Agent browser/runtime QA and broad Web regression are green.
-
-After Step45L is fully verified, the next implementation is **Step 45M - Android Mobile bilingual completion**.
+Step45M should migrate the existing Assets Mobile scanner/history/result/task/offline-error surfaces to the same user preference -> organization default -> fallback locale model while preserving Assets Mobile as a separate surface.

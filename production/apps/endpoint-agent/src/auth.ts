@@ -18,6 +18,7 @@ export function initializeAuthentication() {
 }
 
 export async function getAccessToken() {
+  await initializeAuthentication();
   if (!keycloak.authenticated) {
     await keycloak.login();
     throw new Error('AUTH_REDIRECT');

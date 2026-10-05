@@ -45,6 +45,8 @@ helpdesk_api = text(API / "Modules/Helpdesk/Api/HelpdeskEndpoints.cs")
 roadmap = json.loads(text(ROOT / "inno-step45a-production-gap-roadmap.json"))
 app_root = text(PROD / "apps/web-portal/src/app/AppRoot.tsx")
 app_shell = text(PROD / "apps/web-portal/src/app/AppShell.tsx")
+browser_qa = text(ROOT / "step45l-endpoint-agent-browser-qa.py")
+broad_qa = text(ROOT / "step42-production-ux-browser-qa.py")
 
 # Workspace/runtime technology.
 check(package["name"] == "@inno/endpoint-agent", "Endpoint Agent package name is wrong")
@@ -71,6 +73,7 @@ check("login-required" in auth, "Agent does not require Keycloak login")
 check("pkceMethod: 'S256'" in auth, "Agent does not use PKCE S256")
 check("checkLoginIframe: false" in auth, "Agent auth iframe behavior not explicit")
 check("password" not in auth.lower(), "Agent auth contains password-grant logic")
+check("await initializeAuthentication();" in auth, "Agent access-token helper does not self-initialize Keycloak")
 check("effectiveLocale" in agent_api and "organizationDefaultLocale" in agent_api, "Agent profile locale contract incomplete")
 check("setPreferredLocale" in agent_api and "/platform/me/profile" in agent_api, "Agent cannot persist locale preference")
 check("document.documentElement.lang" in main, "Agent does not synchronize document lang")
@@ -242,6 +245,13 @@ check('to="/agent"' not in app_shell and 'to="/endpoint-agent"' not in app_shell
 check("@inno/ui" not in package.get("dependencies", {}), "Endpoint Agent incorrectly depends on Web UI package")
 check("web-portal" not in main.lower(), "Endpoint Agent renderer imports/references Web Portal internals")
 check("MeshCentral" not in main and "MeshCentral" not in agent_api, "Endpoint Agent client bypasses INNO.One API through MeshCentral")
+
+# Runtime/browser QA must be deterministic and clean up its own evidence.
+check('"client_id":"inno-one-e2e"' in browser_qa, "Step45L runtime QA does not use the dedicated E2E client")
+check("Request Help QA ticket resolved" in browser_qa, "Step45L runtime QA does not resolve its created Helpdesk Ticket")
+check("Interrupted ownership QA rows cleaned" in browser_qa, "Step45L runtime QA does not clean interrupted ownership evidence")
+check("broad QA forces English locale" in broad_qa, "Broad Product QA does not force its expected locale")
+check("broad QA restores user locale" in broad_qa, "Broad Product QA does not restore user locale")
 
 print(f"step45l_checks={checks}")
 print(f"step45l_failures={len(failures)}")

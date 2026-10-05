@@ -1,9 +1,10 @@
 # INNO.One - Step 45L Endpoint Agent Bilingual Runtime
 
-**Status:** IMPLEMENTATION COMPLETE / RUNTIME QA BLOCKED BY INFRASTRUCTURE
+**Status:** COMPLETE
 **Branch:** `implementation/step45l-endpoint-agent-bilingual-runtime`
 **Base:** Step45K `53f141e`
-**Do not start Step45M until the Step45L authenticated runtime/browser QA passes.**
+**Implementation checkpoint:** `6043281`
+**Next:** Step45M - Android Mobile bilingual completion
 
 ## Runtime decision
 
@@ -172,10 +173,10 @@ Final model consistency check:
 No changes have been made to the model since the last migration.
 ```
 
-## Build/static QA currently verified
+## Final build/static QA
 
 ```text
-Step45L static              146/146
+Step45L static              152/152
 Step45K regression          199/199
 Step45A roadmap              88/88
 Step45I regression          152/152
@@ -201,59 +202,69 @@ Builds verified:
 
 Existing Web large-chunk warning remains warning-only.
 
-## Runtime/browser QA harness prepared
+## Authenticated runtime/browser QA
 
-Dedicated QA:
+The VPN/development infrastructure returned and the blocked runtime gate was executed against the real Keycloak/PostgreSQL environment.
+
+Dedicated Agent QA:
 
 ```text
-step45l-endpoint-agent-browser-qa.py
+step45l_browser_checks=54
+step45l_browser_failures=0
+step45l_browser_screenshots=9
 ```
 
-It is prepared to verify against real Keycloak/PostgreSQL:
-- authenticated Agent session;
-- owned device context and non-owned denial;
-- Assets ownership context;
-- real Request Help ticket through Agent UI;
-- real ownership submission and cleanup;
+Verified:
+- Keycloak authenticated Agent session;
+- owned endpoint context;
+- non-owned endpoint denied with 403;
+- Assets ownership context for `AST-NB-000003`;
+- real Request Help submission through the Agent UI;
+- QA Helpdesk Ticket resolved as cleanup;
+- real ownership submission through the Agent UI and rejected as cleanup;
 - durable remote-consent create/poll/approve;
 - durable Agent prompt create/poll/respond;
-- offline state;
-- Thai/English switch;
-- 820 / 640 / 390 overflow checks;
-- screenshots.
+- offline runtime state;
+- Thai/English runtime switch;
+- 820 / 640 / 390 no-horizontal-overflow checks;
+- user locale restored after QA.
 
-## Current infrastructure blocker
+Representative screenshots were visually inspected:
+- 820 Thai home;
+- 390 Thai home;
+- Request Help success;
+- Ownership success;
+- Remote Consent;
+- Agent Prompt;
+- Offline state;
+- English home.
 
-At the time of this checkpoint the Windows machine has no route to the normal development infrastructure.
+During runtime QA a real Agent auth defect was found and fixed: `getAccessToken()` now self-initializes Keycloak before attempting token/login operations.
 
-Verified unavailable:
+The QA harness was also made deterministic:
+- Agent QA prepares locale before Agent boot and cleans its own Ticket/ownership evidence;
+- broad Web QA forces its expected English locale and restores the user's original locale afterwards.
+
+## Broad Web Product regression
+
+Final:
 
 ```text
-172.10.1.58:5432  PostgreSQL  -> unreachable
-172.10.1.58:8080  Keycloak    -> unreachable
+step42_routes=68
+step42_browser_checks=1791
+step42_browser_failures=0
 ```
 
-Also verified:
-- no local PostgreSQL service/binary;
-- no local Keycloak service;
-- Docker is not installed;
-- no IPv4 route to the `172.10.x` network.
+Covered 1366 / 1024 / 768 across Workspace, Admin, Devices, Assets, Helpdesk, Reports and discovered dynamic routes.
 
-Therefore authenticated runtime/API/browser QA cannot honestly be completed from this machine until VPN/infrastructure connectivity returns.
+This confirms the separate Endpoint Agent runtime did not regress the existing Web Product.
 
-This is an infrastructure blocker, not a compile/static failure.
+## Completion
 
-## Required next action before Step45M
+Step45L is COMPLETE.
 
-1. Restore VPN/network access to `172.10.1.58`.
-2. Start Platform API with migrations enabled.
-3. Start Endpoint Agent dev renderer.
-4. Run:
-   ```text
-   python -u step45l-endpoint-agent-browser-qa.py
-   ```
-5. Visually inspect representative screenshots.
-6. Run broad Web Product browser regression after stopping Agent port 5180 and starting the normal Web QA server.
-7. Only if those pass, change Step45L status to COMPLETE and proceed to Step45M.
+The next implementation is **Step45M - Android Mobile bilingual completion**.
+
+Meeting recording client integration remains intentionally deferred to the later Meeting slice.
 
 Do not merge to `main` unless explicitly requested.

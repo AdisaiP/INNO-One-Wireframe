@@ -1,9 +1,10 @@
 # INNO.One - Step45L Next Chat Handoff
 
-**Status:** IMPLEMENTATION COMPLETE / RUNTIME QA BLOCKED
+**Status:** COMPLETE
 **Branch:** `implementation/step45l-endpoint-agent-bilingual-runtime`
 **Base:** Step45K `53f141e`
-**Do not begin Step45M yet.**
+**Implementation checkpoint:** `6043281`
+**Next:** Step45M - Android Mobile bilingual completion
 
 ## Read first
 
@@ -13,108 +14,155 @@
 4. `INNO-One-Language-Terminology-Contract.md`
 5. `INNO-One-Automation-I18N-Rearchitecture-Plan.md`
 
-## What is implemented
+## Endpoint Agent Product boundary
 
-Endpoint Agent now has:
-- Tauri 2 Windows-first native-host scaffold;
-- React/Vite runtime renderer;
-- Keycloak PKCE auth;
-- Thai/English user/org locale support;
-- device context;
+Endpoint Agent is now a real separate runtime:
+
+```text
+Tauri 2 native host
+  -> React/Vite renderer
+  -> Keycloak Authorization Code + PKCE
+  -> module-owned /api/v1/agent facades
+```
+
+It is Windows-first and intentionally remains outside Web Portal navigation.
+
+The current Windows machine still has no Rust/Cargo toolchain, so Step45L proves the real renderer/API runtime but does not claim a packaged native executable build.
+
+## Implemented runtime
+
+- Thai / English locale model from Step45E;
+- Home / endpoint context;
 - Request Help -> real Helpdesk Ticket;
 - ownership confirmation -> real Assets review submission;
-- durable remote-consent request/poll/decision;
+- durable Remote Consent;
 - offline/loading/error states;
-- explicit durable `IAgentPromptService` contract and Agent prompt UI.
-
-Agent stays outside Web navigation.
+- explicit durable `IAgentPromptService` + Agent prompt UI;
+- Open Portal handoff;
+- sign out;
+- responsive 820 / 640 / 390.
 
 ## Security boundaries
 
 ### Device context / consent / prompt
-Agent can read/respond only for a device whose `OwnerUserId` is the current authenticated user.
+
+Agent may read/respond only for an endpoint whose `OwnerUserId` is the current authenticated user.
 
 ### Request Help
-A user may relate their own endpoint without `devices.view`.
 
-A non-owned endpoint still requires normal `devices.view` and scope.
+A user may relate their own endpoint without operator-level `devices.view`.
+
+A non-owned endpoint still requires normal Devices permission and scope.
 
 ### Ownership
+
 The authenticated user must own the endpoint and the Asset must actually be linked to that endpoint.
 
-Submissions are append-only review evidence.
+Submissions remain append-only review evidence.
 
 ### Agent prompts
+
 Modules/workflows use `IAgentPromptService`.
 
-They do not manipulate Agent UI or persistence directly.
+They do not manipulate Agent UI or Agent persistence directly.
 
-The contract carries source module/reference plus correlation/trace context.
+The contract carries:
+- source module/reference;
+- bilingual title/message;
+- prompt type;
+- correlation ID;
+- trace ID;
+- expiry.
 
 ## Persistence
 
 Devices migrations:
+
 - `20261005052426_Step45LAgentRemoteConsent`;
 - `20261005053546_Step45LAgentPrompts`.
 
-EF pending model changes: none.
+Devices EF pending model changes: none.
 
-## Verified gates
-
-- Step45L static audit: green;
-- Step45K regression: green;
-- Step45A roadmap: green;
-- Step45I/H/G/F/E regressions: green;
-- Step30: issues=0;
-- language/terminology: issues=0;
-- Agent typecheck/build: PASS;
-- i18n/UI/Web typecheck/build: PASS;
-- full .NET: 0 warnings / 0 errors.
-
-## Why Step45L is not marked COMPLETE yet
-
-The Windows machine currently cannot reach:
+## Final authenticated Agent QA
 
 ```text
-172.10.1.58:5432
-172.10.1.58:8080
+step45l_browser_checks=54
+step45l_browser_failures=0
+step45l_browser_screenshots=9
 ```
 
-There is no local PostgreSQL/Keycloak, no Docker and no `172.10.x` network route.
+Verified against real Keycloak/PostgreSQL:
 
-Therefore real authenticated browser/API QA could not run.
+- Keycloak login;
+- owned endpoint context;
+- non-owned endpoint -> 403;
+- linked Asset context;
+- Request Help through the Agent UI;
+- QA Helpdesk Ticket cleanup;
+- ownership submission through the Agent UI;
+- QA ownership evidence cleanup;
+- Remote Consent create/poll/approve;
+- Agent Prompt create/poll/respond;
+- offline state;
+- Thai/English switch;
+- 820 / 640 / 390 responsive checks;
+- user locale restoration.
 
-Do not substitute mocked QA and call Step45L complete.
+Representative screenshots were visually inspected and passed.
 
-## First action next time
+Runtime QA found and fixed one real defect: `getAccessToken()` now self-initializes Keycloak.
 
-Verify connectivity first.
+## Broad Web Product regression
 
-If VPN/infrastructure is restored:
+The broad Web QA is now locale-deterministic: it forces its expected English locale, then restores the user's original preference.
 
-1. rebuild .NET if needed;
-2. run Platform API on 5080 with migrations enabled;
-3. run Endpoint Agent on 5180;
-4. run headless Chrome CDP on 9241;
-5. run:
-   ```text
-   python -u step45l-endpoint-agent-browser-qa.py
-   ```
-6. inspect screenshots:
-   - 820 Thai home;
-   - 390 Thai home;
-   - Request Help success;
-   - Ownership success;
-   - Remote Consent;
-   - Agent Prompt;
-   - Offline;
-   - English home.
-7. clean QA records created by the harness;
-8. stop Agent on 5180;
-9. run normal Web broad regression with its expected Web server;
-10. update Step45L docs/root handoff to COMPLETE;
-11. commit/push final QA checkpoint if this branch already has an implementation checkpoint.
+Final:
 
-Only then start **Step45M - Android Mobile bilingual completion**.
+```text
+step42_routes=68
+step42_browser_checks=1791
+step42_browser_failures=0
+```
 
-Do not merge `main` unless explicitly requested.
+Covered 1366 / 1024 / 768 and dynamic routes.
+
+## Final static/build gates
+
+```text
+Step45L static              152/152
+Step45K regression          199/199
+Step45A roadmap              88/88
+Step45I regression          152/152
+Step45H regression          127/127
+Step45G regression          135/135
+Step45F regression          135/135
+Step45E bilingual            87/87
+Step30 issues                    0
+Language issues                  0
+```
+
+Also verified in the final Step45L checkpoint:
+- Agent typecheck/build PASS;
+- i18n/UI/Web typecheck/build PASS;
+- full .NET solution 0 warnings / 0 errors;
+- Devices EF pending model changes none;
+- `git diff --check` PASS.
+
+## Next: Step45M
+
+**Android Mobile bilingual completion**
+
+Use the same locale model for the existing Assets Mobile Product:
+
+- scanner;
+- scan result;
+- history;
+- task/result/error surfaces;
+- offline/error copy;
+- user preference / organization default behavior.
+
+Preserve the existing Assets Mobile ownership boundary; do not move scanner workflows into Web Portal or Endpoint Agent.
+
+Step45J Admin Approval Automation remains deferred.
+
+Do not merge to `main` unless explicitly requested.
