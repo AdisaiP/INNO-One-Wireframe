@@ -1,0 +1,142 @@
+{
+  "contractVersion": "1.0.0",
+  "status": "frozen-planning",
+  "step": "45Q",
+  "baseCommit": "b541e90",
+  "globalContracts": {
+    "api": "0.5.0",
+    "dataModel": "0.6.0",
+    "designSystem": "V1.26",
+    "uiContract": "1.20.0"
+  },
+  "scope": {
+    "devicesTorRequired": true,
+    "deviceAutomationRetired": true,
+    "targetCompletionStep": "45X"
+  },
+  "sidebar": [
+    {"id":"overview","label":"Overview","route":"/devices/overview","permission":"devices.view","wireframes":["devices-overview-v2.html"],"implementation":"planned"},
+    {"id":"devices","label":"Devices","route":"/devices","permission":"devices.view","wireframes":["devices.html"],"implementation":"active"},
+    {"id":"discovery","label":"Discovery","route":"/devices/discovery","permission":"devices.view","wireframes":["device-discovery.html"],"implementation":"active"},
+    {"id":"groups","label":"Device Groups","route":"/devices/groups","permission":"devices.view","wireframes":["device-groups.html","device-group-detail.html"],"implementation":"active"},
+    {"id":"remote-operations","label":"Remote Operations","route":"/devices/remote-operations","permission":"devices.remote","wireframes":["remote-operations.html","remote-session.html"],"implementation":"planned"},
+    {"id":"remote-consent","label":"Remote Consent","route":"/devices/remote-consent","permission":"devices.view","wireframes":["remote-consent.html","remote-consent-policy.html","remote-consent-message.html","remote-consent-rules.html","remote-consent-history.html"],"implementation":"planned"},
+    {"id":"inventory-query","label":"Inventory Query","route":"/devices/query","permission":"devices.view","wireframes":["device-query.html"],"implementation":"active"},
+    {"id":"deployment-jobs","label":"Deployment Jobs","route":"/devices/deployments","permission":"devices.view","wireframes":["deployment-jobs.html","deployment-new.html","deployment-job-detail.html"],"implementation":"planned"},
+    {"id":"agent-maintenance","label":"Agent Maintenance","route":"/devices/maintenance","permission":"devices.view","wireframes":["agent-maintenance.html","agent-updates.html","agent-rollout-new.html","software-maintenance.html","software-maintenance-new.html","restart-operations.html","restart-schedule.html","maintenance-history.html"],"implementation":"planned"},
+    {"id":"endpoint-policies","label":"Endpoint Policies","route":"/devices/policies","permission":"devices.view","wireframes":["endpoint-policies.html"],"implementation":"planned"},
+    {"id":"active-alerts","label":"Active Alerts","route":"/devices/alerts","permission":"devices.alert.view","wireframes":["device-alerts.html","device-alert-rules.html","device-alert-rule.html","device-alert-channels.html","device-alert-history.html"],"implementation":"planned"}
+  ],
+  "deviceDetail": {
+    "route": "/devices/:deviceId",
+    "pattern": "P03",
+    "wireframe": "device-detail-v2.html",
+    "deepLink": {"queryParameter":"tab","default":"overview"},
+    "tabs": [
+      {
+        "id":"overview","label":"Overview","permission":"devices.view","owner":"devices",
+        "readOperations":["devices.get"],"freshness":"resource-current-with-lastSeenAt",
+        "offline":"show-cached-with-offline-banner","implementationStep":"45R"
+      },
+      {
+        "id":"hardware","label":"Hardware","permission":"devices.view","owner":"devices",
+        "readOperations":["devices.hardware_inventory.get"],"commandOperations":["devices.inventory_refresh.create"],
+        "freshness":"fresh<=24h;stale>24h","persistence":"devices.device_inventory_snapshots",
+        "offline":"show-last-snapshot-with-stale-metadata","implementationStep":"45R"
+      },
+      {
+        "id":"software","label":"Software","permission":"devices.view","owner":"devices",
+        "readOperations":["devices.software_inventory.get"],"commandOperations":["devices.inventory_refresh.create"],
+        "freshness":"fresh<=24h;stale>24h","persistence":"devices.software_inventory_snapshots+devices.installed_software",
+        "offline":"show-last-snapshot-with-completeness-and-stale-metadata","implementationStep":"45R"
+      },
+      {
+        "id":"performance","label":"Performance","permission":"devices.view","owner":"devices",
+        "readOperations":["devices.performance.get"],"freshness":"live<=60s;stale>60s",
+        "persistence":"devices.device_performance_samples","offline":"show-recent-history-as-stale;no-live-badge",
+        "implementationStep":"45S"
+      },
+      {
+        "id":"processes","label":"Processes","permission":"devices.view","owner":"devices",
+        "readOperations":["devices.process_snapshot.create","devices.process_snapshot.get"],
+        "commandOperations":["devices.process.terminate"],"freshness":"live-snapshot<=60s",
+        "persistence":"none-ephemeral-result","offline":"RESOURCE_OFFLINE","implementationStep":"45T"
+      },
+      {
+        "id":"services","label":"Services","permission":"devices.view","owner":"devices",
+        "readOperations":["devices.service_snapshot.create","devices.service_snapshot.get"],
+        "commandOperations":["devices.service.action"],"freshness":"live-snapshot<=60s",
+        "persistence":"none-ephemeral-result","offline":"RESOURCE_OFFLINE","implementationStep":"45T"
+      },
+      {
+        "id":"network","label":"Network","permission":"devices.view","owner":"devices",
+        "readOperations":["devices.network_inventory.get"],"commandOperations":["devices.inventory_refresh.create"],
+        "freshness":"fresh<=15m;stale>15m","persistence":"devices.device_inventory_snapshots",
+        "offline":"show-last-snapshot-with-stale-metadata","implementationStep":"45S"
+      },
+      {
+        "id":"activity","label":"Activity","permission":"devices.view","owner":"devices",
+        "readOperations":["devices.activity.list"],"freshness":"event-time",
+        "persistence":"devices.device_activity_items-read-model","offline":"history-remains-readable",
+        "implementationStep":"45U"
+      },
+      {
+        "id":"tickets","label":"Tickets","permission":"helpdesk.ticket.view","owner":"helpdesk",
+        "readOperations":["helpdesk.tickets.list?relatedDeviceId={deviceId}"],
+        "commandOperations":["helpdesk.tickets.create"],"freshness":"helpdesk-authoritative",
+        "persistence":"helpdesk.tickets.related_device_id","offline":"independent-of-device-connectivity",
+        "permissionDenied":"tab-local-permission-denied","implementationStep":"45U"
+      }
+    ]
+  },
+  "plannedOperations": [
+    {"id":"devices.hardware_inventory.get","method":"GET","path":"/devices/{deviceId}/hardware-inventory","permission":"devices.view","scope":"resource","response":"resource","step":"45R"},
+    {"id":"devices.inventory_refresh.create","method":"POST","path":"/devices/{deviceId}/inventory-refreshes","permission":"devices.manage","scope":"resource","response":"operation","step":"45R"},
+    {"id":"devices.performance.get","method":"GET","path":"/devices/{deviceId}/performance","permission":"devices.view","scope":"resource","response":"resource","step":"45S","query":["window","interval"]},
+    {"id":"devices.network_inventory.get","method":"GET","path":"/devices/{deviceId}/network-inventory","permission":"devices.view","scope":"resource","response":"resource","step":"45S"},
+    {"id":"devices.process_snapshot.create","method":"POST","path":"/devices/{deviceId}/processes/snapshots","permission":"devices.view","scope":"resource","response":"operation","step":"45T"},
+    {"id":"devices.process_snapshot.get","method":"GET","path":"/devices/{deviceId}/processes/snapshots/{snapshotId}","permission":"devices.view","scope":"resource","response":"resource","step":"45T"},
+    {"id":"devices.process.terminate","method":"POST","path":"/devices/{deviceId}/processes/{processKey}/terminate","permission":"devices.manage","scope":"resource","response":"operation","step":"45T"},
+    {"id":"devices.service_snapshot.create","method":"POST","path":"/devices/{deviceId}/services/snapshots","permission":"devices.view","scope":"resource","response":"operation","step":"45T"},
+    {"id":"devices.service_snapshot.get","method":"GET","path":"/devices/{deviceId}/services/snapshots/{snapshotId}","permission":"devices.view","scope":"resource","response":"resource","step":"45T"},
+    {"id":"devices.service.action","method":"POST","path":"/devices/{deviceId}/services/{serviceName}/actions","permission":"devices.manage","scope":"resource","response":"operation","step":"45T","body":{"action":["start","stop","restart"]}},
+    {"id":"devices.activity.list","method":"GET","path":"/devices/{deviceId}/activity","permission":"devices.view","scope":"resource","response":"paged","step":"45U"},
+    {"id":"helpdesk.tickets.list.relatedDeviceId","method":"GET","path":"/helpdesk/tickets?relatedDeviceId={deviceId}","permission":"helpdesk.ticket.view","scope":"effective","response":"paged","step":"45U"}
+  ],
+  "dataOwnership": {
+    "devicesOwns": [
+      "device identity and normalized endpoint observations",
+      "hardware/network inventory snapshots",
+      "installed-software snapshots",
+      "performance telemetry samples",
+      "remote-session lifecycle and consent",
+      "deployment and maintenance jobs",
+      "endpoint policies/compliance",
+      "device alerts",
+      "device activity projection"
+    ],
+    "helpdeskOwns": ["tickets and related_device_id"],
+    "ephemeralOnly": ["process snapshots","service snapshots"],
+    "vendorBoundary": "MeshCentral persistence is never queried directly; adapters map vendor state into Devices contracts."
+  },
+  "plannedPersistence": [
+    {"table":"devices.device_performance_samples","kind":"time-series","step":"45S","retention":"bounded-operational"},
+    {"table":"devices.device_activity_items","kind":"read-model","step":"45U","retention":"bounded-operational"}
+  ],
+  "interactionSafety": {
+    "processTerminate":"warning-confirmation+devices.manage+audit",
+    "serviceAction":"warning-confirmation+devices.manage+audit",
+    "remoteSession":"devices.remote+consent-before-control+audit-start-end",
+    "restartShutdown":"warning-or-danger-confirmation+devices.manage+audit",
+    "sensitiveInventory":"mask product keys/secrets; never expose full credentials"
+  },
+  "stateRules": [
+    "Each tab owns its loading/error/permission/offline state; one failing tab must not blank the whole Device Detail.",
+    "Cached Overview, Hardware, Software and Network remain visible while offline with observation/stale metadata.",
+    "Processes and Services never fabricate cached live state; offline returns RESOURCE_OFFLINE.",
+    "Performance history may remain visible while offline but loses Live status and is marked stale.",
+    "Tickets uses Helpdesk permission and may show tab-local Permission Denied while other Device tabs remain usable.",
+    "Partial observations preserve successful data and identify completeness/provenance."
+  ],
+  "promotionRule": "A planned route/operation is added to active Product navigation and the global API/Data contracts only when its implementation slice passes availability, permission, runtime and browser QA. By Step45X all TOR-required sidebar routes must be active."
+}

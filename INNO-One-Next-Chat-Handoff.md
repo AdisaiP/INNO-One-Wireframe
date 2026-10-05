@@ -2246,3 +2246,18 @@ Current implemented Production Devices navigation after cleanup: Devices, Discov
 QA: Web i18n/typecheck/build PASS (2259 modules), .NET solution build 0 warnings / 0 errors, Step45P static retirement audit 24/24, Step45N 3775 checks / 1843 keys / 0 failures, terminology 0 issues, JSON parse and diff check PASS; broad browser regression 66 routes / 1734 checks / 0 failures at 1366 / 1024 / 768; focused browser retirement check 2/2 confirms no Automation entry in the Devices sidebar and old `/devices/automation` bookmarks redirect to `/devices`.
 
 Full decision record: `INNO-One-Step45P-Device-Scope-Cleanup.md`. Historical Step45H docs remain only as history. **Do not merge main without explicit user instruction.**
+
+
+# Step45Q — Devices TOR Contract Freeze — 2026-10-06
+
+Branch: `architecture/step45q-devices-tor-contract-freeze`, based on merged main `b541e90`.
+
+Step45Q freezes the TOR-required Devices target without adding dead Product navigation. Canonical final sidebar order is Overview, Devices, Discovery, Device Groups, Remote Operations, Remote Consent, Inventory Query, Deployment Jobs, Agent Maintenance, Endpoint Policies, Active Alerts. Device Automation remains retired.
+
+Device Detail is frozen as P03 at `/devices/:deviceId` with deep-link query `?tab=` and exactly nine tabs in this order: Overview, Hardware, Software, Performance, Processes, Services, Network, Activity, Tickets. The contract defines ownership, permissions, freshness/offline rules and planned operations for Step45R–45U. Tickets remains Helpdesk-owned; Processes/Services are ephemeral live observations; Hardware/Software/Network preserve stale cached evidence; Performance loses Live state when stale/offline.
+
+Machine source: `inno-step45q-devices-tor-contract.json`. Full contract: `INNO-One-Step45Q-Devices-TOR-Contract.md`.
+
+QA: Step45Q 71/71; API Contract 180 operations / 0 issues; Data Model 94 planning tables / 0 issues; Implementation Contract 0 issues; diff check PASS. No runtime/UI code changed, so browser QA is not applicable.
+
+Next: **Step45R — implement Device Detail Overview + Hardware + Software**, promote its actual operations into canonical contracts, and run runtime/browser QA. Do not merge main without explicit user instruction.
