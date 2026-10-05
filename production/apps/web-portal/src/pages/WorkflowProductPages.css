@@ -429,3 +429,23 @@
     grid-template-columns: 1fr;
   }
 }
+
+.asset-automation-config-stack {
+  display: grid;
+  gap: 10px;
+}
+.asset-automation-config-stack textarea {
+  width: 100%;
+  min-height: 96px;
+  resize: vertical;
+}
+.asset-automation-config-stack small {
+  color: var(--ds-muted);
+  font-size: 10px;
+  line-height: 1.4;
+}
+@media (max-width: 850px) {
+  .asset-automation-config-stack {
+    grid-column: auto;
+  }
+}

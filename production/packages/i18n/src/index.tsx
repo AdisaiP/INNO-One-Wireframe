@@ -4,6 +4,7 @@ import enNavigation from './locales/en-US/navigation.json';
 import enFeedback from './locales/en-US/feedback.json';
 import enProfile from './locales/en-US/profile.json';
 import enAdmin from './locales/en-US/admin.json';
+import enAssets from './locales/en-US/assets.json';
 import enDevices from './locales/en-US/devices.json';
 import enHelpdesk from './locales/en-US/helpdesk.json';
 import enWorkflow from './locales/en-US/workflow.json';
@@ -12,6 +13,7 @@ import thNavigation from './locales/th-TH/navigation.json';
 import thFeedback from './locales/th-TH/feedback.json';
 import thProfile from './locales/th-TH/profile.json';
 import thAdmin from './locales/th-TH/admin.json';
+import thAssets from './locales/th-TH/assets.json';
 import thDevices from './locales/th-TH/devices.json';
 import thHelpdesk from './locales/th-TH/helpdesk.json';
 import thWorkflow from './locales/th-TH/workflow.json';
@@ -29,6 +31,7 @@ const catalogs: Record<Locale, Catalog> = {
     ...enFeedback,
     ...enProfile,
     ...enAdmin,
+    ...enAssets,
     ...enDevices,
     ...enHelpdesk,
     ...enWorkflow,
@@ -39,6 +42,7 @@ const catalogs: Record<Locale, Catalog> = {
     ...thFeedback,
     ...thProfile,
     ...thAdmin,
+    ...thAssets,
     ...thDevices,
     ...thHelpdesk,
     ...thWorkflow,

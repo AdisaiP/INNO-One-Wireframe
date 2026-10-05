@@ -468,6 +468,42 @@
       "priority": "high"
     },
     {
+      "route": "assets/automation",
+      "page": "AssetsAutomationRulesPage",
+      "pattern": "P02",
+      "surface": "module-owned-list+persisted-definitions",
+      "wireframe": "-",
+      "remediation": "Step 45I Assets-owned automation list reuses shared immutable definition persistence without exposing a standalone Workflow Product",
+      "priority": "high"
+    },
+    {
+      "route": "assets/automation/new",
+      "page": "AssetsAutomationRulePage",
+      "pattern": "P04",
+      "surface": "when-if-then-editor+persisted-definition",
+      "wireframe": "-",
+      "remediation": "Step 45I focused WHEN / IF / THEN editor for ownership, lifecycle, warranty, baseline and software-license signals",
+      "priority": "high"
+    },
+    {
+      "route": "assets/automation/:automationId",
+      "page": "AssetsAutomationRulePage",
+      "pattern": "P04",
+      "surface": "when-if-then-editor+persisted-definition",
+      "wireframe": "-",
+      "remediation": "Step 45I edit route preserves immutable definition versioning and module-owned action permissions",
+      "priority": "high"
+    },
+    {
+      "route": "assets/automation/:automationId/runs",
+      "page": "AssetsAutomationRunsPage",
+      "pattern": "P10",
+      "surface": "history+run-detail",
+      "wireframe": "-",
+      "remediation": "Step 45I run history uses immutable snapshots and explicit Asset or Software License test context",
+      "priority": "high"
+    },
+    {
       "route": "assets/software-licenses",
       "page": "SoftwareLicensesPage",
       "pattern": "P02",

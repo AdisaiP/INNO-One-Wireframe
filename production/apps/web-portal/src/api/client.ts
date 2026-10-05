@@ -33,6 +33,8 @@ import type {
   AssetOverview,
   AssetQrLabel,
   AssetQrResolvedAsset,
+  AssetsAutomationRunDetail,
+  AssetsAutomationRunListResponse,
   SoftwareLicenseItem,
   SoftwareBaselineItem,
   SoftwareBaselineRequest,
@@ -1258,6 +1260,113 @@ export async function evaluateSoftwareBaseline(id: string): Promise<SoftwareBase
   );
 }
 
+
+export async function getAssetsAutomationDefinitions(query: {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+} = {}): Promise<WorkflowDefinitionListResponse> {
+  const params = new URLSearchParams({
+    page: String(query.page ?? 1),
+    pageSize: String(query.pageSize ?? 25),
+  });
+  if (query.search?.trim()) params.set('search', query.search.trim());
+  return request<WorkflowDefinitionListResponse>(
+    '/assets/automations?' + params.toString(),
+  );
+}
+
+export async function getAssetsAutomationDefinition(
+  automationId: string,
+): Promise<WorkflowDefinitionDetail> {
+  const response = await request<ResourceEnvelope<WorkflowDefinitionDetail>>(
+    '/assets/automations/' + encodeURIComponent(automationId),
+  );
+  return response.data;
+}
+
+export async function createAssetsAutomationDefinition(
+  input: WorkflowDefinitionRequest,
+): Promise<WorkflowDefinitionDetail> {
+  const response = await request<ResourceEnvelope<WorkflowDefinitionDetail>>(
+    '/assets/automations',
+    { method: 'POST', ...jsonRequest(input) },
+  );
+  return response.data;
+}
+
+export async function updateAssetsAutomationDefinition(
+  automationId: string,
+  eTag: string,
+  input: WorkflowDefinitionRequest,
+): Promise<WorkflowDefinitionDetail> {
+  const response = await request<ResourceEnvelope<WorkflowDefinitionDetail>>(
+    '/assets/automations/' + encodeURIComponent(automationId),
+    { method: 'PUT', ...jsonRequest(input, { 'If-Match': eTag }) },
+  );
+  return response.data;
+}
+
+export async function deleteAssetsAutomationDefinition(
+  automationId: string,
+  eTag: string,
+): Promise<void> {
+  await request<void>(
+    '/assets/automations/' + encodeURIComponent(automationId),
+    { method: 'DELETE', headers: { 'If-Match': eTag } },
+  );
+}
+
+export async function getAssetsAutomationVersions(
+  automationId: string,
+): Promise<{ items: Array<{
+  version: number;
+  ownerModule: string;
+  name: string;
+  status: string;
+  changedByUserId: string;
+  createdAt: string;
+}> }> {
+  return request(
+    '/assets/automations/' + encodeURIComponent(automationId) + '/versions',
+  );
+}
+
+export async function getAssetsAutomationRuns(
+  automationId: string,
+  query: { page?: number; pageSize?: number; status?: string } = {},
+): Promise<AssetsAutomationRunListResponse> {
+  const params = new URLSearchParams({
+    page: String(query.page ?? 1),
+    pageSize: String(query.pageSize ?? 25),
+  });
+  if (query.status && query.status !== 'all') params.set('status', query.status);
+  return request<AssetsAutomationRunListResponse>(
+    '/assets/automations/' + encodeURIComponent(automationId) + '/runs?' + params.toString(),
+  );
+}
+
+export async function getAssetsAutomationRun(
+  automationId: string,
+  runId: string,
+): Promise<AssetsAutomationRunDetail> {
+  const response = await request<ResourceEnvelope<AssetsAutomationRunDetail>>(
+    '/assets/automations/' + encodeURIComponent(automationId)
+      + '/runs/' + encodeURIComponent(runId),
+  );
+  return response.data;
+}
+
+export async function startAssetsAutomationRun(
+  automationId: string,
+  input: { assetId?: string; licenseId?: string },
+): Promise<AssetsAutomationRunDetail> {
+  const response = await request<ResourceEnvelope<AssetsAutomationRunDetail>>(
+    '/assets/automations/' + encodeURIComponent(automationId) + '/runs',
+    { method: 'POST', ...jsonRequest({ input }) },
+  );
+  return response.data;
+}
 
 export async function getDeviceAutomationDefinitions(query: {
   page?: number;

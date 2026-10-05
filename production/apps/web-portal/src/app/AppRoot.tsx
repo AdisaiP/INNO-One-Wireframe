@@ -30,6 +30,7 @@ import { AssetOwnersPage } from '../pages/AssetOwnersPage';
 import { AssetOwnershipPage } from '../pages/AssetOwnershipPage';
 import { AssetOwnershipSubmissionsPage } from '../pages/AssetOwnershipSubmissionsPage';
 import { AssetQrLabelsPage } from '../pages/AssetQrLabelsPage';
+import { AssetsAutomationRulesPage } from '../pages/AssetsAutomationRulesPage';
 import { AssetsOverviewPage } from '../pages/AssetsOverviewPage';
 import { SoftwareBaselineDetailPage } from '../pages/SoftwareBaselineDetailPage';
 import { SoftwareBaselineEditorPage } from '../pages/SoftwareBaselineEditorPage';
@@ -91,6 +92,16 @@ const DevicesAutomationHistoryPage = lazy(async () => {
   return { default: module.DevicesAutomationHistoryPage };
 });
 
+const AssetsAutomationRulePage = lazy(async () => {
+  const module = await import('../pages/AssetsAutomationRulePage');
+  return { default: module.AssetsAutomationRulePage };
+});
+
+const AssetsAutomationRunsPage = lazy(async () => {
+  const module = await import('../pages/AssetsAutomationRunsPage');
+  return { default: module.AssetsAutomationRunsPage };
+});
+
 export function AppRoot() {
   const profileQuery = useQuery({
     queryKey: ['platform', 'me'],
@@ -134,6 +145,9 @@ export function AppRoot() {
   const canManageAssetBaselines = profile.permissions.includes('assets.baseline.manage');
   const canPrintAssetQr = profile.permissions.includes('assets.qr.print');
   const canManageAssetLicenses = profile.permissions.includes('assets.license.manage');
+  const canViewAssetsAutomation = profile.permissions.includes('assets.automation.view');
+  const canManageAssetsAutomation = profile.permissions.includes('assets.automation.manage');
+  const canViewAssetsAutomationRuns = profile.permissions.includes('assets.automation.run.view');
   const canViewHelpdesk = profile.permissions.includes('helpdesk.ticket.view');
   const canCreateTicket = profile.permissions.includes('helpdesk.ticket.create');
   const canViewAutomation = profile.permissions.includes('helpdesk.automation.view');
@@ -236,6 +250,31 @@ export function AppRoot() {
           <Route path="assets/contracts" element={canViewAssets ? <ContractsWarrantyPage /> : <DeferredPage name="Contracts & Warranty" kind="permission" />} />
           <Route path="assets/contracts/:contractId/edit" element={canViewAssets ? <ContractEditPage /> : <DeferredPage name="Edit Contract" kind="permission" />} />
           <Route path="assets/contracts/:contractId" element={canViewAssets ? <ContractDetailPage /> : <DeferredPage name="Contract" kind="permission" />} />
+          <Route path="assets/automation" element={canViewAssetsAutomation ? <AssetsAutomationRulesPage /> : <DeferredPage name="Assets Automation" kind="permission" />} />
+          <Route
+            path="assets/automation/new"
+            element={canManageAssetsAutomation ? (
+              <Suspense fallback={<LoadingState />}>
+                <AssetsAutomationRulePage />
+              </Suspense>
+            ) : <DeferredPage name="New Assets Automation" kind="permission" />}
+          />
+          <Route
+            path="assets/automation/:automationId/runs"
+            element={canViewAssetsAutomationRuns ? (
+              <Suspense fallback={<LoadingState />}>
+                <AssetsAutomationRunsPage />
+              </Suspense>
+            ) : <DeferredPage name="Assets Automation Run History" kind="permission" />}
+          />
+          <Route
+            path="assets/automation/:automationId"
+            element={canManageAssetsAutomation ? (
+              <Suspense fallback={<LoadingState />}>
+                <AssetsAutomationRulePage />
+              </Suspense>
+            ) : <DeferredPage name="Assets Automation" kind="permission" />}
+          />
           <Route path="assets/:assetId/edit" element={canViewAssets && canManageAssets ? <AssetEditPage /> : <DeferredPage name="Edit Asset" kind="permission" />} />
           <Route path="assets/:assetId" element={canViewAssets ? <AssetDetailPage /> : <DeferredPage name="Asset" kind="permission" />} />
 

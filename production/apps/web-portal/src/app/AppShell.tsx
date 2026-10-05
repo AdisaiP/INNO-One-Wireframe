@@ -54,6 +54,7 @@ export function AppShell() {
   const canViewAssets = usePermission('assets.view');
   const canPrintAssetQr = usePermission('assets.qr.print');
   const canManageAssetLicenses = usePermission('assets.license.manage');
+  const canViewAssetsAutomation = usePermission('assets.automation.view');
   const canViewHelpdesk = usePermission('helpdesk.ticket.view');
   const canViewAutomation = usePermission('helpdesk.automation.view');
   const canManageSla = usePermission('helpdesk.sla.manage');
@@ -71,7 +72,7 @@ export function AppShell() {
     && !['/devices/discovery', '/devices/query', '/devices/groups', '/devices/automation', '/devices/add'].includes(location.pathname);
   const inAssets = location.pathname.startsWith('/assets');
   const inAssetDetail = /^\/assets\/[^/]+$/.test(location.pathname)
-    && !['/assets/inventory', '/assets/ownership', '/assets/owners', '/assets/custom-fields', '/assets/qr-labels', '/assets/software-baselines', '/assets/software-licenses', '/assets/contracts'].includes(location.pathname);
+    && !['/assets/inventory', '/assets/ownership', '/assets/owners', '/assets/custom-fields', '/assets/qr-labels', '/assets/software-baselines', '/assets/software-licenses', '/assets/contracts', '/assets/automation'].includes(location.pathname);
   const inHelpdesk = location.pathname.startsWith('/helpdesk');
   const inTicketWorkspace = /^\/helpdesk\/tickets(?:\/new|\/[^/]+)?$/.test(location.pathname);
   const inProfile = location.pathname.startsWith('/profile');
@@ -304,6 +305,7 @@ export function AppShell() {
               <NavLink to="/assets/inventory" className={({ isActive }) => isActive || inAssetDetail ? 'active' : ''}><SideNavLabel token="section.inventory">{t('navigation.assetInventory')}</SideNavLabel></NavLink>
               <div className="prod-side-section">{t('navigation.management')}</div>
               <NavLink to="/assets/software-baselines"><SideNavLabel token="section.policies">{t('navigation.softwareBaselines')}</SideNavLabel></NavLink>
+              {canViewAssetsAutomation ? <NavLink to="/assets/automation"><SideNavLabel token="section.automation">{t('navigation.automation')}</SideNavLabel></NavLink> : null}
               {canManageAssetLicenses ? <NavLink to="/assets/software-licenses"><SideNavLabel token="section.licenses">{t('navigation.softwareLicenses')}</SideNavLabel></NavLink> : null}
               <NavLink to="/assets/contracts"><SideNavLabel token="section.contracts">{t('navigation.contractsWarranty')}</SideNavLabel></NavLink>
               <NavLink to="/assets/custom-fields"><SideNavLabel token="section.customFields">{t('navigation.customFields')}</SideNavLabel></NavLink>

@@ -481,8 +481,28 @@ Final evidence:
 
 High-impact remote actions remain deferred and must preserve normal authorization, consent and approval requirements.
 
-### Step 45I - Assets Automation
-Add ownership, lifecycle, warranty/license, and baseline-related triggers/actions.
+### Step 45I - Assets Automation — COMPLETE
+Completed on `implementation/step45i-assets-automation`.
+
+Delivered:
+- Assets-owned P02/P04/P10 Product routes under `/assets/automation`;
+- focused WHEN / optional IF / THEN editor with no React Flow surface;
+- shared immutable definition/version/run persistence with `ownerModule=assets`;
+- triggers for lifecycle status, owner-unassigned, warranty expiry, baseline drift and Software License overuse;
+- actions for Asset lifecycle update and cross-module Helpdesk Ticket creation;
+- source-context permission preflight and action-specific permission preflight;
+- runtime permission/scope re-checks before side effects;
+- idempotent lifecycle remediation;
+- real Asset -> Helpdesk Ticket `RelatedAssetId` linking;
+- License -> Helpdesk Ticket without a false Asset relation;
+- bilingual EN/TH Product/runtime catalogs;
+- Step45I static 152/152;
+- API runtime 56/56;
+- dedicated responsive/bilingual browser 84/84 with 16 screenshots;
+- broad Product browser 1704/1704 across 65 routes;
+- full Web/.NET build gates green.
+
+Automatic event-to-run dispatch is still not implemented; Step45I exposes explicit test-run enqueue only.
 
 ### Step 45J - Admin Approval Automation
 Add constrained access/onboarding/offboarding flows with strict privilege boundaries.
@@ -552,9 +572,9 @@ The re-architecture is complete when:
 
 ## 17. Immediate next action
 
-Step 45E, Step 45F, Step 45G and Step 45H are complete. The old global Step45D direction remains retired.
+Step 45E, Step 45F, Step 45G, Step 45H and Step 45I are complete. The old global Step45D direction remains retired.
 
-Next implementation is **Step 45I - Assets Automation**.
+Next implementation is **Step 45J - Admin Approval Automation**.
 
 Reason:
-Helpdesk has proven the shared visual-builder runtime boundary and Devices has proven a simpler module-owned WHEN / IF / THEN Product over the same immutable definition/run infrastructure, including real side effects, permission/scope re-checks, idempotency, bilingual responsive UX and broad regression coverage. Assets can now adopt the same ownership model for lifecycle, ownership, warranty/license and baseline automation without introducing a standalone global workflow Product.
+Helpdesk, Devices and Assets now prove the shared runtime across three different Product shapes: a visual Helpdesk builder, focused Devices remediation, and focused Assets lifecycle/ownership/license automation. Admin is the next slice, but it must be more constrained because access, role and account-lifecycle actions are privileged operations. Step45J must preserve existing Admin RBAC/audit semantics and must never allow an automation to gain authority beyond its current actor/service identity.

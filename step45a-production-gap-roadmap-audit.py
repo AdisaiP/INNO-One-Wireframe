@@ -46,7 +46,7 @@ check("roadmap schema is 1", ROADMAP["schemaVersion"] == 1)
 check("step id is 45A", ROADMAP["step"] == "45A")
 check("frozen design system remains V1.26", ROADMAP["baseline"]["designSystem"] == "V1.26")
 check("frozen UI contract remains 1.20.0", ROADMAP["baseline"]["uiContract"] == "1.20.0")
-check("current Product route matrix is 66 after Step 45H Devices automation", len(MATRIX["routes"]) == 66, len(MATRIX["routes"]))
+check("current Product route matrix is 70 after Step 45I Assets automation", len(MATRIX["routes"]) == 70, len(MATRIX["routes"]))
 check("45A baseline records 61 route definitions", ROADMAP["baseline"]["productionRouteDefinitions"] == 61)
 check("implemented route groups sum to 61", sum(ROADMAP["baseline"]["implementedRouteGroups"].values()) == 61)
 

@@ -19,7 +19,9 @@ STATIC_ROUTES = [
     "/devices/automation", "/devices/automation/new", "/devices/add",
     "/assets", "/assets/inventory", "/assets/ownership", "/assets/owners",
     "/assets/ownership/submissions", "/assets/custom-fields", "/assets/qr-labels",
-    "/assets/software-baselines", "/assets/software-baselines/new", "/assets/software-licenses", "/assets/contracts",
+    "/assets/software-baselines", "/assets/software-baselines/new",
+    "/assets/automation", "/assets/automation/new",
+    "/assets/software-licenses", "/assets/contracts",
     "/helpdesk", "/helpdesk/tickets", "/helpdesk/assigned", "/helpdesk/team",
     "/helpdesk/tickets/new", "/helpdesk/sla", "/helpdesk/calendar",
     "/helpdesk/automation", "/helpdesk/automation/new",
@@ -208,6 +210,7 @@ def collect_dynamic(cdp, route):
         "/assets/inventory",
         "/assets/owners",
         "/assets/software-baselines",
+        "/assets/automation",
         "/assets/software-licenses",
         "/helpdesk/tickets",
         "/helpdesk/automation",
@@ -230,11 +233,15 @@ def collect_dynamic(cdp, route):
         empty = cdp.eval("document.body.innerText.includes('No device automation rules yet')")
         check("dynamic route empty state accepted " + route, bool(empty))
         return
+    if route == "/assets/automation" and not ready:
+        empty = cdp.eval("document.body.innerText.includes('No asset automation rules yet')")
+        check("dynamic route empty state accepted " + route, bool(empty))
+        return
     check("dynamic route action ready " + route, bool(ready))
     if not ready:
         return
 
-    if route == "/helpdesk/automation":
+    if route in ("/helpdesk/automation", "/assets/automation"):
         discovered = []
         for label in ("Edit", "Run History"):
             cdp.navigate("http://localhost:5180" + route)

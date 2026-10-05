@@ -44,6 +44,16 @@ public static class WorkflowEndpoints
         "/api/v1/devices/automations",
         "Devices automation");
 
+    private static readonly WorkflowScope AssetsScope = new(
+        "assets",
+        "assets.automation.view",
+        "assets.automation.manage",
+        "assets",
+        "assets.automation.definition",
+        "automation_definition",
+        "/api/v1/assets/automations",
+        "Assets automation");
+
     public static RouteGroupBuilder MapWorkflowEndpoints(this RouteGroupBuilder api)
     {
         // Migration-only generic facade. Product navigation no longer exposes it after Step 45F.
@@ -72,8 +82,18 @@ public static class WorkflowEndpoints
         api.MapGet("/devices/automations/{automationId}/versions", ListDevicesVersionsAsync)
             .WithName("devices.automations.versions.list");
 
+        // Module-owned Assets automation facade.
+        api.MapGet("/assets/automations", ListAssetsAsync).WithName("assets.automations.list");
+        api.MapGet("/assets/automations/{automationId}", GetAssetsAsync).WithName("assets.automations.get");
+        api.MapPost("/assets/automations", CreateAssetsAsync).WithName("assets.automations.create");
+        api.MapPut("/assets/automations/{automationId}", UpdateAssetsAsync).WithName("assets.automations.update");
+        api.MapDelete("/assets/automations/{automationId}", DeleteAssetsAsync).WithName("assets.automations.delete");
+        api.MapGet("/assets/automations/{automationId}/versions", ListAssetsVersionsAsync)
+            .WithName("assets.automations.versions.list");
+
         api.MapWorkflowRunEndpoints();
         api.MapDeviceAutomationRunEndpoints();
+        api.MapAssetsAutomationRunEndpoints();
         return api;
     }
 
@@ -107,6 +127,16 @@ public static class WorkflowEndpoints
         CancellationToken cancellationToken = default) =>
         ListAsync(DevicesScope, httpContext, db, accessEvaluator, page, pageSize, search, cancellationToken);
 
+    private static Task<IResult> ListAssetsAsync(
+        HttpContext httpContext,
+        WorkflowsDbContext db,
+        IAccessEvaluator accessEvaluator,
+        int page = 1,
+        int pageSize = 25,
+        string? search = null,
+        CancellationToken cancellationToken = default) =>
+        ListAsync(AssetsScope, httpContext, db, accessEvaluator, page, pageSize, search, cancellationToken);
+
     private static Task<IResult> GetLegacyAsync(
         string workflowId,
         HttpContext httpContext,
@@ -130,6 +160,14 @@ public static class WorkflowEndpoints
         IAccessEvaluator accessEvaluator,
         CancellationToken cancellationToken) =>
         GetAsync(DevicesScope, automationId, httpContext, db, accessEvaluator, cancellationToken);
+
+    private static Task<IResult> GetAssetsAsync(
+        string automationId,
+        HttpContext httpContext,
+        WorkflowsDbContext db,
+        IAccessEvaluator accessEvaluator,
+        CancellationToken cancellationToken) =>
+        GetAsync(AssetsScope, automationId, httpContext, db, accessEvaluator, cancellationToken);
 
     private static Task<IResult> CreateLegacyAsync(
         UpsertWorkflowRequest request,
@@ -157,6 +195,15 @@ public static class WorkflowEndpoints
         WorkflowLedgerWriter ledger,
         CancellationToken cancellationToken) =>
         CreateAsync(DevicesScope, request, httpContext, db, accessEvaluator, ledger, cancellationToken);
+
+    private static Task<IResult> CreateAssetsAsync(
+        UpsertWorkflowRequest request,
+        HttpContext httpContext,
+        WorkflowsDbContext db,
+        IAccessEvaluator accessEvaluator,
+        WorkflowLedgerWriter ledger,
+        CancellationToken cancellationToken) =>
+        CreateAsync(AssetsScope, request, httpContext, db, accessEvaluator, ledger, cancellationToken);
 
     private static Task<IResult> UpdateLegacyAsync(
         string workflowId,
@@ -188,6 +235,16 @@ public static class WorkflowEndpoints
         CancellationToken cancellationToken) =>
         UpdateAsync(DevicesScope, automationId, request, httpContext, db, accessEvaluator, ledger, cancellationToken);
 
+    private static Task<IResult> UpdateAssetsAsync(
+        string automationId,
+        UpsertWorkflowRequest request,
+        HttpContext httpContext,
+        WorkflowsDbContext db,
+        IAccessEvaluator accessEvaluator,
+        WorkflowLedgerWriter ledger,
+        CancellationToken cancellationToken) =>
+        UpdateAsync(AssetsScope, automationId, request, httpContext, db, accessEvaluator, ledger, cancellationToken);
+
     private static Task<IResult> DeleteLegacyAsync(
         string workflowId,
         HttpContext httpContext,
@@ -215,6 +272,15 @@ public static class WorkflowEndpoints
         CancellationToken cancellationToken) =>
         DeleteAsync(DevicesScope, automationId, httpContext, db, accessEvaluator, ledger, cancellationToken);
 
+    private static Task<IResult> DeleteAssetsAsync(
+        string automationId,
+        HttpContext httpContext,
+        WorkflowsDbContext db,
+        IAccessEvaluator accessEvaluator,
+        WorkflowLedgerWriter ledger,
+        CancellationToken cancellationToken) =>
+        DeleteAsync(AssetsScope, automationId, httpContext, db, accessEvaluator, ledger, cancellationToken);
+
     private static Task<IResult> ListLegacyVersionsAsync(
         string workflowId,
         HttpContext httpContext,
@@ -238,6 +304,14 @@ public static class WorkflowEndpoints
         IAccessEvaluator accessEvaluator,
         CancellationToken cancellationToken) =>
         ListVersionsAsync(DevicesScope, automationId, httpContext, db, accessEvaluator, cancellationToken);
+
+    private static Task<IResult> ListAssetsVersionsAsync(
+        string automationId,
+        HttpContext httpContext,
+        WorkflowsDbContext db,
+        IAccessEvaluator accessEvaluator,
+        CancellationToken cancellationToken) =>
+        ListVersionsAsync(AssetsScope, automationId, httpContext, db, accessEvaluator, cancellationToken);
 
     private static async Task<IResult> ListAsync(
         WorkflowScope scope,

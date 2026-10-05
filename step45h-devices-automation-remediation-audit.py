@@ -197,7 +197,7 @@ for marker in [
 
 # Product interaction matrix.
 routes = {item["route"]: item for item in matrix["routes"]}
-check(len(routes) == 66, "Current Product matrix must contain 66 screen patterns")
+check(len(routes) == 70, "Current Product matrix must contain 70 screen patterns after Step45I")
 expected = {
     "devices/automation": ("DevicesAutomationRulesPage", "P02"),
     "devices/automation/new": ("DevicesAutomationRulePage", "P04"),

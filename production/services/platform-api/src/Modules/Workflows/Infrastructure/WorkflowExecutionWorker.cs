@@ -678,6 +678,7 @@ public sealed class WorkflowExecutionWorker(
         {
             "helpdesk" => "helpdesk.automation.manage",
             "devices" => "devices.automation.manage",
+            "assets" => "assets.automation.manage",
             _ => null
         };
 
@@ -686,6 +687,7 @@ public sealed class WorkflowExecutionWorker(
         {
             "helpdesk" => "helpdesk.automation.run",
             "devices" => "devices.automation.run",
+            "assets" => "assets.automation.run",
             _ => "automation.run"
         };
 

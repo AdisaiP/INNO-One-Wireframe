@@ -56,12 +56,16 @@
         "assets.qr.scan",
         "assets.license.manage",
         "assets.contract.manage",
-        "assets.baseline.manage"
+        "assets.baseline.manage",
+        "assets.automation.view",
+        "assets.automation.manage",
+        "assets.automation.run.view"
       ],
       "navigation": [
         { "id": "overview", "label": "Overview", "route": "/assets", "permission": "assets.view" },
         { "id": "inventory", "label": "Asset Inventory", "route": "/assets/inventory", "permission": "assets.view" },
         { "id": "baselines", "label": "Software Baselines", "route": "/assets/software-baselines", "permission": "assets.view" },
+        { "id": "automation", "label": "Automation", "route": "/assets/automation", "permission": "assets.automation.view" },
         { "id": "licenses", "label": "Software Licenses", "route": "/assets/software-licenses", "permission": "assets.license.manage" },
         { "id": "contracts", "label": "Contracts & Warranty", "route": "/assets/contracts", "permission": "assets.view" },
         { "id": "custom-fields", "label": "Custom Fields", "route": "/assets/custom-fields", "permission": "assets.view" },
@@ -70,7 +74,7 @@
         { "id": "owners", "label": "Asset Owners", "route": "/assets/owners", "permission": "assets.view" },
         { "id": "submissions", "label": "Agent Submissions", "route": "/assets/ownership/submissions", "permission": "assets.view" }
       ],
-      "events": ["ownership.changed"],
+      "events": ["asset.changed", "ownership.changed", "license.overused", "contract.expiring"],
       "capabilities": [
         "navigation",
         "global-search",
