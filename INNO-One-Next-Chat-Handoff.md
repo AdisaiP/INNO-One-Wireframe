@@ -2261,3 +2261,19 @@ Machine source: `inno-step45q-devices-tor-contract.json`. Full contract: `INNO-O
 QA: Step45Q 71/71; API Contract 180 operations / 0 issues; Data Model 94 planning tables / 0 issues; Implementation Contract 0 issues; diff check PASS. No runtime/UI code changed, so browser QA is not applicable.
 
 Next: **Step45R — implement Device Detail Overview + Hardware + Software**, promote its actual operations into canonical contracts, and run runtime/browser QA. Do not merge main without explicit user instruction.
+
+
+# Step45R — Device Detail Core — 2026-10-06
+
+Branch: `implementation/step45r-device-detail-core`, based on Step45Q `89db7f0`.
+
+Implemented the first real Device Detail TOR tabs: Overview, Hardware and Software. Device Detail now uses `?tab=hardware|software` deep links with Overview fallback for unknown values. Hardware is backed by the real Devices-owned `devices.device_inventory_snapshots` table and new scoped `GET /devices/{deviceId}/hardware-inventory`; the EF migration backfills partial evidence from existing Device rows. Overview prefers snapshot evidence with Device-row fallback. Software keeps the Step27 immutable evidence model and now exposes stale evidence when older than 24h.
+
+The planned Refresh Inventory command is intentionally not active because the Endpoint Agent collection command channel does not exist yet; no fake 202/UI control was added.
+
+QA: .NET 0 warnings/errors; EF no pending model changes; Web i18n/typecheck/build PASS (2259 modules); API 181 ops / 143 paths / 0 issues; Step45Q 71/71; Data Model 0 issues; Step45N 3831 checks / 1871 keys / 0 failures; terminology 0 issues; broad browser 66 routes / 1734 checks / 0 failures; focused Step45R browser 46/46 with 6 screenshots and online/offline visual inspection.
+
+The Step45R migration was applied to the shared development PostgreSQL on `172.10.1.58` for QA, but the Step45R Web/API build was not deployed to the Linux host.
+
+Full record: `INNO-One-Step45R-Device-Detail-Core.md`.
+Next: **Step45S — Performance + Network**. Do not merge main without explicit user instruction.

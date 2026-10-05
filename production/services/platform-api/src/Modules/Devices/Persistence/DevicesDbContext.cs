@@ -9,6 +9,7 @@ public sealed class DevicesDbContext(DbContextOptions<DevicesDbContext> options)
 
     public DbSet<Device> Devices => Set<Device>();
     public DbSet<DeviceExternalMapping> DeviceExternalMappings => Set<DeviceExternalMapping>();
+    public DbSet<DeviceInventorySnapshot> DeviceInventorySnapshots => Set<DeviceInventorySnapshot>();
     public DbSet<RemoteConsentRequest> RemoteConsentRequests => Set<RemoteConsentRequest>();
     public DbSet<AgentPrompt> AgentPrompts => Set<AgentPrompt>();
     public DbSet<DeviceGroup> DeviceGroups => Set<DeviceGroup>();
@@ -46,6 +47,27 @@ public sealed class DevicesDbContext(DbContextOptions<DevicesDbContext> options)
             entity.Property(x => x.MemoryTotalGb).HasPrecision(12, 2);
             entity.Property(x => x.DiskUsedGb).HasPrecision(12, 2);
             entity.Property(x => x.DiskTotalGb).HasPrecision(12, 2);
+        });
+
+        modelBuilder.Entity<DeviceInventorySnapshot>(entity =>
+        {
+            entity.ToTable("device_inventory_snapshots");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => new { x.DeviceId, x.ObservedAt });
+            entity.HasIndex(x => new { x.DeviceId, x.ObservedAt, x.Source }).IsUnique();
+            entity.Property(x => x.Completeness).HasMaxLength(16);
+            entity.Property(x => x.Source).HasMaxLength(64);
+            entity.Property(x => x.SourceInstance).HasMaxLength(160);
+            entity.Property(x => x.Manufacturer).HasMaxLength(120);
+            entity.Property(x => x.Model).HasMaxLength(200);
+            entity.Property(x => x.SerialNumber).HasMaxLength(128);
+            entity.Property(x => x.Processor).HasMaxLength(240);
+            entity.Property(x => x.BiosVersion).HasMaxLength(120);
+            entity.Property(x => x.OperatingSystem).HasMaxLength(200);
+            entity.Property(x => x.MemoryTotalGb).HasPrecision(12, 2);
+            entity.Property(x => x.IpAddress).HasMaxLength(64);
+            entity.Property(x => x.MacAddress).HasMaxLength(64);
+            entity.HasOne<Device>().WithMany().HasForeignKey(x => x.DeviceId).OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<AgentPrompt>(entity =>

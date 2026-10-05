@@ -1259,3 +1259,24 @@ Reading requires assets.view; writing requires assets.baseline.manage. Updates r
 ## Step 28 additive boundary — software baseline evaluation
 
 `GET /assets/software-baselines/{baselineId}/results` returns the latest scoped result projection. `POST /assets/software-baselines/{baselineId}/evaluate` evaluates an active definition using the Devices software-inventory reader. Read uses `assets.view`; evaluation uses `assets.baseline.manage`. Missing, stale or partial evidence returns Unknown.
+
+
+## Step45R additive boundary — Device hardware inventory
+
+`GET /devices/{deviceId}/hardware-inventory` returns the latest Devices-owned normalized hardware observation for the requested device. Read requires `devices.view` and enforces effective Device resource scope.
+
+The response carries observation evidence, not a live vendor DTO:
+
+- `inventoryStatus = not_reported | complete | partial`
+- `snapshotId`
+- `observedAt`
+- `receivedAt`
+- `source` and optional `sourceInstance`
+- `isStale`
+- normalized manufacturer/model/serial/processor/BIOS/OS/memory/network identity fields.
+
+Step45R defines hardware evidence older than 24 hours as stale. Cached evidence remains readable while the device is offline. Secret material such as a full OS product key or credentials is not part of this response.
+
+The persisted source is `devices.device_inventory_snapshots`, already reserved by Data Model Contract 0.6.0. Step45R activates that planned table in the Devices EF model and backfills one partial observation from the existing canonical Device row during migration so upgrades do not silently lose previously known inventory.
+
+The planned `POST /devices/{deviceId}/inventory-refreshes` command remains intentionally unavailable in Step45R because the Endpoint Agent inventory command channel is not implemented yet. The Web UI therefore does not expose a fake Refresh action. The command is promoted only when a real endpoint execution path exists.

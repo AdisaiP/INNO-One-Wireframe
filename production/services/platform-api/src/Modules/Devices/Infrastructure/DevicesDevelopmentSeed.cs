@@ -46,6 +46,7 @@ public static class DevicesDevelopmentSeed
                 await db.SaveChangesAsync(cancellationToken);
             }
 
+            await SeedHardwareInventoryAsync(db, cancellationToken);
             await SeedSoftwareInventoryAsync(db, cancellationToken);
             return;
         }
@@ -149,7 +150,51 @@ public static class DevicesDevelopmentSeed
         }));
 
         await db.SaveChangesAsync(cancellationToken);
+        await SeedHardwareInventoryAsync(db, cancellationToken);
         await SeedSoftwareInventoryAsync(db, cancellationToken);
+    }
+
+    private static async Task SeedHardwareInventoryAsync(
+        DevicesDbContext db,
+        CancellationToken cancellationToken)
+    {
+        if (await db.DeviceInventorySnapshots.AnyAsync(cancellationToken))
+        {
+            return;
+        }
+
+        var devices = await db.Devices.AsNoTracking().OrderBy(x => x.Hostname).ToListAsync(cancellationToken);
+        var now = DateTimeOffset.UtcNow;
+        foreach (var device in devices)
+        {
+            var observedAt = device.LastSeenAt ?? device.UpdatedAt;
+            db.DeviceInventorySnapshots.Add(new DeviceInventorySnapshot
+            {
+                Id = Guid.NewGuid(),
+                DeviceId = device.Id,
+                ObservedAt = observedAt,
+                ReceivedAt = now,
+                Completeness = "partial",
+                Source = "development_seed",
+                SourceInstance = "seed",
+                Manufacturer = device.Manufacturer,
+                Model = device.Model,
+                SerialNumber = device.SerialNumber,
+                Processor = device.Processor,
+                BiosVersion = device.BiosVersion,
+                OperatingSystem = device.OperatingSystem,
+                MemoryTotalGb = device.MemoryTotalGb,
+                MemorySlotsUsed = device.MemoryTotalGb is null ? null : device.DeviceType == "server" ? 4 : 2,
+                MemorySlotsTotal = device.MemoryTotalGb is null ? null : device.DeviceType == "server" ? 8 : 4,
+                IpAddress = device.IpAddress,
+                MacAddress = device.MacAddress
+            });
+        }
+
+        if (devices.Count > 0)
+        {
+            await db.SaveChangesAsync(cancellationToken);
+        }
     }
 
     private static async Task SeedSoftwareInventoryAsync(

@@ -48,6 +48,7 @@ import type {
   BusinessCalendar,
   CreatedTicket,
   DeviceDetail,
+  DeviceHardwareInventory,
   DeviceSoftwareInventory,
   DeviceGroupDetail,
   DeviceGroupListItem,
@@ -590,6 +591,13 @@ export async function getDevice(deviceId: string): Promise<DeviceDetail> {
   return response.data;
 }
 
+
+export async function getDeviceHardwareInventory(deviceId: string): Promise<DeviceHardwareInventory> {
+  const response = await request<ResourceEnvelope<DeviceHardwareInventory>>(
+    '/devices/' + encodeURIComponent(deviceId) + '/hardware-inventory',
+  );
+  return response.data;
+}
 
 export async function getDeviceSoftwareInventory(deviceId: string): Promise<DeviceSoftwareInventory> {
   const response = await request<ResourceEnvelope<DeviceSoftwareInventory>>(

@@ -336,6 +336,30 @@ export interface DeviceDetail {
 }
 
 
+export interface DeviceHardwareInventory {
+  deviceId: string;
+  inventoryStatus: 'not_reported' | 'complete' | 'partial';
+  snapshotId?: string | null;
+  observedAt?: string | null;
+  receivedAt?: string | null;
+  source?: string | null;
+  sourceInstance?: string | null;
+  isStale: boolean;
+  manufacturer?: string | null;
+  model?: string | null;
+  serialNumber?: string | null;
+  processor?: string | null;
+  biosVersion?: string | null;
+  operatingSystem?: string | null;
+  memoryTotalGb?: number | null;
+  memorySlotsUsed?: number | null;
+  memorySlotsTotal?: number | null;
+  ipAddress?: string | null;
+  macAddress?: string | null;
+  lastSeenAt?: string | null;
+  connectivityState?: string | null;
+}
+
 export interface DeviceSoftwarePackage {
   productKey: string;
   displayName: string;

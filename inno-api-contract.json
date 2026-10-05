@@ -2320,6 +2320,18 @@
       ]
     },
     {
+      "id": "devices.hardware_inventory.get",
+      "method": "GET",
+      "path": "/devices/{deviceId}/hardware-inventory",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "device-detail-v2.html"
+      ]
+    },
+    {
       "id": "devices.software_inventory.get",
       "method": "GET",
       "path": "/devices/{deviceId}/software-inventory",
@@ -2410,6 +2422,8 @@
     "device-detail-v2.html": [
       "devices.get",
       "devices.update",
+      "devices.hardware_inventory.get",
+      "devices.software_inventory.get",
       "devices.remote_sessions.create"
     ],
     "device-group-detail.html": [

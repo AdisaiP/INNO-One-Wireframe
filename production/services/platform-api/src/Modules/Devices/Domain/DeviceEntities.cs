@@ -31,6 +31,28 @@ public sealed class Device
     public DateTimeOffset UpdatedAt { get; set; }
 }
 
+public sealed class DeviceInventorySnapshot
+{
+    public Guid Id { get; set; }
+    public Guid DeviceId { get; set; }
+    public DateTimeOffset ObservedAt { get; set; }
+    public DateTimeOffset ReceivedAt { get; set; }
+    public required string Completeness { get; set; }
+    public required string Source { get; set; }
+    public string? SourceInstance { get; set; }
+    public string? Manufacturer { get; set; }
+    public string? Model { get; set; }
+    public string? SerialNumber { get; set; }
+    public string? Processor { get; set; }
+    public string? BiosVersion { get; set; }
+    public string? OperatingSystem { get; set; }
+    public decimal? MemoryTotalGb { get; set; }
+    public int? MemorySlotsUsed { get; set; }
+    public int? MemorySlotsTotal { get; set; }
+    public string? IpAddress { get; set; }
+    public string? MacAddress { get; set; }
+}
+
 public sealed class AgentPrompt
 {
     public Guid Id { get; set; }
