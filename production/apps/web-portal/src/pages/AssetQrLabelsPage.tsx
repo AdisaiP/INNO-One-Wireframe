@@ -184,10 +184,10 @@ export function AssetQrLabelsPage() {
 
       <div className="qr-flow-strip" aria-label={t45n('assets.step45n.assetQrLabels.qrLabelWorkflow')}>
         {[
-          ['1', 'Select assets', 'Choose labels to generate'],
-          ['2', 'Label setup', 'Size, copies and content'],
-          ['3', 'Preview', 'Verify generated labels'],
-          ['4', 'Print', 'Attach to equipment'],
+          ['1', t45n('assets.step45n.assetQrLabels.flow.selectTitle'), t45n('assets.step45n.assetQrLabels.flow.selectDescription')],
+          ['2', t45n('assets.step45n.assetQrLabels.flow.setupTitle'), t45n('assets.step45n.assetQrLabels.flow.setupDescription')],
+          ['3', t45n('assets.step45n.assetQrLabels.flow.previewTitle'), t45n('assets.step45n.assetQrLabels.flow.previewDescription')],
+          ['4', t45n('assets.step45n.assetQrLabels.flow.printTitle'), t45n('assets.step45n.assetQrLabels.flow.printDescription')],
         ].map(([step, title, description]) => (
           <div key={step}>
             <span>{step}</span>

@@ -8,6 +8,7 @@ import {
   INNOEditorFooter,
   INNOEditorFooterEnd,
   INNOPage,
+  INNOPurposeNote,
   INNOStatus,
   INNOTableWrap,
 } from '@inno/ui';
@@ -90,11 +91,17 @@ export function AdminPlatformSettingsPage() {
 
       {query.data ? (
         <>
-          <section className="prod-panel">
+          <INNOPurposeNote
+            title={t('admin.settings.scope.title')}
+            description={t('admin.settings.scope.description')}
+          />
+
+          <div className="platform-settings-layout">
+          <section className="prod-panel platform-settings-defaults">
             <div className="prod-panel-head">
               <div>
-                <h3>{t('admin.settings.language.title')}</h3>
-                <p>{t('admin.settings.language.description')}</p>
+                <h3>{t('admin.settings.defaults.title')}</h3>
+                <p>{t('admin.settings.defaults.description')}</p>
               </div>
               <INNOStatus tone={localizationDirty ? 'warning' : 'success'}>
                 {localizationDirty
@@ -149,27 +156,37 @@ export function AdminPlatformSettingsPage() {
             </form>
           </section>
 
-          <div className="production-stat-strip">
-            <div>
-              <span>{t('admin.settings.environment')}</span>
-              <b className="platform-setting-stat-value">{query.data.environment}</b>
-              <small>{t45n('admin.step45n.adminPlatformSettings.currentHostingEnvironment')}</small>
+          <section className="prod-panel platform-settings-summary">
+            <div className="prod-panel-head">
+              <div>
+                <h3>{t('admin.settings.runtime.title')}</h3>
+                <p>{t('admin.settings.runtime.description')}</p>
+              </div>
+              <INNOStatus>{t('admin.settings.runtime.readOnly')}</INNOStatus>
             </div>
-            <div>
-              <span>{t('admin.settings.groups')}</span>
-              <b>{query.data.groups.length}</b>
-              <small>{t45n('admin.step45n.adminPlatformSettings.effectiveSettingsGroups')}</small>
+            <div className="platform-settings-facts">
+              <div>
+                <span>{t('admin.settings.environment')}</span>
+                <b>{query.data.environment}</b>
+                <small>{t45n('admin.step45n.adminPlatformSettings.currentHostingEnvironment')}</small>
+              </div>
+              <div>
+                <span>{t('admin.settings.groups')}</span>
+                <b>{query.data.groups.length}</b>
+                <small>{t45n('admin.step45n.adminPlatformSettings.effectiveSettingsGroups')}</small>
+              </div>
+              <div>
+                <span>{t('admin.settings.settings')}</span>
+                <b>{query.data.items.length}</b>
+                <small>{t45n('admin.step45n.adminPlatformSettings.safeValuesExposed')}</small>
+              </div>
+              <div>
+                <span>{t('admin.settings.mode')}</span>
+                <b>{t('admin.settings.readOnly')}</b>
+                <small>{query.data.configurationMode}</small>
+              </div>
             </div>
-            <div>
-              <span>{t('admin.settings.settings')}</span>
-              <b>{query.data.items.length}</b>
-              <small>{t45n('admin.step45n.adminPlatformSettings.safeValuesExposed')}</small>
-            </div>
-            <div>
-              <span>{t('admin.settings.mode')}</span>
-              <b className="platform-setting-stat-value">{t('admin.settings.readOnly')}</b>
-              <small>{query.data.configurationMode}</small>
-            </div>
+          </section>
           </div>
 
           <INNOCollection>

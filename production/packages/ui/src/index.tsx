@@ -473,6 +473,7 @@ type INNOHierarchyRow<T> = {
   parentId: string | null;
   level: number;
   hasChildren: boolean;
+  isLastSibling: boolean;
 };
 
 function buildHierarchyRows<T>({
@@ -546,12 +547,14 @@ function buildHierarchyRows<T>({
     const included = !searchContext || searchContext.has(id);
 
     if (included) {
+      const siblings = childrenById.get(parentId ?? '__root__') ?? [];
       rows.push({
         item,
         id,
         parentId,
         level,
         hasChildren: children.length > 0,
+        isLastSibling: getId(siblings[siblings.length - 1]) === id,
       });
     }
 
@@ -731,9 +734,10 @@ export function INNOTree<T>({
             className="inno-tree-row"
             role="presentation"
             data-level={row.level}
+            data-last-sibling={row.isLastSibling ? 'true' : 'false'}
             style={{
-              paddingLeft: (row.level - 1) * 18,
-              '--inno-tree-indent': ((row.level - 1) * 18) + 'px',
+              paddingLeft: (row.level - 1) * 24,
+              '--inno-tree-indent': ((row.level - 1) * 24) + 'px',
             } as CSSProperties}
           >
             {row.hasChildren ? (

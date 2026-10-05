@@ -8,16 +8,17 @@ import { usePermission } from '../app/ProfileContext';
 import { RouterRowAction } from '../components/RouterRowAction';
 import { useI18n as useStep45NI18n } from '@inno/i18n';
 
-function formatLastSeen(value?: string | null): string {
+function formatLastSeen(value: string | null | undefined, locale: string): string {
   if (!value) return '—';
   const date = new Date(value);
   const diffMs = Date.now() - date.getTime();
   const diffMinutes = Math.max(0, Math.round(diffMs / 60000));
-  if (diffMinutes < 1) return 'Now';
-  if (diffMinutes < 60) return `${diffMinutes}m ago`;
+  const relative = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+  if (diffMinutes < 1) return relative.format(0, 'minute');
+  if (diffMinutes < 60) return relative.format(-diffMinutes, 'minute');
   const hours = Math.round(diffMinutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  return date.toLocaleDateString();
+  if (hours < 24) return relative.format(-hours, 'hour');
+  return new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(date);
 }
 
 function typeLabel(value: string): string {
@@ -39,7 +40,7 @@ function DeviceTypeGlyph({ type }: { type: string }) {
 }
 
 export function DevicesPage() {
-  const { t: t45n } = useStep45NI18n();
+  const { t: t45n, locale } = useStep45NI18n();
   const canDeploy = usePermission('devices.deploy');
   const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search);
@@ -122,7 +123,7 @@ export function DevicesPage() {
                 ['user', t45n('common.user')],
                 ['os', t45n('devices.step45n.devices.os')],
                 ['group', t45n('admin.settings.table.group')],
-                ['lastSeen', 'Last Seen'],
+                ['lastSeen', t45n('reports.column.lastSeenAt')],
               ] as Array<[DeviceColumn, string]>).map(([column, label]) => (
                 <label key={column}>
                   <input type="checkbox" checked={columns[column]} onChange={() => toggleColumn(column)} />
@@ -175,11 +176,11 @@ export function DevicesPage() {
                         </div>
                       </td>
                       {columns.type ? <td><span className="device-type-cell"><DeviceTypeGlyph type={device.type} />{typeLabel(device.type)}</span></td> : null}
-                      {columns.status ? <td><INNOStatus tone={device.status === 'online' ? 'success' : 'neutral'} dot>{device.status}</INNOStatus></td> : null}
+                      {columns.status ? <td><INNOStatus tone={device.status === 'online' ? 'success' : 'neutral'} dot>{device.status === 'online' ? t45n('devices.automation.editor.status.online') : t45n('devices.automation.editor.status.offline')}</INNOStatus></td> : null}
                       {columns.user ? <td>{device.user ?? '—'}</td> : null}
                       {columns.os ? <td>{device.operatingSystem ?? '—'}</td> : null}
                       {columns.group ? <td>{device.group ?? device.organization ?? '—'}</td> : null}
-                      {columns.lastSeen ? <td>{formatLastSeen(device.lastSeenAt)}</td> : null}
+                      {columns.lastSeen ? <td>{formatLastSeen(device.lastSeenAt, locale)}</td> : null}
                       <td className="action-column">
                         <RouterRowAction to={`/devices/${device.id}`} ariaLabel={t45n('devices.step45n.devices.openDevice', { name: device.name })} />
                       </td>

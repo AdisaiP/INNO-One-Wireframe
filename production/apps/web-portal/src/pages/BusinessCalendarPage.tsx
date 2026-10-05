@@ -11,8 +11,6 @@ import { ErrorState, LoadingState } from '../components/Feedback';
 import type { BusinessWorkingDay } from '../api/types';
 import { useI18n as useStep45NI18n } from '@inno/i18n';
 
-const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
 function minuteLabel(value: number) {
   const hour = Math.floor(value / 60).toString().padStart(2, '0');
   const minute = (value % 60).toString().padStart(2, '0');
@@ -20,7 +18,7 @@ function minuteLabel(value: number) {
 }
 
 export function BusinessCalendarPage() {
-  const { t: t45n } = useStep45NI18n();
+  const { t: t45n, locale } = useStep45NI18n();
   const canManage = usePermission('helpdesk.sla.manage');
   const queryClient = useQueryClient();
   const query = useQuery({
@@ -73,6 +71,11 @@ export function BusinessCalendarPage() {
     [days],
   );
 
+  const dayName = (dayOfWeek: number) => {
+    const sunday = new Date(Date.UTC(2024, 0, 7 + dayOfWeek));
+    return new Intl.DateTimeFormat(locale, { weekday: 'long', timeZone: 'UTC' }).format(sunday);
+  };
+
   const updateDay = (dayOfWeek: number, patch: Partial<BusinessWorkingDay>) => {
     setDays((current) => current.map((day) =>
       day.dayOfWeek === dayOfWeek ? { ...day, ...patch } : day));
@@ -113,30 +116,34 @@ export function BusinessCalendarPage() {
                   </label>
                 </div>
 
-                <div className="business-day-grid">
-                  {orderedDays.map((day) => (
-                    <div className={'business-day-card ' + (day.isWorking ? '' : 'off')} key={day.dayOfWeek}>
-                      <div className="business-day-head">
-                        <b>{dayNames[day.dayOfWeek]}</b>
+                <div className="business-week-list">
+                  {orderedDays.map((day) => {
+                    const localizedDay = dayName(day.dayOfWeek);
+                    return (
+                      <div className={'business-day-row ' + (day.isWorking ? '' : 'off')} key={day.dayOfWeek}>
+                        <div className="business-day-identity">
+                          <b>{localizedDay}</b>
+                          <span>{day.isWorking
+                            ? minuteLabel(day.startMinute) + ' – ' + minuteLabel(day.endMinute)
+                            : t45n('helpdesk.step45n.businessCalendar.off')}</span>
+                        </div>
                         <button
                           type="button"
                           className={'production-switch ' + (day.isWorking ? 'on' : '')}
                           role="switch"
                           aria-checked={day.isWorking}
-                          aria-label={t45n('admin.step45n.adminApps.enable') + ' ' + dayNames[day.dayOfWeek]}
+                          aria-label={t45n('admin.step45n.adminApps.enable') + ' ' + localizedDay}
                           disabled={!canManage}
                           onClick={() => updateDay(day.dayOfWeek, { isWorking: !day.isWorking })}
                         >
                           <span />
                         </button>
-                      </div>
-                      {day.isWorking ? (
                         <div className="business-day-times">
                           <label>
                             <span>{t45n('helpdesk.step45n.businessCalendar.start')}</span>
                             <input
                               type="time"
-                              disabled={!canManage}
+                              disabled={!canManage || !day.isWorking}
                               value={minuteLabel(day.startMinute)}
                               onChange={(event) => {
                                 const [hour, minute] = event.target.value.split(':').map(Number);
@@ -148,7 +155,7 @@ export function BusinessCalendarPage() {
                             <span>{t45n('workflow.kind.end')}</span>
                             <input
                               type="time"
-                              disabled={!canManage}
+                              disabled={!canManage || !day.isWorking}
                               value={minuteLabel(day.endMinute)}
                               onChange={(event) => {
                                 const [hour, minute] = event.target.value.split(':').map(Number);
@@ -157,9 +164,9 @@ export function BusinessCalendarPage() {
                             />
                           </label>
                         </div>
-                      ) : <span className="business-day-off-label">{t45n('helpdesk.step45n.businessCalendar.off')}</span>}
-                    </div>
-                  ))}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </section>

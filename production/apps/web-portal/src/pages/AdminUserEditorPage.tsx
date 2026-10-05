@@ -96,7 +96,9 @@ export function AdminUserEditorPage() {
   if (editing && user.isPending) return <div className="page-loading-wrap"><LoadingState label={t45n('admin.step45n.adminUserDetail.loadingUser')} /></div>;
   if (editing && user.isError) return <div className="page-error-wrap"><ErrorState error={user.error} retry={() => void user.refetch()} /></div>;
 
-  const title = editing ? 'Edit User Profile' : 'New User Profile';
+  const title = editing
+    ? t45n('admin.step45n.adminUserEditor.editUserProfile')
+    : t45n('admin.step45n.adminUserEditor.newUserProfile');
   return (
     <INNOPage
       eyebrow={t45n('admin.step45n.adminHierarchy.adminCenterOrganization')}

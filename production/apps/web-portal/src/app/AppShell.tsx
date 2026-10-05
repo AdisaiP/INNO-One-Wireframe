@@ -1,7 +1,9 @@
-import { type FormEvent, type ReactNode, useEffect, useState } from 'react';
-import { useI18n } from '@inno/i18n';
+import { type FormEvent, type ReactNode, useEffect, useRef, useState } from 'react';
+import { type Locale, useI18n } from '@inno/i18n';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { INNOIcon, type INNOIconToken } from '@inno/ui';
+import { updateCurrentProfile } from '../api/client';
 import { logout } from '../auth/keycloak';
 import { PRODUCT_BRAND } from './branding';
 import { usePermission, useProfile } from './ProfileContext';
@@ -61,6 +63,9 @@ export function AppShell() {
   const canManageSla = usePermission('helpdesk.sla.manage');
   const location = useLocation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [sideOpen, setSideOpen] = useState(false);
   const [sideCollapsed, setSideCollapsed] = useState(() => window.localStorage.getItem('inno.ui.sidebar.collapsed') === '1');
   const [shellSearch, setShellSearch] = useState('');
@@ -95,7 +100,25 @@ export function AppShell() {
                 : inDevices ? t('navigation.devices')
                   : 'INNO.One';
 
-  useEffect(() => setSideOpen(false), [location.pathname, location.hash]);
+  const localeMutation = useMutation({
+    mutationFn: (locale: Locale) => updateCurrentProfile({ preferredLocale: locale }),
+    onSuccess: (updatedProfile) => {
+      queryClient.setQueryData(['platform', 'me'], updatedProfile);
+    },
+  });
+
+  useEffect(() => {
+    setSideOpen(false);
+    setUserMenuOpen(false);
+  }, [location.pathname, location.hash]);
+
+  useEffect(() => {
+    function onPointerDown(event: PointerEvent) {
+      if (!userMenuRef.current?.contains(event.target as Node)) setUserMenuOpen(false);
+    }
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
+  }, []);
 
   useEffect(() => {
     window.localStorage.setItem('inno.ui.sidebar.collapsed', sideCollapsed ? '1' : '0');
@@ -103,7 +126,10 @@ export function AppShell() {
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') setSideOpen(false);
+      if (event.key === 'Escape') {
+        setSideOpen(false);
+        setUserMenuOpen(false);
+      }
     }
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
@@ -160,6 +186,26 @@ export function AppShell() {
           ) : null}
         </div>
         <div className="prod-header-actions">
+          <div className="prod-language-switch" role="group" aria-label={t('profile.language')}>
+            <button
+              type="button"
+              className={profile.locale === 'en-US' ? 'active' : ''}
+              aria-pressed={profile.locale === 'en-US'}
+              disabled={localeMutation.isPending}
+              onClick={() => profile.locale !== 'en-US' && localeMutation.mutate('en-US')}
+            >
+              EN
+            </button>
+            <button
+              type="button"
+              className={profile.locale === 'th-TH' ? 'active' : ''}
+              aria-pressed={profile.locale === 'th-TH'}
+              disabled={localeMutation.isPending}
+              onClick={() => profile.locale !== 'th-TH' && localeMutation.mutate('th-TH')}
+            >
+              ไทย
+            </button>
+          </div>
           {canViewNotifications ? (
             <NavLink
               className={({ isActive }) => 'prod-icon-button prod-notification-link' + (isActive ? ' active' : '')}
@@ -170,16 +216,35 @@ export function AppShell() {
               <NavIcon token="section.notifications" />
             </NavLink>
           ) : null}
-          <NavLink className="prod-user" to="/profile" aria-label={t('navigation.openProfile')}>
-            <span className="prod-avatar">{initials(profile.fullName)}</span>
-            <span className="prod-user-copy">
-              <b>{profile.fullName}</b>
-              <small>{profile.roles[0] ?? t('common.user')}</small>
-            </span>
-          </NavLink>
-          <button className="prod-icon-button" type="button" onClick={() => void logout()}>
-            {t('common.actions.signOut')}
-          </button>
+          <div className="prod-user-menu" ref={userMenuRef}>
+            <button
+              className="prod-user prod-user-trigger"
+              type="button"
+              aria-haspopup="menu"
+              aria-expanded={userMenuOpen}
+              aria-label={t('navigation.openProfile')}
+              onClick={() => setUserMenuOpen((open) => !open)}
+            >
+              <span className="prod-avatar">{initials(profile.fullName)}</span>
+              <span className="prod-user-copy">
+                <b>{profile.fullName}</b>
+                <small>{profile.roles[0] ?? t('common.user')}</small>
+              </span>
+              <span className="prod-user-caret" aria-hidden="true">⌄</span>
+            </button>
+            {userMenuOpen ? (
+              <div className="prod-user-popover" role="menu">
+                <div className="prod-user-popover-head">
+                  <b>{profile.fullName}</b>
+                  <span>{profile.email}</span>
+                </div>
+                <NavLink role="menuitem" to="/profile">{t('navigation.profileSettings')}</NavLink>
+                <button role="menuitem" type="button" onClick={() => void logout()}>
+                  {t('common.actions.signOut')}
+                </button>
+              </div>
+            ) : null}
+          </div>
         </div>
       </header>
 

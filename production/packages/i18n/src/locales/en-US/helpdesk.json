@@ -346,6 +346,16 @@
   "helpdesk.step45n.tickets.status.resolved": "Resolved",
   "helpdesk.step45n.tickets.openTicket": "Open {ticketNumber}",
   "helpdesk.step45n.businessCalendar.businessCalendarIsNotLoaded": "Business Calendar is not loaded.",
+  "helpdesk.step45n.helpdeskSla.durationMinutes": "{count} min",
+  "helpdesk.step45n.helpdeskSla.durationHours": "{count} hours",
+  "helpdesk.step45n.helpdeskSla.noCalendar": "No calendar",
+  "helpdesk.step45n.helpdeskSla.escalationThreshold": "Threshold",
+  "helpdesk.step45n.helpdeskSla.targetRole": "Target role",
+  "helpdesk.step45n.helpdeskSla.escalationTeam": "Escalation team",
+  "helpdesk.step45n.helpdeskSla.state.atRisk": "At risk",
+  "helpdesk.step45n.helpdeskSla.state.breached": "Breached",
+  "helpdesk.step45n.helpdeskSla.state.onTrack": "On track",
+  "helpdesk.step45n.helpdeskSla.state.paused": "Paused",
   "helpdesk.step45n.helpdeskSla.selectAnSlaPolicy": "Select an SLA policy.",
   "helpdesk.step45n.ticketDetail.details": "Details"
 }

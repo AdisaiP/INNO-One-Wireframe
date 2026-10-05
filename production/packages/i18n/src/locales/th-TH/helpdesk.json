@@ -346,6 +346,16 @@
   "helpdesk.step45n.tickets.status.resolved": "แก้ไขแล้ว",
   "helpdesk.step45n.tickets.openTicket": "เปิด {ticketNumber}",
   "helpdesk.step45n.businessCalendar.businessCalendarIsNotLoaded": "ยังโหลดปฏิทินธุรกิจไม่สำเร็จ",
+  "helpdesk.step45n.helpdeskSla.durationMinutes": "{count} นาที",
+  "helpdesk.step45n.helpdeskSla.durationHours": "{count} ชั่วโมง",
+  "helpdesk.step45n.helpdeskSla.noCalendar": "ยังไม่ได้กำหนดปฏิทิน",
+  "helpdesk.step45n.helpdeskSla.escalationThreshold": "เกณฑ์เวลา",
+  "helpdesk.step45n.helpdeskSla.targetRole": "บทบาทเป้าหมาย",
+  "helpdesk.step45n.helpdeskSla.escalationTeam": "ทีมยกระดับ",
+  "helpdesk.step45n.helpdeskSla.state.atRisk": "มีความเสี่ยง",
+  "helpdesk.step45n.helpdeskSla.state.breached": "ผิด SLA",
+  "helpdesk.step45n.helpdeskSla.state.onTrack": "เป็นไปตามเป้าหมาย",
+  "helpdesk.step45n.helpdeskSla.state.paused": "หยุดชั่วคราว",
   "helpdesk.step45n.helpdeskSla.selectAnSlaPolicy": "เลือกนโยบาย SLA",
   "helpdesk.step45n.ticketDetail.details": "รายละเอียด"
 }

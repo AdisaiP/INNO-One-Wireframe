@@ -310,15 +310,18 @@ body { margin: 0; font-family: var(--ds-font); background: var(--ds-bg); color: 
   pointer-events: none;
 }
 .inno-tree-row:not([data-level="1"])::before {
-  left: calc(var(--inno-tree-indent) - 9px);
+  left: calc(var(--inno-tree-indent) - 12px);
   top: -2px;
-  height: calc(50% + 2px);
+  bottom: -2px;
   border-left: 1px solid #d8e0ea;
 }
+.inno-tree-row:not([data-level="1"])[data-last-sibling="true"]::before {
+  bottom: 50%;
+}
 .inno-tree-row:not([data-level="1"])::after {
-  left: calc(var(--inno-tree-indent) - 9px);
+  left: calc(var(--inno-tree-indent) - 12px);
   top: 50%;
-  width: 18px;
+  width: 16px;
   border-top: 1px solid #d8e0ea;
 }
 .inno-tree-toggle,

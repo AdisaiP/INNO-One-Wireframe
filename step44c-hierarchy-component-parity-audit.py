@@ -57,7 +57,9 @@ check("access scope uses INNOTreeGrid", "<INNOTreeGrid" in ACCESS)
 check("access scope browser owned surface", 'className="admin-access-scope-browser"' in ACCESS)
 check("access scope dropdown picker removed", '<span>Resource</span><select' not in ACCESS)
 check("scope selection updates resource", "resourceId: id" in ACCESS)
-check("scope browser supports organization and location", "Organization scope browser" in ACCESS and "Location scope browser" in ACCESS)
+check("scope browser supports organization and location",
+      "admin.step45n.adminAccessScopeEdit.organizationScopeBrowser" in ACCESS
+      and "admin.step45n.adminAccessScopeEdit.locationScopeBrowser" in ACCESS)
 check("design system uses live tree", "<INNOTree" in DS)
 check("design system uses live treegrid", "<INNOTreeGrid" in DS)
 check("legacy fake tree markup removed", 'className="internal-ds-tree"' not in DS)

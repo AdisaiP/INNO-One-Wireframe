@@ -12,12 +12,6 @@ import { ErrorState, LoadingState } from '../components/Feedback';
 import type { SlaEscalationLevel, SlaPolicy } from '../api/types';
 import { useI18n as useStep45NI18n } from '@inno/i18n';
 
-function minutesLabel(minutes: number) {
-  if (minutes < 60) return minutes + ' min';
-  const hours = minutes / 60;
-  return Number.isInteger(hours) ? hours + ' hours' : hours.toFixed(1) + ' hours';
-}
-
 function SwitchRow({
   title,
   description,
@@ -51,6 +45,23 @@ function SwitchRow({
 
 export function HelpdeskSlaPage() {
   const { t: t45n } = useStep45NI18n();
+
+  function durationLabel(minutes: number) {
+    if (minutes < 60) {
+      return t45n('helpdesk.step45n.helpdeskSla.durationMinutes', { count: minutes });
+    }
+    const hours = minutes / 60;
+    const count = Number.isInteger(hours) ? String(hours) : hours.toFixed(1);
+    return t45n('helpdesk.step45n.helpdeskSla.durationHours', { count });
+  }
+
+  function stateLabel(state: string) {
+    if (state === 'at_risk') return t45n('helpdesk.step45n.helpdeskSla.state.atRisk');
+    if (state === 'breached') return t45n('helpdesk.step45n.helpdeskSla.state.breached');
+    if (state === 'on_track') return t45n('helpdesk.step45n.helpdeskSla.state.onTrack');
+    if (state === 'paused') return t45n('helpdesk.step45n.helpdeskSla.state.paused');
+    return state.replaceAll('_', ' ');
+  }
   const canManage = usePermission('helpdesk.sla.manage');
   const queryClient = useQueryClient();
   const policiesQuery = useQuery({
@@ -183,7 +194,7 @@ export function HelpdeskSlaPage() {
                       value={responseMinutes}
                       onChange={(event) => setResponseMinutes(Number(event.target.value))}
                     />
-                    <small>{minutesLabel(responseMinutes)}</small>
+                    <small>{durationLabel(responseMinutes)}</small>
                   </label>
                   <label className="field-block">
                     <span>{t45n('helpdesk.step45n.helpdeskSla.resolutionTargetMinutes')}</span>
@@ -194,11 +205,11 @@ export function HelpdeskSlaPage() {
                       value={resolutionMinutes}
                       onChange={(event) => setResolutionMinutes(Number(event.target.value))}
                     />
-                    <small>{minutesLabel(resolutionMinutes)}</small>
+                    <small>{durationLabel(resolutionMinutes)}</small>
                   </label>
                   <label className="field-block">
                     <span>{t45n('helpdesk.step45n.helpdeskSla.businessCalendar')}</span>
-                    <input value={selected.businessCalendar?.name ?? 'No calendar'} readOnly />
+                    <input value={selected.businessCalendar?.name ?? t45n('helpdesk.step45n.helpdeskSla.noCalendar')} readOnly />
                     <small>{selected.businessCalendar?.timeZoneId ?? t45n('helpdesk.step45n.helpdeskSla.calendarTimeNotConfigured')}</small>
                   </label>
                   <label className="field-block">
@@ -250,31 +261,34 @@ export function HelpdeskSlaPage() {
               <div className="sla-level-list">
                 {levels.map((level, index) => (
                   <div className="sla-level-row" key={level.level}>
-                    <div>
+                    <div className="sla-level-identity">
                       <b>{t45n('helpdesk.step45n.helpdeskSla.level')}{' '}{level.level}</b>
                       <span>{level.percent}{t45n('helpdesk.step45n.helpdeskSla.ofResolutionTarget')}</span>
                     </div>
-                    <label>
-                      <span className="sr-only">{t45n('helpdesk.step45n.helpdeskSla.level')}{' '}{level.level} {t45n('helpdesk.step45n.helpdeskSla.percent')}</span>
-                      <input
-                        type="number"
-                        min={1}
-                        max={100}
-                        disabled={!canManage}
-                        value={level.percent}
-                        onChange={(event) => updateLevel(index, { percent: Number(event.target.value) })}
-                      />
+                    <label className="sla-level-field">
+                      <span>{t45n('helpdesk.step45n.helpdeskSla.escalationThreshold')}</span>
+                      <div className="sla-percent-control">
+                        <input
+                          type="number"
+                          min={1}
+                          max={100}
+                          disabled={!canManage}
+                          value={level.percent}
+                          onChange={(event) => updateLevel(index, { percent: Number(event.target.value) })}
+                        />
+                        <span aria-hidden="true">%</span>
+                      </div>
                     </label>
-                    <label>
-                      <span className="sr-only">{t45n('helpdesk.step45n.helpdeskSla.level')}{' '}{level.level} {t45n('helpdesk.step45n.helpdeskSla.target')}</span>
+                    <label className="sla-level-field">
+                      <span>{t45n('helpdesk.step45n.helpdeskSla.targetRole')}</span>
                       <input
                         disabled={!canManage}
                         value={level.targetId}
                         onChange={(event) => updateLevel(index, { targetId: event.target.value })}
                       />
                     </label>
-                    <label>
-                      <span className="sr-only">{t45n('helpdesk.step45n.helpdeskSla.level')}{' '}{level.level} {t45n('helpdesk.step45n.helpdeskSla.reassignTeam2')}</span>
+                    <label className="sla-level-field">
+                      <span>{t45n('helpdesk.step45n.helpdeskSla.escalationTeam')}</span>
                       <input
                         disabled={!canManage}
                         value={level.reassignTeam ?? ''}
@@ -285,17 +299,18 @@ export function HelpdeskSlaPage() {
                   </div>
                 ))}
               </div>
-              {canManage ? (
-                <INNOEditorFooter>
-                  <INNOEditorFooterStart>
-                    <INNOEditorFooterNote>{t45n('helpdesk.step45n.helpdeskSla.changesRecalculateActiveTicketTargetsUsingBusinessTime')}</INNOEditorFooterNote>
-                  </INNOEditorFooterStart>
-                  <INNOEditorFooterEnd>
-                    <INNOButton busy={mutation.isPending} onClick={() => mutation.mutate()}>{t45n('helpdesk.step45n.helpdeskSla.savePolicy')}</INNOButton>
-                  </INNOEditorFooterEnd>
-                </INNOEditorFooter>
-              ) : null}
             </section>
+
+            {canManage ? (
+              <INNOEditorFooter docked className="sla-save-footer">
+                <INNOEditorFooterStart>
+                  <INNOEditorFooterNote>{t45n('helpdesk.step45n.helpdeskSla.changesRecalculateActiveTicketTargetsUsingBusinessTime')}</INNOEditorFooterNote>
+                </INNOEditorFooterStart>
+                <INNOEditorFooterEnd>
+                  <INNOButton busy={mutation.isPending} onClick={() => mutation.mutate()}>{t45n('helpdesk.step45n.helpdeskSla.savePolicy')}</INNOButton>
+                </INNOEditorFooterEnd>
+              </INNOEditorFooter>
+            ) : null}
           </div>
 
           <aside className="panel-stack">
@@ -314,7 +329,7 @@ export function HelpdeskSlaPage() {
                         <b>{item.ticketNumber} · {item.priority}</b>
                         <span>{item.elapsedPercent}{t45n('helpdesk.step45n.helpdeskSla.elapsed')}{' '}{item.policyName}</span>
                       </div>
-                      <span className={'sla-chip ' + item.state}>{item.state.replace('_', ' ')}</span>
+                      <span className={'sla-chip ' + item.state}>{stateLabel(item.state)}</span>
                     </Link>
                   ))}
                   {!monitor.length ? <INNOState compact kind="empty" title={t45n('helpdesk.step45n.helpdeskSla.noActiveSlaTimers')} description={t45n('helpdesk.step45n.helpdeskSla.noOpenTicketInScopeCurrentlyHasAn')} /> : null}

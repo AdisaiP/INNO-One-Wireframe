@@ -2216,3 +2216,18 @@ Device Detail shows the latest packages and visibly distinguishes Complete from 
 QA: .NET 0 warnings/0 errors; Web typecheck/build PASS; contract/static audits 0 issues; `STEP27_SOFTWARE_INVENTORY_SMOKE_PASS`; development DB migration 1, audit 1, event 1, external Devices FK 0, QA snapshot cleaned; complete/partial React visual QA 6 screens at 1366/1024/768 with 0 failures.
 
 **Next step:** implement Assets baseline evaluation and `baseline_results` projection from `IDeviceSoftwareInventoryReader`. Use freshness policy and completeness: stale/missing inventory → unknown; partial inventory cannot prove missing; only fresh complete inventory may produce compliant/missing. Emit `baseline.drift` only on evidence-backed result transitions. User requested no deployment.
+
+
+# Step45O — Product Polish, Language Access & Login Concepts — 2026-10-06
+
+Branch: `ux/step45o-product-polish-login-themes`. Source/UI work is complete; live deployment remains pending SSH authorization.
+
+Completed: Top-bar EN/ไทย switch with persisted preference, Sign out moved to user menu, clarified Platform Settings, corrected organization-tree connectors, redesigned SLA escalation and Business Calendar layouts, closed targeted Thai UI leaks, and created five preview-only Keycloak login concepts using bundled Product illustrations.
+
+QA: i18n/typecheck/build PASS; Step45N 4036 checks / 1972 keys / 0 failures; terminology 0 issues; hierarchy 40/40; Step45O static 36/36; focused browser 85/85; broad browser 68 routes / 1791 checks / 0 failures; targeted final Thai browser checks PASS; `git diff --check` PASS.
+
+Live target `172.10.1.58`: HTTP/PostgreSQL/Keycloak/MeshCentral ports are reachable. Postgres and Keycloak integration health are connected. MeshCentral is degraded with exact control error `noauth (noauth-2d)`. Repo bootstrap `production/scripts/step16-meshcentral-init.py` should be rerun on the live compose stack once SSH access is available. Windows MCP has no passwordless SSH credential and interactive password submission is blocked, so no live deployment was claimed.
+
+Remote control is also not yet end-to-end in source: consent APIs exist, but `IRemoteDeviceEngine` has no remote-session-launch operation and Device Detail has no operator Start Remote Session action. Fixing MeshCentral auth alone is not sufficient to call remote complete.
+
+Full handoff: `INNO-One-Step45O-Product-Polish-Handoff.md`. Login concepts remain preview-only until the user chooses one. **Do not merge main without explicit user instruction.**

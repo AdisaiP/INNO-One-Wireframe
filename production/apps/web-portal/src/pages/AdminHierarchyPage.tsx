@@ -36,7 +36,9 @@ export function AdminHierarchyPage({ kind }: { kind: Kind }) {
   const [selectedId, setSelectedId] = useState('');
   const [createMode, setCreateMode] = useState(false);
   const [form, setForm] = useState({ code: '', name: '', parentId: '', status: 'active' });
-  const title = isOrganization ? 'Organization Structure' : 'Locations';
+  const title = isOrganization
+    ? t45n('admin.step45n.adminOverview.organizationStructure')
+    : t45n('navigation.locations');
   const queryKey = ['admin', kind];
   const query = useQuery({
     queryKey,
