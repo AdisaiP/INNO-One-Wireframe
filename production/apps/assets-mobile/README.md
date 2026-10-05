@@ -32,6 +32,23 @@ pnpm --filter @inno/assets-mobile android
 
 A development build is preferred for OIDC custom-scheme redirects.
 
+## Language runtime
+
+Assets Mobile supports `th-TH` and `en-US`.
+
+Locale resolution follows the Production language contract:
+
+```text
+explicit user preference
+  -> organization/platform default
+  -> device locale before authentication
+  -> en-US fallback
+```
+
+After sign-in the app reads `GET /api/v1/platform/me` and applies the returned effective `locale`. The TH/EN control writes the explicit preference through `PATCH /api/v1/platform/me/profile`. Scanner, history, result, camera-permission guidance, task/busy state, sign-in errors, QR errors and offline copy all use the same runtime catalog. Asset names, status codes and custom-field values remain business data and are not silently translated.
+
+If the profile endpoint is temporarily unreachable, the app keeps the device-derived locale and shows a localized warning instead of blocking the scanner shell.
+
 ## Security
 
 - Sign-in uses OIDC Authorization Code + PKCE S256.

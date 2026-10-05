@@ -39,7 +39,7 @@ function App() {
   const [promptBusy, setPromptBusy] = useState(false);
   const [now, setNow] = useState(Date.now());
 
-  const locale: Locale = profile?.effectiveLocale === 'en-US' ? 'en-US' : 'th-TH';
+  const locale: Locale = profile?.locale === 'en-US' ? 'en-US' : 'th-TH';
   const t = useCallback((key: Parameters<typeof translate>[1]) => translate(locale, key), [locale]);
 
   const load = useCallback(async () => {
@@ -123,7 +123,7 @@ function App() {
     if (!profile) return;
     const next: Locale = locale === 'th-TH' ? 'en-US' : 'th-TH';
     await setPreferredLocale(next);
-    setProfile({ ...profile, effectiveLocale: next, preferredLocale: next });
+    setProfile({ ...profile, locale: next, preferredLocale: next });
   };
 
   const answerConsent = async (decision: 'approved' | 'declined') => {

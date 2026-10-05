@@ -13,9 +13,22 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as AuthSession from 'expo-auth-session';
 import * as SecureStore from 'expo-secure-store';
 import * as WebBrowser from 'expo-web-browser';
-import { MobileApiError, resolveAssetQr } from './src/api';
+import {
+  getMobileProfile,
+  MobileApiError,
+  resolveAssetQr,
+  setMobilePreferredLocale,
+} from './src/api';
 import { config, discovery } from './src/config';
 import { readRecentScans, saveRecentScan } from './src/history';
+import {
+  deviceLocale,
+  formatDate,
+  formatRelativeTime,
+  translate,
+  type Locale,
+  type MessageKey,
+} from './src/i18n';
 import type { RecentScan, ResolvedAsset, TokenSession } from './src/types';
 
 WebBrowser.maybeCompleteAuthSession();
@@ -27,25 +40,6 @@ const redirectUri = AuthSession.makeRedirectUri({
 });
 
 type MainView = 'scanner' | 'history' | 'result' | 'error';
-
-function friendlyDate(value?: string | null) {
-  if (!value) return '—';
-  return new Intl.DateTimeFormat('th-TH', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  }).format(new Date(value));
-}
-
-function relativeTime(value: string) {
-  const seconds = Math.max(0, Math.floor((Date.now() - new Date(value).getTime()) / 1000));
-  if (seconds < 60) return 'เมื่อสักครู่';
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return minutes + ' นาที';
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return hours + ' ชม.';
-  return Math.floor(hours / 24) + ' วัน';
-}
 
 function isSessionFresh(session: TokenSession) {
   if (!session.expiresIn) return true;
@@ -82,6 +76,14 @@ export default function App() {
   const [scanBusy, setScanBusy] = useState(false);
   const [scannerArmed, setScannerArmed] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
+  const [locale, setLocale] = useState<Locale>(() => deviceLocale());
+  const [profileWarning, setProfileWarning] = useState('');
+  const [localeSaving, setLocaleSaving] = useState(false);
+
+  const tx = useCallback(
+    (key: MessageKey) => translate(locale, key),
+    [locale],
+  );
 
   const [request, response, promptAsync] = AuthSession.useAuthRequest(
     {
@@ -125,22 +127,25 @@ export default function App() {
           expiresIn: tokenResponse.expiresIn,
         };
         await persistSession(nextSession);
+        setErrorMessage('');
         setSession(nextSession);
       })
       .catch(() => {
-        setErrorMessage('ไม่สามารถเข้าสู่ระบบได้ กรุณาลองอีกครั้ง');
+        setErrorMessage(translate(locale, 'signInError'));
         setView('error');
       });
-  }, [request?.codeVerifier, response]);
+  }, [locale, request?.codeVerifier, response]);
 
   const getAccessToken = useCallback(async () => {
-    if (!session) throw new MobileApiError(401, 'กรุณาเข้าสู่ระบบ');
+    if (!session) {
+      throw new MobileApiError(401, translate(locale, 'signInRequired'));
+    }
     if (isSessionFresh(session)) return session.accessToken;
 
     if (!session.refreshToken) {
       await persistSession(null);
       setSession(null);
-      throw new MobileApiError(401, 'เซสชันหมดอายุ กรุณาเข้าสู่ระบบอีกครั้ง');
+      throw new MobileApiError(401, translate(locale, 'sessionExpired'));
     }
 
     try {
@@ -163,9 +168,48 @@ export default function App() {
     } catch {
       await persistSession(null);
       setSession(null);
-      throw new MobileApiError(401, 'เซสชันหมดอายุ กรุณาเข้าสู่ระบบอีกครั้ง');
+      throw new MobileApiError(401, translate(locale, 'sessionExpired'));
     }
-  }, [session]);
+  }, [locale, session]);
+
+  useEffect(() => {
+    if (!session) {
+      setProfileWarning('');
+      return;
+    }
+
+    let cancelled = false;
+    void getAccessToken()
+      .then((accessToken) => getMobileProfile(accessToken, locale))
+      .then((profile) => {
+        if (cancelled) return;
+        setLocale(profile.locale);
+        setProfileWarning('');
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setProfileWarning(translate(locale, 'profileOffline'));
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [getAccessToken, locale, session]);
+
+  const changeLocale = useCallback(async () => {
+    const next: Locale = locale === 'th-TH' ? 'en-US' : 'th-TH';
+    setLocaleSaving(true);
+    try {
+      const accessToken = await getAccessToken();
+      const profile = await setMobilePreferredLocale(accessToken, next);
+      setLocale(profile.locale);
+      setProfileWarning('');
+    } catch {
+      setProfileWarning(translate(locale, 'profileSaveError'));
+    } finally {
+      setLocaleSaving(false);
+    }
+  }, [getAccessToken, locale]);
 
   const resolveToken = useCallback(async (token: string) => {
     if (scanBusy || !scannerArmed) return;
@@ -173,7 +217,7 @@ export default function App() {
     setScannerArmed(false);
     try {
       const accessToken = await getAccessToken();
-      const asset = await resolveAssetQr(token, accessToken);
+      const asset = await resolveAssetQr(token, accessToken, locale);
       const history = await saveRecentScan(asset);
       setRecentScans(history);
       setResolvedAsset(asset);
@@ -184,13 +228,13 @@ export default function App() {
       setErrorMessage(
         error instanceof Error
           ? error.message
-          : 'ไม่สามารถตรวจสอบ QR Code ได้',
+          : translate(locale, 'genericQrError'),
       );
       setView('error');
     } finally {
       setScanBusy(false);
     }
-  }, [getAccessToken, scanBusy, scannerArmed]);
+  }, [getAccessToken, locale, scanBusy, scannerArmed]);
 
   const scanAgain = useCallback(() => {
     setView('scanner');
@@ -205,6 +249,9 @@ export default function App() {
     setResolvedAsset(null);
     setView('scanner');
     setScannerArmed(true);
+    setProfileWarning('');
+    setErrorMessage('');
+    setLocale(deviceLocale());
   }, []);
 
   if (restoring) {
@@ -212,7 +259,7 @@ export default function App() {
       <SafeAreaView style={styles.boot}>
         <StatusBar barStyle="dark-content" />
         <ActivityIndicator size="large" />
-        <Text style={styles.bootText}>กำลังเตรียม INNO.One Assets…</Text>
+        <Text style={styles.bootText}>{tx('boot')}</Text>
       </SafeAreaView>
     );
   }
@@ -227,10 +274,8 @@ export default function App() {
         </View>
         <View style={styles.signInCard}>
           <Text style={styles.eyebrow}>ASSETS MOBILE</Text>
-          <Text style={styles.signInTitle}>สแกนทรัพย์สินอย่างปลอดภัย</Text>
-          <Text style={styles.signInBody}>
-            เข้าสู่ระบบด้วยบัญชีองค์กรก่อนใช้งานกล้องและตรวจสอบ QR Code ของทรัพย์สิน
-          </Text>
+          <Text style={styles.signInTitle}>{tx('signInTitle')}</Text>
+          <Text style={styles.signInBody}>{tx('signInBody')}</Text>
           <Pressable
             accessibilityRole="button"
             disabled={!request}
@@ -238,13 +283,15 @@ export default function App() {
               styles.primaryButton,
               (!request || pressed) && styles.buttonPressed,
             ]}
-            onPress={() => void promptAsync()}
+            onPress={() => {
+              setErrorMessage('');
+              void promptAsync();
+            }}
           >
-            <Text style={styles.primaryButtonText}>เข้าสู่ระบบองค์กร</Text>
+            <Text style={styles.primaryButtonText}>{tx('signIn')}</Text>
           </Pressable>
-          <Text style={styles.securityNote}>
-            ใช้ Authorization Code + PKCE · ไม่เก็บ QR Token หลังสแกน
-          </Text>
+          {errorMessage ? <Text style={styles.signInError}>{errorMessage}</Text> : null}
+          <Text style={styles.securityNote}>{tx('securityNote')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -258,16 +305,34 @@ export default function App() {
           <View style={styles.logoSmall}><Text style={styles.logoTextSmall}>I1</Text></View>
           <View>
             <Text style={styles.headerTitle}>INNO.One Assets</Text>
-            <Text style={styles.headerSub}>Mobile Inventory</Text>
+            <Text style={styles.headerSub}>{tx('headerSub')}</Text>
           </View>
         </View>
-        <Pressable accessibilityRole="button" onPress={() => void signOut()}>
-          <Text style={styles.signOut}>ออกจากระบบ</Text>
-        </Pressable>
+        <View style={styles.headerActions}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={tx('language')}
+            disabled={localeSaving}
+            style={styles.languageButton}
+            onPress={() => void changeLocale()}
+          >
+            <Text style={styles.languageButtonText}>{locale === 'th-TH' ? 'EN' : 'TH'}</Text>
+          </Pressable>
+          <Pressable accessibilityRole="button" onPress={() => void signOut()}>
+            <Text style={styles.signOut}>{tx('signOut')}</Text>
+          </Pressable>
+        </View>
       </View>
+
+      {profileWarning ? (
+        <View style={styles.warningBanner}>
+          <Text style={styles.warningBannerText}>{profileWarning}</Text>
+        </View>
+      ) : null}
 
       {view === 'scanner' ? (
         <ScannerScreen
+          locale={locale}
           permission={cameraPermission?.granted ?? false}
           canAskPermission={cameraPermission?.canAskAgain ?? true}
           requestPermission={() => void requestCameraPermission()}
@@ -280,19 +345,15 @@ export default function App() {
       ) : null}
 
       {view === 'history' ? (
-        <HistoryScreen
-          items={recentScans}
-          onBack={() => setView('scanner')}
-          onScan={scanAgain}
-        />
+        <HistoryScreen locale={locale} items={recentScans} onScan={scanAgain} />
       ) : null}
 
       {view === 'result' && resolvedAsset ? (
-        <ResultScreen asset={resolvedAsset} onScanAgain={scanAgain} />
+        <ResultScreen locale={locale} asset={resolvedAsset} onScanAgain={scanAgain} />
       ) : null}
 
       {view === 'error' ? (
-        <ErrorScreen message={errorMessage} onScanAgain={scanAgain} />
+        <ErrorScreen locale={locale} message={errorMessage} onScanAgain={scanAgain} />
       ) : null}
 
       {view === 'scanner' || view === 'history' ? (
@@ -302,14 +363,14 @@ export default function App() {
             style={[styles.navButton, view === 'scanner' && styles.navButtonActive]}
             onPress={() => setView('scanner')}
           >
-            <Text style={[styles.navText, view === 'scanner' && styles.navTextActive]}>สแกน</Text>
+            <Text style={[styles.navText, view === 'scanner' && styles.navTextActive]}>{tx('scanNav')}</Text>
           </Pressable>
           <Pressable
             accessibilityRole="button"
             style={[styles.navButton, view === 'history' && styles.navButtonActive]}
             onPress={() => setView('history')}
           >
-            <Text style={[styles.navText, view === 'history' && styles.navTextActive]}>ประวัติ</Text>
+            <Text style={[styles.navText, view === 'history' && styles.navTextActive]}>{tx('historyNav')}</Text>
           </Pressable>
         </View>
       ) : null}
@@ -317,6 +378,7 @@ export default function App() {
   );
 }
 function ScannerScreen(props: {
+  locale: Locale;
   permission: boolean;
   canAskPermission: boolean;
   requestPermission: () => void;
@@ -326,13 +388,12 @@ function ScannerScreen(props: {
   history: RecentScan[];
   onHistory: () => void;
 }) {
+  const tx = (key: MessageKey) => translate(props.locale, key);
   return (
     <ScrollView contentContainerStyle={styles.screenContent}>
-      <Text style={styles.eyebrow}>QR SCANNER</Text>
-      <Text style={styles.screenTitle}>สแกน Asset Label</Text>
-      <Text style={styles.screenBody}>
-        เล็งกล้องไปที่ QR Code ของทรัพย์สิน ระบบจะตรวจสอบ Token กับ INNO.One โดยอัตโนมัติ
-      </Text>
+      <Text style={styles.eyebrow}>{tx('scannerEyebrow')}</Text>
+      <Text style={styles.screenTitle}>{tx('scannerTitle')}</Text>
+      <Text style={styles.screenBody}>{tx('scannerBody')}</Text>
 
       <View style={styles.cameraCard}>
         {props.permission ? (
@@ -348,52 +409,50 @@ function ScannerScreen(props: {
           >
             <View style={styles.cameraOverlay}>
               <View style={styles.scanFrame} />
-              <View style={styles.cameraBadge}><Text style={styles.cameraBadgeText}>QR token only</Text></View>
+              <View style={styles.cameraBadge}><Text style={styles.cameraBadgeText}>{tx('qrTokenOnly')}</Text></View>
             </View>
           </CameraView>
         ) : (
           <View style={styles.permissionCard}>
-            <Text style={styles.permissionTitle}>ต้องการสิทธิ์ใช้กล้อง</Text>
-            <Text style={styles.permissionBody}>
-              INNO.One Assets ใช้กล้องเฉพาะสำหรับสแกน QR Code ของทรัพย์สิน
-            </Text>
+            <Text style={styles.permissionTitle}>{tx('cameraPermissionTitle')}</Text>
+            <Text style={styles.permissionBody}>{tx('cameraPermissionBody')}</Text>
             {props.canAskPermission ? (
-              <Pressable style={styles.primaryButton} onPress={props.requestPermission}>
-                <Text style={styles.primaryButtonText}>อนุญาตใช้กล้อง</Text>
+              <Pressable accessibilityRole="button" style={styles.primaryButton} onPress={props.requestPermission}>
+                <Text style={styles.primaryButtonText}>{tx('cameraPermissionAllow')}</Text>
               </Pressable>
             ) : (
-              <Text style={styles.permissionBody}>เปิดสิทธิ์ Camera จาก Settings ของ Android แล้วกลับมาที่แอป</Text>
+              <Text style={styles.permissionBody}>{tx('cameraPermissionSettings')}</Text>
             )}
           </View>
         )}
         {props.busy ? (
           <View style={styles.busyOverlay}>
             <ActivityIndicator color="#fff" />
-            <Text style={styles.busyText}>กำลังตรวจสอบ Asset Token…</Text>
+            <Text style={styles.busyText}>{tx('checkingToken')}</Text>
           </View>
         ) : null}
       </View>
 
       <View style={styles.secureLine}>
         <Text style={styles.secureDot}>●</Text>
-        <Text style={styles.secureText}>QR Code เก็บเฉพาะ opaque token และจะไม่ถูกบันทึกในประวัติ</Text>
+        <Text style={styles.secureText}>{tx('secureNote')}</Text>
       </View>
 
       <View style={styles.sectionHeader}>
         <View>
-          <Text style={styles.sectionTitle}>Recent scans</Text>
-          <Text style={styles.sectionSub}>บนอุปกรณ์นี้</Text>
+          <Text style={styles.sectionTitle}>{tx('recentScans')}</Text>
+          <Text style={styles.sectionSub}>{tx('onThisDevice')}</Text>
         </View>
         <Pressable accessibilityRole="button" onPress={props.onHistory}>
-          <Text style={styles.linkText}>ดูทั้งหมด</Text>
+          <Text style={styles.linkText}>{tx('viewAll')}</Text>
         </Pressable>
       </View>
 
       <View style={styles.listCard}>
         {props.history.length === 0 ? (
           <View style={styles.emptyRow}>
-            <Text style={styles.emptyTitle}>ยังไม่มีประวัติการสแกน</Text>
-            <Text style={styles.emptyText}>รายการล่าสุดจะแสดงหลังสแกนสำเร็จ</Text>
+            <Text style={styles.emptyTitle}>{tx('noRecent')}</Text>
+            <Text style={styles.emptyText}>{tx('noRecentBody')}</Text>
           </View>
         ) : props.history.map((item, index) => (
           <View
@@ -406,7 +465,7 @@ function ScannerScreen(props: {
                 {[item.brandModel || item.name, item.owner].filter(Boolean).join(' · ')}
               </Text>
             </View>
-            <Text style={styles.timeText}>{relativeTime(item.scannedAt)}</Text>
+            <Text style={styles.timeText}>{formatRelativeTime(props.locale, item.scannedAt)}</Text>
           </View>
         ))}
       </View>
@@ -415,27 +474,26 @@ function ScannerScreen(props: {
 }
 
 function HistoryScreen(props: {
+  locale: Locale;
   items: RecentScan[];
-  onBack: () => void;
   onScan: () => void;
 }) {
+  const tx = (key: MessageKey) => translate(props.locale, key);
   return (
     <ScrollView contentContainerStyle={styles.screenContent}>
       <View style={styles.inlineHeader}>
         <View>
-          <Text style={styles.eyebrow}>SCAN HISTORY</Text>
-          <Text style={styles.screenTitle}>ประวัติการสแกน</Text>
+          <Text style={styles.eyebrow}>{tx('historyEyebrow')}</Text>
+          <Text style={styles.screenTitle}>{tx('historyTitle')}</Text>
         </View>
-        <Pressable onPress={props.onScan}><Text style={styles.linkText}>สแกนใหม่</Text></Pressable>
+        <Pressable accessibilityRole="button" onPress={props.onScan}><Text style={styles.linkText}>{tx('scanAgain')}</Text></Pressable>
       </View>
-      <Text style={styles.screenBody}>
-        ประวัตินี้เก็บบนอุปกรณ์เท่านั้น และไม่มี QR Token
-      </Text>
+      <Text style={styles.screenBody}>{tx('historyBody')}</Text>
       <View style={styles.listCard}>
         {props.items.length === 0 ? (
           <View style={styles.emptyRow}>
-            <Text style={styles.emptyTitle}>ยังไม่มีประวัติ</Text>
-            <Text style={styles.emptyText}>เริ่มจากการสแกน Asset Label</Text>
+            <Text style={styles.emptyTitle}>{tx('noHistory')}</Text>
+            <Text style={styles.emptyText}>{tx('noHistoryBody')}</Text>
           </View>
         ) : props.items.map((item, index) => (
           <View key={item.assetId} style={[styles.historyRow, index > 0 && styles.rowDivider]}>
@@ -444,7 +502,7 @@ function HistoryScreen(props: {
               <Text style={styles.historyMeta}>{item.name}</Text>
               <Text style={styles.historyMeta}>{item.brandModel || '—'}{item.owner ? ' · ' + item.owner : ''}</Text>
             </View>
-            <Text style={styles.timeText}>{relativeTime(item.scannedAt)}</Text>
+            <Text style={styles.timeText}>{formatRelativeTime(props.locale, item.scannedAt)}</Text>
           </View>
         ))}
       </View>
@@ -452,8 +510,9 @@ function HistoryScreen(props: {
   );
 }
 
-function ResultScreen(props: { asset: ResolvedAsset; onScanAgain: () => void }) {
+function ResultScreen(props: { locale: Locale; asset: ResolvedAsset; onScanAgain: () => void }) {
   const { asset } = props;
+  const tx = (key: MessageKey) => translate(props.locale, key);
   const statusTone = asset.status.toLowerCase().includes('retired') ? styles.badgeDanger : styles.badgeSuccess;
   const customFields = useMemo(
     () => asset.customFields.filter((item) => item.value !== null && item.value !== undefined),
@@ -465,7 +524,7 @@ function ResultScreen(props: { asset: ResolvedAsset; onScanAgain: () => void }) 
       <View style={styles.resultHero}>
         <View style={styles.resultHeroTop}>
           <View>
-            <Text style={styles.eyebrow}>ASSET FOUND</Text>
+            <Text style={styles.eyebrow}>{tx('assetFound')}</Text>
             <Text style={styles.resultTag}>{asset.assetTag}</Text>
             <Text style={styles.resultName}>{asset.name}</Text>
           </View>
@@ -478,29 +537,32 @@ function ResultScreen(props: { asset: ResolvedAsset; onScanAgain: () => void }) 
         </Text>
       </View>
 
-      <InfoSection title="Asset overview">
-        <InfoRow label="Category" value={asset.category} />
-        <InfoRow label="Serial" value={asset.serialNumber ?? '—'} />
-        <InfoRow label="Owner" value={asset.owner?.name ?? 'Unassigned'} />
-        <InfoRow label="Organization" value={asset.organization?.name ?? '—'} />
-        <InfoRow label="Location" value={asset.location?.name ?? '—'} />
-        <InfoRow label="Warranty" value={asset.warrantyEndAt ? 'ถึง ' + friendlyDate(asset.warrantyEndAt) : 'ไม่มีข้อมูล'} />
+      <InfoSection title={tx('assetOverview')}>
+        <InfoRow label={tx('category')} value={asset.category} />
+        <InfoRow label={tx('serial')} value={asset.serialNumber ?? '—'} />
+        <InfoRow label={tx('owner')} value={asset.owner?.name ?? tx('unassigned')} />
+        <InfoRow label={tx('organization')} value={asset.organization?.name ?? '—'} />
+        <InfoRow label={tx('location')} value={asset.location?.name ?? '—'} />
+        <InfoRow
+          label={tx('warranty')}
+          value={asset.warrantyEndAt ? tx('warrantyUntil') + ' ' + formatDate(props.locale, asset.warrantyEndAt) : tx('noData')}
+        />
       </InfoSection>
 
-      <InfoSection title="Managed endpoint">
+      <InfoSection title={tx('managedEndpoint')}>
         {asset.linkedDevice ? (
           <>
-            <InfoRow label="Device" value={asset.linkedDevice.name} />
-            <InfoRow label="Status" value={asset.linkedDevice.status} />
-            <InfoRow label="Operating system" value={asset.linkedDevice.operatingSystem ?? '—'} />
+            <InfoRow label={tx('device')} value={asset.linkedDevice.name} />
+            <InfoRow label={tx('status')} value={asset.linkedDevice.status} />
+            <InfoRow label={tx('operatingSystem')} value={asset.linkedDevice.operatingSystem ?? '—'} />
           </>
         ) : (
-          <Text style={styles.mutedBody}>Asset นี้ยังไม่ได้เชื่อมกับ Managed Endpoint</Text>
+          <Text style={styles.mutedBody}>{tx('noManagedEndpoint')}</Text>
         )}
       </InfoSection>
 
       {customFields.length > 0 ? (
-        <InfoSection title="Additional information">
+        <InfoSection title={tx('additionalInformation')}>
           {customFields.map((item) => (
             <InfoRow
               key={item.fieldKey}
@@ -512,25 +574,28 @@ function ResultScreen(props: { asset: ResolvedAsset; onScanAgain: () => void }) 
       ) : null}
 
       <View style={styles.updatedCard}>
-        <Text style={styles.updatedTitle}>ข้อมูลล่าสุดจาก INNO.One</Text>
-        <Text style={styles.updatedText}>สแกน {friendlyDate(asset.scannedAt)} · Asset updated {friendlyDate(asset.updatedAt)}</Text>
+        <Text style={styles.updatedTitle}>{tx('latestData')}</Text>
+        <Text style={styles.updatedText}>
+          {tx('scanned')} {formatDate(props.locale, asset.scannedAt)} · {tx('assetUpdated')} {formatDate(props.locale, asset.updatedAt)}
+        </Text>
       </View>
 
       <Pressable accessibilityRole="button" style={styles.primaryButton} onPress={props.onScanAgain}>
-        <Text style={styles.primaryButtonText}>สแกนอีกครั้ง</Text>
+        <Text style={styles.primaryButtonText}>{tx('scanAgain')}</Text>
       </Pressable>
     </ScrollView>
   );
 }
 
-function ErrorScreen(props: { message: string; onScanAgain: () => void }) {
+function ErrorScreen(props: { locale: Locale; message: string; onScanAgain: () => void }) {
+  const tx = (key: MessageKey) => translate(props.locale, key);
   return (
     <View style={styles.errorScreen}>
       <View style={styles.errorIcon}><Text style={styles.errorIconText}>!</Text></View>
-      <Text style={styles.errorTitle}>ตรวจสอบ QR Code ไม่สำเร็จ</Text>
+      <Text style={styles.errorTitle}>{tx('errorTitle')}</Text>
       <Text style={styles.errorBody}>{props.message}</Text>
       <Pressable accessibilityRole="button" style={styles.primaryButton} onPress={props.onScanAgain}>
-        <Text style={styles.primaryButtonText}>สแกนอีกครั้ง</Text>
+        <Text style={styles.primaryButtonText}>{tx('scanAgain')}</Text>
       </Pressable>
     </View>
   );
@@ -583,13 +648,19 @@ const styles: Record<string, any> = StyleSheet.create({
   signInTitle: { fontSize: 26, lineHeight: 34, fontWeight: '800', color: '#172238' },
   signInBody: { fontSize: 15, lineHeight: 23, color: '#5b687b' },
   securityNote: { fontSize: 12, lineHeight: 18, color: '#77849a', textAlign: 'center' },
+  signInError: { fontSize: 12, lineHeight: 18, color: '#b3444c', textAlign: 'center' },
   primaryButton: { minHeight: 48, borderRadius: 12, backgroundColor: '#2c63dc', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 18 },
   primaryButtonText: { color: '#fff', fontSize: 15, fontWeight: '800' },
   buttonPressed: { opacity: 0.65 },
   header: { height: 60, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#e2e7ef' },
   headerTitle: { fontSize: 15, fontWeight: '800', color: '#172238' },
   headerSub: { fontSize: 11, color: '#7a8799', marginTop: 1 },
+  headerActions: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  languageButton: { minWidth: 38, height: 32, borderRadius: 9, borderWidth: 1, borderColor: '#d8e0eb', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff' },
+  languageButtonText: { fontSize: 11, fontWeight: '800', color: '#2c63dc' },
   signOut: { fontSize: 12, fontWeight: '700', color: '#56657a' },
+  warningBanner: { paddingHorizontal: 16, paddingVertical: 9, backgroundColor: '#fff7df', borderBottomWidth: 1, borderBottomColor: '#f0dfaa' },
+  warningBannerText: { fontSize: 11, lineHeight: 17, color: '#725b18' },
   screenContent: { padding: 16, paddingBottom: 100 },
   resultContent: { padding: 16, paddingBottom: 32, gap: 12 },
   screenTitle: { marginTop: 5, fontSize: 26, lineHeight: 33, fontWeight: '800', color: '#172238' },

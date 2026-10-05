@@ -124,6 +124,8 @@ Agent owns:
 ## 5. Mobile App boundary
 
 ### TOR 7.13
+Step45M Production renders Android Assets Mobile chrome in Thai or English from the shared runtime locale model while preserving the same Mobile ownership boundary.
+
 Android Mobile owns:
 - camera permission,
 - QR scanning,

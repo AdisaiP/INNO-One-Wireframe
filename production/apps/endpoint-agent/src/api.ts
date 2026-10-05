@@ -34,7 +34,7 @@ export type Profile = {
   id: string;
   fullName: string;
   email: string;
-  effectiveLocale: 'en-US' | 'th-TH';
+  locale: 'en-US' | 'th-TH';
   preferredLocale?: 'en-US' | 'th-TH' | null;
   organizationDefaultLocale: 'en-US' | 'th-TH';
 };

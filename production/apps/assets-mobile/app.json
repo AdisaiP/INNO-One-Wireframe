@@ -31,7 +31,6 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "อนุญาตให้ INNO.One Assets ใช้กล้องเพื่อสแกน QR Code ของทรัพย์สิน",
           "recordAudioAndroid": false
         }
       ],

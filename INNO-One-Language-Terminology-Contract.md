@@ -10,6 +10,8 @@
 > Profile & Settings owns the personal language preference. Admin Center -> Platform Settings owns the organization/platform default. A user may explicitly return to the organization default. The active runtime locale must update `document.documentElement.lang`, preserve route/resource context, and must not alter authorization.
 >
 > **Step45L Agent runtime override — 2026-10-05:** Endpoint Agent now implements the same `en-US` / `th-TH` preference model in its real React runtime. Request Help, ownership confirmation, remote-consent state, offline/error state and Agent prompt chrome are bilingual. Prompt/business content remains explicitly bilingual or user-authored; permissions, statuses, event names and audit codes remain language-neutral. Endpoint Agent remains a separate native/client surface and is not added to Web Portal navigation.
+>
+> **Step45M Android Mobile runtime override — 2026-10-05:** Assets Mobile now implements the same `en-US` / `th-TH` runtime model. Before authentication it derives a supported locale from the device; after authentication it applies the effective `locale` from `/platform/me`, which already resolves explicit user preference over organization default. The Mobile TH/EN control persists an explicit preference through `/platform/me/profile`. Scanner, scan history, result, busy/task, sign-in, QR error and offline copy are bilingual. Asset/business values remain language-neutral or user-authored and are not silently translated. Android Assets Mobile remains a separate client surface and is not added to Web Portal navigation.
 
 **Status:** Historical prototype baseline — UX/UI final polish Step 3; superseded for Production runtime by Step 45E
 **Date:** 2026-09-25
