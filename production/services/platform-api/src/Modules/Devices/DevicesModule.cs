@@ -1,3 +1,4 @@
+using INNO.One.Contracts.Agent;
 using INNO.One.Contracts.Automation;
 using INNO.One.Contracts.Directory;
 using INNO.One.Contracts.Reports;
@@ -21,6 +22,7 @@ public static class DevicesModule
             .UseSnakeCaseNamingConvention());
 
         services.AddScoped<IDeviceDirectoryReader, DeviceDirectoryReader>();
+        services.AddScoped<IAgentPromptService, AgentPromptService>();
         services.AddScoped<IDeviceSoftwareInventoryReader, DeviceSoftwareInventoryReader>();
         services.AddScoped<IReportSourceReader, DeviceReportSourceReader>();
         services.AddScoped<IGlobalSearchProvider, DevicesGlobalSearchProvider>();

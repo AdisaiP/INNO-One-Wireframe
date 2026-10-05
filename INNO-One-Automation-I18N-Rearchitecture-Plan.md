@@ -514,8 +514,12 @@ Reports now owns real P02/P06/P10/P05 Product routes, saved definitions, module-
 
 The shared `IReportGenerationService` is exposed through Contracts and accepts `automation` as a trigger so modules can opt into report generation through their own approved automation catalog. Step45K does not force a generic Report action into every module. Delivery in this slice is persisted/downloadable CSV; email/external storage delivery remains deferred.
 
-### Step 45L - Endpoint Agent bilingual runtime
-Implement Thai/English localization for real Agent runtime, including consent, ownership, request-help, offline/error states, and workflow-created user prompts.
+### Step 45L - Endpoint Agent bilingual runtime — IMPLEMENTED / RUNTIME QA BLOCKED
+Implementation is present: Tauri 2 Windows-first native-host scaffold, React/Vite Agent renderer, Keycloak PKCE, Thai/English locale handling, Request Help, ownership confirmation, durable remote consent, offline/error states and explicit durable Agent prompt contracts/UI.
+
+Current Windows QA host cannot reach the development PostgreSQL/Keycloak network and has no local Docker/PostgreSQL/Keycloak fallback. Step45L must remain open until authenticated runtime/browser QA and the broad Web regression are executed after connectivity returns.
+
+Do not begin Step45M until that runtime gate is green.
 
 ### Step 45M - Android Mobile bilingual completion
 Migrate scanner/history/result/error/task surfaces to the same locale model and verify user/org fallback behavior.
@@ -579,7 +583,8 @@ Step 45E, Step 45F, Step 45G, Step 45H, Step 45I and Step 45K are complete. The 
 
 **Step 45J - Admin Approval Automation is deferred by product decision and was not implemented.**
 
-Next implementation is **Step 45L - Endpoint Agent bilingual runtime**.
+Current implementation focus remains **Step 45L - Endpoint Agent bilingual runtime** until its authenticated runtime QA passes.
 
-Reason:
-The Web Product now has bilingual foundations across Helpdesk, Devices, Assets and Reports, while Endpoint Agent is still boundary-only. Step45L should implement the real Agent runtime in Thai and English for consent, ownership confirmation, Request Help, offline/error states and explicitly contracted workflow-created prompts without moving Agent-owned interactions into normal Web navigation.
+Step45L implementation is in place, but the QA host currently has no route to PostgreSQL/Keycloak development infrastructure. Do not treat this as complete and do not advance to Step45M until the prepared Agent browser/runtime QA and broad Web regression are green.
+
+After Step45L is fully verified, the next implementation is **Step 45M - Android Mobile bilingual completion**.

@@ -59,7 +59,7 @@ Web Portal must not:
 Endpoint Agent owns user-facing interactions that happen on the managed computer.
 
 ### TOR 7.12
-The Thai user/ownership confirmation form belongs to the Endpoint Agent.
+The user/ownership confirmation form belongs to the Endpoint Agent. Step45L Production renders the Agent interaction in Thai or English from the shared runtime locale model; the historical TOR/prototype wording remains Thai-first.
 
 Agent flow:
 ```text
@@ -67,7 +67,7 @@ Agent
   ↓
 Ownership / User Confirmation
   ↓
-Thai form
+Thai / English runtime form
   ↓
 Submit user + ownership state
   ↓

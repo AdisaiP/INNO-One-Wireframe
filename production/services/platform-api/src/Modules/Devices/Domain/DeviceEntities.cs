@@ -31,6 +31,45 @@ public sealed class Device
     public DateTimeOffset UpdatedAt { get; set; }
 }
 
+public sealed class AgentPrompt
+{
+    public Guid Id { get; set; }
+    public Guid DeviceId { get; set; }
+    public Guid RequestedByUserId { get; set; }
+    public required string SourceModule { get; set; }
+    public string? SourceReference { get; set; }
+    public required string PromptType { get; set; }
+    public required string TitleTh { get; set; }
+    public required string TitleEn { get; set; }
+    public required string MessageTh { get; set; }
+    public required string MessageEn { get; set; }
+    public required string Status { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset ExpiresAt { get; set; }
+    public DateTimeOffset? RespondedAt { get; set; }
+    public Guid? RespondedByUserId { get; set; }
+    public string? ResponseKey { get; set; }
+    public long Version { get; set; } = 1;
+}
+
+public sealed class RemoteConsentRequest
+{
+    public Guid Id { get; set; }
+    public Guid DeviceId { get; set; }
+    public Guid RequestedByUserId { get; set; }
+    public required string OperatorName { get; set; }
+    public string? OperatorRole { get; set; }
+    public required string Mode { get; set; }
+    public required string MessageTh { get; set; }
+    public required string MessageEn { get; set; }
+    public required string Status { get; set; }
+    public DateTimeOffset RequestedAt { get; set; }
+    public DateTimeOffset ExpiresAt { get; set; }
+    public DateTimeOffset? DecidedAt { get; set; }
+    public Guid? DecidedByUserId { get; set; }
+    public long Version { get; set; } = 1;
+}
+
 public sealed class DeviceExternalMapping
 {
     public Guid Id { get; set; }

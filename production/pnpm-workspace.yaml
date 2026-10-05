@@ -1,5 +1,6 @@
 packages:
   - 'apps/web-portal'
+  - 'apps/endpoint-agent'
   - 'apps/assets-mobile'
   - 'packages/*'
 

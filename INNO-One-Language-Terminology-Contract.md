@@ -8,6 +8,8 @@
 > The historical fixed-language rules below remain the regression baseline for the frozen HTML prototype only. They no longer define the language ownership of Production React. `language-terminology-audit.py` continues to protect that frozen prototype. Production bilingual behavior is guarded by `step45e-bilingual-foundation-audit.py` and runtime/browser QA.
 >
 > Profile & Settings owns the personal language preference. Admin Center -> Platform Settings owns the organization/platform default. A user may explicitly return to the organization default. The active runtime locale must update `document.documentElement.lang`, preserve route/resource context, and must not alter authorization.
+>
+> **Step45L Agent runtime override — 2026-10-05:** Endpoint Agent now implements the same `en-US` / `th-TH` preference model in its real React runtime. Request Help, ownership confirmation, remote-consent state, offline/error state and Agent prompt chrome are bilingual. Prompt/business content remains explicitly bilingual or user-authored; permissions, statuses, event names and audit codes remain language-neutral. Endpoint Agent remains a separate native/client surface and is not added to Web Portal navigation.
 
 **Status:** Historical prototype baseline — UX/UI final polish Step 3; superseded for Production runtime by Step 45E
 **Date:** 2026-09-25

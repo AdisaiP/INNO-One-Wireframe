@@ -29,6 +29,9 @@ public static class HelpdeskEndpoints
         api.MapPost("/helpdesk/tickets", CreateTicketAsync)
             .WithName("helpdesk.tickets.create");
 
+        api.MapPost("/agent/help-requests", CreateTicketAsync)
+            .WithName("agent.help_requests.create");
+
         api.MapPost("/helpdesk/tickets/{ticketId}/replies", ReplyAsync)
             .WithName("helpdesk.tickets.reply");
 
@@ -527,22 +530,25 @@ public static class HelpdeskEndpoints
                 return Validation("relatedDeviceId", "Invalid related Device.");
             }
 
-            var deviceAccess = await accessEvaluator.EvaluateAsync(
-                httpContext.User,
-                "devices.view",
+            var devices = await deviceDirectoryReader.ReadAsync(
+                new[] { parsedDeviceId },
                 cancellationToken);
-            if (!deviceAccess.Allowed)
+            if (!devices.TryGetValue(parsedDeviceId, out var device))
             {
                 return Forbidden("RELATED_DEVICE_NOT_ACCESSIBLE");
             }
 
-            var devices = await deviceDirectoryReader.ReadAsync(
-                new[] { parsedDeviceId },
-                cancellationToken);
-            if (!devices.TryGetValue(parsedDeviceId, out var device)
-                || !CanAccessDevice(deviceAccess, device))
+            var selfOwnedDevice = device.OwnerUserId == access.UserId;
+            if (!selfOwnedDevice)
             {
-                return Forbidden("RELATED_DEVICE_NOT_ACCESSIBLE");
+                var deviceAccess = await accessEvaluator.EvaluateAsync(
+                    httpContext.User,
+                    "devices.view",
+                    cancellationToken);
+                if (!deviceAccess.Allowed || !CanAccessDevice(deviceAccess, device))
+                {
+                    return Forbidden("RELATED_DEVICE_NOT_ACCESSIBLE");
+                }
             }
 
             relatedDeviceId = parsedDeviceId;

@@ -49,6 +49,34 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
 
+  apps/endpoint-agent:
+    dependencies:
+      keycloak-js:
+        specifier: 26.2.4
+        version: 26.2.4
+      react:
+        specifier: 19.2.0
+        version: 19.2.0
+      react-dom:
+        specifier: 19.2.0
+        version: 19.2.0(react@19.2.0)
+    devDependencies:
+      '@types/react':
+        specifier: 19.3.0
+        version: 19.3.0
+      '@types/react-dom':
+        specifier: 19.3.0
+        version: 19.3.0(@types/react@19.3.0)
+      '@vitejs/plugin-react':
+        specifier: 4.7.0
+        version: 4.7.0(vite@6.4.3(@types/node@26.6.3)(lightningcss@1.33.0)(terser@5.51.2)(yaml@2.9.1))
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vite:
+        specifier: 6.4.3
+        version: 6.4.3(@types/node@26.6.3)(lightningcss@1.33.0)(terser@5.51.2)(yaml@2.9.1)
+
   apps/web-portal:
     dependencies:
       '@inno/contracts':

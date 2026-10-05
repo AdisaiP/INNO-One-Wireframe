@@ -149,9 +149,16 @@
       "id": "endpoint-agent",
       "name": "Endpoint Agent",
       "surface": "endpoint-agent",
-      "status": "boundary-only",
+      "status": "implemented",
       "productionEvidence": [
-        "production/apps/endpoint-agent/README.md",
+        "production/apps/endpoint-agent/package.json",
+        "production/apps/endpoint-agent/src/main.tsx",
+        "production/apps/endpoint-agent/src/auth.ts",
+        "production/apps/endpoint-agent/src/api.ts",
+        "production/apps/endpoint-agent/src-tauri/tauri.conf.json",
+        "production/services/platform-api/src/Modules/Devices/Api/AgentDeviceEndpoints.cs",
+        "production/services/platform-api/src/Modules/Assets/Api/AgentAssetsEndpoints.cs",
+        "production/services/platform-api/src/INNO.One.Contracts/Agent/AgentPromptContracts.cs",
         "INNO-One-Surface-Boundaries.md"
       ],
       "prototypeEvidence": [
@@ -159,15 +166,12 @@
         "agent-ownership-confirmation.html",
         "remote-consent-message.html"
       ],
-      "missing": [
-        "Runtime implementation choice",
-        "Agent shell/runtime",
-        "Request Help client",
-        "Ownership confirmation client",
-        "Remote consent runtime",
+      "runtimeDecision": "Tauri 2 native host with React/Vite renderer; Windows-first",
+      "missing": [],
+      "deferredToMeeting": [
         "Meeting recording client integration"
       ],
-      "nextStep": "47"
+      "nextStep": null
     },
     {
       "id": "assets-mobile",

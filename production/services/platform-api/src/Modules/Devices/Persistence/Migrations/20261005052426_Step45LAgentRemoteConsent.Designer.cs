@@ -3,6 +3,7 @@ using System;
 using INNO.One.Modules.Devices.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace INNO.One.Modules.Devices.Persistence.Migrations
 {
     [DbContext(typeof(DevicesDbContext))]
-    partial class DevicesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261005052426_Step45LAgentRemoteConsent")]
+    partial class Step45LAgentRemoteConsent
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,105 +25,6 @@ namespace INNO.One.Modules.Devices.Persistence.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("INNO.One.Modules.Devices.Domain.AgentPrompt", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<Guid>("DeviceId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("device_id");
-
-                    b.Property<DateTimeOffset>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("expires_at");
-
-                    b.Property<string>("MessageEn")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)")
-                        .HasColumnName("message_en");
-
-                    b.Property<string>("MessageTh")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)")
-                        .HasColumnName("message_th");
-
-                    b.Property<string>("PromptType")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("prompt_type");
-
-                    b.Property<Guid>("RequestedByUserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("requested_by_user_id");
-
-                    b.Property<DateTimeOffset?>("RespondedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("responded_at");
-
-                    b.Property<Guid?>("RespondedByUserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("responded_by_user_id");
-
-                    b.Property<string>("ResponseKey")
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("response_key");
-
-                    b.Property<string>("SourceModule")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("source_module");
-
-                    b.Property<string>("SourceReference")
-                        .HasMaxLength(160)
-                        .HasColumnType("character varying(160)")
-                        .HasColumnName("source_reference");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("status");
-
-                    b.Property<string>("TitleEn")
-                        .IsRequired()
-                        .HasMaxLength(240)
-                        .HasColumnType("character varying(240)")
-                        .HasColumnName("title_en");
-
-                    b.Property<string>("TitleTh")
-                        .IsRequired()
-                        .HasMaxLength(240)
-                        .HasColumnType("character varying(240)")
-                        .HasColumnName("title_th");
-
-                    b.Property<long>("Version")
-                        .HasColumnType("bigint")
-                        .HasColumnName("version");
-
-                    b.HasKey("Id")
-                        .HasName("pk_agent_prompts");
-
-                    b.HasIndex("SourceModule", "SourceReference")
-                        .HasDatabaseName("ix_agent_prompts_source_module_source_reference");
-
-                    b.HasIndex("DeviceId", "Status", "ExpiresAt")
-                        .HasDatabaseName("ix_agent_prompts_device_id_status_expires_at");
-
-                    b.ToTable("agent_prompts", "devices");
-                });
 
             modelBuilder.Entity("INNO.One.Modules.Devices.Domain.Device", b =>
                 {
@@ -973,16 +877,6 @@ namespace INNO.One.Modules.Devices.Persistence.Migrations
                         .HasDatabaseName("ix_remote_consent_requests_device_id_status_expires_at");
 
                     b.ToTable("remote_consent_requests", "devices");
-                });
-
-            modelBuilder.Entity("INNO.One.Modules.Devices.Domain.AgentPrompt", b =>
-                {
-                    b.HasOne("INNO.One.Modules.Devices.Domain.Device", null)
-                        .WithMany()
-                        .HasForeignKey("DeviceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_agent_prompts_devices_device_id");
                 });
 
             modelBuilder.Entity("INNO.One.Modules.Devices.Domain.DeviceExternalMapping", b =>

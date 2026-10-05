@@ -1,5 +1,10 @@
 # INNO.One — Step 45A Production Gap Audit & Roadmap Freeze
 
+> [!IMPORTANT]
+> **Current production override — Step45L Endpoint Agent bilingual runtime**
+>
+> The Step45A sections below are the historical roadmap baseline. Step45L closes the historical **Endpoint Agent — BOUNDARY ONLY** gap: Production now contains a Tauri 2 Windows-first native-host scaffold, React/Vite Agent renderer, Keycloak PKCE session handling, bilingual Thai/English runtime, Request Help, ownership confirmation, durable remote consent, offline/error states, and an explicit durable Agent prompt contract. Meeting recording integration remains owned by the later Meeting slice and is not a Step45L gap. The current machine-readable status is in `inno-step45a-production-gap-roadmap.json`.
+
 **Status:** COMPLETE  
 **Branch:** `planning/step45a-production-gap-roadmap`  
 **Base:** `9443903 test: complete step 44h-c browser verification`  

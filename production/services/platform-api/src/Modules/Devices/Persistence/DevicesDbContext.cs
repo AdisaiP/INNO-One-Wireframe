@@ -9,6 +9,8 @@ public sealed class DevicesDbContext(DbContextOptions<DevicesDbContext> options)
 
     public DbSet<Device> Devices => Set<Device>();
     public DbSet<DeviceExternalMapping> DeviceExternalMappings => Set<DeviceExternalMapping>();
+    public DbSet<RemoteConsentRequest> RemoteConsentRequests => Set<RemoteConsentRequest>();
+    public DbSet<AgentPrompt> AgentPrompts => Set<AgentPrompt>();
     public DbSet<DeviceGroup> DeviceGroups => Set<DeviceGroup>();
     public DbSet<DeviceGroupMember> DeviceGroupMembers => Set<DeviceGroupMember>();
     public DbSet<DiscoveryScan> DiscoveryScans => Set<DiscoveryScan>();
@@ -44,6 +46,40 @@ public sealed class DevicesDbContext(DbContextOptions<DevicesDbContext> options)
             entity.Property(x => x.MemoryTotalGb).HasPrecision(12, 2);
             entity.Property(x => x.DiskUsedGb).HasPrecision(12, 2);
             entity.Property(x => x.DiskTotalGb).HasPrecision(12, 2);
+        });
+
+        modelBuilder.Entity<AgentPrompt>(entity =>
+        {
+            entity.ToTable("agent_prompts");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => new { x.DeviceId, x.Status, x.ExpiresAt });
+            entity.HasIndex(x => new { x.SourceModule, x.SourceReference });
+            entity.Property(x => x.SourceModule).HasMaxLength(64);
+            entity.Property(x => x.SourceReference).HasMaxLength(160);
+            entity.Property(x => x.PromptType).HasMaxLength(32);
+            entity.Property(x => x.TitleTh).HasMaxLength(240);
+            entity.Property(x => x.TitleEn).HasMaxLength(240);
+            entity.Property(x => x.MessageTh).HasMaxLength(2000);
+            entity.Property(x => x.MessageEn).HasMaxLength(2000);
+            entity.Property(x => x.Status).HasMaxLength(32);
+            entity.Property(x => x.ResponseKey).HasMaxLength(32);
+            entity.HasOne<Device>().WithMany().HasForeignKey(x => x.DeviceId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<RemoteConsentRequest>(entity =>
+        {
+            entity.ToTable("remote_consent_requests");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => new { x.DeviceId, x.Status, x.ExpiresAt });
+            entity.HasIndex(x => x.RequestedByUserId);
+            entity.HasIndex(x => x.DecidedByUserId);
+            entity.Property(x => x.OperatorName).HasMaxLength(160);
+            entity.Property(x => x.OperatorRole).HasMaxLength(160);
+            entity.Property(x => x.Mode).HasMaxLength(64);
+            entity.Property(x => x.MessageTh).HasMaxLength(2000);
+            entity.Property(x => x.MessageEn).HasMaxLength(2000);
+            entity.Property(x => x.Status).HasMaxLength(32);
+            entity.HasOne<Device>().WithMany().HasForeignKey(x => x.DeviceId).OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<DeviceExternalMapping>(entity =>
