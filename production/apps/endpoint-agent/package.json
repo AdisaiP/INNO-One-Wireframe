@@ -12,6 +12,7 @@
     "build:native": "scripts\\tauri-native.cmd build"
   },
   "dependencies": {
+    "@tauri-apps/api": "2.12.1",
     "keycloak-js": "26.2.4",
     "react": "19.2.0",
     "react-dom": "19.2.0"

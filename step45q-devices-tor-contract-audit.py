@@ -122,7 +122,8 @@ check("ticket related device reference", any(x.get("column") == "related_device_
 planned_tables = {x["table"] for x in contract["plannedPersistence"]}
 check("planned performance table", "devices.device_performance_samples" in planned_tables)
 check("planned activity table", "devices.device_activity_items" in planned_tables)
-check("planned tables not prematurely global", "device_performance_samples" not in device_tables and "device_activity_items" not in device_tables)
+check("Step45S performance table promoted", "device_performance_samples" in device_tables)
+check("Step45U activity table not prematurely global", "device_activity_items" not in device_tables)
 
 states = " ".join(contract["stateRules"])
 check("offline cached contract", "Cached Overview, Hardware, Software and Network" in states)

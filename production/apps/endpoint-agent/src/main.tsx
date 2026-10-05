@@ -12,6 +12,7 @@ import {
   respondToPrompt,
   setPreferredLocale,
   submitOwnership,
+  submitTelemetry,
   type AgentPrompt,
   type ConsentRequest,
   type DeviceContext,
@@ -20,6 +21,11 @@ import {
 } from './api';
 import { initializeAuthentication, logout } from './auth';
 import { translate, type Locale } from './i18n';
+import {
+  collectNetworkTelemetry,
+  collectPerformanceTelemetry,
+  isNativeAgentRuntime,
+} from './telemetry';
 import './styles.css';
 
 type View = 'home' | 'help' | 'ownership';
@@ -118,6 +124,52 @@ function App() {
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    if (!profile || !device || !online || !isNativeAgentRuntime()) return;
+
+    let cancelled = false;
+    let busy = false;
+    let ticks = 0;
+
+    const publish = async (includeNetwork: boolean) => {
+      if (busy || cancelled) return;
+      busy = true;
+      try {
+        const performance = await collectPerformanceTelemetry();
+        let network = null;
+        if (includeNetwork) {
+          try {
+            network = await collectNetworkTelemetry();
+          } catch {
+            network = null;
+          }
+        }
+        if (cancelled) return;
+        await submitTelemetry({
+          observedAt: new Date().toISOString(),
+          sourceInstance: device.agentVersion ?? 'endpoint-agent',
+          performance,
+          network,
+        });
+      } catch {
+        // Telemetry is best-effort. User-facing Agent flows must remain usable.
+      } finally {
+        busy = false;
+      }
+    };
+
+    void publish(true);
+    const interval = window.setInterval(() => {
+      ticks += 1;
+      void publish(ticks % 12 === 0);
+    }, 5000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, [profile, device, online]);
 
   const switchLocale = async () => {
     if (!profile) return;

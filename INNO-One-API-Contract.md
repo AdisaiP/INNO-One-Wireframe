@@ -760,19 +760,19 @@ Recording and uploaded audio are separate processing commands against the Meetin
 Current Step 11 machine-readable catalog contains:
 
 - Platform: 12 operations
-- Devices: 59 operations
-- Assets: 18 operations
+- Devices: 64 operations
+- Assets: 24 operations
 - Reports: 9 operations
 - Helpdesk: 37 operations
 - Meeting: 10 operations
 - Admin: 23 operations
-- Endpoint Agent: 4 operations
+- Endpoint Agent: 5 operations
 
 Total:
 
 ```text
-172 operations
-137 unique paths
+184 operations
+146 unique paths
 ```
 
 This catalog covers every one of the 93 frozen Web routes plus the three runtime Agent/Mobile surfaces that need APIs.
@@ -1010,7 +1010,7 @@ Step 13 Data Ownership / Database Model is now complete. The next implementation
 
 ## 33. Canonical endpoint catalog
 
-Machine-readable source: `inno-api-contract.json` (172 operations).
+Machine-readable source: `inno-api-contract.json` (184 operations / 146 unique paths after Step45S additive promotion).
 
 ### Platform
 
@@ -1280,3 +1280,57 @@ Step45R defines hardware evidence older than 24 hours as stale. Cached evidence 
 The persisted source is `devices.device_inventory_snapshots`, already reserved by Data Model Contract 0.6.0. Step45R activates that planned table in the Devices EF model and backfills one partial observation from the existing canonical Device row during migration so upgrades do not silently lose previously known inventory.
 
 The planned `POST /devices/{deviceId}/inventory-refreshes` command remains intentionally unavailable in Step45R because the Endpoint Agent inventory command channel is not implemented yet. The Web UI therefore does not expose a fake Refresh action. The command is promoted only when a real endpoint execution path exists.
+
+
+## Step45S additive boundary — Device performance and network telemetry
+
+Step45S activates the Performance and Network Device Detail contracts frozen by Step45Q and adds one Endpoint Agent ingestion boundary.
+
+### Device performance
+
+`GET /devices/{deviceId}/performance?window=<window>&interval=<seconds>`
+
+- Permission: `devices.view`
+- Scope: Device resource scope
+- Supported windows: `5m`, `15m`, `1h`
+- Supported intervals: `5`, `15`, `30`, `60` seconds
+- Default Product view: 5 minutes / 5 seconds
+
+The response contains a bounded series of CPU, memory and disk samples plus latest-sample metadata.
+
+A sample is **Live** only when all are true:
+
+1. the Device is currently online,
+2. the latest sample source is `endpoint_agent`,
+3. the latest observation is no older than 60 seconds.
+
+Historical/backfilled values may remain visible but are never promoted to Live.
+
+### Device network inventory
+
+`GET /devices/{deviceId}/network-inventory`
+
+- Permission: `devices.view`
+- Scope: Device resource scope
+- Freshness threshold: 15 minutes
+
+The response is a normalized network observation containing only facts the Endpoint Agent actually reports, including IP/MAC identity, subnet, gateway, DNS and adapter identity. Optional latency/packet-loss fields remain null when the Agent did not measure them; Product UI must not infer a Healthy state from missing evidence.
+
+Network observation time/provenance is independent from general Hardware observation time so a network refresh cannot make old Hardware evidence appear fresh.
+
+### Endpoint Agent telemetry ingestion
+
+`POST /agent/devices/{deviceId}/telemetry`
+
+- Auth boundary: Agent/self surface
+- Current implementation authenticates the signed-in Endpoint Agent user and additionally requires the requested Device to be owned by that user.
+- Observations more than five minutes in the future or more than one hour old are rejected.
+- CPU, memory, disk, latency and packet-loss ranges are validated before persistence.
+- Performance samples are written with source `endpoint_agent`.
+- Network observations are projected into the Devices-owned inventory snapshot with their own timestamps and provenance.
+
+The Endpoint Agent publishes Performance every 5 seconds while it is running, authenticated, associated with an online managed Device and executing inside the native Tauri runtime. Network configuration is collected every 12 Performance ticks (approximately 60 seconds).
+
+Performance persistence is operational and bounded. The runtime opportunistically deletes samples older than one hour for the observed Device.
+
+MeshCentral is not used as a performance telemetry source because the current adapter does not provide these metrics.

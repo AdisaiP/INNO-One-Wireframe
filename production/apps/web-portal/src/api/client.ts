@@ -49,6 +49,8 @@ import type {
   CreatedTicket,
   DeviceDetail,
   DeviceHardwareInventory,
+  DeviceNetworkInventory,
+  DevicePerformance,
   DeviceSoftwareInventory,
   DeviceGroupDetail,
   DeviceGroupListItem,
@@ -595,6 +597,24 @@ export async function getDevice(deviceId: string): Promise<DeviceDetail> {
 export async function getDeviceHardwareInventory(deviceId: string): Promise<DeviceHardwareInventory> {
   const response = await request<ResourceEnvelope<DeviceHardwareInventory>>(
     '/devices/' + encodeURIComponent(deviceId) + '/hardware-inventory',
+  );
+  return response.data;
+}
+
+export async function getDevicePerformance(
+  deviceId: string,
+  window: '5m' | '15m' | '1h' = '5m',
+  interval = 5,
+): Promise<DevicePerformance> {
+  const response = await request<ResourceEnvelope<DevicePerformance>>(
+    '/devices/' + encodeURIComponent(deviceId) + '/performance?window=' + encodeURIComponent(window) + '&interval=' + interval,
+  );
+  return response.data;
+}
+
+export async function getDeviceNetworkInventory(deviceId: string): Promise<DeviceNetworkInventory> {
+  const response = await request<ResourceEnvelope<DeviceNetworkInventory>>(
+    '/devices/' + encodeURIComponent(deviceId) + '/network-inventory',
   );
   return response.data;
 }

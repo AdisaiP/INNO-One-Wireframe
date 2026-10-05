@@ -47,6 +47,7 @@ public static class DevicesDevelopmentSeed
             }
 
             await SeedHardwareInventoryAsync(db, cancellationToken);
+            await SeedPerformanceSamplesAsync(db, cancellationToken);
             await SeedSoftwareInventoryAsync(db, cancellationToken);
             return;
         }
@@ -151,6 +152,7 @@ public static class DevicesDevelopmentSeed
 
         await db.SaveChangesAsync(cancellationToken);
         await SeedHardwareInventoryAsync(db, cancellationToken);
+        await SeedPerformanceSamplesAsync(db, cancellationToken);
         await SeedSoftwareInventoryAsync(db, cancellationToken);
     }
 
@@ -187,11 +189,57 @@ public static class DevicesDevelopmentSeed
                 MemorySlotsUsed = device.MemoryTotalGb is null ? null : device.DeviceType == "server" ? 4 : 2,
                 MemorySlotsTotal = device.MemoryTotalGb is null ? null : device.DeviceType == "server" ? 8 : 4,
                 IpAddress = device.IpAddress,
-                MacAddress = device.MacAddress
+                MacAddress = device.MacAddress,
+                NetworkObservedAt = device.IpAddress is null && device.MacAddress is null ? null : observedAt,
+                NetworkReceivedAt = device.IpAddress is null && device.MacAddress is null ? null : now,
+                NetworkSource = device.IpAddress is null && device.MacAddress is null ? null : "development_seed",
+                NetworkSourceInstance = device.IpAddress is null && device.MacAddress is null ? null : "seed"
             });
         }
 
         if (devices.Count > 0)
+        {
+            await db.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    private static async Task SeedPerformanceSamplesAsync(
+        DevicesDbContext db,
+        CancellationToken cancellationToken)
+    {
+        if (await db.DevicePerformanceSamples.AnyAsync(cancellationToken))
+        {
+            return;
+        }
+
+        var devices = await db.Devices.AsNoTracking().OrderBy(x => x.Hostname).ToListAsync(cancellationToken);
+        var receivedAt = DateTimeOffset.UtcNow;
+        foreach (var device in devices)
+        {
+            if (device.CpuPercent is null
+                && device.MemoryUsedGb is null
+                && device.DiskUsedGb is null)
+            {
+                continue;
+            }
+
+            db.DevicePerformanceSamples.Add(new DevicePerformanceSample
+            {
+                Id = Guid.NewGuid(),
+                DeviceId = device.Id,
+                ObservedAt = device.LastSeenAt ?? device.UpdatedAt,
+                ReceivedAt = receivedAt,
+                Source = "development_seed",
+                SourceInstance = "seed",
+                CpuPercent = device.CpuPercent,
+                MemoryUsedGb = device.MemoryUsedGb,
+                MemoryTotalGb = device.MemoryTotalGb,
+                DiskUsedGb = device.DiskUsedGb,
+                DiskTotalGb = device.DiskTotalGb
+            });
+        }
+
+        if (db.ChangeTracker.HasChanges())
         {
             await db.SaveChangesAsync(cancellationToken);
         }

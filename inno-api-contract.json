@@ -2332,6 +2332,43 @@
       ]
     },
     {
+      "id": "devices.performance.get",
+      "method": "GET",
+      "path": "/devices/{deviceId}/performance",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "device-detail-v2.html"
+      ]
+    },
+    {
+      "id": "devices.network_inventory.get",
+      "method": "GET",
+      "path": "/devices/{deviceId}/network-inventory",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "device-detail-v2.html"
+      ]
+    },
+    {
+      "id": "agent.telemetry.ingest",
+      "method": "POST",
+      "path": "/agent/devices/{deviceId}/telemetry",
+      "module": "agent",
+      "permission": null,
+      "scope": "self",
+      "response": "resource",
+      "screens": [
+        "device-detail-v2.html"
+      ],
+      "authMode": "agent-device"
+    },
+    {
       "id": "devices.software_inventory.get",
       "method": "GET",
       "path": "/devices/{deviceId}/software-inventory",
@@ -2423,8 +2460,11 @@
       "devices.get",
       "devices.update",
       "devices.hardware_inventory.get",
+      "devices.performance.get",
+      "devices.network_inventory.get",
       "devices.software_inventory.get",
-      "devices.remote_sessions.create"
+      "devices.remote_sessions.create",
+      "agent.telemetry.ingest"
     ],
     "device-group-detail.html": [
       "devices.get",

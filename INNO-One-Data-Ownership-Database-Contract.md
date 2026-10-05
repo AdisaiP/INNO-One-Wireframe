@@ -797,7 +797,7 @@ Current planning catalog:
 ~~~text
 inno_core
   platform      13
-  devices       27
+  devices       30
   assets        13
   helpdesk      20
   reports        3
@@ -805,12 +805,12 @@ inno_core
   audit          1
   readmodel      3
                 --
-                83 tables
+                86 tables
 
 inno_meeting
   meeting        9
                 --
-Total planning catalog: 92 tables
+Total planning catalog: 95 tables
 ~~~
 
 These are logical production tables, not a requirement to create every table on day one.
@@ -863,7 +863,7 @@ Step 14 Production Project Skeleton is now complete under 'production/'.
 
 The data contract now has buildable DbContext/migration ownership boundaries for Platform, Devices, Assets, Helpdesk, Reports, shared infrastructure, Meeting and Meeting integration. Local PostgreSQL bootstrap creates the frozen databases/schemas, while business tables remain intentionally ungenerated until vertical slices implement real aggregates.
 
-Step 15 First Vertical Slice is now implemented with the first `platform` and `devices` migrations. The full 92-table catalog remains the planning target; only tables required by the implemented slice are created so far.
+Step 15 First Vertical Slice is now implemented with the first `platform` and `devices` migrations. The current 95-table planning catalog remains the target; implementation still creates only tables required by completed vertical slices.
 
 Next recommended implementation slice: **Devices Management — Device Groups → Discovery / Add Device → Agent enrollment → live MeshCentral synchronization**.
 
@@ -895,7 +895,10 @@ Machine-readable source: 'inno-data-model-contract.json'.
 | --- | --- | --- | --- |
 | 'devices' | 'entity' | Canonical INNO.One managed device | owner_user_id -> platform.user_profiles (cross-module), organization_unit_id -> platform.organization_units (cross-module), location_id -> platform.locations (cross-module) |
 | 'device_external_mappings' | 'entity' | Vendor engine identifiers for a device | — |
-| 'device_inventory_snapshots' | 'entity' | Last/current normalized inventory snapshot | — |
+| 'device_inventory_snapshots' | 'entity' | Last/current normalized inventory snapshot with independently timestamped network observation fields | — |
+| 'device_performance_samples' | 'history' | Bounded endpoint performance telemetry for Device Detail CPU, memory and disk history | — |
+| 'software_inventory_snapshots' | 'history' | Immutable installed-software observation metadata with completeness and provenance | — |
+| 'installed_software' | 'entity' | Normalized package rows owned by one software inventory snapshot | — |
 | 'device_groups' | 'entity' | Static/dynamic device groups | — |
 | 'device_group_members' | 'join' | Resolved group membership | — |
 | 'remote_sessions' | 'entity' | Remote support session lifecycle | operator_user_id -> platform.user_profiles (cross-module) |
@@ -1023,3 +1026,44 @@ Devices owns immutable `software_inventory_snapshots` and child `installed_softw
 ## Step 28 implemented read model — baseline results
 
 Assets owns `baseline_results` as the latest result per baseline + Asset. It stores result/reason, missing packages, opaque inventory snapshot reference, observation time, baseline version and evaluation time. The snapshot reference has no database foreign key to Devices.
+
+
+## Step45S additive data boundary — Performance and Network
+
+Step45S promotes `devices.device_performance_samples` from the Step45Q planned boundary into the canonical Devices data model.
+
+### devices.device_performance_samples
+
+Purpose: bounded operational Endpoint Agent telemetry used by Device Detail Performance.
+
+Canonical evidence includes:
+
+- Device ID,
+- observation and receipt timestamps,
+- source / source instance,
+- CPU percent,
+- memory used / total GB,
+- disk used / total GB.
+
+The table is Devices-owned and has no cross-module foreign key. Runtime retention is bounded; current Step45S behavior opportunistically removes samples older than one hour for a Device during telemetry ingestion.
+
+Historical values backfilled from the pre-Step45S Device row use source `legacy_device_row`. They are useful historical evidence only and never satisfy the Product Live predicate.
+
+### devices.device_inventory_snapshots — Network extension
+
+Network facts remain part of the normalized Devices inventory snapshot, but Step45S adds independent network evidence metadata:
+
+- `network_observed_at`
+- `network_received_at`
+- `network_source`
+- `network_source_instance`
+- subnet mask
+- gateway
+- DNS servers
+- adapter name
+- optional Agent latency
+- optional packet loss
+
+This separation is intentional: receiving a fresh network observation does not change the age of unrelated Hardware evidence.
+
+Processes and Services remain ephemeral planned Step45T data and still do not receive permanent history tables in Step45S.

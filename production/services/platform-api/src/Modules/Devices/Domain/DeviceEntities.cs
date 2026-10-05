@@ -31,6 +31,21 @@ public sealed class Device
     public DateTimeOffset UpdatedAt { get; set; }
 }
 
+public sealed class DevicePerformanceSample
+{
+    public Guid Id { get; set; }
+    public Guid DeviceId { get; set; }
+    public DateTimeOffset ObservedAt { get; set; }
+    public DateTimeOffset ReceivedAt { get; set; }
+    public required string Source { get; set; }
+    public string? SourceInstance { get; set; }
+    public int? CpuPercent { get; set; }
+    public decimal? MemoryUsedGb { get; set; }
+    public decimal? MemoryTotalGb { get; set; }
+    public decimal? DiskUsedGb { get; set; }
+    public decimal? DiskTotalGb { get; set; }
+}
+
 public sealed class DeviceInventorySnapshot
 {
     public Guid Id { get; set; }
@@ -51,6 +66,16 @@ public sealed class DeviceInventorySnapshot
     public int? MemorySlotsTotal { get; set; }
     public string? IpAddress { get; set; }
     public string? MacAddress { get; set; }
+    public DateTimeOffset? NetworkObservedAt { get; set; }
+    public DateTimeOffset? NetworkReceivedAt { get; set; }
+    public string? NetworkSource { get; set; }
+    public string? NetworkSourceInstance { get; set; }
+    public string? SubnetMask { get; set; }
+    public string? Gateway { get; set; }
+    public string? DnsServers { get; set; }
+    public string? NetworkAdapterName { get; set; }
+    public int? AgentLatencyMs { get; set; }
+    public decimal? PacketLossPercent { get; set; }
 }
 
 public sealed class AgentPrompt

@@ -10,6 +10,7 @@ public sealed class DevicesDbContext(DbContextOptions<DevicesDbContext> options)
     public DbSet<Device> Devices => Set<Device>();
     public DbSet<DeviceExternalMapping> DeviceExternalMappings => Set<DeviceExternalMapping>();
     public DbSet<DeviceInventorySnapshot> DeviceInventorySnapshots => Set<DeviceInventorySnapshot>();
+    public DbSet<DevicePerformanceSample> DevicePerformanceSamples => Set<DevicePerformanceSample>();
     public DbSet<RemoteConsentRequest> RemoteConsentRequests => Set<RemoteConsentRequest>();
     public DbSet<AgentPrompt> AgentPrompts => Set<AgentPrompt>();
     public DbSet<DeviceGroup> DeviceGroups => Set<DeviceGroup>();
@@ -49,6 +50,21 @@ public sealed class DevicesDbContext(DbContextOptions<DevicesDbContext> options)
             entity.Property(x => x.DiskTotalGb).HasPrecision(12, 2);
         });
 
+        modelBuilder.Entity<DevicePerformanceSample>(entity =>
+        {
+            entity.ToTable("device_performance_samples");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => new { x.DeviceId, x.ObservedAt });
+            entity.HasIndex(x => new { x.DeviceId, x.ObservedAt, x.Source }).IsUnique();
+            entity.Property(x => x.Source).HasMaxLength(64);
+            entity.Property(x => x.SourceInstance).HasMaxLength(160);
+            entity.Property(x => x.MemoryUsedGb).HasPrecision(12, 2);
+            entity.Property(x => x.MemoryTotalGb).HasPrecision(12, 2);
+            entity.Property(x => x.DiskUsedGb).HasPrecision(12, 2);
+            entity.Property(x => x.DiskTotalGb).HasPrecision(12, 2);
+            entity.HasOne<Device>().WithMany().HasForeignKey(x => x.DeviceId).OnDelete(DeleteBehavior.Cascade);
+        });
+
         modelBuilder.Entity<DeviceInventorySnapshot>(entity =>
         {
             entity.ToTable("device_inventory_snapshots");
@@ -67,6 +83,13 @@ public sealed class DevicesDbContext(DbContextOptions<DevicesDbContext> options)
             entity.Property(x => x.MemoryTotalGb).HasPrecision(12, 2);
             entity.Property(x => x.IpAddress).HasMaxLength(64);
             entity.Property(x => x.MacAddress).HasMaxLength(64);
+            entity.Property(x => x.NetworkSource).HasMaxLength(64);
+            entity.Property(x => x.NetworkSourceInstance).HasMaxLength(160);
+            entity.Property(x => x.SubnetMask).HasMaxLength(64);
+            entity.Property(x => x.Gateway).HasMaxLength(64);
+            entity.Property(x => x.DnsServers).HasMaxLength(512);
+            entity.Property(x => x.NetworkAdapterName).HasMaxLength(240);
+            entity.Property(x => x.PacketLossPercent).HasPrecision(7, 3);
             entity.HasOne<Device>().WithMany().HasForeignKey(x => x.DeviceId).OnDelete(DeleteBehavior.Cascade);
         });
 

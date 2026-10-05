@@ -360,6 +360,54 @@ export interface DeviceHardwareInventory {
   connectivityState?: string | null;
 }
 
+export interface DevicePerformancePoint {
+  observedAt: string;
+  cpuPercent?: number | null;
+  memoryUsedGb?: number | null;
+  memoryTotalGb?: number | null;
+  diskUsedGb?: number | null;
+  diskTotalGb?: number | null;
+  source: string;
+}
+
+export interface DevicePerformance {
+  deviceId: string;
+  status: 'no_data' | 'live' | 'stale';
+  isLive: boolean;
+  isStale: boolean;
+  latestObservedAt?: string | null;
+  latestReceivedAt?: string | null;
+  source?: string | null;
+  windowSeconds: number;
+  intervalSeconds: number;
+  cpuPercent?: number | null;
+  memoryUsedGb?: number | null;
+  memoryTotalGb?: number | null;
+  diskUsedGb?: number | null;
+  diskTotalGb?: number | null;
+  points: DevicePerformancePoint[];
+}
+
+export interface DeviceNetworkInventory {
+  deviceId: string;
+  inventoryStatus: 'not_reported' | 'reported';
+  snapshotId?: string | null;
+  observedAt?: string | null;
+  receivedAt?: string | null;
+  source?: string | null;
+  sourceInstance?: string | null;
+  isStale: boolean;
+  connectivityState: string;
+  ipAddress?: string | null;
+  macAddress?: string | null;
+  subnetMask?: string | null;
+  gateway?: string | null;
+  dnsServers: string[];
+  adapterName?: string | null;
+  agentLatencyMs?: number | null;
+  packetLossPercent?: number | null;
+}
+
 export interface DeviceSoftwarePackage {
   productKey: string;
   displayName: string;

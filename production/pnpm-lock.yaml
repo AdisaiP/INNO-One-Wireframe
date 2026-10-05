@@ -51,6 +51,9 @@ importers:
 
   apps/endpoint-agent:
     dependencies:
+      '@tauri-apps/api':
+        specifier: 2.12.1
+        version: 2.12.1
       keycloak-js:
         specifier: 26.2.4
         version: 26.2.4
@@ -1111,6 +1114,9 @@ packages:
     resolution: {integrity: sha512-e1TZmDCQnWIfiDVryIHeA6Idj+Lfx1hORLOhXS/l5wcgvtVD4yYqbTDl378sGQKIi2cSgb0TEMC9cKK8GGoJEw==}
     peerDependencies:
       react: ^18 || ^19
+
+  '@tauri-apps/api@2.12.1':
+    resolution: {integrity: sha512-DeyFHa3wynpyoqTDikDEDGTJIq4LQ5USfolQGRmGIWT6JMADyxZBTDa5cAdT3tDg73rUXufPaCwN7aXBos4OnQ==}
 
   '@tauri-apps/cli-darwin-arm64@2.12.1':
     resolution: {integrity: sha512-8bMnbpJ2jKO/ufrOPL65EMHC3ptw7fzeraoQkwibyfGLqIl+UCWsC0152kmNbW6r9NvVQduXqAZF5mH1QgTWhw==}
@@ -4086,6 +4092,8 @@ snapshots:
     dependencies:
       '@tanstack/query-core': 5.104.0
       react: 19.2.0
+
+  '@tauri-apps/api@2.12.1': {}
 
   '@tauri-apps/cli-darwin-arm64@2.12.1':
     optional: true

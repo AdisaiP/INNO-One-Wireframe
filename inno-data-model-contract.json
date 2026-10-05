@@ -276,10 +276,21 @@
         },
         {
           "name": "device_inventory_snapshots",
-          "purpose": "Last/current normalized inventory snapshot",
+          "purpose": "Last/current normalized inventory snapshot including independently timestamped network observation fields",
           "kind": "entity",
           "primaryKey": "id",
           "unique": [],
+          "crossModuleRefs": [],
+          "deletePolicy": "retention"
+        },
+        {
+          "name": "device_performance_samples",
+          "purpose": "Bounded endpoint performance telemetry for Device Detail CPU, memory and disk history",
+          "kind": "history",
+          "primaryKey": "id",
+          "unique": [
+            "device_id+observed_at+source"
+          ],
           "crossModuleRefs": [],
           "deletePolicy": "retention"
         },

@@ -91,6 +91,25 @@ export type ConsentRequest = {
   version: number;
 };
 
+export type PerformanceTelemetry = {
+  cpuPercent?: number | null;
+  memoryUsedGb?: number | null;
+  memoryTotalGb?: number | null;
+  diskUsedGb?: number | null;
+  diskTotalGb?: number | null;
+};
+
+export type NetworkTelemetry = {
+  ipAddress?: string | null;
+  macAddress?: string | null;
+  subnetMask?: string | null;
+  gateway?: string | null;
+  dnsServers?: string[];
+  adapterName?: string | null;
+  agentLatencyMs?: number | null;
+  packetLossPercent?: number | null;
+};
+
 export type AgentPrompt = {
   id: string;
   deviceId: string;
@@ -179,6 +198,24 @@ export async function decideConsent(requestId: string, decision: 'approved' | 'd
     '/agent/remote-consent/requests/' + encodeURIComponent(requestId) + '/decision',
     { method: 'POST', body: JSON.stringify({ decision }) },
   );
+}
+
+export async function submitTelemetry(input: {
+  observedAt: string;
+  sourceInstance?: string | null;
+  performance?: PerformanceTelemetry | null;
+  network?: NetworkTelemetry | null;
+}) {
+  return request<Envelope<{
+    deviceId: string;
+    observedAt: string;
+    receivedAt: string;
+    performanceStored: boolean;
+    networkStored: boolean;
+  }>>('/agent/devices/' + encodeURIComponent(AGENT_DEVICE_ID) + '/telemetry', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
 }
 
 export async function getPendingPrompt() {

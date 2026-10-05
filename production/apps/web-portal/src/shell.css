@@ -392,6 +392,14 @@
   min-height: calc(100vh - 56px);
 }
 
+.device-tab-loading-wrap {
+  min-height: 240px;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  color: var(--ds-text-2);
+}
+
 .production-loading {
   display: inline-flex;
   align-items: center;
@@ -4577,4 +4585,67 @@
   border-radius: var(--prod-inset-radius);
   background: var(--prod-surface-inset);
   box-shadow: none;
+}
+
+
+/* Step45S Device Detail — Performance + Network */
+.device-performance-grid,
+.device-network-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.device-performance-panel {
+  min-width: 0;
+}
+
+.performance-current-value {
+  padding: 4px 18px 0;
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.performance-sparkline {
+  width: 100%;
+  height: 150px;
+  display: block;
+  padding: 8px 16px 16px;
+  color: var(--primary);
+}
+
+.performance-sparkline .gridline {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.performance-sparkline polyline {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.performance-no-window {
+  min-height: 150px;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+.network-evidence-stack {
+  margin-top: 16px;
+}
+
+@media (max-width: 900px) {
+  .device-performance-grid,
+  .device-network-grid {
+    grid-template-columns: 1fr;
+  }
 }

@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNOIcon, INNOResourceHeader, INNOResourceSummary, INNOResourceSummaryItem, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOSurfaceTabs, INNOTableWrap } from '@inno/ui';
-import { getDevice, getDeviceHardwareInventory, getDeviceSoftwareInventory } from '../api/client';
+import { getDevice, getDeviceHardwareInventory, getDeviceNetworkInventory, getDevicePerformance, getDeviceSoftwareInventory } from '../api/client';
 import { CollectionErrorState, CollectionLoadingState, ErrorState, LoadingState } from '../components/Feedback';
 import { useI18n as useStep45NI18n } from '@inno/i18n';
 
@@ -26,18 +26,34 @@ function isOlderThanHours(value: string | null | undefined, hours: number) {
   return Boolean(value) && Date.now() - new Date(value!).getTime() > hours * 60 * 60 * 1000;
 }
 
-type Step45RTab = 'overview' | 'hardware' | 'software';
-const step45rTabs: Step45RTab[] = ['overview', 'hardware', 'software'];
+function memoryPercent(used?: number | null, total?: number | null) {
+  if (used == null || total == null || total <= 0) return null;
+  return Math.round(Math.max(0, Math.min(100, (used / total) * 100)));
+}
+
+function sparklinePoints(values: Array<number | null | undefined>) {
+  const valid = values.map((value, index) => ({ value, index })).filter((item) => item.value != null);
+  if (valid.length === 0) return '';
+  const denominator = Math.max(values.length - 1, 1);
+  return valid.map((item) => {
+    const x = (item.index / denominator) * 500;
+    const y = 112 - (Math.max(0, Math.min(100, item.value!)) / 100) * 96;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+}
+
+type Step45STab = 'overview' | 'hardware' | 'software' | 'performance' | 'network';
+const step45sTabs: Step45STab[] = ['overview', 'hardware', 'software', 'performance', 'network'];
 
 export function DeviceDetailPage() {
   const { t: t45n, locale } = useStep45NI18n();
   const { deviceId = '' } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedTab = searchParams.get('tab');
-  const activeTab: Step45RTab = step45rTabs.includes(requestedTab as Step45RTab)
-    ? requestedTab as Step45RTab
+  const activeTab: Step45STab = step45sTabs.includes(requestedTab as Step45STab)
+    ? requestedTab as Step45STab
     : 'overview';
-  const setActiveTab = (tab: Step45RTab) => {
+  const setActiveTab = (tab: Step45STab) => {
     const next = new URLSearchParams(searchParams);
     if (tab === 'overview') next.delete('tab');
     else next.set('tab', tab);
@@ -53,12 +69,24 @@ export function DeviceDetailPage() {
   const hardwareQuery = useQuery({
     queryKey: ['device', deviceId, 'hardware-inventory'],
     queryFn: () => getDeviceHardwareInventory(deviceId),
-    enabled: Boolean(deviceId),
+    enabled: Boolean(deviceId) && (activeTab === 'overview' || activeTab === 'hardware'),
   });
   const softwareQuery = useQuery({
     queryKey: ['device', deviceId, 'software-inventory'],
     queryFn: () => getDeviceSoftwareInventory(deviceId),
-    enabled: Boolean(deviceId),
+    enabled: Boolean(deviceId) && activeTab === 'software',
+  });
+  const performanceQuery = useQuery({
+    queryKey: ['device', deviceId, 'performance', '5m', 5],
+    queryFn: () => getDevicePerformance(deviceId, '5m', 5),
+    enabled: Boolean(deviceId) && activeTab === 'performance',
+    refetchInterval: activeTab === 'performance' ? 5000 : false,
+  });
+  const networkQuery = useQuery({
+    queryKey: ['device', deviceId, 'network-inventory'],
+    queryFn: () => getDeviceNetworkInventory(deviceId),
+    enabled: Boolean(deviceId) && activeTab === 'network',
+    refetchInterval: activeTab === 'network' ? 60000 : false,
   });
   const publishers = useMemo(
     () => Array.from(new Set((softwareQuery.data?.packages ?? []).map((item) => item.publisher).filter((value): value is string => Boolean(value)))).sort(),
@@ -97,6 +125,14 @@ export function DeviceDetailPage() {
   const model = [manufacturer, deviceModel].filter(Boolean).join(' ') || deviceType;
   const group = device.groups[0]?.name ?? device.organization?.name ?? 'Unassigned';
   const softwareIsStale = isOlderThanHours(softwareQuery.data?.observedAt, 24);
+  const performance = performanceQuery.data;
+  const performanceCpuPoints = sparklinePoints(
+    performance?.points.map((point) => point.cpuPercent) ?? [],
+  );
+  const performanceMemoryPoints = sparklinePoints(
+    performance?.points.map((point) => memoryPercent(point.memoryUsedGb, point.memoryTotalGb)) ?? [],
+  );
+  const latestMemoryPercent = memoryPercent(performance?.memoryUsedGb, performance?.memoryTotalGb);
 
   return (
     <main className="inno-page">
@@ -130,11 +166,13 @@ export function DeviceDetailPage() {
       <INNOSurfaceTabs
         ariaLabel={t45n('devices.step45n.deviceDetail.deviceDetailSections')}
         activeId={activeTab}
-        onChange={(id) => setActiveTab(id as Step45RTab)}
+        onChange={(id) => setActiveTab(id as Step45STab)}
         items={[
           { id: 'overview', label: t45n('navigation.overview') },
           { id: 'hardware', label: t45n('devices.step45r.deviceDetail.hardware') },
           { id: 'software', label: t45n('devices.step45n.deviceDetail.software') },
+          { id: 'performance', label: t45n('devices.step45s.deviceDetail.performance') },
+          { id: 'network', label: t45n('devices.step45s.deviceDetail.network') },
         ]}
       />
 
@@ -203,8 +241,8 @@ export function DeviceDetailPage() {
       </div>
 
       <div hidden={activeTab !== 'hardware'}>
-        {hardwareQuery.isPending ? (
-          <div className="page-loading-wrap"><LoadingState label={t45n('devices.step45r.deviceDetail.loadingHardware')} /></div>
+        {activeTab !== 'hardware' ? null : hardwareQuery.isPending ? (
+          <div className="device-tab-loading-wrap"><LoadingState label={t45n('devices.step45r.deviceDetail.loadingHardware')} /></div>
         ) : hardwareQuery.isError ? (
           <div className="page-error-wrap"><ErrorState error={hardwareQuery.error} retry={() => void hardwareQuery.refetch()} /></div>
         ) : hardwareQuery.data.inventoryStatus === 'not_reported' ? (
@@ -346,6 +384,182 @@ export function DeviceDetailPage() {
           </>
         )}
         </INNOCollection>
+      </div>
+
+      <div hidden={activeTab !== 'performance'}>
+        {activeTab !== 'performance' ? null : performanceQuery.isPending ? (
+          <div className="device-tab-loading-wrap"><LoadingState label={t45n('devices.step45s.deviceDetail.loadingPerformance')} /></div>
+        ) : performanceQuery.isError ? (
+          <div className="page-error-wrap"><ErrorState error={performanceQuery.error} retry={() => void performanceQuery.refetch()} /></div>
+        ) : performanceQuery.data.status === 'no_data' ? (
+          <INNOState
+            kind="empty"
+            title={t45n('devices.step45s.deviceDetail.noPerformanceData')}
+            description={t45n('devices.step45s.deviceDetail.noPerformanceDataDescription')}
+          />
+        ) : (
+          <div className="panel-stack">
+            {performanceQuery.data.isStale ? (
+              <INNOState
+                banner
+                kind="partial"
+                title={t45n('devices.step45s.deviceDetail.performanceStale')}
+                description={t45n('devices.step45s.deviceDetail.performanceStaleDescription')}
+              />
+            ) : null}
+
+            <div className="device-performance-grid">
+              <section className="prod-panel device-performance-panel">
+                <div className="prod-panel-head">
+                  <div>
+                    <h3>{t45n('devices.step45s.deviceDetail.cpuUsage')}</h3>
+                    <p>{t45n('devices.step45s.deviceDetail.lastFiveMinutes')} · {t45n('devices.step45s.deviceDetail.fiveSecondInterval')}</p>
+                  </div>
+                  <INNOStatus tone={performanceQuery.data.isLive ? 'success' : 'warning'}>
+                    {performanceQuery.data.isLive ? t45n('devices.step45s.deviceDetail.live') : t45n('devices.step45r.deviceDetail.stale')}
+                  </INNOStatus>
+                </div>
+                <div className="performance-current-value">
+                  {performanceQuery.data.cpuPercent != null
+                    ? t45n('devices.step45s.deviceDetail.percentValue', { value: performanceQuery.data.cpuPercent })
+                    : '—'}
+                </div>
+                {performanceCpuPoints ? (
+                  <svg className="performance-sparkline" viewBox="0 0 500 120" preserveAspectRatio="none" aria-label={t45n('devices.step45s.deviceDetail.cpuUsage')}>
+                    <line className="gridline" x1="0" y1="32" x2="500" y2="32" />
+                    <line className="gridline" x1="0" y1="64" x2="500" y2="64" />
+                    <line className="gridline" x1="0" y1="96" x2="500" y2="96" />
+                    <polyline points={performanceCpuPoints} />
+                  </svg>
+                ) : (
+                  <div className="performance-no-window">{t45n('devices.step45s.deviceDetail.noSamplesInWindow')}</div>
+                )}
+              </section>
+
+              <section className="prod-panel device-performance-panel">
+                <div className="prod-panel-head">
+                  <div>
+                    <h3>{t45n('devices.step45s.deviceDetail.memoryUsage')}</h3>
+                    <p>
+                      {performanceQuery.data.memoryUsedGb != null && performanceQuery.data.memoryTotalGb != null
+                        ? t45n('devices.step45s.deviceDetail.gbPairValue', { used: performanceQuery.data.memoryUsedGb, total: performanceQuery.data.memoryTotalGb })
+                        : t45n('devices.step45s.deviceDetail.latestSample')}
+                    </p>
+                  </div>
+                  <INNOStatus tone={performanceQuery.data.isLive ? 'success' : 'warning'}>
+                    {latestMemoryPercent != null
+                      ? t45n('devices.step45s.deviceDetail.percentValue', { value: latestMemoryPercent })
+                      : performanceQuery.data.isLive
+                        ? t45n('devices.step45s.deviceDetail.live')
+                        : t45n('devices.step45r.deviceDetail.stale')}
+                  </INNOStatus>
+                </div>
+                {performanceMemoryPoints ? (
+                  <svg className="performance-sparkline" viewBox="0 0 500 120" preserveAspectRatio="none" aria-label={t45n('devices.step45s.deviceDetail.memoryUsage')}>
+                    <line className="gridline" x1="0" y1="32" x2="500" y2="32" />
+                    <line className="gridline" x1="0" y1="64" x2="500" y2="64" />
+                    <line className="gridline" x1="0" y1="96" x2="500" y2="96" />
+                    <polyline points={performanceMemoryPoints} />
+                  </svg>
+                ) : (
+                  <div className="performance-no-window">{t45n('devices.step45s.deviceDetail.noSamplesInWindow')}</div>
+                )}
+              </section>
+            </div>
+
+            <section className="prod-panel">
+              <div className="prod-panel-head">
+                <div>
+                  <h3>{t45n('devices.step45s.deviceDetail.latestSample')}</h3>
+                  <p>{performanceQuery.data.source === 'endpoint_agent' ? t45n('devices.step45s.deviceDetail.endpointAgentTelemetry') : (performanceQuery.data.source ?? '—').replaceAll('_', ' ')}</p>
+                </div>
+                <INNOStatus tone={performanceQuery.data.isLive ? 'success' : 'warning'}>
+                  {performanceQuery.data.latestObservedAt ? relativeTime(performanceQuery.data.latestObservedAt, locale) : '—'}
+                </INNOStatus>
+              </div>
+              <div className="summary-grid">
+                <div><span>{t45n('devices.step45s.deviceDetail.cpuUsage')}</span><b>{performanceQuery.data.cpuPercent != null ? t45n('devices.step45s.deviceDetail.percentValue', { value: performanceQuery.data.cpuPercent }) : '—'}</b></div>
+                <div><span>{t45n('devices.step45s.deviceDetail.memoryUsage')}</span><b>{performanceQuery.data.memoryUsedGb != null && performanceQuery.data.memoryTotalGb != null ? t45n('devices.step45s.deviceDetail.gbPairValue', { used: performanceQuery.data.memoryUsedGb, total: performanceQuery.data.memoryTotalGb }) : '—'}</b></div>
+                <div><span>{t45n('devices.step45s.deviceDetail.diskUsage')}</span><b>{performanceQuery.data.diskUsedGb != null && performanceQuery.data.diskTotalGb != null ? t45n('devices.step45s.deviceDetail.gbPairValue', { used: performanceQuery.data.diskUsedGb, total: performanceQuery.data.diskTotalGb }) : '—'}</b></div>
+              </div>
+            </section>
+          </div>
+        )}
+      </div>
+
+      <div hidden={activeTab !== 'network'}>
+        {activeTab !== 'network' ? null : networkQuery.isPending ? (
+          <div className="device-tab-loading-wrap"><LoadingState label={t45n('devices.step45s.deviceDetail.loadingNetwork')} /></div>
+        ) : networkQuery.isError ? (
+          <div className="page-error-wrap"><ErrorState error={networkQuery.error} retry={() => void networkQuery.refetch()} /></div>
+        ) : networkQuery.data.inventoryStatus === 'not_reported' ? (
+          <INNOState
+            kind="empty"
+            title={t45n('devices.step45s.deviceDetail.networkNotReported')}
+            description={t45n('devices.step45s.deviceDetail.networkNotReportedDescription')}
+          />
+        ) : (
+          <div className="panel-stack">
+            {networkQuery.data.isStale ? (
+              <INNOState
+                banner
+                kind="partial"
+                title={t45n('devices.step45r.deviceDetail.stale')}
+                description={t45n('devices.step45s.deviceDetail.networkStaleDescription')}
+              />
+            ) : null}
+            <div className="device-network-grid">
+              <section className="prod-panel">
+                <div className="prod-panel-head">
+                  <div>
+                    <h3>{t45n('devices.step45s.deviceDetail.networkConfiguration')}</h3>
+                    <p>{t45n('devices.step45s.deviceDetail.networkDescription')}</p>
+                  </div>
+                  <INNOStatus tone={networkQuery.data.isStale ? 'warning' : 'success'}>
+                    {networkQuery.data.isStale ? t45n('devices.step45r.deviceDetail.stale') : t45n('devices.step45r.deviceDetail.fresh')}
+                  </INNOStatus>
+                </div>
+                <div className="kv-grid production-kv-grid">
+                  <div className="kv-row"><span>{t45n('devices.step45n.deviceDetail.ipAddress')}</span><b>{networkQuery.data.ipAddress ?? '—'}</b></div>
+                  <div className="kv-row"><span>{t45n('devices.step45s.deviceDetail.subnet')}</span><b>{networkQuery.data.subnetMask ?? '—'}</b></div>
+                  <div className="kv-row"><span>{t45n('devices.step45s.deviceDetail.gateway')}</span><b>{networkQuery.data.gateway ?? '—'}</b></div>
+                  <div className="kv-row"><span>{t45n('devices.step45s.deviceDetail.dns')}</span><b>{networkQuery.data.dnsServers.length ? networkQuery.data.dnsServers.join(', ') : '—'}</b></div>
+                  <div className="kv-row"><span>{t45n('devices.step45n.deviceDetail.macAddress')}</span><b>{networkQuery.data.macAddress ?? '—'}</b></div>
+                  <div className="kv-row"><span>{t45n('devices.step45s.deviceDetail.adapter')}</span><b>{networkQuery.data.adapterName ?? '—'}</b></div>
+                </div>
+              </section>
+
+              <section className="prod-panel">
+                <div className="prod-panel-head">
+                  <div>
+                    <h3>{t45n('devices.step45s.deviceDetail.connectivity')}</h3>
+                    <p>{t45n('devices.step45s.deviceDetail.networkEvidence')}</p>
+                  </div>
+                </div>
+                <div className="summary-grid">
+                  <div>
+                    <span>{t45n('devices.step45s.deviceDetail.agentLatency')}</span>
+                    <b>{networkQuery.data.agentLatencyMs != null ? t45n('devices.step45s.deviceDetail.msValue', { value: networkQuery.data.agentLatencyMs }) : t45n('devices.step45s.deviceDetail.notObserved')}</b>
+                  </div>
+                  <div>
+                    <span>{t45n('devices.step45s.deviceDetail.packetLoss')}</span>
+                    <b>{networkQuery.data.packetLossPercent != null ? t45n('devices.step45s.deviceDetail.percentValue', { value: networkQuery.data.packetLossPercent }) : t45n('devices.step45s.deviceDetail.notObserved')}</b>
+                  </div>
+                </div>
+                <div className="settings-stack network-evidence-stack">
+                  <div className="settings-row">
+                    <div><b>{t45n('devices.step45r.deviceDetail.observedAt')}</b><span>{networkQuery.data.source ?? '—'}</span></div>
+                    <b>{networkQuery.data.observedAt ? relativeTime(networkQuery.data.observedAt, locale) : '—'}</b>
+                  </div>
+                  <div className="settings-row">
+                    <div><b>{t45n('devices.step45r.deviceDetail.receivedAt')}</b><span>{networkQuery.data.sourceInstance ?? networkQuery.data.source ?? '—'}</span></div>
+                    <b>{networkQuery.data.receivedAt ? relativeTime(networkQuery.data.receivedAt, locale) : '—'}</b>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );

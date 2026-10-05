@@ -54,16 +54,16 @@ meeting_names=[t.get('name') for t in meeting_tables]
 if len(meeting_names)!=len(set(meeting_names)):
     issues.append('meeting: duplicate table name')
 
-if len(core_tables)!=85:
-    issues.append(f"expected 85 core tables, found {len(core_tables)}")
+if len(core_tables)!=86:
+    issues.append(f"expected 86 core tables, found {len(core_tables)}")
 if len(meeting_tables)!=9:
     issues.append(f"expected 9 meeting tables, found {len(meeting_tables)}")
-if len(core_tables)+len(meeting_tables)!=94:
-    issues.append(f"expected 94 total planning tables, found {len(core_tables)+len(meeting_tables)}")
+if len(core_tables)+len(meeting_tables)!=95:
+    issues.append(f"expected 95 total planning tables, found {len(core_tables)+len(meeting_tables)}")
 
 required_tables={
     'platform':{'user_profiles','organization_units','locations','positions','roles','permissions','role_permissions','access_assignments','access_assignment_resources','access_assignment_actions','app_modules'},
-    'devices':{'devices','device_external_mappings','device_groups','device_group_members','remote_sessions','deployment_jobs','endpoint_policies','device_alerts','device_alert_rules','software_inventory_snapshots','installed_software'},
+    'devices':{'devices','device_external_mappings','device_inventory_snapshots','device_performance_samples','device_groups','device_group_members','remote_sessions','deployment_jobs','endpoint_policies','device_alerts','device_alert_rules','software_inventory_snapshots','installed_software'},
     'assets':{'assets','asset_ownership_history','ownership_submissions','qr_labels','qr_scans','software_licenses','contracts'},
     'helpdesk':{'tickets','ticket_replies','ticket_attachments','ticket_assignments','ticket_status_history','sla_policies','categories','statuses','automation_rules','knowledge_articles'},
     'reports':{'saved_reports','report_runs','report_exports'},

@@ -2277,3 +2277,21 @@ The Step45R migration was applied to the shared development PostgreSQL on `172.1
 
 Full record: `INNO-One-Step45R-Device-Detail-Core.md`.
 Next: **Step45S — Performance + Network**. Do not merge main without explicit user instruction.
+
+
+# Step45S — Device Detail Performance + Network — 2026-10-06
+
+Branch: `implementation/step45s-device-detail-performance-network`, based on Step45R `e87728b`.
+
+Implemented real Device Detail Performance and Network tabs. Device Detail now exposes five implemented tabs only: Overview, Hardware, Software, Performance, Network. Performance reads bounded `devices.device_performance_samples`; Live requires online + source `endpoint_agent` + observation <=60s. Network uses independently timestamped/provenanced fields on `device_inventory_snapshots` and is stale after 15m. Missing latency/packet-loss evidence remains null and the UI does not claim Healthy.
+
+Added native Endpoint Agent telemetry collection: Rust/Tauri + `sysinfo` for CPU/memory/disk, Windows network configuration for IP/MAC/subnet/gateway/DNS/adapter, Performance publish every 5s and Network every ~60s. API `POST /agent/devices/{deviceId}/telemetry` validates ranges/timestamps and requires the Device to belong to the signed-in Agent user. MeshCentral is not used as a fake metrics source.
+
+Promoted API operations: `devices.performance.get`, `devices.network_inventory.get`, `agent.telemetry.ingest`. Promoted Data table: `devices.device_performance_samples`. Migration: `20261005194138_Step45SPerformanceNetwork`. Local tab loading was separated from page-level loading after browser QA exposed false readiness timeouts.
+
+QA: Step45S 59/59; Agent typecheck/build PASS; native `cargo check` PASS using QA-only `crt-static` because the Windows MCP toolchain does not expose `msvcrt.lib`; Web i18n/typecheck/build PASS (2259 modules); .NET 0 warnings/errors; EF no pending model changes; API 184 ops / 146 paths / 0 issues; Data Model 95 tables / 0 issues; Step45Q 72/72; Step45N 3901 / 1906 / 0; terminology 0; focused browser 51/51 with 8 screenshots; broad browser 66 routes / 1734 checks / 0 failures at 1366/1024/768; visual inspection PASS.
+
+The Step45S migration was applied to the shared development PostgreSQL at `172.10.1.58` for QA. No Step45S release deployment to the Linux host was performed.
+
+Full record: `INNO-One-Step45S-Device-Detail-Performance-Network.md`.
+Next: **Step45T — Processes + Services + Endpoint command channel**. Do not merge main without explicit user instruction.
