@@ -408,6 +408,61 @@ export interface DeviceNetworkInventory {
   packetLossPercent?: number | null;
 }
 
+export interface DeviceProcessItem {
+  processKey: string;
+  processId: number;
+  name: string;
+  user?: string | null;
+  commandLine?: string | null;
+  cpuPercent?: number | null;
+  memoryBytes?: number | null;
+  status: string;
+}
+
+export interface DeviceProcessSnapshot {
+  snapshotId: string;
+  deviceId: string;
+  observedAt: string;
+  expiresAt: string;
+  source: string;
+  items: DeviceProcessItem[];
+}
+
+export interface DeviceServiceItem {
+  name: string;
+  displayName?: string | null;
+  status?: string | null;
+  startType?: string | null;
+  user?: string | null;
+}
+
+export interface DeviceServiceSnapshot {
+  snapshotId: string;
+  deviceId: string;
+  observedAt: string;
+  expiresAt: string;
+  source: string;
+  items: DeviceServiceItem[];
+}
+
+export interface DeviceLiveSnapshotAccepted {
+  operationId: string;
+  status: OperationState;
+  statusUrl: string;
+  progress: number;
+  snapshotId: string;
+  resultUrl: string;
+  expiresAt: string;
+}
+
+export interface DeviceLiveActionAccepted {
+  operationId: string;
+  status: OperationState;
+  statusUrl: string;
+  progress: number;
+  verified: boolean;
+}
+
 export interface DeviceSoftwarePackage {
   productKey: string;
   displayName: string;

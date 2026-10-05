@@ -51,6 +51,10 @@ import type {
   DeviceHardwareInventory,
   DeviceNetworkInventory,
   DevicePerformance,
+  DeviceProcessSnapshot,
+  DeviceServiceSnapshot,
+  DeviceLiveSnapshotAccepted,
+  DeviceLiveActionAccepted,
   DeviceSoftwareInventory,
   DeviceGroupDetail,
   DeviceGroupListItem,
@@ -617,6 +621,78 @@ export async function getDeviceNetworkInventory(deviceId: string): Promise<Devic
     '/devices/' + encodeURIComponent(deviceId) + '/network-inventory',
   );
   return response.data;
+}
+
+export async function createDeviceProcessSnapshot(deviceId: string): Promise<DeviceLiveSnapshotAccepted> {
+  return request<DeviceLiveSnapshotAccepted>(
+    '/devices/' + encodeURIComponent(deviceId) + '/processes/snapshots',
+    { method: 'POST' },
+  );
+}
+
+export async function getDeviceProcessSnapshot(
+  deviceId: string,
+  snapshotId: string,
+): Promise<DeviceProcessSnapshot> {
+  const response = await request<ResourceEnvelope<DeviceProcessSnapshot>>(
+    '/devices/' + encodeURIComponent(deviceId)
+      + '/processes/snapshots/' + encodeURIComponent(snapshotId),
+  );
+  return response.data;
+}
+
+export async function getLiveDeviceProcesses(deviceId: string): Promise<DeviceProcessSnapshot> {
+  const accepted = await createDeviceProcessSnapshot(deviceId);
+  return getDeviceProcessSnapshot(deviceId, accepted.snapshotId);
+}
+
+export async function terminateDeviceProcess(
+  deviceId: string,
+  processKey: string,
+): Promise<DeviceLiveActionAccepted> {
+  return request<DeviceLiveActionAccepted>(
+    '/devices/' + encodeURIComponent(deviceId)
+      + '/processes/' + encodeURIComponent(processKey) + '/terminate',
+    { method: 'POST' },
+  );
+}
+
+export async function createDeviceServiceSnapshot(deviceId: string): Promise<DeviceLiveSnapshotAccepted> {
+  return request<DeviceLiveSnapshotAccepted>(
+    '/devices/' + encodeURIComponent(deviceId) + '/services/snapshots',
+    { method: 'POST' },
+  );
+}
+
+export async function getDeviceServiceSnapshot(
+  deviceId: string,
+  snapshotId: string,
+): Promise<DeviceServiceSnapshot> {
+  const response = await request<ResourceEnvelope<DeviceServiceSnapshot>>(
+    '/devices/' + encodeURIComponent(deviceId)
+      + '/services/snapshots/' + encodeURIComponent(snapshotId),
+  );
+  return response.data;
+}
+
+export async function getLiveDeviceServices(deviceId: string): Promise<DeviceServiceSnapshot> {
+  const accepted = await createDeviceServiceSnapshot(deviceId);
+  return getDeviceServiceSnapshot(deviceId, accepted.snapshotId);
+}
+
+export async function executeDeviceServiceAction(
+  deviceId: string,
+  serviceName: string,
+  action: 'start' | 'stop' | 'restart',
+): Promise<DeviceLiveActionAccepted> {
+  return request<DeviceLiveActionAccepted>(
+    '/devices/' + encodeURIComponent(deviceId)
+      + '/services/' + encodeURIComponent(serviceName) + '/actions',
+    {
+      method: 'POST',
+      ...jsonRequest({ action }),
+    },
+  );
 }
 
 export async function getDeviceSoftwareInventory(deviceId: string): Promise<DeviceSoftwareInventory> {

@@ -760,7 +760,7 @@ Recording and uploaded audio are separate processing commands against the Meetin
 Current Step 11 machine-readable catalog contains:
 
 - Platform: 12 operations
-- Devices: 64 operations
+- Devices: 70 operations
 - Assets: 24 operations
 - Reports: 9 operations
 - Helpdesk: 37 operations
@@ -771,8 +771,8 @@ Current Step 11 machine-readable catalog contains:
 Total:
 
 ```text
-184 operations
-146 unique paths
+190 operations
+152 unique paths
 ```
 
 This catalog covers every one of the 93 frozen Web routes plus the three runtime Agent/Mobile surfaces that need APIs.
@@ -1010,7 +1010,7 @@ Step 13 Data Ownership / Database Model is now complete. The next implementation
 
 ## 33. Canonical endpoint catalog
 
-Machine-readable source: `inno-api-contract.json` (184 operations / 146 unique paths after Step45S additive promotion).
+Machine-readable source: `inno-api-contract.json` (190 operations / 152 unique paths after Step45T additive promotion).
 
 ### Platform
 
@@ -1334,3 +1334,45 @@ The Endpoint Agent publishes Performance every 5 seconds while it is running, au
 Performance persistence is operational and bounded. The runtime opportunistically deletes samples older than one hour for the observed Device.
 
 MeshCentral is not used as a performance telemetry source because the current adapter does not provide these metrics.
+
+
+## Step45T additive boundary — Live Processes and Services
+
+Step45T keeps INNO.One as the Product/API/Data/Permission/Audit owner while using MeshCentral 1.2.6 + MeshAgent as the endpoint execution engine for live process and service operations.
+
+Public operations:
+
+- `POST /devices/{deviceId}/processes/snapshots` — `devices.view`; creates a 60-second ephemeral live snapshot operation.
+- `GET /devices/{deviceId}/processes/snapshots/{snapshotId}` — `devices.view`; reads the normalized INNO.One snapshot.
+- `POST /devices/{deviceId}/processes/{processKey}/terminate` — `devices.manage`; warning-confirmed interruptive action.
+- `POST /devices/{deviceId}/services/snapshots` — `devices.view`; creates a 60-second ephemeral live snapshot operation.
+- `GET /devices/{deviceId}/services/snapshots/{snapshotId}` — `devices.view`; reads the normalized INNO.One snapshot.
+- `POST /devices/{deviceId}/services/{serviceName}/actions` — `devices.manage`; body action is `start | stop | restart`.
+
+The public contract never exposes MeshCentral node IDs or vendor DTOs. Device-to-MeshCentral mapping remains internal to the Devices adapter.
+
+### Execution semantics
+
+The MeshCentral adapter uses native MeshAgent message types:
+
+- `ps`
+- `pskill`
+- `services`
+- `serviceStart`
+- `serviceStop`
+- `serviceRestart`
+
+A MeshCentral route acknowledgement is **not** treated as endpoint execution success. Process termination is verified by fetching a new live process list until the PID disappears. Service actions are verified by fetching live service state until the expected state appears. If verification does not succeed, INNO.One marks the operation failed rather than reporting false success.
+
+### State and persistence
+
+Process/service snapshots are volatile live state. They are held in the Platform API process for at most 60 seconds and are not persisted to a permanent Devices process/service history table.
+
+Offline Devices return `RESOURCE_OFFLINE`. Missing MeshCentral mappings return a conflict state. An unavailable remote engine returns dependency-unavailable behavior.
+
+Process termination and service actions write restricted `security_long` audit records using the canonical actions:
+
+- `devices.process.terminate`
+- `devices.service.action`
+
+The audit stores canonical Device/action/result evidence, not MeshCentral credentials or raw vendor payloads.

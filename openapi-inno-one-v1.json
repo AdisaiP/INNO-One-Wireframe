@@ -24312,6 +24312,295 @@
           }
         ]
       }
+    },
+    "/devices/{deviceId}/processes/snapshots": {
+      "post": {
+        "operationId": "devices_process_snapshot_create",
+        "tags": [
+          "devices"
+        ],
+        "summary": "devices.process_snapshot.create",
+        "x-inno-permission": "devices.view",
+        "x-inno-scope": "resource",
+        "x-inno-response-mode": "operation",
+        "x-inno-screens": [
+          "device-detail-v2.html"
+        ],
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Operation accepted"
+          },
+          "403": {
+            "description": "Permission denied"
+          },
+          "409": {
+            "description": "Resource offline or remote mapping unavailable"
+          },
+          "503": {
+            "description": "Remote execution engine unavailable"
+          }
+        }
+      }
+    },
+    "/devices/{deviceId}/processes/snapshots/{snapshotId}": {
+      "get": {
+        "operationId": "devices_process_snapshot_get",
+        "tags": [
+          "devices"
+        ],
+        "summary": "devices.process_snapshot.get",
+        "x-inno-permission": "devices.view",
+        "x-inno-scope": "resource",
+        "x-inno-response-mode": "resource",
+        "x-inno-screens": [
+          "device-detail-v2.html"
+        ],
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "snapshotId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "403": {
+            "description": "Permission denied"
+          },
+          "409": {
+            "description": "Resource offline or remote mapping unavailable"
+          },
+          "503": {
+            "description": "Remote execution engine unavailable"
+          }
+        }
+      }
+    },
+    "/devices/{deviceId}/processes/{processKey}/terminate": {
+      "post": {
+        "operationId": "devices_process_terminate",
+        "tags": [
+          "devices"
+        ],
+        "summary": "devices.process.terminate",
+        "x-inno-permission": "devices.manage",
+        "x-inno-scope": "resource",
+        "x-inno-response-mode": "operation",
+        "x-inno-screens": [
+          "device-detail-v2.html"
+        ],
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "processKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Operation accepted"
+          },
+          "403": {
+            "description": "Permission denied"
+          },
+          "409": {
+            "description": "Resource offline or remote mapping unavailable"
+          },
+          "503": {
+            "description": "Remote execution engine unavailable"
+          }
+        }
+      }
+    },
+    "/devices/{deviceId}/services/snapshots": {
+      "post": {
+        "operationId": "devices_service_snapshot_create",
+        "tags": [
+          "devices"
+        ],
+        "summary": "devices.service_snapshot.create",
+        "x-inno-permission": "devices.view",
+        "x-inno-scope": "resource",
+        "x-inno-response-mode": "operation",
+        "x-inno-screens": [
+          "device-detail-v2.html"
+        ],
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Operation accepted"
+          },
+          "403": {
+            "description": "Permission denied"
+          },
+          "409": {
+            "description": "Resource offline or remote mapping unavailable"
+          },
+          "503": {
+            "description": "Remote execution engine unavailable"
+          }
+        }
+      }
+    },
+    "/devices/{deviceId}/services/snapshots/{snapshotId}": {
+      "get": {
+        "operationId": "devices_service_snapshot_get",
+        "tags": [
+          "devices"
+        ],
+        "summary": "devices.service_snapshot.get",
+        "x-inno-permission": "devices.view",
+        "x-inno-scope": "resource",
+        "x-inno-response-mode": "resource",
+        "x-inno-screens": [
+          "device-detail-v2.html"
+        ],
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "snapshotId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "403": {
+            "description": "Permission denied"
+          },
+          "409": {
+            "description": "Resource offline or remote mapping unavailable"
+          },
+          "503": {
+            "description": "Remote execution engine unavailable"
+          }
+        }
+      }
+    },
+    "/devices/{deviceId}/services/{serviceName}/actions": {
+      "post": {
+        "operationId": "devices_service_action",
+        "tags": [
+          "devices"
+        ],
+        "summary": "devices.service.action",
+        "x-inno-permission": "devices.manage",
+        "x-inno-scope": "resource",
+        "x-inno-response-mode": "operation",
+        "x-inno-screens": [
+          "device-detail-v2.html"
+        ],
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "serviceName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Operation accepted"
+          },
+          "403": {
+            "description": "Permission denied"
+          },
+          "409": {
+            "description": "Resource offline or remote mapping unavailable"
+          },
+          "503": {
+            "description": "Remote execution engine unavailable"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "action"
+                ],
+                "properties": {
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "start",
+                      "stop",
+                      "restart"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {

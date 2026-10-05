@@ -2494,6 +2494,9 @@
   font-size: 11px;
 }
 .software-evidence-bar b { color: #273449; margin-right: 4px; }
+.device-action-notice { align-items: center; justify-content: space-between; margin: 0 0 14px; border: 1px solid var(--ds-border); border-radius: 10px; }
+.device-live-actions { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.device-live-collection .action-column { white-space: nowrap; }
 
 /* Step 28 · Software baseline evaluation */
 .baseline-results-card { margin-top: 16px; }

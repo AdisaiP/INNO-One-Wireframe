@@ -2415,6 +2415,82 @@
       "screens": [
         "/assets/software-baselines"
       ]
+    },
+    {
+      "id": "devices.process_snapshot.create",
+      "method": "POST",
+      "path": "/devices/{deviceId}/processes/snapshots",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "resource",
+      "response": "operation",
+      "asyncJob": true,
+      "screens": [
+        "device-detail-v2.html"
+      ]
+    },
+    {
+      "id": "devices.process_snapshot.get",
+      "method": "GET",
+      "path": "/devices/{deviceId}/processes/snapshots/{snapshotId}",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "device-detail-v2.html"
+      ]
+    },
+    {
+      "id": "devices.process.terminate",
+      "method": "POST",
+      "path": "/devices/{deviceId}/processes/{processKey}/terminate",
+      "module": "devices",
+      "permission": "devices.manage",
+      "scope": "resource",
+      "response": "operation",
+      "asyncJob": true,
+      "screens": [
+        "device-detail-v2.html"
+      ]
+    },
+    {
+      "id": "devices.service_snapshot.create",
+      "method": "POST",
+      "path": "/devices/{deviceId}/services/snapshots",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "resource",
+      "response": "operation",
+      "asyncJob": true,
+      "screens": [
+        "device-detail-v2.html"
+      ]
+    },
+    {
+      "id": "devices.service_snapshot.get",
+      "method": "GET",
+      "path": "/devices/{deviceId}/services/snapshots/{snapshotId}",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "resource",
+      "response": "resource",
+      "screens": [
+        "device-detail-v2.html"
+      ]
+    },
+    {
+      "id": "devices.service.action",
+      "method": "POST",
+      "path": "/devices/{deviceId}/services/{serviceName}/actions",
+      "module": "devices",
+      "permission": "devices.manage",
+      "scope": "resource",
+      "response": "operation",
+      "asyncJob": true,
+      "screens": [
+        "device-detail-v2.html"
+      ]
     }
   ],
   "screenCoverage": {
@@ -2464,7 +2540,13 @@
       "devices.network_inventory.get",
       "devices.software_inventory.get",
       "devices.remote_sessions.create",
-      "agent.telemetry.ingest"
+      "agent.telemetry.ingest",
+      "devices.process_snapshot.create",
+      "devices.process_snapshot.get",
+      "devices.process.terminate",
+      "devices.service_snapshot.create",
+      "devices.service_snapshot.get",
+      "devices.service.action"
     ],
     "device-group-detail.html": [
       "devices.get",

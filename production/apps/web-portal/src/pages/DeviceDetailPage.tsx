@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNOIcon, INNOResourceHeader, INNOResourceSummary, INNOResourceSummaryItem, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOSurfaceTabs, INNOTableWrap } from '@inno/ui';
-import { getDevice, getDeviceHardwareInventory, getDeviceNetworkInventory, getDevicePerformance, getDeviceSoftwareInventory } from '../api/client';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNODialog, INNOIcon, INNOResourceHeader, INNOResourceSummary, INNOResourceSummaryItem, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOSurfaceTabs, INNOTableWrap } from '@inno/ui';
+import { executeDeviceServiceAction, getDevice, getDeviceHardwareInventory, getDeviceNetworkInventory, getDevicePerformance, getDeviceSoftwareInventory, getLiveDeviceProcesses, getLiveDeviceServices, terminateDeviceProcess } from '../api/client';
 import { CollectionErrorState, CollectionLoadingState, ErrorState, LoadingState } from '../components/Feedback';
 import { useI18n as useStep45NI18n } from '@inno/i18n';
+import { usePermission } from '../app/ProfileContext';
+import type { DeviceProcessItem, DeviceServiceItem } from '../api/types';
 
 function metric(value?: number | null, suffix = '') {
   return value == null ? '—' : `${value}${suffix}`;
@@ -31,6 +33,14 @@ function memoryPercent(used?: number | null, total?: number | null) {
   return Math.round(Math.max(0, Math.min(100, (used / total) * 100)));
 }
 
+function formatBytes(value?: number | null) {
+  if (value == null || value < 0) return '—';
+  if (value >= 1024 ** 3) return `${(value / 1024 ** 3).toFixed(1)} GB`;
+  if (value >= 1024 ** 2) return `${Math.round(value / 1024 ** 2)} MB`;
+  if (value >= 1024) return `${Math.round(value / 1024)} KB`;
+  return `${value} B`;
+}
+
 function sparklinePoints(values: Array<number | null | undefined>) {
   const valid = values.map((value, index) => ({ value, index })).filter((item) => item.value != null);
   if (valid.length === 0) return '';
@@ -42,25 +52,29 @@ function sparklinePoints(values: Array<number | null | undefined>) {
   }).join(' ');
 }
 
-type Step45STab = 'overview' | 'hardware' | 'software' | 'performance' | 'network';
-const step45sTabs: Step45STab[] = ['overview', 'hardware', 'software', 'performance', 'network'];
+type Step45TTab = 'overview' | 'hardware' | 'software' | 'performance' | 'processes' | 'services' | 'network';
+const step45tTabs: Step45TTab[] = ['overview', 'hardware', 'software', 'performance', 'processes', 'services', 'network'];
 
 export function DeviceDetailPage() {
   const { t: t45n, locale } = useStep45NI18n();
   const { deviceId = '' } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedTab = searchParams.get('tab');
-  const activeTab: Step45STab = step45sTabs.includes(requestedTab as Step45STab)
-    ? requestedTab as Step45STab
+  const activeTab: Step45TTab = step45tTabs.includes(requestedTab as Step45TTab)
+    ? requestedTab as Step45TTab
     : 'overview';
-  const setActiveTab = (tab: Step45STab) => {
+  const setActiveTab = (tab: Step45TTab) => {
     const next = new URLSearchParams(searchParams);
     if (tab === 'overview') next.delete('tab');
     else next.set('tab', tab);
     setSearchParams(next, { replace: true });
   };
+  const canManage = usePermission('devices.manage');
   const [softwareSearch, setSoftwareSearch] = useState('');
   const [publisher, setPublisher] = useState('all');
+  const [processTarget, setProcessTarget] = useState<DeviceProcessItem | null>(null);
+  const [serviceTarget, setServiceTarget] = useState<{ service: DeviceServiceItem; action: 'start' | 'stop' | 'restart' } | null>(null);
+  const [actionNotice, setActionNotice] = useState<string | null>(null);
   const query = useQuery({
     queryKey: ['device', deviceId],
     queryFn: () => getDevice(deviceId),
@@ -87,6 +101,37 @@ export function DeviceDetailPage() {
     queryFn: () => getDeviceNetworkInventory(deviceId),
     enabled: Boolean(deviceId) && activeTab === 'network',
     refetchInterval: activeTab === 'network' ? 60000 : false,
+  });
+  const processesQuery = useQuery({
+    queryKey: ['device', deviceId, 'processes-live'],
+    queryFn: () => getLiveDeviceProcesses(deviceId),
+    enabled: Boolean(deviceId) && activeTab === 'processes' && query.data?.isOffline === false,
+    staleTime: 45000,
+    retry: false,
+  });
+  const servicesQuery = useQuery({
+    queryKey: ['device', deviceId, 'services-live'],
+    queryFn: () => getLiveDeviceServices(deviceId),
+    enabled: Boolean(deviceId) && activeTab === 'services' && query.data?.isOffline === false,
+    staleTime: 45000,
+    retry: false,
+  });
+  const terminateProcess = useMutation({
+    mutationFn: (target: DeviceProcessItem) => terminateDeviceProcess(deviceId, target.processKey),
+    onSuccess: async () => {
+      setActionNotice(t45n('devices.step45t.deviceDetail.processTerminationVerified'));
+      setProcessTarget(null);
+      await processesQuery.refetch();
+    },
+  });
+  const serviceAction = useMutation({
+    mutationFn: (target: { service: DeviceServiceItem; action: 'start' | 'stop' | 'restart' }) =>
+      executeDeviceServiceAction(deviceId, target.service.name, target.action),
+    onSuccess: async (_result, target) => {
+      setActionNotice(t45n('devices.step45t.deviceDetail.serviceActionVerified'));
+      setServiceTarget(null);
+      await servicesQuery.refetch();
+    },
   });
   const publishers = useMemo(
     () => Array.from(new Set((softwareQuery.data?.packages ?? []).map((item) => item.publisher).filter((value): value is string => Boolean(value)))).sort(),
@@ -166,12 +211,14 @@ export function DeviceDetailPage() {
       <INNOSurfaceTabs
         ariaLabel={t45n('devices.step45n.deviceDetail.deviceDetailSections')}
         activeId={activeTab}
-        onChange={(id) => setActiveTab(id as Step45STab)}
+        onChange={(id) => setActiveTab(id as Step45TTab)}
         items={[
           { id: 'overview', label: t45n('navigation.overview') },
           { id: 'hardware', label: t45n('devices.step45r.deviceDetail.hardware') },
           { id: 'software', label: t45n('devices.step45n.deviceDetail.software') },
           { id: 'performance', label: t45n('devices.step45s.deviceDetail.performance') },
+          { id: 'processes', label: t45n('devices.step45t.deviceDetail.processes') },
+          { id: 'services', label: t45n('devices.step45t.deviceDetail.services') },
           { id: 'network', label: t45n('devices.step45s.deviceDetail.network') },
         ]}
       />
@@ -487,6 +534,162 @@ export function DeviceDetailPage() {
         )}
       </div>
 
+
+      {actionNotice ? (
+        <div className="software-evidence-bar device-action-notice" role="status">
+          <span><b>{t45n('devices.step45t.deviceDetail.verified')}</b> {actionNotice}</span>
+          <INNOButton variant="ghost" type="button" onClick={() => setActionNotice(null)}>{t45n('devices.step45t.deviceDetail.dismiss')}</INNOButton>
+        </div>
+      ) : null}
+
+      <div hidden={activeTab !== 'processes'}>
+        {activeTab !== 'processes' ? null : device.isOffline ? (
+          <INNOState
+            kind="offline"
+            title={t45n('devices.step45n.deviceDetail.resourceOffline')}
+            description={t45n('devices.step45t.deviceDetail.liveProcessesUnavailableOffline')}
+          />
+        ) : processesQuery.isPending ? (
+          <div className="device-tab-loading-wrap"><LoadingState label={t45n('devices.step45t.deviceDetail.loadingProcesses')} /></div>
+        ) : processesQuery.isError ? (
+          <div className="page-error-wrap"><ErrorState error={processesQuery.error} retry={() => void processesQuery.refetch()} /></div>
+        ) : processesQuery.data.items.length === 0 ? (
+          <INNOState
+            kind="empty"
+            title={t45n('devices.step45t.deviceDetail.noProcessesReported')}
+            description={t45n('devices.step45t.deviceDetail.noProcessesReportedDescription')}
+            action={<INNOButton variant="secondary" type="button" onClick={() => void processesQuery.refetch()}>{t45n('common.actions.refresh')}</INNOButton>}
+          />
+        ) : (
+          <INNOCollection className="device-live-collection">
+            <INNOCollectionHeader
+              title={t45n('devices.step45t.deviceDetail.runningProcesses')}
+              description={t45n('devices.step45t.deviceDetail.processesDescription')}
+              meta={<INNOStatus tone="success">{t45n('devices.step45t.deviceDetail.liveFromMeshAgent')}</INNOStatus>}
+            />
+            <INNOCollectionToolbar>
+              <span className="collection-scope">
+                {t45n('devices.step45r.deviceDetail.observedAt')}{' '}
+                {relativeTime(processesQuery.data.observedAt, locale)}
+              </span>
+              <span className="toolbar-spacer" />
+              <INNOButton variant="secondary" type="button" onClick={() => void processesQuery.refetch()}>{t45n('common.actions.refresh')}</INNOButton>
+            </INNOCollectionToolbar>
+            <INNOTableWrap width="wide">
+              <table>
+                <thead>
+                  <tr>
+                    <th>{t45n('devices.step45t.deviceDetail.process')}</th>
+                    <th>{t45n('devices.step45t.deviceDetail.pid')}</th>
+                    <th>{t45n('common.user')}</th>
+                    <th>{t45n('devices.step45n.deviceDetail.cpu')}</th>
+                    <th>{t45n('devices.step45n.deviceDetail.memory')}</th>
+                    <th>{t45n('reports.runs.status')}</th>
+                    {canManage ? <th className="action-column">{t45n('reports.table.action')}</th> : null}
+                  </tr>
+                </thead>
+                <tbody>
+                  {processesQuery.data.items.map((item) => (
+                    <tr key={item.processKey}>
+                      <td><b>{item.name}</b>{item.commandLine && item.commandLine !== item.name ? <div className="table-meta">{item.commandLine}</div> : null}</td>
+                      <td>{item.processId}</td>
+                      <td>{item.user ?? '—'}</td>
+                      <td>{item.cpuPercent != null ? t45n('devices.step45s.deviceDetail.percentValue', { value: item.cpuPercent }) : '—'}</td>
+                      <td>{formatBytes(item.memoryBytes)}</td>
+                      <td><INNOStatus tone="success">{t45n('devices.step45t.deviceDetail.running')}</INNOStatus></td>
+                      {canManage ? (
+                        <td className="action-column">
+                          <INNOButton variant="danger" type="button" onClick={() => { terminateProcess.reset(); setActionNotice(null); setProcessTarget(item); }}>
+                            {t45n('devices.step45t.deviceDetail.stopProcess')}
+                          </INNOButton>
+                        </td>
+                      ) : null}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </INNOTableWrap>
+          </INNOCollection>
+        )}
+      </div>
+
+      <div hidden={activeTab !== 'services'}>
+        {activeTab !== 'services' ? null : device.isOffline ? (
+          <INNOState
+            kind="offline"
+            title={t45n('devices.step45n.deviceDetail.resourceOffline')}
+            description={t45n('devices.step45t.deviceDetail.liveServicesUnavailableOffline')}
+          />
+        ) : servicesQuery.isPending ? (
+          <div className="device-tab-loading-wrap"><LoadingState label={t45n('devices.step45t.deviceDetail.loadingServices')} /></div>
+        ) : servicesQuery.isError ? (
+          <div className="page-error-wrap"><ErrorState error={servicesQuery.error} retry={() => void servicesQuery.refetch()} /></div>
+        ) : servicesQuery.data.items.length === 0 ? (
+          <INNOState
+            kind="empty"
+            title={t45n('devices.step45t.deviceDetail.noServicesReported')}
+            description={t45n('devices.step45t.deviceDetail.noServicesReportedDescription')}
+            action={<INNOButton variant="secondary" type="button" onClick={() => void servicesQuery.refetch()}>{t45n('common.actions.refresh')}</INNOButton>}
+          />
+        ) : (
+          <INNOCollection className="device-live-collection">
+            <INNOCollectionHeader
+              title={t45n('devices.step45t.deviceDetail.services')}
+              description={t45n('devices.step45t.deviceDetail.servicesDescription')}
+              meta={<INNOStatus tone="success">{t45n('devices.step45t.deviceDetail.liveFromMeshAgent')}</INNOStatus>}
+            />
+            <INNOCollectionToolbar>
+              <span className="collection-scope">
+                {t45n('devices.step45r.deviceDetail.observedAt')}{' '}
+                {relativeTime(servicesQuery.data.observedAt, locale)}
+              </span>
+              <span className="toolbar-spacer" />
+              <INNOButton variant="secondary" type="button" onClick={() => void servicesQuery.refetch()}>{t45n('common.actions.refresh')}</INNOButton>
+            </INNOCollectionToolbar>
+            <INNOTableWrap width="wide">
+              <table>
+                <thead>
+                  <tr>
+                    <th>{t45n('devices.step45t.deviceDetail.service')}</th>
+                    <th>{t45n('devices.step45t.deviceDetail.displayName')}</th>
+                    <th>{t45n('reports.runs.status')}</th>
+                    <th>{t45n('devices.step45t.deviceDetail.startupType')}</th>
+                    {canManage ? <th className="action-column">{t45n('reports.table.action')}</th> : null}
+                  </tr>
+                </thead>
+                <tbody>
+                  {servicesQuery.data.items.map((item) => {
+                    const running = item.status?.toLowerCase().includes('run') ?? false;
+                    return (
+                      <tr key={item.name}>
+                        <td><b>{item.name}</b></td>
+                        <td>{item.displayName ?? '—'}</td>
+                        <td><INNOStatus tone={running ? 'success' : 'neutral'}>{item.status ?? '—'}</INNOStatus></td>
+                        <td>{item.startType ?? '—'}</td>
+                        {canManage ? (
+                          <td className="action-column">
+                            <div className="device-live-actions">
+                              {running ? (
+                                <>
+                                  <INNOButton variant="secondary" type="button" onClick={() => { serviceAction.reset(); setActionNotice(null); setServiceTarget({ service: item, action: 'stop' }); }}>{t45n('devices.step45t.deviceDetail.stop')}</INNOButton>
+                                  <INNOButton variant="secondary" type="button" onClick={() => { serviceAction.reset(); setActionNotice(null); setServiceTarget({ service: item, action: 'restart' }); }}>{t45n('devices.step45t.deviceDetail.restart')}</INNOButton>
+                                </>
+                              ) : (
+                                <INNOButton variant="secondary" type="button" onClick={() => { serviceAction.reset(); setActionNotice(null); setServiceTarget({ service: item, action: 'start' }); }}>{t45n('devices.step45t.deviceDetail.start')}</INNOButton>
+                              )}
+                            </div>
+                          </td>
+                        ) : null}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </INNOTableWrap>
+          </INNOCollection>
+        )}
+      </div>
+
       <div hidden={activeTab !== 'network'}>
         {activeTab !== 'network' ? null : networkQuery.isPending ? (
           <div className="device-tab-loading-wrap"><LoadingState label={t45n('devices.step45s.deviceDetail.loadingNetwork')} /></div>
@@ -561,6 +764,88 @@ export function DeviceDetailPage() {
           </div>
         )}
       </div>
+
+      <INNODialog
+        open={processTarget !== null}
+        title={processTarget ? t45n('devices.step45t.deviceDetail.stopProcessTitle', { name: processTarget.name }) : t45n('devices.step45t.deviceDetail.stopProcess')}
+        description={t45n('devices.step45t.deviceDetail.stopProcessDescription')}
+        onClose={() => { if (!terminateProcess.isPending) setProcessTarget(null); }}
+        size="sm"
+        footer={(
+          <>
+            <INNOButton variant="secondary" type="button" disabled={terminateProcess.isPending} onClick={() => setProcessTarget(null)}>
+              {t45n('devices.step45t.deviceDetail.cancel')}
+            </INNOButton>
+            <INNOButton
+              variant="danger"
+              type="button"
+              busy={terminateProcess.isPending}
+              disabled={!processTarget}
+              onClick={() => { if (processTarget) terminateProcess.mutate(processTarget); }}
+            >
+              {t45n('devices.step45t.deviceDetail.stopProcess')}
+            </INNOButton>
+          </>
+        )}
+      >
+        <div className="panel-stack">
+          <INNOState
+            kind="partial"
+            compact
+            title={t45n('devices.step45t.deviceDetail.interruptiveAction')}
+            description={t45n('devices.step45t.deviceDetail.stopProcessWarning')}
+          />
+          {processTarget ? (
+            <div className="settings-stack">
+              <div className="settings-row"><div><b>{processTarget.name}</b><span>{t45n('devices.step45t.deviceDetail.pid')} {processTarget.processId}</span></div><span>{processTarget.user ?? '—'}</span></div>
+            </div>
+          ) : null}
+          {terminateProcess.isError ? <ErrorState error={terminateProcess.error} /> : null}
+        </div>
+      </INNODialog>
+
+      <INNODialog
+        open={serviceTarget !== null}
+        title={serviceTarget ? t45n('devices.step45t.deviceDetail.serviceActionTitle', { name: serviceTarget.service.displayName ?? serviceTarget.service.name }) : t45n('devices.step45t.deviceDetail.services')}
+        description={t45n('devices.step45t.deviceDetail.serviceActionDescription')}
+        onClose={() => { if (!serviceAction.isPending) setServiceTarget(null); }}
+        size="sm"
+        footer={(
+          <>
+            <INNOButton variant="secondary" type="button" disabled={serviceAction.isPending} onClick={() => setServiceTarget(null)}>
+              {t45n('devices.step45t.deviceDetail.cancel')}
+            </INNOButton>
+            <INNOButton
+              variant="primary"
+              type="button"
+              busy={serviceAction.isPending}
+              disabled={!serviceTarget}
+              onClick={() => { if (serviceTarget) serviceAction.mutate(serviceTarget); }}
+            >
+              {serviceTarget?.action === 'start'
+                ? t45n('devices.step45t.deviceDetail.start')
+                : serviceTarget?.action === 'stop'
+                  ? t45n('devices.step45t.deviceDetail.stop')
+                  : t45n('devices.step45t.deviceDetail.restart')}
+            </INNOButton>
+          </>
+        )}
+      >
+        <div className="panel-stack">
+          <INNOState
+            kind="partial"
+            compact
+            title={t45n('devices.step45t.deviceDetail.interruptiveAction')}
+            description={t45n('devices.step45t.deviceDetail.serviceActionWarning')}
+          />
+          {serviceTarget ? (
+            <div className="settings-stack">
+              <div className="settings-row"><div><b>{serviceTarget.service.displayName ?? serviceTarget.service.name}</b><span>{serviceTarget.service.name}</span></div><span>{serviceTarget.service.status ?? '—'}</span></div>
+            </div>
+          ) : null}
+          {serviceAction.isError ? <ErrorState error={serviceAction.error} /> : null}
+        </div>
+      </INNODialog>
     </main>
   );
 }

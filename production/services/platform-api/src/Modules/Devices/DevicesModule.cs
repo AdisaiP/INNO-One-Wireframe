@@ -28,6 +28,7 @@ public static class DevicesModule
         services.AddScoped<IWorkspaceAttentionProvider, DevicesWorkspaceAttentionProvider>();
         services.AddScoped<IWorkspaceResourceVisibilityProvider, DevicesWorkspaceAttentionProvider>();
         services.AddScoped<DeviceLedgerWriter>();
+        services.AddSingleton<DeviceLiveSnapshotStore>();
         services.AddHostedService<DiscoveryScanWorker>();
         services.AddHostedService<InventoryQueryWorker>();
         services.AddHostedService<MeshCentralSyncWorker>();

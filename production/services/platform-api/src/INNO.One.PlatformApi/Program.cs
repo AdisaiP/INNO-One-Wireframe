@@ -120,6 +120,7 @@ api.MapAgentTelemetryEndpoints();
 api.MapDeviceManagementEndpoints();
 api.MapDeviceHardwareInventoryEndpoints();
 api.MapDevicePerformanceNetworkEndpoints();
+api.MapDeviceLiveOperationsEndpoints();
 api.MapDeviceSoftwareInventoryEndpoints();
 api.MapInventoryQueryEndpoints();
 api.MapAssetsEndpoints();

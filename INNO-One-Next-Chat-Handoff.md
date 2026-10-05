@@ -2295,3 +2295,23 @@ The Step45S migration was applied to the shared development PostgreSQL at `172.1
 
 Full record: `INNO-One-Step45S-Device-Detail-Performance-Network.md`.
 Next: **Step45T — Processes + Services + Endpoint command channel**. Do not merge main without explicit user instruction.
+
+
+# Step45T — Processes + Services via MeshCentral — 2026-10-06
+
+Branch: `implementation/step45t-processes-services-mesh-execution`, based on Step45S `43ad5aa`.
+
+Architecture is now enforced in code: **INNO.One owns Product/API/Data/Permission/Audit; MeshCentral/MeshAgent is the endpoint execution engine for verified capability.** Exact MeshCentral 1.2.6 source at tag commit `029b7338ecfeeacc65da3b5a1a4cc069baeb2f65` was audited. Native commands used by Step45T are `ps`, `pskill`, `services`, `serviceStart`, `serviceStop`, `serviceRestart`; generic `runcommands` is deliberately not used.
+
+Extended `IRemoteDeviceEngine` and `MeshCentralRemoteDeviceEngine` for normalized Process/Service live operations. Added memory-only 60-second Process/Service snapshots and six canonical Device APIs. Read requires `devices.view`; actions require `devices.manage`. Offline devices never show cached live state. Process terminate and Service actions verify resulting MeshAgent state before success, otherwise return `REMOTE_ACTION_UNVERIFIED`. Missing MeshCentral mapping and remote-engine failure are explicit states.
+
+Device Detail now exposes seven real tabs: Overview, Hardware, Software, Performance, Processes, Services, Network. Activity/Tickets remain hidden until Step45U. Process Stop and Service Start/Stop/Restart use warning dialogs. INNO Endpoint Agent received no duplicate Process/Service executor.
+
+Canonical audit actions `devices.process.terminate` and `devices.service.action` are restricted / security_long and record execution engine + verification result.
+
+Live MeshCentral at `172.10.1.58:8443` is healthy (HTTP 200 / ok), but current integration control auth is still rejected with `noauth (noauth-2d)`. Live deployed endpoint execution is therefore **not claimed**. Runtime execution was verified against a protocol-compatible local MeshCentral control fixture using the exact audited message types.
+
+QA: Step45T 92/92; API 190 ops / 152 paths / 0 issues; Data 95 tables / 0 issues; Implementation 0 issues; Step45Q 72/72; Step45N 3973 / 1942 / 0; terminology 0; .NET 0 warnings/errors; Web i18n/typecheck/build PASS (2259 modules); focused runtime/browser 46/46 with 5 screenshots; broad browser 66 routes / 1734 checks / 0 failures at 1366/1024/768; visual inspection PASS.
+
+Full records: `INNO-One-Step45T-MeshCentral-Capability-Audit.md` and `INNO-One-Step45T-Processes-Services-Mesh-Execution.md`.
+Next: **Step45U — Device Activity + related Helpdesk Tickets**. Do not merge main without explicit user instruction.

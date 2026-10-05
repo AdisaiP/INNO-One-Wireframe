@@ -922,6 +922,8 @@ Machine-readable source: `inno-event-audit-contract.json`.
 | `devices.remote.ended` | `devices` | `remote_session` | `security_long` | `restricted` |
 | `devices.remote.consent_decided` | `devices` | `remote_session` | `security_long` | `restricted` |
 | `devices.remote.file_transferred` | `devices` | `remote_session` | `security_long` | `restricted` |
+| `devices.process.terminate` | `devices` | `device` | `security_long` | `restricted` |
+| `devices.service.action` | `devices` | `device` | `security_long` | `restricted` |
 | `devices.deployment.created` | `devices` | `deployment` | `operational_standard` | `internal` |
 | `devices.policy.updated` | `devices` | `endpoint_policy` | `security_long` | `internal` |
 | `devices.alert.acknowledged` | `devices` | `device_alert` | `operational_standard` | `internal` |

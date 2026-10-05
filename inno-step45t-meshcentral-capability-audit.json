@@ -1,0 +1,90 @@
+{
+  "step": "45T",
+  "status": "verified-source-live-auth-blocked",
+  "meshCentral": {
+    "version": "1.2.6",
+    "upstreamTag": "1.2.6",
+    "tagCommit": "029b7338ecfeeacc65da3b5a1a4cc069baeb2f65",
+    "configuredImage": "ghcr.io/ylianst/meshcentral:1.2.6",
+    "liveBaseUrl": "https://172.10.1.58:8443",
+    "liveHealth": {
+      "httpStatus": 200,
+      "body": "ok"
+    },
+    "liveControl": {
+      "status": "blocked",
+      "cause": "noauth",
+      "message": "noauth-2d"
+    }
+  },
+  "architectureDecision": {
+    "productApiDataPermissionAuditOwner": "INNO.One",
+    "endpointExecutionEngine": "MeshCentral/MeshAgent when capability is verified",
+    "vendorIdsPublic": false,
+    "endpointAgentDuplicateExecutor": false
+  },
+  "capabilities": [
+    {
+      "job": "list-processes",
+      "meshAgentMessageType": "ps",
+      "sourceEvidence": "agents/meshcore.js case 'ps'",
+      "responseType": "ps",
+      "step45tUse": true
+    },
+    {
+      "job": "terminate-process",
+      "meshAgentMessageType": "pskill",
+      "sourceEvidence": "agents/meshcore.js case 'pskill'",
+      "verification": "fetch ps until PID disappears",
+      "step45tUse": true
+    },
+    {
+      "job": "list-services",
+      "meshAgentMessageType": "services",
+      "sourceEvidence": "agents/meshcore.js case 'services'",
+      "responseType": "services",
+      "step45tUse": true
+    },
+    {
+      "job": "start-service",
+      "meshAgentMessageType": "serviceStart",
+      "sourceEvidence": "agents/meshcore.js service manager commands",
+      "verification": "fetch services until running state is observed",
+      "step45tUse": true
+    },
+    {
+      "job": "stop-service",
+      "meshAgentMessageType": "serviceStop",
+      "sourceEvidence": "agents/meshcore.js service manager commands",
+      "verification": "fetch services until stopped state is observed",
+      "step45tUse": true
+    },
+    {
+      "job": "restart-service",
+      "meshAgentMessageType": "serviceRestart",
+      "sourceEvidence": "agents/meshcore.js service manager commands",
+      "verification": "fetch services until running state is observed after command",
+      "step45tUse": true
+    },
+    {
+      "job": "run-command",
+      "meshAgentMessageType": "runcommands",
+      "sourceEvidence": "agents/meshcore.js",
+      "step45tUse": false,
+      "reason": "native process/service commands are preferred over a PowerShell wrapper"
+    }
+  ],
+  "routingEvidence": [
+    "meshuser.js action 'msg' routes a user/control command to the target node",
+    "webserver.js routeAgentCommand adds the user session id before routing",
+    "agent response carrying sessionid is routed back to the originating control session"
+  ],
+  "productRules": [
+    "Web Portal never calls MeshCentral directly.",
+    "INNO.One Endpoint Agent never calls MeshCentral directly.",
+    "MeshCentral node IDs stay behind IRemoteDeviceEngine.",
+    "A MeshCentral route acknowledgement is not treated as endpoint execution success.",
+    "Live Process and Service snapshots expire after 60 seconds and are not stored as durable inventory.",
+    "Process termination and Service actions require devices.manage and INNO.One audit."
+  ]
+}

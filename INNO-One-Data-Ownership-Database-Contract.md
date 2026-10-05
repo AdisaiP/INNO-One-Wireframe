@@ -1067,3 +1067,20 @@ Network facts remain part of the normalized Devices inventory snapshot, but Step
 This separation is intentional: receiving a fresh network observation does not change the age of unrelated Hardware evidence.
 
 Processes and Services remain ephemeral planned Step45T data and still do not receive permanent history tables in Step45S.
+
+
+## Step45T additive data boundary — Live Processes and Services
+
+Step45T introduces **no durable Process or Service inventory tables**.
+
+Live Process and Service state is volatile endpoint execution evidence:
+
+- source: MeshCentral/MeshAgent through the Devices remote-engine adapter;
+- lifetime: 60 seconds;
+- storage: in-process ephemeral snapshot store only;
+- offline behavior: no cached live state is presented as current;
+- restart/recycle behavior: ephemeral snapshots may disappear and clients must request a fresh snapshot.
+
+Durable persistence remains limited to existing generic integration-operation and audit infrastructure. Privileged Process termination and Service Start/Stop/Restart actions are recorded through the canonical audit contract, but whole Process/Service lists are not copied into audit/event payloads.
+
+This preserves the Step45Q ownership rule that Processes and Services are live observations rather than long-term inventory.

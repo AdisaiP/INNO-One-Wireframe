@@ -1238,6 +1238,20 @@
       "targetType": "software_baseline",
       "retentionClass": "operational_standard",
       "sensitivity": "internal"
+    },
+    {
+      "action": "devices.process.terminate",
+      "module": "devices",
+      "targetType": "device",
+      "retentionClass": "security_long",
+      "sensitivity": "restricted"
+    },
+    {
+      "action": "devices.service.action",
+      "module": "devices",
+      "targetType": "device",
+      "retentionClass": "security_long",
+      "sensitivity": "restricted"
     }
   ],
   "privacy": {

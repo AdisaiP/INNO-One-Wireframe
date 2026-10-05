@@ -331,6 +331,26 @@ The adapter owns:
 - vendor session lifecycle translation,
 - vendor-specific credentials/configuration.
 
+### Step45T remote execution principle
+
+For endpoint jobs that MeshCentral/MeshAgent already implements reliably, **INNO.One owns the Product/API/Data/Permission/Audit contract while MeshCentral is the execution engine**.
+
+Required flow:
+
+```text
+INNO.One Web
+    -> Devices API
+    -> permission / scope / audit
+    -> IRemoteDeviceEngine
+    -> MeshCentral adapter
+    -> MeshCentral / MeshAgent
+    -> endpoint
+```
+
+The Web Portal and INNO.One Endpoint Agent never call MeshCentral directly. A new INNO.One endpoint executor must not duplicate a verified MeshAgent capability without an explicit architecture decision.
+
+Step45T applies this rule to live Processes and Services. Process/Service lists are normalized into short-lived INNO.One snapshots; privileged actions remain INNO.One operations/audit records; vendor IDs and raw vendor payloads never become public Device resources.
+
 ## 8. API boundary
 
 Clients should see one INNO.One API namespace even if internal services differ.

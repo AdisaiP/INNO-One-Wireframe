@@ -29,6 +29,25 @@ public interface IRemoteDeviceEngine
         string externalGroupId,
         int expiresHours,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<RemoteProcessInfo>> ListProcessesAsync(
+        string externalNodeId,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> TerminateProcessAsync(
+        string externalNodeId,
+        int processId,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<RemoteServiceInfo>> ListServicesAsync(
+        string externalNodeId,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> ExecuteServiceActionAsync(
+        string externalNodeId,
+        string serviceName,
+        RemoteServiceAction action,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed record RemoteDeviceGroup(
@@ -49,6 +68,28 @@ public sealed record RemoteDeviceNode(
 public sealed record RemoteEnrollmentLink(
     string Url,
     DateTimeOffset? ExpiresAt);
+
+public sealed record RemoteProcessInfo(
+    int ProcessId,
+    string Name,
+    string? User,
+    string? CommandLine,
+    decimal? CpuPercent,
+    long? MemoryBytes);
+
+public sealed record RemoteServiceInfo(
+    string Name,
+    string? DisplayName,
+    string? Status,
+    string? StartType,
+    string? User);
+
+public enum RemoteServiceAction
+{
+    Start,
+    Stop,
+    Restart
+}
 
 public sealed class RemoteEngineUnavailableException(string message, Exception? innerException = null)
     : Exception(message, innerException);
