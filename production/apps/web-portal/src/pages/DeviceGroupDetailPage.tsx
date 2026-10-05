@@ -122,7 +122,7 @@ export function DeviceGroupDetailPage() {
 
       <INNOResourceSummary>
         <INNOResourceSummaryItem label={t45n('devices.step45n.deviceGroupDetail.members')} value={data.members} detail="Managed endpoints" />
-        <INNOResourceSummaryItem label={t45n('devices.automation.editor.status.online')} value={data.online} detail="Current connection state" />
+        <INNOResourceSummaryItem label={t45n('devices.shared.status.online')} value={data.online} detail="Current connection state" />
         <INNOResourceSummaryItem label={t45n('profile.organization')} value={data.organization?.name ?? '—'} detail="Authorization scope" />
         <INNOResourceSummaryItem label={t45n('profile.location')} value={data.location?.name ?? '—'} detail="Primary site" />
       </INNOResourceSummary>
@@ -160,8 +160,8 @@ export function DeviceGroupDetailPage() {
             <INNOSearchField label={t45n('devices.step45n.deviceGroupDetail.searchGroupMembers')} value={search} onChange={setSearch} placeholder={t45n('devices.step45n.deviceGroupDetail.searchDeviceOrOwner')} />
             <INNOSelectField label={t45n('devices.step45n.deviceGroupDetail.memberStatus')} value={memberStatus} onChange={setMemberStatus}>
               <option value="all">{t45n('admin.step45n.adminUsers.statusAll')}</option>
-              <option value="online">{t45n('devices.automation.editor.status.online')}</option>
-              <option value="offline">{t45n('devices.automation.editor.status.offline')}</option>
+              <option value="online">{t45n('devices.shared.status.online')}</option>
+              <option value="offline">{t45n('devices.shared.status.offline')}</option>
             </INNOSelectField>
           </INNOCollectionToolbar>
 

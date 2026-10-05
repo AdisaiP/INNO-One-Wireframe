@@ -2231,3 +2231,18 @@ Live target `172.10.1.58`: HTTP/PostgreSQL/Keycloak/MeshCentral ports are reacha
 Remote control is also not yet end-to-end in source: consent APIs exist, but `IRemoteDeviceEngine` has no remote-session-launch operation and Device Detail has no operator Start Remote Session action. Fixing MeshCentral auth alone is not sufficient to call remote complete.
 
 Full handoff: `INNO-One-Step45O-Product-Polish-Handoff.md`. Login concepts remain preview-only until the user chooses one. **Do not merge main without explicit user instruction.**
+
+
+# Step45P — Device Scope Cleanup — 2026-10-06
+
+Branch: `ux/step45p-device-scope-cleanup`, based on Step45O commit `199bd66`.
+
+The Devices wireframe is a broader target-state product map; Production intentionally exposes only implemented/available jobs. The user decided Devices Automation is not needed, so Step45P **retires it from active Product scope rather than hiding the menu**.
+
+Removed: Device Automation navigation/routes/pages, Web client + run DTOs, `/api/v1/devices/automations` facade/run endpoints, Device executor, Device automation permissions/manifest entries and the `devices.automation.*` locale namespace. Generic status/device labels reused by normal Device/Asset pages moved to `devices.shared.*`. Old `/devices/automation/*` bookmarks redirect to `/devices`. Helpdesk and Assets Automation remain intact; shared workflow persistence remains intact. No destructive DB cleanup is performed for historical rows.
+
+Current implemented Production Devices navigation after cleanup: Devices, Discovery, Inventory Query, Device Groups, Agent Deployment (permission-gated). Wireframe-only/future entries such as Remote Operations, Remote Consent, Deployment Jobs, Agent Maintenance, Policies, Alerts and Reports are not added as dead placeholders.
+
+QA: Web i18n/typecheck/build PASS (2259 modules), .NET solution build 0 warnings / 0 errors, Step45P static retirement audit 24/24, Step45N 3775 checks / 1843 keys / 0 failures, terminology 0 issues, JSON parse and diff check PASS; broad browser regression 66 routes / 1734 checks / 0 failures at 1366 / 1024 / 768; focused browser retirement check 2/2 confirms no Automation entry in the Devices sidebar and old `/devices/automation` bookmarks redirect to `/devices`.
+
+Full decision record: `INNO-One-Step45P-Device-Scope-Cleanup.md`. Historical Step45H docs remain only as history. **Do not merge main without explicit user instruction.**

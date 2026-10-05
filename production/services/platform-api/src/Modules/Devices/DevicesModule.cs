@@ -1,5 +1,4 @@
 using INNO.One.Contracts.Agent;
-using INNO.One.Contracts.Automation;
 using INNO.One.Contracts.Directory;
 using INNO.One.Contracts.Reports;
 using INNO.One.Contracts.Search;
@@ -29,7 +28,6 @@ public static class DevicesModule
         services.AddScoped<IWorkspaceAttentionProvider, DevicesWorkspaceAttentionProvider>();
         services.AddScoped<IWorkspaceResourceVisibilityProvider, DevicesWorkspaceAttentionProvider>();
         services.AddScoped<DeviceLedgerWriter>();
-        services.AddScoped<IAutomationNodeExecutor, DeviceAutomationNodeExecutor>();
         services.AddHostedService<DiscoveryScanWorker>();
         services.AddHostedService<InventoryQueryWorker>();
         services.AddHostedService<MeshCentralSyncWorker>();

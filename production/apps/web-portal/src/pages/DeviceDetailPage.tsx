@@ -119,8 +119,8 @@ export function DeviceDetailPage() {
             <div className="kv-row"><span>{t45n('devices.step45n.deviceDetail.serialNumber')}</span><b>{device.serialNumber ?? '—'}</b></div>
             <div className="kv-row"><span>{t45n('devices.step45n.deviceDetail.ipAddress')}</span><b>{device.ipAddress ?? '—'}</b></div>
             <div className="kv-row"><span>{t45n('devices.step45n.deviceDetail.macAddress')}</span><b>{device.macAddress ?? '—'}</b></div>
-            <div className="kv-row"><span>{t45n('devices.automation.editor.conditionField.operatingSystem')}</span><b>{device.operatingSystem ?? '—'}</b></div>
-            <div className="kv-row"><span>{t45n('devices.automation.editor.conditionField.groupId')}</span><b>{group}</b></div>
+            <div className="kv-row"><span>{t45n('devices.shared.field.operatingSystem')}</span><b>{device.operatingSystem ?? '—'}</b></div>
+            <div className="kv-row"><span>{t45n('devices.shared.field.deviceGroup')}</span><b>{group}</b></div>
           </div>
         </section>
 

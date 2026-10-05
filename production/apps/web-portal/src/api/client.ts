@@ -48,8 +48,6 @@ import type {
   BusinessCalendar,
   CreatedTicket,
   DeviceDetail,
-  DeviceAutomationRunDetail,
-  DeviceAutomationRunListResponse,
   DeviceSoftwareInventory,
   DeviceGroupDetail,
   DeviceGroupListItem,
@@ -1373,113 +1371,6 @@ export async function startAssetsAutomationRun(
 ): Promise<AssetsAutomationRunDetail> {
   const response = await request<ResourceEnvelope<AssetsAutomationRunDetail>>(
     '/assets/automations/' + encodeURIComponent(automationId) + '/runs',
-    { method: 'POST', ...jsonRequest({ input }) },
-  );
-  return response.data;
-}
-
-export async function getDeviceAutomationDefinitions(query: {
-  page?: number;
-  pageSize?: number;
-  search?: string;
-} = {}): Promise<WorkflowDefinitionListResponse> {
-  const params = new URLSearchParams({
-    page: String(query.page ?? 1),
-    pageSize: String(query.pageSize ?? 25),
-  });
-  if (query.search?.trim()) params.set('search', query.search.trim());
-  return request<WorkflowDefinitionListResponse>(
-    '/devices/automations?' + params.toString(),
-  );
-}
-
-export async function getDeviceAutomationDefinition(
-  automationId: string,
-): Promise<WorkflowDefinitionDetail> {
-  const response = await request<ResourceEnvelope<WorkflowDefinitionDetail>>(
-    '/devices/automations/' + encodeURIComponent(automationId),
-  );
-  return response.data;
-}
-
-export async function createDeviceAutomationDefinition(
-  input: WorkflowDefinitionRequest,
-): Promise<WorkflowDefinitionDetail> {
-  const response = await request<ResourceEnvelope<WorkflowDefinitionDetail>>(
-    '/devices/automations',
-    { method: 'POST', ...jsonRequest(input) },
-  );
-  return response.data;
-}
-
-export async function updateDeviceAutomationDefinition(
-  automationId: string,
-  eTag: string,
-  input: WorkflowDefinitionRequest,
-): Promise<WorkflowDefinitionDetail> {
-  const response = await request<ResourceEnvelope<WorkflowDefinitionDetail>>(
-    '/devices/automations/' + encodeURIComponent(automationId),
-    { method: 'PUT', ...jsonRequest(input, { 'If-Match': eTag }) },
-  );
-  return response.data;
-}
-
-export async function deleteDeviceAutomationDefinition(
-  automationId: string,
-  eTag: string,
-): Promise<void> {
-  await request<void>(
-    '/devices/automations/' + encodeURIComponent(automationId),
-    { method: 'DELETE', headers: { 'If-Match': eTag } },
-  );
-}
-
-export async function getDeviceAutomationVersions(
-  automationId: string,
-): Promise<{ items: Array<{
-  version: number;
-  ownerModule: string;
-  name: string;
-  status: string;
-  changedByUserId: string;
-  createdAt: string;
-}> }> {
-  return request(
-    '/devices/automations/' + encodeURIComponent(automationId) + '/versions',
-  );
-}
-
-export async function getDeviceAutomationRuns(
-  automationId: string,
-  query: { page?: number; pageSize?: number; status?: string } = {},
-): Promise<DeviceAutomationRunListResponse> {
-  const params = new URLSearchParams({
-    page: String(query.page ?? 1),
-    pageSize: String(query.pageSize ?? 25),
-  });
-  if (query.status && query.status !== 'all') params.set('status', query.status);
-  return request<DeviceAutomationRunListResponse>(
-    '/devices/automations/' + encodeURIComponent(automationId) + '/runs?' + params.toString(),
-  );
-}
-
-export async function getDeviceAutomationRun(
-  automationId: string,
-  runId: string,
-): Promise<DeviceAutomationRunDetail> {
-  const response = await request<ResourceEnvelope<DeviceAutomationRunDetail>>(
-    '/devices/automations/' + encodeURIComponent(automationId)
-      + '/runs/' + encodeURIComponent(runId),
-  );
-  return response.data;
-}
-
-export async function startDeviceAutomationRun(
-  automationId: string,
-  input: { deviceId: string },
-): Promise<DeviceAutomationRunDetail> {
-  const response = await request<ResourceEnvelope<DeviceAutomationRunDetail>>(
-    '/devices/automations/' + encodeURIComponent(automationId) + '/runs',
     { method: 'POST', ...jsonRequest({ input }) },
   );
   return response.data;

@@ -302,42 +302,6 @@
       "specialComponent": "INNODialog"
     },
     {
-      "route": "devices/automation",
-      "page": "DevicesAutomationRulesPage",
-      "pattern": "P02",
-      "surface": "module-owned-list+persisted-definitions",
-      "wireframe": "-",
-      "remediation": "Step 45H Devices-owned automation list; the focused Product surface reuses shared definition persistence without exposing the full workflow canvas",
-      "priority": "high"
-    },
-    {
-      "route": "devices/automation/new",
-      "page": "DevicesAutomationRulePage",
-      "pattern": "P04",
-      "surface": "when-if-then-editor+persisted-definition",
-      "wireframe": "-",
-      "remediation": "Step 45H focused WHEN / IF / THEN editor with safe local static-group remediation only",
-      "priority": "high"
-    },
-    {
-      "route": "devices/automation/:automationId",
-      "page": "DevicesAutomationRulePage",
-      "pattern": "P04",
-      "surface": "when-if-then-editor+persisted-definition",
-      "wireframe": "-",
-      "remediation": "Step 45H edit route preserves immutable definition versioning without exposing React Flow",
-      "priority": "high"
-    },
-    {
-      "route": "devices/automation/:automationId/history",
-      "page": "DevicesAutomationHistoryPage",
-      "pattern": "P10",
-      "surface": "history+run-detail",
-      "wireframe": "-",
-      "remediation": "Step 45H Devices-owned run history with immutable rule snapshots, managed-device context and persisted remediation steps",
-      "priority": "high"
-    },
-    {
       "route": "devices/add",
       "page": "AgentDeploymentPage",
       "pattern": "P08",

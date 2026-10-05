@@ -51,7 +51,7 @@ export function AgentDeploymentPage() {
             >
               <div className="editor-grid">
                 <label className="field-block">
-                  <span>{t45n('devices.automation.editor.conditionField.groupId')}</span>
+                  <span>{t45n('devices.shared.field.deviceGroup')}</span>
                   <select required value={groupId} onChange={(event) => setGroupId(event.target.value)}>
                     <option value="">{t45n('devices.step45n.agentDeployment.selectAGroup')}</option>
                     {groups.data.items.map((group) => (
@@ -60,7 +60,7 @@ export function AgentDeploymentPage() {
                   </select>
                 </label>
                 <label className="field-block">
-                  <span>{t45n('devices.automation.editor.conditionField.operatingSystem')}</span>
+                  <span>{t45n('devices.shared.field.operatingSystem')}</span>
                   <select value={operatingSystem} onChange={(event) => setOperatingSystem(event.target.value)}>
                     <option value="windows">{t45n('devices.step45n.agentDeployment.windows')}</option>
                     <option value="macos">{t45n('devices.step45n.agentDeployment.macos')}</option>

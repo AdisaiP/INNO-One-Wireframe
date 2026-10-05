@@ -104,8 +104,8 @@ export function DevicesPage() {
           />
           <INNOSelectField label={t45n('assets.step45n.assetInventory.statusFilter')} value={status} onChange={setStatus}>
             <option value="all">{t45n('admin.step45n.adminUsers.statusAll')}</option>
-            <option value="online">{t45n('devices.automation.editor.status.online')}</option>
-            <option value="offline">{t45n('devices.automation.editor.status.offline')}</option>
+            <option value="online">{t45n('devices.shared.status.online')}</option>
+            <option value="offline">{t45n('devices.shared.status.offline')}</option>
           </INNOSelectField>
           <INNOSelectField label={t45n('devices.step45n.devices.operatingSystemFilter')} value={os} onChange={setOs}>
             <option value="all">{t45n('devices.step45n.devices.osAll')}</option>
@@ -176,7 +176,7 @@ export function DevicesPage() {
                         </div>
                       </td>
                       {columns.type ? <td><span className="device-type-cell"><DeviceTypeGlyph type={device.type} />{typeLabel(device.type)}</span></td> : null}
-                      {columns.status ? <td><INNOStatus tone={device.status === 'online' ? 'success' : 'neutral'} dot>{device.status === 'online' ? t45n('devices.automation.editor.status.online') : t45n('devices.automation.editor.status.offline')}</INNOStatus></td> : null}
+                      {columns.status ? <td><INNOStatus tone={device.status === 'online' ? 'success' : 'neutral'} dot>{device.status === 'online' ? t45n('devices.shared.status.online') : t45n('devices.shared.status.offline')}</INNOStatus></td> : null}
                       {columns.user ? <td>{device.user ?? '—'}</td> : null}
                       {columns.os ? <td>{device.operatingSystem ?? '—'}</td> : null}
                       {columns.group ? <td>{device.group ?? device.organization ?? '—'}</td> : null}

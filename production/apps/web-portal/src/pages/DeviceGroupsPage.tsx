@@ -116,7 +116,7 @@ export function DeviceGroupsPage() {
               <table>
                 <thead>
                   <tr>
-                    <th>{t45n('admin.settings.table.group')}</th><th>{t45n('reports.column.type')}</th><th>{t45n('profile.organization')}</th><th>{t45n('profile.location')}</th><th>{t45n('navigation.devices')}</th><th>{t45n('devices.automation.editor.status.online')}</th><th>{t45n('devices.step45n.deviceGroups.sync')}</th><th className="action-column">{t45n('reports.table.action')}</th>
+                    <th>{t45n('admin.settings.table.group')}</th><th>{t45n('reports.column.type')}</th><th>{t45n('profile.organization')}</th><th>{t45n('profile.location')}</th><th>{t45n('navigation.devices')}</th><th>{t45n('devices.shared.status.online')}</th><th>{t45n('devices.step45n.deviceGroups.sync')}</th><th className="action-column">{t45n('reports.table.action')}</th>
                   </tr>
                 </thead>
                 <tbody>

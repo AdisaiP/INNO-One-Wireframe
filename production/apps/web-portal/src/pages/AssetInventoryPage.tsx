@@ -40,7 +40,7 @@ export function AssetInventoryPage() {
           <INNOSelectField label={t45n('assets.step45n.assetInventory.categoryFilter')} value={category} onChange={setCategory}>
             <option value="all">{t45n('assets.step45n.assetInventory.categoryAll')}</option>
             <option>{t45n('assets.step45n.assetEdit.computer')}</option>
-            <option>{t45n('devices.automation.editor.deviceType.notebook')}</option>
+            <option>{t45n('devices.shared.deviceType.notebook')}</option>
             <option>{t45n('assets.step45n.assetEdit.monitor')}</option>
             <option>{t45n('assets.step45n.assetEdit.printer')}</option>
           </INNOSelectField>

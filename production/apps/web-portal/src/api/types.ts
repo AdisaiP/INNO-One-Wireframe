@@ -1272,50 +1272,6 @@ export interface AutomationRunListResponse {
   totalPages: number;
 }
 
-export interface DeviceAutomationRunSummary {
-  id: string;
-  workflowId: string;
-  workflowVersion: number;
-  workflowName: string;
-  status: AutomationRunStatus;
-  deviceId?: string | null;
-  attemptCount: number;
-  maxAttempts: number;
-  errorCode?: string | null;
-  createdAt: string;
-  startedAt?: string | null;
-  completedAt?: string | null;
-}
-
-export interface DeviceAutomationRunDetail extends DeviceAutomationRunSummary {
-  ownerModule: string;
-  input: Record<string, unknown>;
-  definitionSnapshot: {
-    schemaVersion: number;
-    workflowId: string;
-    workflowVersion: number;
-    ownerModule: string;
-    name: string;
-    nodes: import('@inno/ui/workflow').INNOWorkflowNode[];
-    edges: import('@inno/ui/workflow').INNOWorkflowEdge[];
-    orientation: 'horizontal' | 'vertical';
-    status: string;
-  };
-  activeNodeIds: string[];
-  completedNodeIds: string[];
-  failedNodeId?: string | null;
-  errorDetail?: string | null;
-  steps: AutomationRunStep[];
-}
-
-export interface DeviceAutomationRunListResponse {
-  items: DeviceAutomationRunSummary[];
-  page: number;
-  pageSize: number;
-  totalItems: number;
-  totalPages: number;
-}
-
 export interface AssetsAutomationRunSummary {
   id: string;
   workflowId: string;
