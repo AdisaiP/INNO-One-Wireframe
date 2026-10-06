@@ -122,6 +122,7 @@ api.MapDeviceHardwareInventoryEndpoints();
 api.MapDevicePerformanceNetworkEndpoints();
 api.MapDeviceLiveOperationsEndpoints();
 api.MapRemoteSessionEndpoints();
+api.MapDeviceMaintenanceEndpoints();
 api.MapDeviceActivityEndpoints();
 api.MapDeviceSoftwareInventoryEndpoints();
 api.MapInventoryQueryEndpoints();
