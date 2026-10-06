@@ -555,7 +555,7 @@ export function DeviceAlertChannelsPage() {
         {test.data ? (
           <INNOState
             banner
-            kind={test.data.status === 'succeeded' ? 'success' : 'partial'}
+            kind="partial"
             title={test.data.status === 'succeeded' ? 'Configured channels passed the Product check' : 'Some configured channels are unavailable'}
             description={test.data.unavailableChannels.length ? 'Unavailable: ' + test.data.unavailableChannels.join(', ') : 'All enabled channels have the configuration required by the Product.'}
           />
