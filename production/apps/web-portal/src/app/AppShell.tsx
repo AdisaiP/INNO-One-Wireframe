@@ -53,6 +53,7 @@ export function AppShell() {
   const canViewDevices = usePermission('devices.view');
   const canRemoteDevices = usePermission('devices.remote');
   const canDeployDevices = usePermission('devices.deploy');
+  const canViewDeviceAlerts = usePermission('devices.alert.view');
   const canViewAssets = usePermission('assets.view');
   const canPrintAssetQr = usePermission('assets.qr.print');
   const canManageAssetLicenses = usePermission('assets.license.manage');
@@ -75,7 +76,7 @@ export function AppShell() {
   const inAdminApps = location.pathname.startsWith('/admin/apps');
   const inDevices = location.pathname.startsWith('/devices');
   const inDeviceDetail = /^\/devices\/[^/]+$/.test(location.pathname)
-    && !['/devices/discovery', '/devices/query', '/devices/groups', '/devices/remote-operations', '/devices/remote-consent', '/devices/deployments', '/devices/maintenance', '/devices/add'].includes(location.pathname);
+    && !['/devices/overview', '/devices/discovery', '/devices/query', '/devices/groups', '/devices/remote-operations', '/devices/remote-consent', '/devices/deployments', '/devices/maintenance', '/devices/policies', '/devices/alerts', '/devices/add'].includes(location.pathname);
   const inAssets = location.pathname.startsWith('/assets');
   const inAssetDetail = /^\/assets\/[^/]+$/.test(location.pathname)
     && !['/assets/inventory', '/assets/ownership', '/assets/owners', '/assets/custom-fields', '/assets/qr-labels', '/assets/software-baselines', '/assets/software-licenses', '/assets/contracts', '/assets/automation'].includes(location.pathname);
@@ -410,6 +411,7 @@ export function AppShell() {
             <>
               <div className="prod-side-title">{t('navigation.devices')}</div>
               <div className="prod-side-section">{t('navigation.workspace')}</div>
+              <NavLink to="/devices/overview"><SideNavLabel token="section.overview">Overview</SideNavLabel></NavLink>
               <NavLink end to="/devices" className={({ isActive }) => isActive || inDeviceDetail ? 'active' : ''}><SideNavLabel token="nav.devices">{t('navigation.devices')}</SideNavLabel></NavLink>
               <NavLink to="/devices/discovery"><SideNavLabel token="section.discovery">{t('navigation.discovery')}</SideNavLabel></NavLink>
               <NavLink to="/devices/groups"><SideNavLabel token="section.groups">{t('navigation.deviceGroups')}</SideNavLabel></NavLink>
@@ -418,6 +420,8 @@ export function AppShell() {
               <NavLink to="/devices/query"><SideNavLabel token="section.query">{t('navigation.inventoryQuery')}</SideNavLabel></NavLink>
               <NavLink to="/devices/deployments"><SideNavLabel token="section.deployment">Deployment Jobs</SideNavLabel></NavLink>
               <NavLink to="/devices/maintenance"><SideNavLabel token="section.settings">Agent Maintenance</SideNavLabel></NavLink>
+              <NavLink to="/devices/policies"><SideNavLabel token="section.policies">Endpoint Policies</SideNavLabel></NavLink>
+              {canViewDeviceAlerts ? <NavLink to="/devices/alerts"><SideNavLabel token="section.attention">Active Alerts</SideNavLabel></NavLink> : null}
             </>
           ) : (
             <>
