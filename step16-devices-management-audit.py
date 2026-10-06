@@ -131,10 +131,13 @@ for route,component in [
 for marker in (
     "t('navigation.discovery')",
     "t('navigation.deviceGroups')",
-    "t('navigation.agentDeployment')",
 ):
     if marker not in web_shell:
         issues.append(f'missing implemented Devices navigation marker: {marker}')
+if 'path="devices/add"' not in web_root:
+    issues.append('Agent Deployment direct route must remain available after Step45W')
+if 'to="/devices/add"' in web_shell:
+    issues.append('Agent Deployment must be retired from normal Devices navigation after Step45W')
 
 for file in (
     'apps/web-portal/src/pages/DeviceGroupsPage.tsx',
