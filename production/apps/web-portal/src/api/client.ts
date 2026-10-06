@@ -56,6 +56,23 @@ import type {
   DeviceServiceSnapshot,
   DeviceLiveSnapshotAccepted,
   DeviceLiveActionAccepted,
+  RemoteSession,
+  RemoteSessionAccepted,
+  RemoteConsentHistoryItem,
+  DeploymentJob,
+  AgentRolloutJob,
+  MaintenanceJob,
+  MaintenanceHistoryItem,
+  DeviceJobAccepted,
+  DeviceOverview,
+  EndpointPolicySummary,
+  EndpointPolicyDetail,
+  PolicyComplianceItem,
+  DeviceAlertItem,
+  DeviceAlertRule,
+  DeviceAlertChannels,
+  AlertHistoryItem,
+  AlertChannelTestAccepted,
   DeviceSoftwareInventory,
   DeviceGroupDetail,
   DeviceGroupListItem,
@@ -1764,5 +1781,332 @@ export async function deleteReportSchedule(
   await request<void>(
     '/reports/schedules/' + encodeURIComponent(scheduleId),
     { method: 'DELETE', headers: { 'If-Match': eTag } },
+  );
+}
+
+
+export async function getRemoteSessions(
+  page = 1,
+  pageSize = 25,
+): Promise<PagedResponse<RemoteSession>> {
+  return request<PagedResponse<RemoteSession>>(
+    '/devices/remote-sessions?page=' + page + '&pageSize=' + pageSize,
+  );
+}
+
+export async function createRemoteSession(
+  deviceId: string,
+  input: {
+    mode?: 'control' | 'view_only';
+    durationMinutes?: number;
+    consentTimeoutSeconds?: number;
+    operatorName?: string;
+    operatorRole?: string;
+    messageTh?: string;
+    messageEn?: string;
+  } = {},
+): Promise<RemoteSessionAccepted> {
+  return request<RemoteSessionAccepted>(
+    '/devices/' + encodeURIComponent(deviceId) + '/remote-sessions',
+    { method: 'POST', ...jsonRequest(input) },
+  );
+}
+
+export async function getRemoteSession(sessionId: string): Promise<RemoteSession> {
+  const response = await request<ResourceEnvelope<RemoteSession>>(
+    '/devices/remote-sessions/' + encodeURIComponent(sessionId),
+  );
+  return response.data;
+}
+
+export async function disconnectRemoteSession(sessionId: string): Promise<RemoteSession> {
+  const response = await request<ResourceEnvelope<RemoteSession>>(
+    '/devices/remote-sessions/' + encodeURIComponent(sessionId) + '/disconnect',
+    { method: 'POST' },
+  );
+  return response.data;
+}
+
+export async function getRemoteConsentHistory(
+  page = 1,
+  pageSize = 25,
+): Promise<PagedResponse<RemoteConsentHistoryItem>> {
+  return request<PagedResponse<RemoteConsentHistoryItem>>(
+    '/devices/remote-consent/history?page=' + page + '&pageSize=' + pageSize,
+  );
+}
+
+
+function jobListPath(path: string, page = 1, pageSize = 25, search?: string) {
+  const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+  if (search?.trim()) params.set('search', search.trim());
+  return path + '?' + params.toString();
+}
+
+export async function getDeploymentJobs(
+  page = 1,
+  pageSize = 25,
+  search?: string,
+): Promise<PagedResponse<DeploymentJob>> {
+  return request<PagedResponse<DeploymentJob>>(
+    jobListPath('/devices/deployments', page, pageSize, search),
+  );
+}
+
+export async function createDeploymentJob(input: {
+  deploymentType: 'agent' | 'software' | 'files';
+  targetScopeType: 'device_group' | 'all_managed';
+  targetScopeId?: string;
+  targetLabel?: string;
+  payloadName: string;
+  profileOrDestination?: string;
+  scheduleMode: 'run_now' | 'scheduled';
+  scheduledAt?: string;
+  maintenanceWindow?: string;
+  retryAttempts?: number;
+  restartPolicy?: string;
+}): Promise<DeviceJobAccepted> {
+  return request<DeviceJobAccepted>('/devices/deployments', {
+    method: 'POST',
+    ...jsonRequest(input),
+  });
+}
+
+export async function getDeploymentJob(deploymentId: string): Promise<DeploymentJob> {
+  const response = await request<ResourceEnvelope<DeploymentJob>>(
+    '/devices/deployments/' + encodeURIComponent(deploymentId),
+  );
+  return response.data;
+}
+
+export async function getAgentRollouts(
+  page = 1,
+  pageSize = 25,
+  search?: string,
+): Promise<PagedResponse<AgentRolloutJob>> {
+  return request<PagedResponse<AgentRolloutJob>>(
+    jobListPath('/devices/agent-rollouts', page, pageSize, search),
+  );
+}
+
+export async function createAgentRollout(input: {
+  releaseVersion: string;
+  targetScopeType: 'device_group' | 'all_managed';
+  targetScopeId?: string;
+  targetLabel?: string;
+  maintenanceWindow?: string;
+  retryAttempts?: number;
+  pauseFailureThresholdPercent?: number;
+}): Promise<DeviceJobAccepted> {
+  return request<DeviceJobAccepted>('/devices/agent-rollouts', {
+    method: 'POST',
+    ...jsonRequest(input),
+  });
+}
+
+export async function getSoftwareMaintenanceJobs(
+  page = 1,
+  pageSize = 25,
+  search?: string,
+): Promise<PagedResponse<MaintenanceJob>> {
+  return request<PagedResponse<MaintenanceJob>>(
+    jobListPath('/devices/software-maintenance-jobs', page, pageSize, search),
+  );
+}
+
+export async function createSoftwareMaintenanceJob(input: {
+  action: 'install' | 'update' | 'uninstall';
+  packageName: string;
+  targetScopeType: 'device_group' | 'all_managed';
+  targetScopeId?: string;
+  targetLabel?: string;
+  scheduleMode: 'run_now' | 'scheduled';
+  scheduledAt?: string;
+  maintenanceWindow?: string;
+  retryAttempts?: number;
+  restartPolicy?: string;
+}): Promise<DeviceJobAccepted> {
+  return request<DeviceJobAccepted>('/devices/software-maintenance-jobs', {
+    method: 'POST',
+    ...jsonRequest(input),
+  });
+}
+
+export async function getRestartJobs(
+  page = 1,
+  pageSize = 25,
+  search?: string,
+): Promise<PagedResponse<MaintenanceJob>> {
+  return request<PagedResponse<MaintenanceJob>>(
+    jobListPath('/devices/restart-jobs', page, pageSize, search),
+  );
+}
+
+export async function createRestartJob(input: {
+  targetScopeType: 'device_group' | 'all_managed';
+  targetScopeId?: string;
+  targetLabel?: string;
+  scheduledAt: string;
+  graceMinutes?: number;
+  userMessage?: string;
+  offlinePolicy?: 'next_check_in_24h' | 'skip';
+}): Promise<DeviceJobAccepted> {
+  return request<DeviceJobAccepted>('/devices/restart-jobs', {
+    method: 'POST',
+    ...jsonRequest(input),
+  });
+}
+
+export async function getMaintenanceHistory(
+  page = 1,
+  pageSize = 25,
+  search?: string,
+): Promise<PagedResponse<MaintenanceHistoryItem>> {
+  return request<PagedResponse<MaintenanceHistoryItem>>(
+    jobListPath('/devices/maintenance-history', page, pageSize, search),
+  );
+}
+
+
+export async function getDeviceOverview(): Promise<DeviceOverview> {
+  const response = await request<ResourceEnvelope<DeviceOverview>>('/devices/overview');
+  return response.data;
+}
+
+export async function getEndpointPolicies(): Promise<{ items: EndpointPolicySummary[] }> {
+  return request<{ items: EndpointPolicySummary[] }>('/devices/policies');
+}
+
+export async function getEndpointPolicy(policyId: string): Promise<EndpointPolicyDetail> {
+  const response = await request<ResourceEnvelope<EndpointPolicyDetail>>(
+    '/devices/policies/' + encodeURIComponent(policyId),
+  );
+  return response.data;
+}
+
+export async function updateEndpointPolicy(
+  policyId: string,
+  input: { status?: string; configuration?: Record<string, unknown> },
+): Promise<EndpointPolicyDetail> {
+  const response = await request<ResourceEnvelope<EndpointPolicyDetail>>(
+    '/devices/policies/' + encodeURIComponent(policyId),
+    { method: 'PUT', ...jsonRequest(input) },
+  );
+  return response.data;
+}
+
+export async function getPolicyCompliance(
+  policyId: string,
+  page = 1,
+  pageSize = 25,
+  status?: string,
+): Promise<PagedResponse<PolicyComplianceItem>> {
+  const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+  if (status && status !== 'all') params.set('status', status);
+  return request<PagedResponse<PolicyComplianceItem>>(
+    '/devices/policies/' + encodeURIComponent(policyId) + '/compliance?' + params.toString(),
+  );
+}
+
+export async function getDeviceAlerts(
+  page = 1,
+  pageSize = 25,
+  input: { search?: string; severity?: string; status?: string } = {},
+): Promise<PagedResponse<DeviceAlertItem>> {
+  const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+  if (input.search?.trim()) params.set('search', input.search.trim());
+  if (input.severity && input.severity !== 'all') params.set('severity', input.severity);
+  if (input.status && input.status !== 'all') params.set('status', input.status);
+  return request<PagedResponse<DeviceAlertItem>>('/devices/alerts?' + params.toString());
+}
+
+export async function acknowledgeDeviceAlert(alertId: string): Promise<{ alertId: string; status: string; acknowledgedAt?: string | null }> {
+  return request('/devices/alerts/' + encodeURIComponent(alertId) + '/acknowledge', {
+    method: 'POST',
+  });
+}
+
+export async function acknowledgeAllDeviceAlerts(): Promise<{ acknowledged: number }> {
+  return request('/devices/alerts/acknowledge-all', { method: 'POST' });
+}
+
+export async function getDeviceAlertRules(
+  page = 1,
+  pageSize = 25,
+  input: { search?: string; severity?: string } = {},
+): Promise<PagedResponse<DeviceAlertRule>> {
+  const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+  if (input.search?.trim()) params.set('search', input.search.trim());
+  if (input.severity && input.severity !== 'all') params.set('severity', input.severity);
+  return request<PagedResponse<DeviceAlertRule>>('/devices/alert-rules?' + params.toString());
+}
+
+export async function getDeviceAlertRule(ruleId: string): Promise<DeviceAlertRule> {
+  const response = await request<ResourceEnvelope<DeviceAlertRule>>(
+    '/devices/alert-rules/' + encodeURIComponent(ruleId),
+  );
+  return response.data;
+}
+
+export interface DeviceAlertRuleInput {
+  name: string;
+  description?: string;
+  ruleType: DeviceAlertRule['ruleType'];
+  severity: DeviceAlertRule['severity'];
+  scopeType: DeviceAlertRule['scopeType'];
+  scopeId?: string;
+  configuration: Record<string, unknown>;
+  channels: string[];
+  status: DeviceAlertRule['status'];
+}
+
+export async function createDeviceAlertRule(input: DeviceAlertRuleInput): Promise<DeviceAlertRule> {
+  const response = await request<ResourceEnvelope<DeviceAlertRule>>('/devices/alert-rules', {
+    method: 'POST',
+    ...jsonRequest(input),
+  });
+  return response.data;
+}
+
+export async function updateDeviceAlertRule(
+  ruleId: string,
+  input: DeviceAlertRuleInput,
+): Promise<DeviceAlertRule> {
+  const response = await request<ResourceEnvelope<DeviceAlertRule>>(
+    '/devices/alert-rules/' + encodeURIComponent(ruleId),
+    { method: 'PUT', ...jsonRequest(input) },
+  );
+  return response.data;
+}
+
+export async function getDeviceAlertChannels(): Promise<DeviceAlertChannels> {
+  const response = await request<ResourceEnvelope<DeviceAlertChannels>>('/devices/alert-channels');
+  return response.data;
+}
+
+export async function updateDeviceAlertChannels(input: {
+  console?: { enabled: boolean; configuration: Record<string, unknown> };
+  sound?: { enabled: boolean; configuration: Record<string, unknown> };
+  email?: { enabled: boolean; configuration: Record<string, unknown> };
+}): Promise<DeviceAlertChannels> {
+  const response = await request<ResourceEnvelope<DeviceAlertChannels>>('/devices/alert-channels', {
+    method: 'PUT',
+    ...jsonRequest(input),
+  });
+  return response.data;
+}
+
+export async function testDeviceAlertChannels(): Promise<AlertChannelTestAccepted> {
+  return request<AlertChannelTestAccepted>('/devices/alert-channels/tests', {
+    method: 'POST',
+  });
+}
+
+export async function getDeviceAlertHistory(
+  page = 1,
+  pageSize = 25,
+): Promise<PagedResponse<AlertHistoryItem>> {
+  return request<PagedResponse<AlertHistoryItem>>(
+    '/devices/alert-history?page=' + page + '&pageSize=' + pageSize,
   );
 }

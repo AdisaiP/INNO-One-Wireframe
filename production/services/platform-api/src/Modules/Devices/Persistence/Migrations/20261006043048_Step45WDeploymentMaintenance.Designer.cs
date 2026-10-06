@@ -3,6 +3,7 @@ using System;
 using INNO.One.Modules.Devices.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace INNO.One.Modules.Devices.Persistence.Migrations
 {
     [DbContext(typeof(DevicesDbContext))]
-    partial class DevicesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261006043048_Step45WDeploymentMaintenance")]
+    partial class Step45WDeploymentMaintenance
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -235,101 +238,6 @@ namespace INNO.One.Modules.Devices.Persistence.Migrations
                         .HasDatabaseName("ix_agent_rollouts_target_scope_type_target_scope_id");
 
                     b.ToTable("agent_rollouts", "devices");
-                });
-
-            modelBuilder.Entity("INNO.One.Modules.Devices.Domain.AlertChannel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("ChannelType")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("channel_type");
-
-                    b.Property<string>("ConfigurationJson")
-                        .IsRequired()
-                        .HasColumnType("jsonb")
-                        .HasColumnName("configuration_json");
-
-                    b.Property<bool>("Enabled")
-                        .HasColumnType("boolean")
-                        .HasColumnName("enabled");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("status");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<long>("Version")
-                        .HasColumnType("bigint")
-                        .HasColumnName("version");
-
-                    b.HasKey("Id")
-                        .HasName("pk_alert_channels");
-
-                    b.HasIndex("ChannelType")
-                        .IsUnique()
-                        .HasDatabaseName("ix_alert_channels_channel_type");
-
-                    b.ToTable("alert_channels", "devices");
-                });
-
-            modelBuilder.Entity("INNO.One.Modules.Devices.Domain.AlertDeliveryHistory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<Guid>("AlertId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("alert_id");
-
-                    b.Property<DateTimeOffset>("AttemptedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("attempted_at");
-
-                    b.Property<string>("ChannelType")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("channel_type");
-
-                    b.Property<string>("DeliveryStatus")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("delivery_status");
-
-                    b.Property<string>("Detail")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasColumnName("detail");
-
-                    b.Property<string>("RecipientSummary")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("recipient_summary");
-
-                    b.HasKey("Id")
-                        .HasName("pk_alert_delivery_history");
-
-                    b.HasIndex("AlertId", "AttemptedAt")
-                        .HasDatabaseName("ix_alert_delivery_history_alert_id_attempted_at");
-
-                    b.HasIndex("ChannelType", "DeliveryStatus", "AttemptedAt")
-                        .HasDatabaseName("ix_alert_delivery_history_channel_type_delivery_status_attempt");
-
-                    b.ToTable("alert_delivery_history", "devices");
                 });
 
             modelBuilder.Entity("INNO.One.Modules.Devices.Domain.DeploymentJob", b =>
@@ -613,187 +521,6 @@ namespace INNO.One.Modules.Devices.Persistence.Migrations
                         .HasDatabaseName("ix_devices_connectivity_state_organization_unit_id_last_seen_at");
 
                     b.ToTable("devices", "devices");
-                });
-
-            modelBuilder.Entity("INNO.One.Modules.Devices.Domain.DeviceAlert", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTimeOffset?>("AcknowledgedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("acknowledged_at");
-
-                    b.Property<Guid?>("AcknowledgedByUserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("acknowledged_by_user_id");
-
-                    b.Property<string>("Detail")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)")
-                        .HasColumnName("detail");
-
-                    b.Property<DateTimeOffset>("DetectedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("detected_at");
-
-                    b.Property<Guid?>("DeviceGroupId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("device_group_id");
-
-                    b.Property<Guid?>("DeviceId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("device_id");
-
-                    b.Property<string>("Fingerprint")
-                        .IsRequired()
-                        .HasMaxLength(240)
-                        .HasColumnType("character varying(240)")
-                        .HasColumnName("fingerprint");
-
-                    b.Property<DateTimeOffset>("LastObservedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_observed_at");
-
-                    b.Property<DateTimeOffset?>("ResolvedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("resolved_at");
-
-                    b.Property<Guid>("RuleId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("rule_id");
-
-                    b.Property<string>("Severity")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("severity");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("status");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(240)
-                        .HasColumnType("character varying(240)")
-                        .HasColumnName("title");
-
-                    b.HasKey("Id")
-                        .HasName("pk_device_alerts");
-
-                    b.HasIndex("DeviceGroupId")
-                        .HasDatabaseName("ix_device_alerts_device_group_id");
-
-                    b.HasIndex("DeviceId")
-                        .HasDatabaseName("ix_device_alerts_device_id");
-
-                    b.HasIndex("Fingerprint")
-                        .IsUnique()
-                        .HasDatabaseName("ix_device_alerts_fingerprint");
-
-                    b.HasIndex("RuleId")
-                        .HasDatabaseName("ix_device_alerts_rule_id");
-
-                    b.HasIndex("Status", "Severity", "DetectedAt")
-                        .HasDatabaseName("ix_device_alerts_status_severity_detected_at");
-
-                    b.ToTable("device_alerts", "devices");
-                });
-
-            modelBuilder.Entity("INNO.One.Modules.Devices.Domain.DeviceAlertRule", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("ChannelsJson")
-                        .IsRequired()
-                        .HasColumnType("jsonb")
-                        .HasColumnName("channels_json");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("code");
-
-                    b.Property<string>("ConfigurationJson")
-                        .IsRequired()
-                        .HasColumnType("jsonb")
-                        .HasColumnName("configuration_json");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasColumnName("description");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("name");
-
-                    b.Property<string>("RuleType")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("rule_type");
-
-                    b.Property<Guid?>("ScopeId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("scope_id");
-
-                    b.Property<string>("ScopeType")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("scope_type");
-
-                    b.Property<string>("Severity")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("severity");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("status");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<long>("Version")
-                        .HasColumnType("bigint")
-                        .HasColumnName("version");
-
-                    b.HasKey("Id")
-                        .HasName("pk_device_alert_rules");
-
-                    b.HasIndex("Code")
-                        .IsUnique()
-                        .HasDatabaseName("ix_device_alert_rules_code");
-
-                    b.HasIndex("ScopeType", "ScopeId")
-                        .HasDatabaseName("ix_device_alert_rules_scope_type_scope_id");
-
-                    b.HasIndex("Status", "RuleType")
-                        .HasDatabaseName("ix_device_alert_rules_status_rule_type");
-
-                    b.ToTable("device_alert_rules", "devices");
                 });
 
             modelBuilder.Entity("INNO.One.Modules.Devices.Domain.DeviceExternalMapping", b =>
@@ -1409,72 +1136,6 @@ namespace INNO.One.Modules.Devices.Persistence.Migrations
                     b.ToTable("discovery_scans", "devices");
                 });
 
-            modelBuilder.Entity("INNO.One.Modules.Devices.Domain.EndpointPolicy", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("code");
-
-                    b.Property<string>("ConfigurationJson")
-                        .IsRequired()
-                        .HasColumnType("jsonb")
-                        .HasColumnName("configuration_json");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasColumnName("description");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("name");
-
-                    b.Property<string>("PolicyType")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("policy_type");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("status");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<long>("Version")
-                        .HasColumnType("bigint")
-                        .HasColumnName("version");
-
-                    b.HasKey("Id")
-                        .HasName("pk_endpoint_policies");
-
-                    b.HasIndex("Code")
-                        .IsUnique()
-                        .HasDatabaseName("ix_endpoint_policies_code");
-
-                    b.HasIndex("Status", "PolicyType")
-                        .HasDatabaseName("ix_endpoint_policies_status_policy_type");
-
-                    b.ToTable("endpoint_policies", "devices");
-                });
-
             modelBuilder.Entity("INNO.One.Modules.Devices.Domain.InventoryQuery", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1850,109 +1511,6 @@ namespace INNO.One.Modules.Devices.Persistence.Migrations
                     b.ToTable("maintenance_jobs", "devices");
                 });
 
-            modelBuilder.Entity("INNO.One.Modules.Devices.Domain.PolicyAssignment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<Guid>("PolicyId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("policy_id");
-
-                    b.Property<Guid?>("ScopeId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("scope_id");
-
-                    b.Property<string>("ScopeLabel")
-                        .IsRequired()
-                        .HasMaxLength(240)
-                        .HasColumnType("character varying(240)")
-                        .HasColumnName("scope_label");
-
-                    b.Property<string>("ScopeType")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("scope_type");
-
-                    b.HasKey("Id")
-                        .HasName("pk_policy_assignments");
-
-                    b.HasIndex("ScopeType", "ScopeId")
-                        .HasDatabaseName("ix_policy_assignments_scope_type_scope_id");
-
-                    b.HasIndex("PolicyId", "ScopeType", "ScopeId")
-                        .IsUnique()
-                        .HasDatabaseName("ix_policy_assignments_policy_id_scope_type_scope_id");
-
-                    b.ToTable("policy_assignments", "devices");
-                });
-
-            modelBuilder.Entity("INNO.One.Modules.Devices.Domain.PolicyCompliance", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("ActualValue")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("actual_value");
-
-                    b.Property<Guid>("DeviceId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("device_id");
-
-                    b.Property<DateTimeOffset>("EvaluatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("evaluated_at");
-
-                    b.Property<string>("EvidenceSource")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("character varying(120)")
-                        .HasColumnName("evidence_source");
-
-                    b.Property<string>("ExpectedValue")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("expected_value");
-
-                    b.Property<Guid>("PolicyId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("policy_id");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("status");
-
-                    b.HasKey("Id")
-                        .HasName("pk_policy_compliance");
-
-                    b.HasIndex("DeviceId")
-                        .HasDatabaseName("ix_policy_compliance_device_id");
-
-                    b.HasIndex("PolicyId", "DeviceId")
-                        .IsUnique()
-                        .HasDatabaseName("ix_policy_compliance_policy_id_device_id");
-
-                    b.HasIndex("Status", "EvaluatedAt")
-                        .HasDatabaseName("ix_policy_compliance_status_evaluated_at");
-
-                    b.ToTable("policy_compliance", "devices");
-                });
-
             modelBuilder.Entity("INNO.One.Modules.Devices.Domain.RemoteConsentRequest", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2151,38 +1709,6 @@ namespace INNO.One.Modules.Devices.Persistence.Migrations
                         .HasConstraintName("fk_agent_prompts_devices_device_id");
                 });
 
-            modelBuilder.Entity("INNO.One.Modules.Devices.Domain.AlertDeliveryHistory", b =>
-                {
-                    b.HasOne("INNO.One.Modules.Devices.Domain.DeviceAlert", null)
-                        .WithMany()
-                        .HasForeignKey("AlertId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_alert_delivery_history_device_alerts_alert_id");
-                });
-
-            modelBuilder.Entity("INNO.One.Modules.Devices.Domain.DeviceAlert", b =>
-                {
-                    b.HasOne("INNO.One.Modules.Devices.Domain.DeviceGroup", null)
-                        .WithMany()
-                        .HasForeignKey("DeviceGroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("fk_device_alerts_device_groups_device_group_id");
-
-                    b.HasOne("INNO.One.Modules.Devices.Domain.Device", null)
-                        .WithMany()
-                        .HasForeignKey("DeviceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("fk_device_alerts_devices_device_id");
-
-                    b.HasOne("INNO.One.Modules.Devices.Domain.DeviceAlertRule", null)
-                        .WithMany()
-                        .HasForeignKey("RuleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_device_alerts_device_alert_rules_rule_id");
-                });
-
             modelBuilder.Entity("INNO.One.Modules.Devices.Domain.DeviceExternalMapping", b =>
                 {
                     b.HasOne("INNO.One.Modules.Devices.Domain.Device", null)
@@ -2284,33 +1810,6 @@ namespace INNO.One.Modules.Devices.Persistence.Migrations
                         .HasForeignKey("SavedQueryId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("fk_inventory_query_runs_inventory_queries_saved_query_id");
-                });
-
-            modelBuilder.Entity("INNO.One.Modules.Devices.Domain.PolicyAssignment", b =>
-                {
-                    b.HasOne("INNO.One.Modules.Devices.Domain.EndpointPolicy", null)
-                        .WithMany()
-                        .HasForeignKey("PolicyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_policy_assignments_endpoint_policies_policy_id");
-                });
-
-            modelBuilder.Entity("INNO.One.Modules.Devices.Domain.PolicyCompliance", b =>
-                {
-                    b.HasOne("INNO.One.Modules.Devices.Domain.Device", null)
-                        .WithMany()
-                        .HasForeignKey("DeviceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_policy_compliance_devices_device_id");
-
-                    b.HasOne("INNO.One.Modules.Devices.Domain.EndpointPolicy", null)
-                        .WithMany()
-                        .HasForeignKey("PolicyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_policy_compliance_endpoint_policies_policy_id");
                 });
 
             modelBuilder.Entity("INNO.One.Modules.Devices.Domain.RemoteConsentRequest", b =>

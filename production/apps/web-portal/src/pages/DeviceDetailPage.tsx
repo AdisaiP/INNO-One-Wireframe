@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNODialog, INNOIcon, INNOPagination, INNOResourceHeader, INNOResourceSummary, INNOResourceSummaryItem, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOSurfaceTabs, INNOTableWrap } from '@inno/ui';
-import { executeDeviceServiceAction, getDevice, getDeviceActivity, getDeviceHardwareInventory, getDeviceNetworkInventory, getDevicePerformance, getDeviceSoftwareInventory, getLiveDeviceProcesses, getLiveDeviceServices, getTickets, terminateDeviceProcess } from '../api/client';
+import { createRemoteSession, executeDeviceServiceAction, getDevice, getDeviceActivity, getDeviceHardwareInventory, getDeviceNetworkInventory, getDevicePerformance, getDeviceSoftwareInventory, getLiveDeviceProcesses, getLiveDeviceServices, getTickets, terminateDeviceProcess } from '../api/client';
 import { CollectionErrorState, CollectionLoadingState, ErrorState, LoadingState } from '../components/Feedback';
 import { useI18n as useStep45NI18n } from '@inno/i18n';
 import { usePermission } from '../app/ProfileContext';
@@ -78,6 +78,7 @@ export function DeviceDetailPage() {
     setSearchParams(next, { replace: true });
   };
   const canManage = usePermission('devices.manage');
+  const canRemote = usePermission('devices.remote');
   const canViewTickets = usePermission('helpdesk.ticket.view');
   const canCreateTicket = usePermission('helpdesk.ticket.create');
   const [softwareSearch, setSoftwareSearch] = useState('');
@@ -117,6 +118,10 @@ export function DeviceDetailPage() {
     queryKey: ['device', deviceId],
     queryFn: () => getDevice(deviceId),
     enabled: Boolean(deviceId),
+  });
+  const remoteSessionMutation = useMutation({
+    mutationFn: () => createRemoteSession(deviceId, { mode: 'control', durationMinutes: 60, consentTimeoutSeconds: 60 }),
+    onSuccess: () => navigate('/devices/remote-operations'),
   });
   const hardwareQuery = useQuery({
     queryKey: ['device', deviceId, 'hardware-inventory'],
@@ -238,6 +243,17 @@ export function DeviceDetailPage() {
         title={device.name}
         status={<INNOStatus tone={device.status === 'online' ? 'success' : 'neutral'} dot>{device.status === 'online' ? t45n('devices.shared.status.online') : t45n('devices.shared.status.offline')}</INNOStatus>}
         meta={<><span>{model}</span><span>·</span><span>{device.operatingSystem ?? t45n('assets.step45n.assetDetail.unknownOs')}</span><span>·</span><span>{group}</span></>}
+        actions={canRemote ? (
+          <INNOButton
+            variant="primary"
+            type="button"
+            busy={remoteSessionMutation.isPending}
+            disabled={device.isOffline}
+            onClick={() => remoteSessionMutation.mutate()}
+          >
+            {locale === 'th-TH' ? 'เริ่ม Remote Session' : 'Start Remote Session'}
+          </INNOButton>
+        ) : undefined}
       />
 
       {device.isOffline ? (

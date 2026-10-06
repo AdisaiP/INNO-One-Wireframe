@@ -2335,3 +2335,132 @@ QA: Step45U 59/59; API 191 ops / 153 paths / 0 issues; Event/Audit 66 actions / 
 
 Full record: `INNO-One-Step45U-Device-Activity-Tickets.md`.
 Next: **Step45V — Remote Operations + Remote Consent end-to-end through MeshCentral**. Live MeshCentral control auth is still blocked by `noauth (noauth-2d)`. Do not merge main without explicit user instruction.
+
+
+# Step45V — Remote Operations + Remote Consent — 2026-10-06
+
+Branch: `implementation/step45v-remote-operations-consent`, based on `main@a4d6e26`.
+
+**Source implementation is complete; live acceptance remains blocked.**
+
+INNO.One now owns the canonical Remote Session + Consent lifecycle, permissions/effective Device scope, persistence, audit and events. Endpoint Agent remains the real consent prompt. MeshCentral/MeshAgent remains execution-only.
+
+Remote Session create/list/get/disconnect and consent history are implemented. Device Detail can start a session with `devices.remote`; Remote Operations polls waiting consent and exposes the launch URL only after approval creates a MeshCentral desktop share. Remote Consent is a status/history surface and does not move approve/decline into Web Portal.
+
+The MeshCentral adapter now uses the audited 1.2.6 control protocol: `createDeviceShareLink` with desktop `p:2` and `removeDeviceShare`. INNO.One consent must be approved before a vendor share is created. Vendor node/share identifiers remain behind the adapter boundary.
+
+QA: Step45V 57/57; Step45Q 74/74; API 191 ops / 153 paths / 0 issues; Data 95 tables / 0 issues; Event/Audit 66 actions / 0 issues; Implementation 0 issues; .NET build 0 warnings/errors; Web typecheck PASS; Web production build PASS (2261 modules).
+
+**Live blocker remains:** MeshCentral `172.10.1.58:8443` control authentication is still rejected with `noauth (noauth-2d)`. Do not claim live remote desktop works until that auth issue is fixed and the real create-consent-open-disconnect path is tested.
+
+Full record: `INNO-One-Step45V-Remote-Operations-Consent.md`.
+Next: resolve the live MeshCentral control-auth blocker and perform live Step45V acceptance. Do not merge `main` without explicit user instruction.
+
+
+# Step45V live-auth remediation follow-up — 2026-10-06
+
+Live `172.10.1.58:8443/control.ashx` was retested from Windows with the committed `innoapi` integration credential and still returns exact `noauth (noauth-2d)`.
+
+MeshCentral 1.2.6 source confirms this code means the custom `x-meshauth` header was accepted structurally, then username/password authentication failed. The adapter protocol and header encoding are not the current blocker.
+
+A real defect was found in `production/scripts/step16-meshcentral-init.py`: when `innoapi` already existed, the script accepted that condition and never reset its password. The script is now corrected to run `--resetaccount innoapi --pass ...` every bootstrap before `--adminaccount`. The control QA helper also now supports `MESH_BASE_URL/MESH_USERNAME/MESH_PASSWORD` overrides for live acceptance without modifying appsettings.
+
+The connected Windows machine has no usable SSH key/agent, environment credential or Credential Manager entry for `inno360@172.10.1.58`, and Docker remote API is not exposed. Therefore the corrected bootstrap could not yet be executed on the live Ubuntu host from MCP.
+
+Next exact action once Ubuntu deployment access is available:
+1. run the corrected `production/scripts/step16-meshcentral-init.py` against the live compose project;
+2. rerun `MESH_BASE_URL=wss://172.10.1.58:8443 node production/scripts/step16-meshcontrol.mjs groups`;
+3. only after control auth passes, run full Step45V create session → Endpoint Agent consent → MeshCentral desktop share/open → disconnect acceptance.
+
+Do not claim live remote works and do not merge `main` until that acceptance passes.
+
+
+# Step45W — Deployment Jobs + Agent Maintenance — 2026-10-06
+
+Branch: `implementation/step45w-deployment-maintenance`, based on Step45V checkpoint `5592fb4`.
+
+**Product/API/Data/UI slice is complete; endpoint execution is not claimed.**
+
+Implemented canonical `deployment_jobs`, `agent_rollouts` and `maintenance_jobs` persistence plus all 10 frozen Deployment / Agent rollout / Software maintenance / Restart / Maintenance History APIs. Effective Devices scope and `devices.view` / `devices.deploy` / `devices.manage` permissions are enforced.
+
+Web Portal now exposes Deployment Jobs and Agent Maintenance with the frozen sub-workflows for Agent Updates, Software Maintenance, Restart Operations and Maintenance History. The old Agent Deployment route remains for compatibility but is hidden from normal Devices navigation.
+
+Job creation is real and audited, but jobs stay `queued` / `scheduled` until verified endpoint execution evidence exists. This is deliberate: MeshCentral 1.2.6 `poweraction` acknowledges before completion, `agentupdate` updates MeshAgent rather than the INNO.One Endpoint Agent, and the frozen Step45W contract does not define approved package/artifact distribution + verification semantics. Do not invent shell installation commands or claim deployment success.
+
+QA: Step45W 84/84; Step45Q 78 / 0 issues; API 191 ops / 153 paths / 0 issues; Data 95 tables / 0 issues; Event/Audit 69 actions / 0 issues; Implementation 0 issues; .NET clean build 0 warnings/errors; Web typecheck + production build PASS (2262 modules); runtime API/DB 27/27; browser 87/87 at 1366/768 with 5 screenshots.
+
+Migration: `20261006043048_Step45WDeploymentMaintenance`. Shared development PostgreSQL schema is current for QA. No Step45W Web/API Linux release deployment was performed.
+
+Separate Step45V live `noauth (noauth-2d)` blocker remains unresolved and recorded.
+
+Full record: `INNO-One-Step45W-Deployment-Maintenance.md`.
+Next: **Step45X — Endpoint Policies + Active Alerts + Devices Overview + final TOR navigation**. Do not merge `main` without explicit user instruction.
+
+
+# Step45X — Endpoint Policies + Active Alerts + Devices Overview — 2026-10-06
+
+Branch: `implementation/step45x-policies-alerts-overview`, based on Step45W checkpoint `eec6f72`.
+
+**COMPLETE — IMPLEMENTED + VERIFIED.**
+
+Step45X completes the frozen Devices TOR navigation slice. Production Devices navigation now exposes all 11 frozen jobs in canonical order: Overview, Devices, Discovery, Device Groups, Remote Operations, Remote Consent, Inventory Query, Deployment Jobs, Agent Maintenance, Endpoint Policies, Active Alerts. Agent Deployment remains hidden as a legacy compatibility route and Device Automation remains retired.
+
+Implemented all 16 frozen Step45X API operations and seven Devices-owned tables: `endpoint_policies`, `policy_assignments`, `policy_compliance`, `device_alerts`, `device_alert_rules`, `alert_channels`, `alert_delivery_history`. Migration: `20261006054134_Step45XPoliciesAlertsOverview`; additive-only `Up()`, applied successfully to the shared development PostgreSQL at `172.10.1.58`.
+
+Promoted `devices.policy.manage`, `devices.alert.view`, and `devices.alert.manage` into the Platform development seed/repair path.
+
+Policy compliance is evidence-truthful: Agent Update evaluates reported `Device.AgentVersion`; USB / Remote Consent / Screen Capture do not become compliant without endpoint evidence. Screen Capture is draft/unassigned and may correctly remain outside a scoped effective policy list.
+
+Alert evaluation is evidence-truthful: Offline Anomaly evaluates real Device connectivity and can create/resolve Product alert instances. Hardware Change, Software Change, and Baseline Drift rules do not fabricate alerts without comparable trusted observations. Alert create/acknowledge/rule changes are recorded through canonical outbox/audit paths.
+
+Runtime QA found and fixed a real EF Core bug in `GET /devices/alerts`: ordering by the local `SeverityRank(...)` helper was not SQL-translatable. It was replaced with an EF-translatable conditional severity expression.
+
+QA final: Step45X **229/229**, Step45Q **84/84**, API/Data/Event/Implementation **0 issues**, .NET clean build **0 warnings / 0 errors**, Web typecheck PASS, Web production build PASS (**2265 modules**), runtime **83 checks PASS**, browser/visual **84/84 PASS**, **8 screenshots** at 1366/768. Final screenshots were visually inspected; Alert subnav and Overview distribution/activity presentation were polished before completion.
+
+Shared development DB is current for Step45X QA. No Step45X Web/API Linux release deployment was performed.
+
+The separate Step45V MeshCentral `noauth (noauth-2d)` blocker remains unresolved and is not claimed fixed.
+
+Full record: `INNO-One-Step45X-Policies-Alerts-Overview.md`.
+
+Step45X completes the currently frozen Devices TOR navigation sequence. Do not invent Step45Y from this checkpoint; freeze the next scope from the roadmap/user direction first. Do not merge `main` without explicit user instruction.
+
+
+# Step45X UX consistency follow-up — 2026-10-06
+
+User review identified two visual regressions in the newly implemented Devices surfaces.
+
+Fixed:
+
+- Restored the canonical Devices contextual-navigation grouping from the approved prototype:
+  - WORKSPACE: Overview, Devices, Discovery, Device Groups, Remote Operations, Remote Consent, Inventory Query
+  - OPERATIONS: Deployment Jobs, Agent Maintenance, Policies, Alerts, Reports
+- Restored the Reports shortcut under Devices Operations when the user has `reports.view`.
+- Changed the Devices sidebar labels from `Endpoint Policies` / `Active Alerts` back to the canonical compact labels `Policies` / `Alerts`.
+- Standardized top-level Step45V/W/X Web pages to the normal `INNOPage` page-header pattern without a leading title icon:
+  - Remote Operations
+  - Remote Consent
+  - Deployment Jobs
+  - Agent Maintenance
+  - Agent Updates / Software Maintenance / Restart Operations / Maintenance History
+  - Endpoint Policies
+  - Policy Compliance
+  - Active Alerts / Rules / Channels / History
+- Kept `INNOResourceHeader` with a resource icon only on true Resource Detail pages such as an individual Deployment Job or Endpoint Policy, matching Device / Asset / Ticket detail behavior.
+- Restored the Agent Maintenance sub-navigation: Overview / Agent Updates / Software / Restart / History.
+
+QA after the follow-up:
+
+- Web TypeScript typecheck: PASS
+- Web production build: PASS, 2265 modules transformed
+- Step45W browser regression: 87 / 87 PASS
+- Step45X browser regression: 84 / 84 PASS
+- Step45X static audit: 229 / 229 PASS
+- Step45Q Devices TOR audit: 84 / 84 PASS
+- Action/Layout audit: 0 issues
+- Component Consistency audit: 0 issues
+- Responsive Pass audit: 0 issues
+- git diff --check: PASS
+- Visual screenshots inspected at 1366 and 768; no page-level overflow. Desktop Devices sidebar now visibly contains the WORKSPACE / OPERATIONS split and Reports shortcut.
+
+No backend behavior changed. Step45V live MeshCentral `noauth (noauth-2d)` blocker remains unchanged. Do not merge `main` without explicit user instruction.

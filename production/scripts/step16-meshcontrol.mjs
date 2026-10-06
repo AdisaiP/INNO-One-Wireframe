@@ -14,11 +14,15 @@ const settings = JSON.parse(
   ),
 ).MeshCentral;
 
-const auth = Buffer.from(settings.Username).toString('base64')
+const username = process.env.MESH_USERNAME ?? settings.Username;
+const password = process.env.MESH_PASSWORD ?? settings.Password;
+const auth = Buffer.from(username).toString('base64')
   + ','
-  + Buffer.from(settings.Password).toString('base64');
+  + Buffer.from(password).toString('base64');
 
-let baseUrl = settings.BaseUrl.replace('localhost', '127.0.0.1').replace(/\/$/, '');
+let baseUrl = (process.env.MESH_BASE_URL ?? settings.BaseUrl)
+  .replace('localhost', '127.0.0.1')
+  .replace(/\/$/, '');
 baseUrl = baseUrl.replace(/^https:/i, 'wss:').replace(/^http:/i, 'ws:');
 const controlUrl = baseUrl + '/control.ashx';
 

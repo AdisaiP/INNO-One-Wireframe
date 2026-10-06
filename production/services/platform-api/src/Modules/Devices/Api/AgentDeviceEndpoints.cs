@@ -2,6 +2,7 @@ using INNO.One.Contracts.Agent;
 using INNO.One.Contracts.Api;
 using INNO.One.Contracts.Authorization;
 using INNO.One.Contracts.Identifiers;
+using INNO.One.Contracts.Integrations;
 using INNO.One.Modules.Devices.Domain;
 using INNO.One.Modules.Devices.Infrastructure;
 using INNO.One.Modules.Devices.Persistence;
@@ -121,6 +122,7 @@ public static class AgentDeviceEndpoints
         DevicesDbContext db,
         IAccessEvaluator accessEvaluator,
         DeviceLedgerWriter ledger,
+        IRemoteDeviceEngine remoteEngine,
         CancellationToken cancellationToken)
     {
         if (!OpaqueId.TryParse(requestId, "consent", out var id))
@@ -146,10 +148,24 @@ public static class AgentDeviceEndpoints
         if (entity.Status != "pending")
             return Results.Problem(statusCode: 409, title: "Consent request is no longer pending");
 
+        var linkedSession = entity.RemoteSessionId is Guid sessionId
+            ? await db.RemoteSessions.SingleOrDefaultAsync(x => x.Id == sessionId, cancellationToken)
+            : null;
+
         if (entity.ExpiresAt <= DateTimeOffset.UtcNow)
         {
             entity.Status = "expired";
             entity.Version++;
+            if (linkedSession is not null && linkedSession.Status == "awaiting_consent")
+            {
+                linkedSession.Status = "expired";
+                linkedSession.EndedAt = DateTimeOffset.UtcNow;
+                linkedSession.EndReason = "consent_timeout";
+                linkedSession.FailureCode = "CONSENT_TIMEOUT";
+                linkedSession.Version++;
+                await ledger.UpdateOperationAsync(
+                    linkedSession.OperationId, "failed", 100, null, "CONSENT_TIMEOUT", cancellationToken);
+            }
             await db.SaveChangesAsync(cancellationToken);
             return Results.Problem(statusCode: 409, title: "Consent request expired");
         }
@@ -162,31 +178,57 @@ public static class AgentDeviceEndpoints
         entity.DecidedAt = DateTimeOffset.UtcNow;
         entity.DecidedByUserId = access.UserId;
         entity.Version++;
+
+        if (linkedSession is not null)
+        {
+            if (decision == "declined")
+            {
+                linkedSession.Status = "declined";
+                linkedSession.EndedAt = entity.DecidedAt;
+                linkedSession.EndReason = "consent_declined";
+                linkedSession.FailureCode = "CONSENT_DECLINED";
+                linkedSession.Version++;
+                await ledger.UpdateOperationAsync(
+                    linkedSession.OperationId, "failed", 100, null, "CONSENT_DECLINED", cancellationToken);
+            }
+            else
+            {
+                linkedSession.Status = "launching";
+                linkedSession.Version++;
+            }
+        }
+
         await db.SaveChangesAsync(cancellationToken);
 
         var publicId = OpaqueId.Format("consent", entity.Id);
+        var remoteSessionPublicId = linkedSession is null
+            ? publicId
+            : OpaqueId.Format("rses", linkedSession.Id);
         await ledger.AppendAuditAsync(
             "devices.remote.consent_decided",
             "remote_session",
-            publicId,
+            remoteSessionPublicId,
             OpaqueId.Format("user", access.UserId),
             CorrelationId(httpContext),
             httpContext.TraceIdentifier,
             new
             {
                 requestId = publicId,
+                sessionId = linkedSession is null ? null : remoteSessionPublicId,
                 deviceId = OpaqueId.Format("dev", entity.DeviceId),
                 decision,
                 mode = entity.Mode
             },
-            cancellationToken);
+            cancellationToken,
+            "restricted");
         await ledger.AppendOutboxAsync(
             "remote.consent.decided",
             "remote_session",
-            publicId,
+            remoteSessionPublicId,
             new
             {
                 requestId = publicId,
+                sessionId = linkedSession is null ? null : remoteSessionPublicId,
                 deviceId = OpaqueId.Format("dev", entity.DeviceId),
                 decision,
                 decidedByActorType = "user"
@@ -195,6 +237,104 @@ public static class AgentDeviceEndpoints
             null,
             httpContext.TraceIdentifier,
             cancellationToken);
+
+        if (linkedSession is not null && decision == "approved")
+        {
+            var externalNodeId = await db.DeviceExternalMappings.AsNoTracking()
+                .Where(x => x.DeviceId == entity.DeviceId && x.Provider == "meshcentral")
+                .Select(x => x.ExternalId)
+                .SingleOrDefaultAsync(cancellationToken);
+
+            if (!string.Equals(device.ConnectivityState, "online", StringComparison.OrdinalIgnoreCase)
+                || string.IsNullOrWhiteSpace(externalNodeId))
+            {
+                linkedSession.Status = "failed";
+                linkedSession.EndedAt = DateTimeOffset.UtcNow;
+                linkedSession.EndReason = "execution_unavailable";
+                linkedSession.FailureCode = string.IsNullOrWhiteSpace(externalNodeId)
+                    ? "MESH_CENTRAL_MAPPING_MISSING"
+                    : "RESOURCE_OFFLINE";
+                linkedSession.Version++;
+                await db.SaveChangesAsync(cancellationToken);
+                await ledger.UpdateOperationAsync(
+                    linkedSession.OperationId, "failed", 100, null, linkedSession.FailureCode, cancellationToken);
+            }
+            else
+            {
+                try
+                {
+                    var share = await remoteEngine.CreateDesktopShareAsync(
+                        externalNodeId,
+                        entity.OperatorName,
+                        linkedSession.RequestedDurationMinutes,
+                        linkedSession.Mode == "view_only",
+                        cancellationToken);
+
+                    linkedSession.Status = "active";
+                    linkedSession.ExternalShareId = share.ExternalShareId;
+                    linkedSession.LaunchUrl = share.Url;
+                    linkedSession.StartedAt = DateTimeOffset.UtcNow;
+                    linkedSession.ExpiresAt = share.ExpiresAt;
+                    linkedSession.FailureCode = null;
+                    linkedSession.Version++;
+                    await db.SaveChangesAsync(cancellationToken);
+
+                    var resultUrl = $"/api/v1/devices/remote-sessions/{remoteSessionPublicId}";
+                    await ledger.UpdateOperationAsync(
+                        linkedSession.OperationId, "succeeded", 100, resultUrl, null, cancellationToken);
+                    await ledger.AppendAuditAsync(
+                        "devices.remote.session_started",
+                        "remote_session",
+                        remoteSessionPublicId,
+                        OpaqueId.Format("user", linkedSession.OperatorUserId),
+                        CorrelationId(httpContext),
+                        httpContext.TraceIdentifier,
+                        new
+                        {
+                            sessionId = remoteSessionPublicId,
+                            deviceId = OpaqueId.Format("dev", linkedSession.DeviceId),
+                            mode = linkedSession.Mode,
+                            consentDecisionId = publicId,
+                            executionEngine = "meshcentral",
+                            expiresAt = linkedSession.ExpiresAt
+                        },
+                        cancellationToken,
+                        "restricted");
+                    await ledger.AppendOutboxAsync(
+                        "remote.started",
+                        "remote_session",
+                        remoteSessionPublicId,
+                        new
+                        {
+                            sessionId = remoteSessionPublicId,
+                            deviceId = OpaqueId.Format("dev", linkedSession.DeviceId),
+                            operatorUserId = OpaqueId.Format("user", linkedSession.OperatorUserId),
+                            mode = linkedSession.Mode,
+                            consentDecisionId = publicId
+                        },
+                        CorrelationId(httpContext),
+                        publicId,
+                        httpContext.TraceIdentifier,
+                        cancellationToken);
+                }
+                catch (RemoteEngineUnavailableException)
+                {
+                    linkedSession.Status = "failed";
+                    linkedSession.EndedAt = DateTimeOffset.UtcNow;
+                    linkedSession.EndReason = "execution_engine_unavailable";
+                    linkedSession.FailureCode = "REMOTE_ENGINE_UNAVAILABLE";
+                    linkedSession.Version++;
+                    await db.SaveChangesAsync(cancellationToken);
+                    await ledger.UpdateOperationAsync(
+                        linkedSession.OperationId,
+                        "failed",
+                        100,
+                        null,
+                        "REMOTE_ENGINE_UNAVAILABLE",
+                        cancellationToken);
+                }
+            }
+        }
 
         return Results.Ok(new ResourceResponse<AgentRemoteConsentResponse>(ToResponse(entity)));
     }

@@ -463,6 +463,59 @@ export interface DeviceLiveActionAccepted {
   verified: boolean;
 }
 
+export type RemoteSessionStatus =
+  | 'awaiting_consent'
+  | 'launching'
+  | 'active'
+  | 'declined'
+  | 'expired'
+  | 'failed'
+  | 'ended';
+
+export interface RemoteSession {
+  id: string;
+  deviceId: string;
+  deviceName: string;
+  operatorUserId: string;
+  operatorName: string;
+  mode: 'control' | 'view_only';
+  status: RemoteSessionStatus;
+  consentStatus: string;
+  consentRequestId?: string | null;
+  launchUrl?: string | null;
+  requestedAt: string;
+  startedAt?: string | null;
+  endedAt?: string | null;
+  expiresAt?: string | null;
+  endReason?: string | null;
+  failureCode?: string | null;
+}
+
+export interface RemoteSessionAccepted {
+  operationId: string;
+  status: string;
+  statusUrl: string;
+  progress: number;
+  sessionId: string;
+  resultUrl: string;
+  consentRequestId: string;
+  consentExpiresAt: string;
+}
+
+export interface RemoteConsentHistoryItem {
+  id: string;
+  sessionId?: string | null;
+  deviceId: string;
+  deviceName: string;
+  operatorName: string;
+  operatorRole?: string | null;
+  mode: string;
+  status: string;
+  requestedAt: string;
+  expiresAt: string;
+  decidedAt?: string | null;
+}
+
 export interface DeviceActivityItem {
   id: string;
   action: string;
@@ -1557,4 +1610,235 @@ export interface ReportScheduleMutationInput {
   dayOfWeek?: number | null;
   dayOfMonth?: number | null;
   isEnabled: boolean;
+}
+
+
+export type DeviceJobStatus =
+  | 'scheduled'
+  | 'queued'
+  | 'running'
+  | 'completed'
+  | 'partial'
+  | 'failed'
+  | 'cancelled';
+
+export interface DeviceJobAccepted {
+  operationId: string;
+  status: string;
+  statusUrl: string;
+  progress: number;
+  resourceId: string;
+  resultUrl: string;
+}
+
+export interface DeploymentJob {
+  id: string;
+  jobNumber: string;
+  deploymentType: 'agent' | 'software' | 'files';
+  targetLabel: string;
+  payloadName: string;
+  profileOrDestination?: string | null;
+  scheduleMode: 'run_now' | 'scheduled';
+  scheduledAt?: string | null;
+  maintenanceWindow?: string | null;
+  retryAttempts: number;
+  restartPolicy?: string | null;
+  status: DeviceJobStatus;
+  targetCount: number;
+  completedCount: number;
+  failedCount: number;
+  createdAt: string;
+  startedAt?: string | null;
+  completedAt?: string | null;
+}
+
+export interface AgentRolloutJob {
+  id: string;
+  rolloutNumber: string;
+  releaseVersion: string;
+  targetLabel: string;
+  maintenanceWindow?: string | null;
+  retryAttempts: number;
+  pauseFailureThresholdPercent: number;
+  status: DeviceJobStatus;
+  targetCount: number;
+  completedCount: number;
+  failedCount: number;
+  createdAt: string;
+  startedAt?: string | null;
+  completedAt?: string | null;
+}
+
+export interface MaintenanceJob {
+  id: string;
+  jobNumber: string;
+  maintenanceType: 'software' | 'restart';
+  action?: string | null;
+  packageName?: string | null;
+  targetLabel: string;
+  scheduleMode: 'run_now' | 'scheduled';
+  scheduledAt?: string | null;
+  maintenanceWindow?: string | null;
+  retryAttempts: number;
+  restartPolicy?: string | null;
+  graceMinutes?: number | null;
+  userMessage?: string | null;
+  offlinePolicy?: string | null;
+  status: DeviceJobStatus;
+  targetCount: number;
+  completedCount: number;
+  failedCount: number;
+  createdAt: string;
+  startedAt?: string | null;
+  completedAt?: string | null;
+}
+
+export interface MaintenanceHistoryItem {
+  id: string;
+  jobNumber: string;
+  type: 'agent' | 'software' | 'restart';
+  summary: string;
+  targetLabel: string;
+  succeeded: number;
+  failed: number;
+  status: DeviceJobStatus;
+  createdAt: string;
+  completedAt?: string | null;
+}
+
+
+export interface DeviceOverviewDistribution {
+  label: string;
+  count: number;
+  percent: number;
+}
+
+export interface DeviceOverviewRecentItem {
+  id: string;
+  name: string;
+  type: string;
+  status: string;
+  operatingSystem?: string | null;
+  group?: string | null;
+  lastSeenAt?: string | null;
+}
+
+export interface DeviceOverview {
+  totalDevices: number;
+  onlineDevices: number;
+  offlineDevices: number;
+  offlineOver24Hours: number;
+  activeAlerts: number;
+  criticalAlerts: number;
+  deviceGroups: number;
+  deviceTypes: number;
+  onlinePercent: number;
+  operatingSystems: DeviceOverviewDistribution[];
+  manufacturers: DeviceOverviewDistribution[];
+  recentDevices: DeviceOverviewRecentItem[];
+}
+
+export interface EndpointPolicyAssignment {
+  scopeType: string;
+  scopeId?: string | null;
+  scopeLabel: string;
+}
+
+export interface EndpointPolicySummary {
+  id: string;
+  code: string;
+  name: string;
+  policyType: string;
+  description?: string | null;
+  status: 'enabled' | 'disabled' | 'draft';
+  assignedDeviceCount: number;
+  assignments: EndpointPolicyAssignment[];
+  updatedAt: string;
+  eTag: string;
+}
+
+export interface EndpointPolicyDetail extends EndpointPolicySummary {
+  configuration: Record<string, unknown>;
+}
+
+export interface PolicyComplianceItem {
+  id: string;
+  deviceId: string;
+  deviceName: string;
+  policyId: string;
+  policyName: string;
+  expected: string;
+  actual: string;
+  status: 'compliant' | 'non_compliant' | 'pending';
+  evidenceSource: string;
+  evaluatedAt: string;
+}
+
+export interface DeviceAlertItem {
+  id: string;
+  ruleId: string;
+  severity: 'critical' | 'warning' | 'information';
+  title: string;
+  detail: string;
+  deviceId?: string | null;
+  deviceName?: string | null;
+  groupId?: string | null;
+  groupName?: string | null;
+  scopeLabel: string;
+  status: 'open' | 'acknowledged' | 'resolved';
+  detectedAt: string;
+  lastObservedAt: string;
+  acknowledgedAt?: string | null;
+}
+
+export interface DeviceAlertRule {
+  id: string;
+  code: string;
+  name: string;
+  description?: string | null;
+  ruleType: 'offline_anomaly' | 'hardware_change' | 'software_change' | 'baseline_drift';
+  severity: 'critical' | 'warning' | 'information';
+  scopeType: 'all_groups' | 'all_devices' | 'device_group' | 'organization' | 'location';
+  scopeId?: string | null;
+  configuration: Record<string, unknown>;
+  channels: string[];
+  status: 'enabled' | 'disabled';
+  updatedAt: string;
+  eTag: string;
+}
+
+export interface AlertChannelConfig {
+  channelType: 'console' | 'sound' | 'email';
+  enabled: boolean;
+  status: string;
+  configuration: Record<string, unknown>;
+  eTag: string;
+}
+
+export interface DeviceAlertChannels {
+  console: AlertChannelConfig;
+  sound: AlertChannelConfig;
+  email: AlertChannelConfig;
+}
+
+export interface AlertHistoryItem {
+  id: string;
+  alertId: string;
+  eventType: 'acknowledged' | 'resolved' | 'notified';
+  title: string;
+  severity: 'critical' | 'warning' | 'information';
+  scopeLabel: string;
+  occurredAt: string;
+  channels: string[];
+  operatorName?: string | null;
+  result: string;
+}
+
+export interface AlertChannelTestAccepted {
+  operationId: string;
+  status: string;
+  statusUrl: string;
+  progress: number;
+  resultUrl: string;
+  unavailableChannels: string[];
 }

@@ -34,6 +34,18 @@ create=run(
 if create.returncode != 0 and 'already exists' not in (create.stdout + create.stderr).lower():
     raise SystemExit(create.returncode)
 
+# Always reset the integration credential while MeshCentral is offline.
+# MeshCentral 1.2.6 --resetaccount also unlocks the account and removes 2FA,
+# which is required for non-interactive x-meshauth control connections.
+run(
+    compose+[
+        'run','--rm','--no-deps','--entrypoint','node','meshcentral',
+        '/opt/meshcentral/meshcentral/meshcentral.js',
+        '--resetaccount',username,'--pass',password,
+    ],
+    check=True,
+)
+
 run(
     compose+[
         'run','--rm','--no-deps','--entrypoint','node','meshcentral',

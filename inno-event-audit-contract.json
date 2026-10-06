@@ -1252,6 +1252,34 @@
       "targetType": "device",
       "retentionClass": "security_long",
       "sensitivity": "restricted"
+    },
+    {
+      "action": "devices.agent_rollout.created",
+      "module": "devices",
+      "targetType": "agent_rollout",
+      "retentionClass": "operational_standard",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "devices.software_maintenance.created",
+      "module": "devices",
+      "targetType": "maintenance_job",
+      "retentionClass": "operational_standard",
+      "sensitivity": "internal"
+    },
+    {
+      "action": "devices.restart_job.created",
+      "module": "devices",
+      "targetType": "maintenance_job",
+      "retentionClass": "security_long",
+      "sensitivity": "restricted"
+    },
+    {
+      "action": "devices.alert_channels.updated",
+      "module": "devices",
+      "targetType": "alert_channels",
+      "retentionClass": "operational_standard",
+      "sensitivity": "internal"
     }
   ],
   "privacy": {

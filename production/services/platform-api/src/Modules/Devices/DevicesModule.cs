@@ -32,6 +32,7 @@ public static class DevicesModule
         services.AddHostedService<DiscoveryScanWorker>();
         services.AddHostedService<InventoryQueryWorker>();
         services.AddHostedService<MeshCentralSyncWorker>();
+        services.AddHostedService<DeviceGovernanceWorker>();
 
         return services;
     }

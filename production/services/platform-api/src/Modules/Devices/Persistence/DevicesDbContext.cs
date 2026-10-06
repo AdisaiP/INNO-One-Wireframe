@@ -12,6 +12,7 @@ public sealed class DevicesDbContext(DbContextOptions<DevicesDbContext> options)
     public DbSet<DeviceInventorySnapshot> DeviceInventorySnapshots => Set<DeviceInventorySnapshot>();
     public DbSet<DevicePerformanceSample> DevicePerformanceSamples => Set<DevicePerformanceSample>();
     public DbSet<RemoteConsentRequest> RemoteConsentRequests => Set<RemoteConsentRequest>();
+    public DbSet<RemoteSession> RemoteSessions => Set<RemoteSession>();
     public DbSet<AgentPrompt> AgentPrompts => Set<AgentPrompt>();
     public DbSet<DeviceGroup> DeviceGroups => Set<DeviceGroup>();
     public DbSet<DeviceGroupMember> DeviceGroupMembers => Set<DeviceGroupMember>();
@@ -22,6 +23,16 @@ public sealed class DevicesDbContext(DbContextOptions<DevicesDbContext> options)
     public DbSet<InventoryQuery> InventoryQueries => Set<InventoryQuery>();
     public DbSet<InventoryQueryRun> InventoryQueryRuns => Set<InventoryQueryRun>();
     public DbSet<InventoryQueryResult> InventoryQueryResults => Set<InventoryQueryResult>();
+    public DbSet<DeploymentJob> DeploymentJobs => Set<DeploymentJob>();
+    public DbSet<AgentRollout> AgentRollouts => Set<AgentRollout>();
+    public DbSet<MaintenanceJob> MaintenanceJobs => Set<MaintenanceJob>();
+    public DbSet<EndpointPolicy> EndpointPolicies => Set<EndpointPolicy>();
+    public DbSet<PolicyAssignment> PolicyAssignments => Set<PolicyAssignment>();
+    public DbSet<PolicyCompliance> PolicyCompliance => Set<PolicyCompliance>();
+    public DbSet<DeviceAlertRule> DeviceAlertRules => Set<DeviceAlertRule>();
+    public DbSet<DeviceAlert> DeviceAlerts => Set<DeviceAlert>();
+    public DbSet<AlertChannel> AlertChannels => Set<AlertChannel>();
+    public DbSet<AlertDeliveryHistory> AlertDeliveryHistory => Set<AlertDeliveryHistory>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -116,6 +127,7 @@ public sealed class DevicesDbContext(DbContextOptions<DevicesDbContext> options)
             entity.ToTable("remote_consent_requests");
             entity.HasKey(x => x.Id);
             entity.HasIndex(x => new { x.DeviceId, x.Status, x.ExpiresAt });
+            entity.HasIndex(x => x.RemoteSessionId).IsUnique();
             entity.HasIndex(x => x.RequestedByUserId);
             entity.HasIndex(x => x.DecidedByUserId);
             entity.Property(x => x.OperatorName).HasMaxLength(160);
@@ -124,6 +136,22 @@ public sealed class DevicesDbContext(DbContextOptions<DevicesDbContext> options)
             entity.Property(x => x.MessageTh).HasMaxLength(2000);
             entity.Property(x => x.MessageEn).HasMaxLength(2000);
             entity.Property(x => x.Status).HasMaxLength(32);
+            entity.HasOne<Device>().WithMany().HasForeignKey(x => x.DeviceId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<RemoteSession>(entity =>
+        {
+            entity.ToTable("remote_sessions");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => new { x.DeviceId, x.Status, x.RequestedAt });
+            entity.HasIndex(x => new { x.OperatorUserId, x.RequestedAt });
+            entity.HasIndex(x => x.ConsentRequestId).IsUnique();
+            entity.Property(x => x.Mode).HasMaxLength(32);
+            entity.Property(x => x.Status).HasMaxLength(32);
+            entity.Property(x => x.ExternalShareId).HasMaxLength(512);
+            entity.Property(x => x.LaunchUrl).HasMaxLength(4000);
+            entity.Property(x => x.EndReason).HasMaxLength(64);
+            entity.Property(x => x.FailureCode).HasMaxLength(64);
             entity.HasOne<Device>().WithMany().HasForeignKey(x => x.DeviceId).OnDelete(DeleteBehavior.Cascade);
         });
 
@@ -254,6 +282,166 @@ public sealed class DevicesDbContext(DbContextOptions<DevicesDbContext> options)
             entity.Property(x => x.MatchedValue).HasMaxLength(600);
             entity.HasOne<InventoryQueryRun>().WithMany().HasForeignKey(x => x.RunId).OnDelete(DeleteBehavior.Cascade);
             entity.HasOne<Device>().WithMany().HasForeignKey(x => x.DeviceId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<DeploymentJob>(entity =>
+        {
+            entity.ToTable("deployment_jobs");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => x.OperationId).IsUnique();
+            entity.HasIndex(x => x.JobNumber).IsUnique();
+            entity.HasIndex(x => new { x.Status, x.CreatedAt });
+            entity.HasIndex(x => new { x.TargetScopeType, x.TargetScopeId });
+            entity.Property(x => x.JobNumber).HasMaxLength(64);
+            entity.Property(x => x.DeploymentType).HasMaxLength(32);
+            entity.Property(x => x.TargetScopeType).HasMaxLength(32);
+            entity.Property(x => x.TargetDefinitionJson).HasColumnType("jsonb");
+            entity.Property(x => x.TargetLabel).HasMaxLength(240);
+            entity.Property(x => x.PayloadName).HasMaxLength(300);
+            entity.Property(x => x.ProfileOrDestination).HasMaxLength(300);
+            entity.Property(x => x.ScheduleMode).HasMaxLength(32);
+            entity.Property(x => x.MaintenanceWindow).HasMaxLength(120);
+            entity.Property(x => x.RestartPolicy).HasMaxLength(64);
+            entity.Property(x => x.Status).HasMaxLength(32);
+        });
+
+        modelBuilder.Entity<AgentRollout>(entity =>
+        {
+            entity.ToTable("agent_rollouts");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => x.OperationId).IsUnique();
+            entity.HasIndex(x => x.RolloutNumber).IsUnique();
+            entity.HasIndex(x => new { x.Status, x.CreatedAt });
+            entity.HasIndex(x => new { x.TargetScopeType, x.TargetScopeId });
+            entity.Property(x => x.RolloutNumber).HasMaxLength(64);
+            entity.Property(x => x.ReleaseVersion).HasMaxLength(120);
+            entity.Property(x => x.TargetScopeType).HasMaxLength(32);
+            entity.Property(x => x.TargetDefinitionJson).HasColumnType("jsonb");
+            entity.Property(x => x.TargetLabel).HasMaxLength(240);
+            entity.Property(x => x.MaintenanceWindow).HasMaxLength(120);
+            entity.Property(x => x.Status).HasMaxLength(32);
+        });
+
+        modelBuilder.Entity<MaintenanceJob>(entity =>
+        {
+            entity.ToTable("maintenance_jobs");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => x.OperationId).IsUnique();
+            entity.HasIndex(x => x.JobNumber).IsUnique();
+            entity.HasIndex(x => new { x.MaintenanceType, x.Status, x.CreatedAt });
+            entity.HasIndex(x => new { x.TargetScopeType, x.TargetScopeId });
+            entity.Property(x => x.JobNumber).HasMaxLength(64);
+            entity.Property(x => x.MaintenanceType).HasMaxLength(32);
+            entity.Property(x => x.Action).HasMaxLength(64);
+            entity.Property(x => x.PackageName).HasMaxLength(300);
+            entity.Property(x => x.TargetScopeType).HasMaxLength(32);
+            entity.Property(x => x.TargetDefinitionJson).HasColumnType("jsonb");
+            entity.Property(x => x.TargetLabel).HasMaxLength(240);
+            entity.Property(x => x.ScheduleMode).HasMaxLength(32);
+            entity.Property(x => x.MaintenanceWindow).HasMaxLength(120);
+            entity.Property(x => x.RestartPolicy).HasMaxLength(64);
+            entity.Property(x => x.UserMessage).HasMaxLength(2000);
+            entity.Property(x => x.OfflinePolicy).HasMaxLength(64);
+            entity.Property(x => x.Status).HasMaxLength(32);
+        });
+
+        modelBuilder.Entity<EndpointPolicy>(entity =>
+        {
+            entity.ToTable("endpoint_policies");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => x.Code).IsUnique();
+            entity.HasIndex(x => new { x.Status, x.PolicyType });
+            entity.Property(x => x.Code).HasMaxLength(64);
+            entity.Property(x => x.Name).HasMaxLength(200);
+            entity.Property(x => x.PolicyType).HasMaxLength(64);
+            entity.Property(x => x.Description).HasMaxLength(1000);
+            entity.Property(x => x.Status).HasMaxLength(32);
+            entity.Property(x => x.ConfigurationJson).HasColumnType("jsonb");
+        });
+
+        modelBuilder.Entity<PolicyAssignment>(entity =>
+        {
+            entity.ToTable("policy_assignments");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => new { x.PolicyId, x.ScopeType, x.ScopeId }).IsUnique();
+            entity.HasIndex(x => new { x.ScopeType, x.ScopeId });
+            entity.Property(x => x.ScopeType).HasMaxLength(32);
+            entity.Property(x => x.ScopeLabel).HasMaxLength(240);
+            entity.HasOne<EndpointPolicy>().WithMany().HasForeignKey(x => x.PolicyId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<PolicyCompliance>(entity =>
+        {
+            entity.ToTable("policy_compliance");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => new { x.PolicyId, x.DeviceId }).IsUnique();
+            entity.HasIndex(x => new { x.Status, x.EvaluatedAt });
+            entity.Property(x => x.ExpectedValue).HasMaxLength(500);
+            entity.Property(x => x.ActualValue).HasMaxLength(500);
+            entity.Property(x => x.Status).HasMaxLength(32);
+            entity.Property(x => x.EvidenceSource).HasMaxLength(120);
+            entity.HasOne<EndpointPolicy>().WithMany().HasForeignKey(x => x.PolicyId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<Device>().WithMany().HasForeignKey(x => x.DeviceId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<DeviceAlertRule>(entity =>
+        {
+            entity.ToTable("device_alert_rules");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => x.Code).IsUnique();
+            entity.HasIndex(x => new { x.Status, x.RuleType });
+            entity.HasIndex(x => new { x.ScopeType, x.ScopeId });
+            entity.Property(x => x.Code).HasMaxLength(64);
+            entity.Property(x => x.Name).HasMaxLength(200);
+            entity.Property(x => x.Description).HasMaxLength(1000);
+            entity.Property(x => x.RuleType).HasMaxLength(64);
+            entity.Property(x => x.Severity).HasMaxLength(32);
+            entity.Property(x => x.ScopeType).HasMaxLength(32);
+            entity.Property(x => x.ConfigurationJson).HasColumnType("jsonb");
+            entity.Property(x => x.ChannelsJson).HasColumnType("jsonb");
+            entity.Property(x => x.Status).HasMaxLength(32);
+        });
+
+        modelBuilder.Entity<DeviceAlert>(entity =>
+        {
+            entity.ToTable("device_alerts");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => x.Fingerprint).IsUnique();
+            entity.HasIndex(x => new { x.Status, x.Severity, x.DetectedAt });
+            entity.HasIndex(x => x.DeviceId);
+            entity.HasIndex(x => x.DeviceGroupId);
+            entity.HasIndex(x => x.RuleId);
+            entity.Property(x => x.Fingerprint).HasMaxLength(240);
+            entity.Property(x => x.Severity).HasMaxLength(32);
+            entity.Property(x => x.Title).HasMaxLength(240);
+            entity.Property(x => x.Detail).HasMaxLength(2000);
+            entity.Property(x => x.Status).HasMaxLength(32);
+            entity.HasOne<DeviceAlertRule>().WithMany().HasForeignKey(x => x.RuleId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<Device>().WithMany().HasForeignKey(x => x.DeviceId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<DeviceGroup>().WithMany().HasForeignKey(x => x.DeviceGroupId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<AlertChannel>(entity =>
+        {
+            entity.ToTable("alert_channels");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => x.ChannelType).IsUnique();
+            entity.Property(x => x.ChannelType).HasMaxLength(32);
+            entity.Property(x => x.ConfigurationJson).HasColumnType("jsonb");
+            entity.Property(x => x.Status).HasMaxLength(32);
+        });
+
+        modelBuilder.Entity<AlertDeliveryHistory>(entity =>
+        {
+            entity.ToTable("alert_delivery_history");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => new { x.AlertId, x.AttemptedAt });
+            entity.HasIndex(x => new { x.ChannelType, x.DeliveryStatus, x.AttemptedAt });
+            entity.Property(x => x.ChannelType).HasMaxLength(32);
+            entity.Property(x => x.DeliveryStatus).HasMaxLength(32);
+            entity.Property(x => x.RecipientSummary).HasMaxLength(500);
+            entity.Property(x => x.Detail).HasMaxLength(1000);
+            entity.HasOne<DeviceAlert>().WithMany().HasForeignKey(x => x.AlertId).OnDelete(DeleteBehavior.Cascade);
         });
 
         base.OnModelCreating(modelBuilder);

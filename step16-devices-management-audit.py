@@ -109,10 +109,16 @@ if len(device_migrations)!=1:
     issues.append(f'expected one Step16DevicesManagement migration, found {len(device_migrations)}')
 
 compose=(PROD/'infrastructure/docker/compose.yml').read_text()
+mesh_init=(PROD/'scripts/step16-meshcentral-init.py').read_text()
+mesh_control=(PROD/'scripts/step16-meshcontrol.mjs').read_text()
 if 'ghcr.io/ylianst/meshcentral:1.2.6' not in compose:
     issues.append('local development must pin the Step 16 MeshCentral checkpoint image')
 if '8443:443' not in compose:
     issues.append('local MeshCentral HTTPS port checkpoint missing')
+if "'--resetaccount',username,'--pass',password" not in mesh_init:
+    issues.append('MeshCentral bootstrap must reset the integration account credential idempotently')
+if 'MESH_BASE_URL' not in mesh_control:
+    issues.append('MeshCentral control QA must support an explicit live target override')
 
 for route,component in [
     ('path="devices/discovery"','<DiscoveryPage'),
@@ -122,9 +128,16 @@ for route,component in [
 ]:
     if route not in web_root or component not in web_root:
         issues.append(f'missing production Web route/component: {route}')
-for label in ('Discovery','Device Groups','Agent Deployment'):
-    if label not in web_shell:
-        issues.append(f'missing implemented Devices navigation item: {label}')
+for marker in (
+    "t('navigation.discovery')",
+    "t('navigation.deviceGroups')",
+):
+    if marker not in web_shell:
+        issues.append(f'missing implemented Devices navigation marker: {marker}')
+if 'path="devices/add"' not in web_root:
+    issues.append('Agent Deployment direct route must remain available after Step45W')
+if 'to="/devices/add"' in web_shell:
+    issues.append('Agent Deployment must be retired from normal Devices navigation after Step45W')
 
 for file in (
     'apps/web-portal/src/pages/DeviceGroupsPage.tsx',

@@ -45,7 +45,33 @@ import { ContractsWarrantyPage } from '../pages/ContractsWarrantyPage';
 import { DeviceDetailPage } from '../pages/DeviceDetailPage';
 import { DeviceGroupDetailPage } from '../pages/DeviceGroupDetailPage';
 import { DeviceGroupsPage } from '../pages/DeviceGroupsPage';
+import {
+  AgentMaintenancePage,
+  AgentRolloutCreatePage,
+  AgentUpdatesPage,
+  DeploymentCreatePage,
+  DeploymentJobDetailPage,
+  DeploymentJobsPage,
+  MaintenanceHistoryPage,
+  RestartOperationsPage,
+  RestartSchedulePage,
+  SoftwareMaintenanceCreatePage,
+  SoftwareMaintenancePage,
+} from '../pages/DeviceMaintenancePages';
 import { DevicesPage } from '../pages/DevicesPage';
+import { DevicesOverviewPage } from '../pages/DevicesOverviewPage';
+import {
+  EndpointPoliciesPage,
+  EndpointPolicyCompliancePage,
+  EndpointPolicyDetailPage,
+} from '../pages/EndpointPoliciesPage';
+import {
+  DeviceAlertChannelsPage,
+  DeviceAlertHistoryPage,
+  DeviceAlertRuleEditorPage,
+  DeviceAlertRulesPage,
+  DeviceAlertsPage,
+} from '../pages/DeviceAlertsPages';
 import { DiscoveryPage } from '../pages/DiscoveryPage';
 import { InventoryQueryPage } from '../pages/InventoryQueryPage';
 import { DeferredPage } from '../pages/DeferredPage';
@@ -57,6 +83,8 @@ import { ReportEditorPage } from '../pages/ReportEditorPage';
 import { ReportRunsPage } from '../pages/ReportRunsPage';
 import { ReportSchedulesPage } from '../pages/ReportSchedulesPage';
 import { ReportsPage } from '../pages/ReportsPage';
+import { RemoteOperationsPage } from '../pages/RemoteOperationsPage';
+import { RemoteConsentPage } from '../pages/RemoteConsentPage';
 import { SearchPage } from '../pages/SearchPage';
 import {
   WorkspaceAttentionPage,
@@ -129,7 +157,11 @@ export function AppRoot() {
   const canAdminSettings = profile.permissions.includes('admin.settings.manage');
   const canAdminApps = profile.permissions.includes('admin.apps.view');
   const canViewDevices = profile.permissions.includes('devices.view');
+  const canManageDevices = profile.permissions.includes('devices.manage');
+  const canRemoteDevices = profile.permissions.includes('devices.remote');
   const canDeployDevices = profile.permissions.includes('devices.deploy');
+  const canViewDeviceAlerts = profile.permissions.includes('devices.alert.view');
+  const canManageDeviceAlerts = profile.permissions.includes('devices.alert.manage');
   const canViewAssets = profile.permissions.includes('assets.view');
   const canManageAssets = profile.permissions.includes('assets.manage');
   const canManageAssetBaselines = profile.permissions.includes('assets.baseline.manage');
@@ -194,10 +226,33 @@ export function AppRoot() {
           />
 
           <Route path="devices" element={canViewDevices ? <DevicesPage /> : <DeferredPage name="Devices" kind="permission" />} />
+          <Route path="devices/overview" element={canViewDevices ? <DevicesOverviewPage /> : <DeferredPage name="Devices Overview" kind="permission" />} />
           <Route path="devices/discovery" element={canViewDevices ? <DiscoveryPage /> : <DeferredPage name="Discovery" kind="permission" />} />
           <Route path="devices/query" element={canViewDevices ? <InventoryQueryPage /> : <DeferredPage name="Inventory Query" kind="permission" />} />
           <Route path="devices/groups" element={canViewDevices ? <DeviceGroupsPage /> : <DeferredPage name="Device Groups" kind="permission" />} />
           <Route path="devices/groups/:groupId" element={canViewDevices ? <DeviceGroupDetailPage /> : <DeferredPage name="Device Group" kind="permission" />} />
+          <Route path="devices/remote-operations" element={canRemoteDevices ? <RemoteOperationsPage /> : <DeferredPage name="Remote Operations" kind="permission" />} />
+          <Route path="devices/remote-consent" element={canViewDevices ? <RemoteConsentPage /> : <DeferredPage name="Remote Consent" kind="permission" />} />
+          <Route path="devices/deployments" element={canViewDevices ? <DeploymentJobsPage /> : <DeferredPage name="Deployment Jobs" kind="permission" />} />
+          <Route path="devices/deployments/new" element={canDeployDevices ? <DeploymentCreatePage /> : <DeferredPage name="New Deployment" kind="permission" />} />
+          <Route path="devices/deployments/:deploymentId" element={canViewDevices ? <DeploymentJobDetailPage /> : <DeferredPage name="Deployment Job" kind="permission" />} />
+          <Route path="devices/maintenance" element={canViewDevices ? <AgentMaintenancePage /> : <DeferredPage name="Agent Maintenance" kind="permission" />} />
+          <Route path="devices/maintenance/agent-updates" element={canViewDevices ? <AgentUpdatesPage /> : <DeferredPage name="Agent Updates" kind="permission" />} />
+          <Route path="devices/maintenance/agent-rollouts/new" element={canDeployDevices ? <AgentRolloutCreatePage /> : <DeferredPage name="New Agent Rollout" kind="permission" />} />
+          <Route path="devices/maintenance/software" element={canViewDevices ? <SoftwareMaintenancePage /> : <DeferredPage name="Software Maintenance" kind="permission" />} />
+          <Route path="devices/maintenance/software/new" element={canDeployDevices ? <SoftwareMaintenanceCreatePage /> : <DeferredPage name="New Software Maintenance Job" kind="permission" />} />
+          <Route path="devices/maintenance/restarts" element={canViewDevices ? <RestartOperationsPage /> : <DeferredPage name="Restart Operations" kind="permission" />} />
+          <Route path="devices/maintenance/restarts/new" element={canManageDevices ? <RestartSchedulePage /> : <DeferredPage name="Schedule Restart" kind="permission" />} />
+          <Route path="devices/maintenance/history" element={canViewDevices ? <MaintenanceHistoryPage /> : <DeferredPage name="Maintenance History" kind="permission" />} />
+          <Route path="devices/policies" element={canViewDevices ? <EndpointPoliciesPage /> : <DeferredPage name="Endpoint Policies" kind="permission" />} />
+          <Route path="devices/policies/:policyId/compliance" element={canViewDevices ? <EndpointPolicyCompliancePage /> : <DeferredPage name="Policy Compliance" kind="permission" />} />
+          <Route path="devices/policies/:policyId" element={canViewDevices ? <EndpointPolicyDetailPage /> : <DeferredPage name="Endpoint Policy" kind="permission" />} />
+          <Route path="devices/alerts" element={canViewDeviceAlerts ? <DeviceAlertsPage /> : <DeferredPage name="Active Alerts" kind="permission" />} />
+          <Route path="devices/alerts/rules" element={canViewDeviceAlerts ? <DeviceAlertRulesPage /> : <DeferredPage name="Alert Rules" kind="permission" />} />
+          <Route path="devices/alerts/rules/new" element={canManageDeviceAlerts ? <DeviceAlertRuleEditorPage /> : <DeferredPage name="New Alert Rule" kind="permission" />} />
+          <Route path="devices/alerts/rules/:ruleId" element={canViewDeviceAlerts ? <DeviceAlertRuleEditorPage /> : <DeferredPage name="Alert Rule" kind="permission" />} />
+          <Route path="devices/alerts/channels" element={canViewDeviceAlerts ? <DeviceAlertChannelsPage /> : <DeferredPage name="Alert Channels" kind="permission" />} />
+          <Route path="devices/alerts/history" element={canViewDeviceAlerts ? <DeviceAlertHistoryPage /> : <DeferredPage name="Alert History" kind="permission" />} />
           {/* Step45P: Devices Automation is retired; old bookmarks return to the Devices workspace. */}
           <Route path="devices/automation/*" element={<Navigate to="/devices" replace />} />
           <Route path="devices/add" element={canDeployDevices ? <AgentDeploymentPage /> : <DeferredPage name="Agent Deployment" kind="permission" />} />
