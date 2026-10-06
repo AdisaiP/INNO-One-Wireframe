@@ -55,7 +55,8 @@ public static class DeviceMaintenanceEndpoints
         var access = await EvaluateAsync(httpContext, accessEvaluator, "devices.view", cancellationToken);
         if (access.Result is not null) return access.Result;
 
-        var query = ApplyJobScope(db.DeploymentJobs.AsNoTracking(), access.Access!);
+        var effectiveGroupIds = await EffectiveGroupIdsAsync(db, access.Access!, cancellationToken);
+        var query = ApplyJobScope(db.DeploymentJobs.AsNoTracking(), access.Access!, effectiveGroupIds);
         if (!string.IsNullOrWhiteSpace(search))
         {
             var term = search.Trim().ToLower();
@@ -167,7 +168,8 @@ public static class DeviceMaintenanceEndpoints
         var access = await EvaluateAsync(httpContext, accessEvaluator, "devices.view", cancellationToken);
         if (access.Result is not null) return access.Result;
 
-        var item = await ApplyJobScope(db.DeploymentJobs.AsNoTracking(), access.Access!)
+        var effectiveGroupIds = await EffectiveGroupIdsAsync(db, access.Access!, cancellationToken);
+        var item = await ApplyJobScope(db.DeploymentJobs.AsNoTracking(), access.Access!, effectiveGroupIds)
             .SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
         if (item is null)
             return Problem(404, "Deployment not found", "DEPLOYMENT_NOT_FOUND");
@@ -187,7 +189,8 @@ public static class DeviceMaintenanceEndpoints
         var access = await EvaluateAsync(httpContext, accessEvaluator, "devices.view", cancellationToken);
         if (access.Result is not null) return access.Result;
 
-        var query = ApplyJobScope(db.AgentRollouts.AsNoTracking(), access.Access!);
+        var effectiveGroupIds = await EffectiveGroupIdsAsync(db, access.Access!, cancellationToken);
+        var query = ApplyJobScope(db.AgentRollouts.AsNoTracking(), access.Access!, effectiveGroupIds);
         if (!string.IsNullOrWhiteSpace(search))
         {
             var term = search.Trim().ToLower();
@@ -306,7 +309,11 @@ public static class DeviceMaintenanceEndpoints
         var access = await EvaluateAsync(httpContext, accessEvaluator, "devices.view", cancellationToken);
         if (access.Result is not null) return access.Result;
 
-        var query = ApplyJobScope(db.MaintenanceJobs.AsNoTracking().Where(x => x.MaintenanceType == "software"), access.Access!);
+        var effectiveGroupIds = await EffectiveGroupIdsAsync(db, access.Access!, cancellationToken);
+        var query = ApplyJobScope(
+            db.MaintenanceJobs.AsNoTracking().Where(x => x.MaintenanceType == "software"),
+            access.Access!,
+            effectiveGroupIds);
         if (!string.IsNullOrWhiteSpace(search))
         {
             var term = search.Trim().ToLower();
@@ -414,7 +421,11 @@ public static class DeviceMaintenanceEndpoints
         var access = await EvaluateAsync(httpContext, accessEvaluator, "devices.view", cancellationToken);
         if (access.Result is not null) return access.Result;
 
-        var query = ApplyJobScope(db.MaintenanceJobs.AsNoTracking().Where(x => x.MaintenanceType == "restart"), access.Access!);
+        var effectiveGroupIds = await EffectiveGroupIdsAsync(db, access.Access!, cancellationToken);
+        var query = ApplyJobScope(
+            db.MaintenanceJobs.AsNoTracking().Where(x => x.MaintenanceType == "restart"),
+            access.Access!,
+            effectiveGroupIds);
         if (!string.IsNullOrWhiteSpace(search))
         {
             var term = search.Trim().ToLower();
@@ -521,7 +532,9 @@ public static class DeviceMaintenanceEndpoints
         page = Math.Max(1, page);
         pageSize = Math.Clamp(pageSize <= 0 ? 25 : pageSize, 1, 100);
 
-        var rollouts = await ApplyJobScope(db.AgentRollouts.AsNoTracking(), access.Access!)
+        var effectiveGroupIds = await EffectiveGroupIdsAsync(db, access.Access!, cancellationToken);
+
+        var rollouts = await ApplyJobScope(db.AgentRollouts.AsNoTracking(), access.Access!, effectiveGroupIds)
             .OrderByDescending(x => x.CreatedAt)
             .Take(500)
             .Select(x => new MaintenanceHistoryItem(
@@ -537,7 +550,7 @@ public static class DeviceMaintenanceEndpoints
                 x.CompletedAt))
             .ToListAsync(cancellationToken);
 
-        var maintenance = await ApplyJobScope(db.MaintenanceJobs.AsNoTracking(), access.Access!)
+        var maintenance = await ApplyJobScope(db.MaintenanceJobs.AsNoTracking(), access.Access!, effectiveGroupIds)
             .OrderByDescending(x => x.CreatedAt)
             .Take(500)
             .Select(x => new MaintenanceHistoryItem(
@@ -599,7 +612,10 @@ public static class DeviceMaintenanceEndpoints
         return Paged(rows.Select(ToResponse).ToArray(), page, pageSize, totalItems);
     }
 
-    private static IQueryable<T> ApplyJobScope<T>(IQueryable<T> query, EffectiveAccess access)
+    private static IQueryable<T> ApplyJobScope<T>(
+        IQueryable<T> query,
+        EffectiveAccess access,
+        IReadOnlyCollection<Guid> effectiveGroupIds)
         where T : class
     {
         if (access.AllResources)
@@ -607,7 +623,7 @@ public static class DeviceMaintenanceEndpoints
 
         var orgIds = access.OrganizationIds.ToArray();
         var locationIds = access.LocationIds.ToArray();
-        var groupIds = access.DeviceGroupIds.ToArray();
+        var groupIds = effectiveGroupIds.ToArray();
 
         return query switch
         {
@@ -625,6 +641,27 @@ public static class DeviceMaintenanceEndpoints
                 || (x.TargetScopeType == "device_group" && x.TargetScopeId != null && groupIds.Contains(x.TargetScopeId.Value))),
             _ => query.Where(_ => false)
         };
+    }
+
+    private static async Task<Guid[]> EffectiveGroupIdsAsync(
+        DevicesDbContext db,
+        EffectiveAccess access,
+        CancellationToken cancellationToken)
+    {
+        if (access.AllResources)
+            return Array.Empty<Guid>();
+
+        var directGroupIds = access.DeviceGroupIds.ToArray();
+        var orgIds = access.OrganizationIds.ToArray();
+        var locationIds = access.LocationIds.ToArray();
+
+        return await db.DeviceGroups.AsNoTracking()
+            .Where(x =>
+                directGroupIds.Contains(x.Id)
+                || (x.OrganizationUnitId != null && orgIds.Contains(x.OrganizationUnitId.Value))
+                || (x.LocationId != null && locationIds.Contains(x.LocationId.Value)))
+            .Select(x => x.Id)
+            .ToArrayAsync(cancellationToken);
     }
 
     private static async Task<TargetResolution> ResolveTargetAsync(
@@ -653,12 +690,16 @@ public static class DeviceMaintenanceEndpoints
                 if (string.IsNullOrWhiteSpace(scopeIdInput)
                     || !OpaqueId.TryParse(scopeIdInput, "grp", out var groupId))
                     return TargetResolution.Validation("targetScopeId", "A valid Device Group is required.");
-                if (!access.AllResources && !access.DeviceGroupIds.Contains(groupId))
-                    return TargetResolution.Forbidden();
                 var group = await db.DeviceGroups.AsNoTracking()
                     .SingleOrDefaultAsync(x => x.Id == groupId && x.Status == "active", cancellationToken);
                 if (group is null)
                     return TargetResolution.Validation("targetScopeId", "Device Group was not found or is inactive.");
+                var groupAllowed = access.AllResources
+                    || access.DeviceGroupIds.Contains(groupId)
+                    || (group.OrganizationUnitId is Guid groupOrgId && access.OrganizationIds.Contains(groupOrgId))
+                    || (group.LocationId is Guid groupLocationId && access.LocationIds.Contains(groupLocationId));
+                if (!groupAllowed)
+                    return TargetResolution.Forbidden();
                 var groupCount = await db.DeviceGroupMembers.AsNoTracking()
                     .CountAsync(x => x.GroupId == groupId, cancellationToken);
                 return TargetResolution.Ok(
