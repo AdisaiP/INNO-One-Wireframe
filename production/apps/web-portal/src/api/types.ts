@@ -1705,3 +1705,140 @@ export interface MaintenanceHistoryItem {
   createdAt: string;
   completedAt?: string | null;
 }
+
+
+export interface DeviceOverviewDistribution {
+  label: string;
+  count: number;
+  percent: number;
+}
+
+export interface DeviceOverviewRecentItem {
+  id: string;
+  name: string;
+  type: string;
+  status: string;
+  operatingSystem?: string | null;
+  group?: string | null;
+  lastSeenAt?: string | null;
+}
+
+export interface DeviceOverview {
+  totalDevices: number;
+  onlineDevices: number;
+  offlineDevices: number;
+  offlineOver24Hours: number;
+  activeAlerts: number;
+  criticalAlerts: number;
+  deviceGroups: number;
+  deviceTypes: number;
+  onlinePercent: number;
+  operatingSystems: DeviceOverviewDistribution[];
+  manufacturers: DeviceOverviewDistribution[];
+  recentDevices: DeviceOverviewRecentItem[];
+}
+
+export interface EndpointPolicyAssignment {
+  scopeType: string;
+  scopeId?: string | null;
+  scopeLabel: string;
+}
+
+export interface EndpointPolicySummary {
+  id: string;
+  code: string;
+  name: string;
+  policyType: string;
+  description?: string | null;
+  status: 'enabled' | 'disabled' | 'draft';
+  assignedDeviceCount: number;
+  assignments: EndpointPolicyAssignment[];
+  updatedAt: string;
+  eTag: string;
+}
+
+export interface EndpointPolicyDetail extends EndpointPolicySummary {
+  configuration: Record<string, unknown>;
+}
+
+export interface PolicyComplianceItem {
+  id: string;
+  deviceId: string;
+  deviceName: string;
+  policyId: string;
+  policyName: string;
+  expected: string;
+  actual: string;
+  status: 'compliant' | 'non_compliant' | 'pending';
+  evidenceSource: string;
+  evaluatedAt: string;
+}
+
+export interface DeviceAlertItem {
+  id: string;
+  ruleId: string;
+  severity: 'critical' | 'warning' | 'information';
+  title: string;
+  detail: string;
+  deviceId?: string | null;
+  deviceName?: string | null;
+  groupId?: string | null;
+  groupName?: string | null;
+  scopeLabel: string;
+  status: 'open' | 'acknowledged' | 'resolved';
+  detectedAt: string;
+  lastObservedAt: string;
+  acknowledgedAt?: string | null;
+}
+
+export interface DeviceAlertRule {
+  id: string;
+  code: string;
+  name: string;
+  description?: string | null;
+  ruleType: 'offline_anomaly' | 'hardware_change' | 'software_change' | 'baseline_drift';
+  severity: 'critical' | 'warning' | 'information';
+  scopeType: 'all_groups' | 'all_devices' | 'device_group' | 'organization' | 'location';
+  scopeId?: string | null;
+  configuration: Record<string, unknown>;
+  channels: string[];
+  status: 'enabled' | 'disabled';
+  updatedAt: string;
+  eTag: string;
+}
+
+export interface AlertChannelConfig {
+  channelType: 'console' | 'sound' | 'email';
+  enabled: boolean;
+  status: string;
+  configuration: Record<string, unknown>;
+  eTag: string;
+}
+
+export interface DeviceAlertChannels {
+  console: AlertChannelConfig;
+  sound: AlertChannelConfig;
+  email: AlertChannelConfig;
+}
+
+export interface AlertHistoryItem {
+  id: string;
+  alertId: string;
+  eventType: 'acknowledged' | 'resolved' | 'notified';
+  title: string;
+  severity: 'critical' | 'warning' | 'information';
+  scopeLabel: string;
+  occurredAt: string;
+  channels: string[];
+  operatorName?: string | null;
+  result: string;
+}
+
+export interface AlertChannelTestAccepted {
+  operationId: string;
+  status: string;
+  statusUrl: string;
+  progress: number;
+  resultUrl: string;
+  unavailableChannels: string[];
+}
