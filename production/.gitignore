@@ -3,6 +3,8 @@ dist/
 .vite/
 .env
 .env.local
+infrastructure/docker/.env.production
+infrastructure/docker/tls/
 **/bin/
 **/obj/
 *.user
