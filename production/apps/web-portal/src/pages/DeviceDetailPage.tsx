@@ -120,7 +120,7 @@ export function DeviceDetailPage() {
     enabled: Boolean(deviceId),
   });
   const remoteSessionMutation = useMutation({
-    mutationFn: () => createRemoteSession(deviceId, { mode: 'control', durationMinutes: 60, consentTimeoutSeconds: 60 }),
+    mutationFn: () => createRemoteSession(deviceId, { mode: 'control', durationMinutes: 60 }),
     onSuccess: () => navigate('/devices/remote-operations'),
   });
   const hardwareQuery = useQuery({

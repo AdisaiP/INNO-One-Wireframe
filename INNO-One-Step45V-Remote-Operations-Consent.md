@@ -107,3 +107,41 @@ The previous script accepted "User already exists" and only promoted the account
 Current environment limitation: the connected Windows machine has network reachability to the live MeshCentral endpoint but has no SSH private key/agent, deployment environment variable or Windows Credential Manager entry for `inno360@172.10.1.58`. Passwordless SSH fails, and no unauthenticated Docker remote API is exposed. The corrected bootstrap therefore cannot be applied to the Ubuntu host from this MCP session yet.
 
 Live remote desktop remains **not accepted** until the corrected bootstrap is executed on the Ubuntu host and control auth plus create/consent/open/disconnect are retested.
+
+
+## Unattended Remote requirement override — 2026-10-06
+
+User direction supersedes the previous mandatory Endpoint Agent consent flow for new Remote Sessions.
+
+- POST /devices/{deviceId}/remote-sessions now validates devices.remote, effective Device scope, online state and MeshCentral mapping, then creates the MeshCentral desktop share immediately.
+- New sessions use launching -> active and do not wait in awaiting_consent.
+- A remote_consent_requests compatibility/audit row is retained because the frozen persistence shape links RemoteSession.ConsentRequestId; new rows use status=not_required and never surface as pending Endpoint Agent prompts.
+- A current Device owner is no longer required to start remote access.
+- MeshCentral vendor consent stays disabled (consent: 0) because INNO.One is operating in unattended mode.
+- Legacy pending consent records and the legacy Agent approval/decline APIs remain backward compatible but are not used for new sessions.
+- Permission, scope, online/mapping checks, restricted audit, remote.started/remote.ended, time-limited shares and explicit Disconnect remain mandatory.
+- Remote Operations UI no longer presents consent as part of the normal session lifecycle; Remote Consent is retained as a legacy/audit history surface.
+
+
+## Local unattended acceptance + Disconnect regression fix — 2026-10-06
+
+A complete local acceptance was executed on Windows using the Product API/Web Portal, MeshCentral 1.2.6 server and MeshAgent for WIN-J00TUFFH81D.
+
+Observed pre-fix disconnect defect: removing an active share disconnected the MeshCentral viewer, but the Product RemoteSession remained active. MeshCentral 1.2.6 sends an acknowledgement containing removed-share metadata before its final removeDeviceShare result=OK response. The integration returned on that first message and EnsureOk rejected the missing result, preventing the Product status update.
+
+Remediation:
+- SendAsync has an opt-in requireResultProperty mode.
+- RemoveDesktopShareAsync uses that mode and waits for MeshCentral's final result.
+- An already-absent share (Invalid device share identifier.) is treated as idempotent removal success so stale/expired vendor state can still converge to Product Ended state.
+
+Verified flow after remediation:
+1. Device WIN-J00TUFFH81D online in the Product-owned MeshCentral group.
+2. Start Remote Session from INNO.One Device Detail, no Endpoint Agent consent prompt.
+3. Session becomes Active and exposes the launch URL only through INNO.One.
+4. MeshCentral viewer connects successfully with a 1920x1080 remote canvas.
+5. Disconnect from INNO.One removes the vendor share; viewer reports Disconnected.
+6. Remote Operations reports Ended, launch_url and external_share_id are cleared, and DB end_reason is operator_disconnected.
+
+Final regression for this fix: Step45V 59/59, Step45Q 84/84, API/Data/Event/Implementation 0 issues, .NET 0 warnings/0 errors, Web typecheck/build PASS (2265 modules), Step45W browser 87/87, Step45X browser 84/84, targeted Remote Operations browser 12/12 at 1366/768.
+
+This acceptance proves the local Windows integration path. It does not by itself change the deployment/authentication state of the separate Ubuntu target at 172.10.1.58:8443.

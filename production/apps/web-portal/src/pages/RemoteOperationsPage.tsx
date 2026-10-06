@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOPage, INNOPagination, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOPage, INNOPagination, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { disconnectRemoteSession, getRemoteSessions } from '../api/client';
 import { useI18n } from '@inno/i18n';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -28,7 +28,7 @@ export function RemoteOperationsPage() {
     queryKey: ['devices', 'remote-sessions', page],
     queryFn: () => getRemoteSessions(page, 25),
     refetchInterval: (state) => state.state.data?.items.some((item) =>
-      item.status === 'awaiting_consent' || item.status === 'launching') ? 2000 : false,
+      item.status === 'launching') ? 2000 : false,
   });
   const disconnect = useMutation({
     mutationFn: (sessionId: string) => disconnectRemoteSession(sessionId),
@@ -41,18 +41,9 @@ export function RemoteOperationsPage() {
     <INNOPage
       eyebrow="Devices · Remote"
       title="Remote Operations"
-      description={th ? 'การเชื่อมต่อระยะไกลที่ INNO.One อนุญาต ควบคุม และบันทึก Audit' : 'INNO.One-authorized remote sessions with consent and audit ownership.'}
+      description={th ? 'การเชื่อมต่อระยะไกลแบบไม่ต้องรอ Consent โดยยังบังคับสิทธิ์ ขอบเขต และ Audit' : 'Unattended remote sessions with INNO.One permission, scope, and audit enforcement.'}
       actions={<Link to="/devices"><INNOButton variant="primary">{th ? 'เลือกอุปกรณ์เพื่อเริ่ม Remote' : 'Choose device to start remote'}</INNOButton></Link>}
     >
-      <INNOState
-        banner
-        kind="partial"
-        title={th ? 'ต้องได้รับความยินยอมก่อนเริ่มควบคุม' : 'Consent is required before remote control starts'}
-        description={th
-          ? 'MeshCentral/MeshAgent เป็น execution engine เท่านั้น INNO.One เป็นเจ้าของ permission, consent lifecycle และ audit trail'
-          : 'MeshCentral/MeshAgent is the execution engine only. INNO.One owns permission, consent lifecycle, and the audit trail.'}
-      />
-
       {query.isPending ? (
         <LoadingState label={th ? 'กำลังโหลด Remote Sessions…' : 'Loading remote sessions…'} />
       ) : query.isError ? (
@@ -76,7 +67,6 @@ export function RemoteOperationsPage() {
                   <th>{th ? 'อุปกรณ์' : 'Device'}</th>
                   <th>{th ? 'ผู้ดำเนินการ' : 'Operator'}</th>
                   <th>{th ? 'โหมด' : 'Mode'}</th>
-                  <th>{th ? 'Consent' : 'Consent'}</th>
                   <th>{th ? 'สถานะ' : 'Status'}</th>
                   <th>{th ? 'เริ่มคำขอ' : 'Requested'}</th>
                   <th>{th ? 'การทำงาน' : 'Action'}</th>
@@ -88,7 +78,6 @@ export function RemoteOperationsPage() {
                     <td><Link to={'/devices/' + item.deviceId}><b>{item.deviceName}</b></Link></td>
                     <td>{item.operatorName}</td>
                     <td>{item.mode === 'view_only' ? 'View only' : 'Control'}</td>
-                    <td><INNOStatus tone={item.consentStatus === 'approved' ? 'success' : item.consentStatus === 'pending' ? 'warning' : 'neutral'}>{item.consentStatus}</INNOStatus></td>
                     <td>
                       <INNOStatus tone={statusTone(item.status)}>{item.status}</INNOStatus>
                       {item.failureCode ? <div className="table-meta">{item.failureCode}</div> : null}
@@ -111,7 +100,7 @@ export function RemoteOperationsPage() {
                             {th ? 'ตัดการเชื่อมต่อ' : 'Disconnect'}
                           </INNOButton>
                         ) : null}
-                        {item.status === 'awaiting_consent' ? <span className="table-meta">{th ? 'รอผู้ใช้อนุมัติที่ Endpoint Agent' : 'Waiting for Endpoint Agent approval'}</span> : null}
+                        {item.status === 'awaiting_consent' ? <span className="table-meta">{th ? 'Legacy session กำลังรอ Consent' : 'Legacy session awaiting consent'}</span> : null}
                       </div>
                     </td>
                   </tr>

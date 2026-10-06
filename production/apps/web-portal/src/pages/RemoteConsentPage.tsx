@@ -25,15 +25,15 @@ export function RemoteConsentPage() {
     <INNOPage
       eyebrow="Devices · Remote"
       title="Remote Consent"
-      description={th ? 'ตรวจสอบคำขอความยินยอมสำหรับ Remote Session' : 'Review consent requests associated with remote sessions.'}
+      description={th ? 'ตรวจสอบประวัติ Remote Access และรายการ Consent เดิม' : 'Review remote-access audit markers and legacy consent records.'}
     >
       <INNOState
         banner
         kind="partial"
-        title={th ? 'Endpoint Agent เป็นจุดรับ Consent จริง' : 'Endpoint Agent is the real consent surface'}
+        title={th ? 'Remote Session ใหม่ไม่ต้องรอ Consent' : 'New remote sessions do not require endpoint consent'}
         description={th
-          ? 'Web Portal แสดงสถานะและประวัติเท่านั้น การอนุมัติหรือปฏิเสธเกิดบนเครื่องผู้ใช้ก่อน MeshCentral share ถูกสร้าง'
-          : 'The Web Portal shows status and history only. Approval or decline happens on the user endpoint before any MeshCentral share is created.'}
+          ? 'INNO.One เริ่ม Remote หลังตรวจ permission, scope, online state และ MeshCentral mapping แล้วทันที หน้านี้เก็บรายการเดิมและ not_required เพื่อ Audit'
+          : 'INNO.One starts remote access immediately after permission, scope, online-state, and MeshCentral-mapping checks. This page retains legacy and not_required audit records.'}
       />
 
       {query.isPending ? (

@@ -36,6 +36,7 @@ public static class RemoteSessionEndpoints
         DevicesDbContext db,
         IAccessEvaluator accessEvaluator,
         DeviceLedgerWriter ledger,
+        IRemoteDeviceEngine remoteEngine,
         CancellationToken cancellationToken)
     {
         var resolved = await ResolveDeviceAsync(
@@ -47,8 +48,6 @@ public static class RemoteSessionEndpoints
         var access = resolved.Access!;
         if (!string.Equals(device.ConnectivityState, "online", StringComparison.OrdinalIgnoreCase))
             return Problem(409, "Resource offline", "RESOURCE_OFFLINE");
-        if (device.OwnerUserId is null)
-            return Problem(409, "Remote consent unavailable", "DEVICE_HAS_NO_CURRENT_OWNER");
 
         var externalNodeId = await MeshNodeIdAsync(db, device.Id, cancellationToken);
         if (externalNodeId is null)
@@ -71,35 +70,37 @@ public static class RemoteSessionEndpoints
             return Problem(409, "Remote session already in progress", "REMOTE_SESSION_ALREADY_ACTIVE");
 
         var now = DateTimeOffset.UtcNow;
-        var consentSeconds = Math.Clamp(request.ConsentTimeoutSeconds ?? 60, 15, 300);
         var durationMinutes = Math.Clamp(request.DurationMinutes ?? 60, 5, 480);
         var sessionId = Guid.NewGuid();
         var consentId = Guid.NewGuid();
         var operationId = Guid.NewGuid();
         var actorId = OpaqueId.Format("user", access.UserId);
+        var operatorName = string.IsNullOrWhiteSpace(request.OperatorName)
+            ? "INNO.One IT Support"
+            : request.OperatorName.Trim();
+        var operatorRole = string.IsNullOrWhiteSpace(request.OperatorRole)
+            ? null
+            : request.OperatorRole.Trim();
 
+        // Keep a compatibility/audit row because RemoteSession.ConsentRequestId is part
+        // of the frozen persistence shape. New remote sessions are unattended and do
+        // not wait for an Endpoint Agent decision.
         var consent = new RemoteConsentRequest
         {
             Id = consentId,
             DeviceId = device.Id,
             RemoteSessionId = sessionId,
             RequestedByUserId = access.UserId,
-            OperatorName = string.IsNullOrWhiteSpace(request.OperatorName)
-                ? "INNO.One IT Support"
-                : request.OperatorName.Trim(),
-            OperatorRole = string.IsNullOrWhiteSpace(request.OperatorRole)
-                ? null
-                : request.OperatorRole.Trim(),
+            OperatorName = operatorName,
+            OperatorRole = operatorRole,
             Mode = mode == "view_only" ? "view_only" : "remote_control",
-            MessageTh = string.IsNullOrWhiteSpace(request.MessageTh)
-                ? "เจ้าหน้าที่ IT ขออนุญาตเชื่อมต่อเครื่องนี้เพื่อช่วยตรวจสอบหรือแก้ไขปัญหา"
-                : request.MessageTh.Trim(),
-            MessageEn = string.IsNullOrWhiteSpace(request.MessageEn)
-                ? "IT Support would like to connect to this computer to troubleshoot or resolve an issue."
-                : request.MessageEn.Trim(),
-            Status = "pending",
+            MessageTh = "การเชื่อมต่อระยะไกลนี้ไม่ต้องขอความยินยอมจากผู้ใช้ปลายทาง",
+            MessageEn = "This remote session does not require endpoint user consent.",
+            Status = "not_required",
             RequestedAt = now,
-            ExpiresAt = now.AddSeconds(consentSeconds),
+            ExpiresAt = now.AddMinutes(durationMinutes),
+            DecidedAt = now,
+            DecidedByUserId = access.UserId,
             Version = 1
         };
 
@@ -112,7 +113,7 @@ public static class RemoteSessionEndpoints
             OperationId = operationId,
             Mode = mode,
             RequestedDurationMinutes = durationMinutes,
-            Status = "awaiting_consent",
+            Status = "launching",
             RequestedAt = now,
             Version = 1
         };
@@ -132,7 +133,7 @@ public static class RemoteSessionEndpoints
         var sessionPublicId = OpaqueId.Format("rses", sessionId);
         var resultUrl = $"/api/v1/devices/remote-sessions/{sessionPublicId}";
         await ledger.UpdateOperationAsync(
-            operationId, "running", 25, resultUrl, null, cancellationToken);
+            operationId, "running", 50, resultUrl, null, cancellationToken);
 
         await ledger.AppendAuditAsync(
             "devices.remote.session_requested",
@@ -145,41 +146,91 @@ public static class RemoteSessionEndpoints
             {
                 deviceId,
                 mode,
-                consentRequestId = OpaqueId.Format("consent", consentId),
-                consentExpiresAt = consent.ExpiresAt,
+                consentRequired = false,
                 executionEngine = "meshcentral"
             },
             cancellationToken,
             "restricted");
 
-        await ledger.AppendAuditAsync(
-            "devices.remote.consent_requested",
-            "remote_session",
-            sessionPublicId,
-            actorId,
-            httpContext.TraceIdentifier,
-            httpContext.TraceIdentifier,
-            new
-            {
-                deviceId,
-                requestId = OpaqueId.Format("consent", consentId),
-                consent.Mode,
-                consent.ExpiresAt
-            },
-            cancellationToken,
-            "restricted");
+        try
+        {
+            var share = await remoteEngine.CreateDesktopShareAsync(
+                externalNodeId,
+                operatorName,
+                durationMinutes,
+                mode == "view_only",
+                cancellationToken);
 
-        return Results.Accepted(
-            resultUrl,
-            new RemoteSessionAccepted(
-                OpaqueId.Format("op", operationId),
-                "running",
-                $"/api/v1/operations/{OpaqueId.Format("op", operationId)}",
-                25,
+            session.Status = "active";
+            session.ExternalShareId = share.ExternalShareId;
+            session.LaunchUrl = share.Url;
+            session.StartedAt = DateTimeOffset.UtcNow;
+            session.ExpiresAt = share.ExpiresAt;
+            session.FailureCode = null;
+            session.Version++;
+            await db.SaveChangesAsync(cancellationToken);
+
+            await ledger.UpdateOperationAsync(
+                operationId, "succeeded", 100, resultUrl, null, cancellationToken);
+            await ledger.AppendAuditAsync(
+                "devices.remote.session_started",
+                "remote_session",
                 sessionPublicId,
+                actorId,
+                httpContext.TraceIdentifier,
+                httpContext.TraceIdentifier,
+                new
+                {
+                    sessionId = sessionPublicId,
+                    deviceId,
+                    mode,
+                    consentRequired = false,
+                    executionEngine = "meshcentral",
+                    expiresAt = session.ExpiresAt
+                },
+                cancellationToken,
+                "restricted");
+            await ledger.AppendOutboxAsync(
+                "remote.started",
+                "remote_session",
+                sessionPublicId,
+                new
+                {
+                    sessionId = sessionPublicId,
+                    deviceId,
+                    operatorUserId = actorId,
+                    mode,
+                    consentRequired = false
+                },
+                httpContext.TraceIdentifier,
+                null,
+                httpContext.TraceIdentifier,
+                cancellationToken);
+
+            return Results.Accepted(
                 resultUrl,
-                OpaqueId.Format("consent", consentId),
-                consent.ExpiresAt));
+                new RemoteSessionAccepted(
+                    OpaqueId.Format("op", operationId),
+                    "succeeded",
+                    $"/api/v1/operations/{OpaqueId.Format("op", operationId)}",
+                    100,
+                    sessionPublicId,
+                    resultUrl,
+                    null,
+                    null));
+        }
+        catch (RemoteEngineUnavailableException ex)
+        {
+            session.Status = "failed";
+            session.EndedAt = DateTimeOffset.UtcNow;
+            session.EndReason = "execution_engine_unavailable";
+            session.FailureCode = "REMOTE_ENGINE_UNAVAILABLE";
+            session.Version++;
+            await db.SaveChangesAsync(cancellationToken);
+            await ledger.UpdateOperationAsync(
+                operationId, "failed", 100, null, session.FailureCode, cancellationToken);
+            return Problem(503, "Remote engine unavailable", ex.Message);
+        }
     }
 
     private static async Task<IResult> ListAsync(
@@ -488,8 +539,10 @@ public static class RemoteSessionEndpoints
             consent?.OperatorName ?? "INNO.One IT Support",
             session.Mode,
             session.Status,
-            consent?.Status ?? "unknown",
-            consent is null ? null : OpaqueId.Format("consent", consent.Id),
+            consent?.Status ?? "not_required",
+            consent is null || consent.Status == "not_required"
+                ? null
+                : OpaqueId.Format("consent", consent.Id),
             session.Status == "active" ? session.LaunchUrl : null,
             session.RequestedAt,
             session.StartedAt,
@@ -568,8 +621,8 @@ public static class RemoteSessionEndpoints
         int Progress,
         string SessionId,
         string ResultUrl,
-        string ConsentRequestId,
-        DateTimeOffset ConsentExpiresAt);
+        string? ConsentRequestId,
+        DateTimeOffset? ConsentExpiresAt);
 
     public sealed record RemoteSessionResponse(
         string Id,
