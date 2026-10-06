@@ -1,6 +1,6 @@
 import { FormEvent, useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, NavLink, useNavigate, useParams } from 'react-router-dom';
 import {
   INNOButton,
   INNOCollection,
@@ -109,6 +109,18 @@ function CollectionLoading({ label }: { label: string }) {
   return <div className="collection-state"><LoadingState label={label} /></div>;
 }
 
+function MaintenanceSubnav() {
+  return (
+    <nav className="section-subnav" aria-label="Agent Maintenance sections">
+      <NavLink end to="/devices/maintenance">Overview</NavLink>
+      <NavLink to="/devices/maintenance/agent-updates">Agent Updates</NavLink>
+      <NavLink to="/devices/maintenance/software">Software</NavLink>
+      <NavLink to="/devices/maintenance/restarts">Restart</NavLink>
+      <NavLink to="/devices/maintenance/history">History</NavLink>
+    </nav>
+  );
+}
+
 export function DeploymentJobsPage() {
   const [page, setPage] = useState(1);
   const query = useQuery({
@@ -117,13 +129,12 @@ export function DeploymentJobsPage() {
   });
 
   return (
-    <main className="inno-page">
-      <INNOResourceHeader
-        icon={<INNOIcon token="section.deployment" size={20} />}
-        title="Deployment Jobs"
-        meta={<span>Track Agent, Software, and File distribution jobs from one operations view.</span>}
-        actions={<Link to="/devices/deployments/new"><INNOButton variant="primary">New Deployment</INNOButton></Link>}
-      />
+    <INNOPage
+      eyebrow="Devices · Operations"
+      title="Deployment Jobs"
+      description="Track Agent, Software, and File distribution jobs from one operations view."
+      actions={<Link to="/devices/deployments/new"><INNOButton variant="primary">New Deployment</INNOButton></Link>}
+    >
       {query.isPending ? <CollectionLoading label="Loading deployment jobs…" /> : query.isError ? (
         <ErrorState error={query.error} retry={() => void query.refetch()} />
       ) : query.data.items.length === 0 ? (
@@ -154,7 +165,7 @@ export function DeploymentJobsPage() {
           <INNOPagination page={query.data.page} pageSize={query.data.pageSize} totalItems={query.data.totalItems} totalPages={query.data.totalPages} onPageChange={setPage} />
         </INNOCollection>
       )}
-    </main>
+    </INNOPage>
   );
 }
 
@@ -310,12 +321,12 @@ export function AgentMaintenancePage() {
   const error = rollouts.error ?? software.error ?? restarts.error;
 
   return (
-    <main className="inno-page">
-      <INNOResourceHeader
-        icon={<INNOIcon token="section.settings" size={20} />}
-        title="Agent Maintenance"
-        meta={<span>Review Agent Updates, Software, Restart, and History as separate operational tasks.</span>}
-      />
+    <INNOPage
+      eyebrow="Devices · Maintenance"
+      title="Agent Maintenance"
+      description="Review maintenance work with Agent Updates, Software, Restart, and History separated by task."
+    >
+      <MaintenanceSubnav />
       {loading ? (
         <LoadingState label="Loading maintenance overview…" />
       ) : error ? (
@@ -352,7 +363,7 @@ export function AgentMaintenancePage() {
       </div>
       </>
       )}
-    </main>
+    </INNOPage>
   );
 }
 
@@ -554,11 +565,15 @@ export function MaintenanceHistoryPage() {
 
 function JobListShell(props: { title: string; description: string; action?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <main className="inno-page">
-      <div className="resource-breadcrumb"><Link to="/devices/maintenance">Agent Maintenance</Link><span>›</span><span>{props.title}</span></div>
-      <INNOResourceHeader icon={<INNOIcon token="section.settings" size={20} />} title={props.title} meta={<span>{props.description}</span>} actions={props.action} />
+    <INNOPage
+      eyebrow="Devices · Maintenance"
+      title={props.title}
+      description={props.description}
+      actions={props.action}
+    >
+      <MaintenanceSubnav />
       {props.children}
-    </main>
+    </INNOPage>
   );
 }
 

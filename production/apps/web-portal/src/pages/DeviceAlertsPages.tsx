@@ -9,11 +9,9 @@ import {
   INNOCollectionState,
   INNOCollectionToolbar,
   INNOEditorFooter,
-  INNOIcon,
   INNOPage,
   INNOPagination,
   INNOPurposeNote,
-  INNOResourceHeader,
   INNOResourceSummary,
   INNOResourceSummaryItem,
   INNOSearchField,
@@ -82,16 +80,15 @@ function AlertPageShell(props: {
   children: ReactNode;
 }) {
   return (
-    <main className="inno-page">
-      <INNOResourceHeader
-        icon={<INNOIcon token="section.attention" size={20} />}
-        title={props.title}
-        meta={<span>{props.description}</span>}
-        actions={props.actions}
-      />
+    <INNOPage
+      eyebrow="Devices · Alerts"
+      title={props.title}
+      description={props.description}
+      actions={props.actions}
+    >
       <AlertSubnav />
       {props.children}
-    </main>
+    </INNOPage>
   );
 }
 

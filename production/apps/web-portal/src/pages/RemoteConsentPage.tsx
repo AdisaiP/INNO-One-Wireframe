@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOIcon, INNOPagination, INNOResourceHeader, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOPage, INNOPagination, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { getRemoteConsentHistory } from '../api/client';
 import { useI18n } from '@inno/i18n';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -22,12 +22,11 @@ export function RemoteConsentPage() {
   });
 
   return (
-    <main className="inno-page">
-      <INNOResourceHeader
-        icon={<INNOIcon token="section.security" size={20} />}
-        title={th ? 'Remote Consent' : 'Remote Consent'}
-        meta={<span>{th ? 'ตรวจสอบคำขอความยินยอมสำหรับ Remote Session' : 'Review consent requests associated with remote sessions.'}</span>}
-      />
+    <INNOPage
+      eyebrow="Devices · Remote"
+      title="Remote Consent"
+      description={th ? 'ตรวจสอบคำขอความยินยอมสำหรับ Remote Session' : 'Review consent requests associated with remote sessions.'}
+    >
       <INNOState
         banner
         kind="partial"
@@ -88,6 +87,6 @@ export function RemoteConsentPage() {
           />
         </INNOCollection>
       )}
-    </main>
+    </INNOPage>
   );
 }

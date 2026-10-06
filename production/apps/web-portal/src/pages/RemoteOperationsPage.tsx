@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOIcon, INNOPagination, INNOResourceHeader, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOPage, INNOPagination, INNOState, INNOStatus, INNOTableWrap } from '@inno/ui';
 import { disconnectRemoteSession, getRemoteSessions } from '../api/client';
 import { useI18n } from '@inno/i18n';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -38,14 +38,12 @@ export function RemoteOperationsPage() {
   });
 
   return (
-    <main className="inno-page">
-      <INNOResourceHeader
-        icon={<INNOIcon token="nav.devices" size={20} />}
-        title={th ? 'Remote Operations' : 'Remote Operations'}
-        meta={<span>{th ? 'การเชื่อมต่อระยะไกลที่ INNO.One อนุญาต ควบคุม และบันทึก Audit' : 'INNO.One-authorized remote sessions with consent and audit ownership.'}</span>}
-        actions={<Link to="/devices"><INNOButton variant="primary">{th ? 'เลือกอุปกรณ์เพื่อเริ่ม Remote' : 'Choose device to start remote'}</INNOButton></Link>}
-      />
-
+    <INNOPage
+      eyebrow="Devices · Remote"
+      title="Remote Operations"
+      description={th ? 'การเชื่อมต่อระยะไกลที่ INNO.One อนุญาต ควบคุม และบันทึก Audit' : 'INNO.One-authorized remote sessions with consent and audit ownership.'}
+      actions={<Link to="/devices"><INNOButton variant="primary">{th ? 'เลือกอุปกรณ์เพื่อเริ่ม Remote' : 'Choose device to start remote'}</INNOButton></Link>}
+    >
       <INNOState
         banner
         kind="partial"
@@ -130,6 +128,6 @@ export function RemoteOperationsPage() {
           />
         </INNOCollection>
       )}
-    </main>
+    </INNOPage>
   );
 }

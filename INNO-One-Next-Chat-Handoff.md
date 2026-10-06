@@ -2424,3 +2424,43 @@ The separate Step45V MeshCentral `noauth (noauth-2d)` blocker remains unresolved
 Full record: `INNO-One-Step45X-Policies-Alerts-Overview.md`.
 
 Step45X completes the currently frozen Devices TOR navigation sequence. Do not invent Step45Y from this checkpoint; freeze the next scope from the roadmap/user direction first. Do not merge `main` without explicit user instruction.
+
+
+# Step45X UX consistency follow-up — 2026-10-06
+
+User review identified two visual regressions in the newly implemented Devices surfaces.
+
+Fixed:
+
+- Restored the canonical Devices contextual-navigation grouping from the approved prototype:
+  - WORKSPACE: Overview, Devices, Discovery, Device Groups, Remote Operations, Remote Consent, Inventory Query
+  - OPERATIONS: Deployment Jobs, Agent Maintenance, Policies, Alerts, Reports
+- Restored the Reports shortcut under Devices Operations when the user has `reports.view`.
+- Changed the Devices sidebar labels from `Endpoint Policies` / `Active Alerts` back to the canonical compact labels `Policies` / `Alerts`.
+- Standardized top-level Step45V/W/X Web pages to the normal `INNOPage` page-header pattern without a leading title icon:
+  - Remote Operations
+  - Remote Consent
+  - Deployment Jobs
+  - Agent Maintenance
+  - Agent Updates / Software Maintenance / Restart Operations / Maintenance History
+  - Endpoint Policies
+  - Policy Compliance
+  - Active Alerts / Rules / Channels / History
+- Kept `INNOResourceHeader` with a resource icon only on true Resource Detail pages such as an individual Deployment Job or Endpoint Policy, matching Device / Asset / Ticket detail behavior.
+- Restored the Agent Maintenance sub-navigation: Overview / Agent Updates / Software / Restart / History.
+
+QA after the follow-up:
+
+- Web TypeScript typecheck: PASS
+- Web production build: PASS, 2265 modules transformed
+- Step45W browser regression: 87 / 87 PASS
+- Step45X browser regression: 84 / 84 PASS
+- Step45X static audit: 229 / 229 PASS
+- Step45Q Devices TOR audit: 84 / 84 PASS
+- Action/Layout audit: 0 issues
+- Component Consistency audit: 0 issues
+- Responsive Pass audit: 0 issues
+- git diff --check: PASS
+- Visual screenshots inspected at 1366 and 768; no page-level overflow. Desktop Devices sidebar now visibly contains the WORKSPACE / OPERATIONS split and Reports shortcut.
+
+No backend behavior changed. Step45V live MeshCentral `noauth (noauth-2d)` blocker remains unchanged. Do not merge `main` without explicit user instruction.

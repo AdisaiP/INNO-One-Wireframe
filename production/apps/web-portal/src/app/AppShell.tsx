@@ -418,10 +418,12 @@ export function AppShell() {
               {canRemoteDevices ? <NavLink to="/devices/remote-operations"><SideNavLabel token="section.remote">Remote Operations</SideNavLabel></NavLink> : null}
               <NavLink to="/devices/remote-consent"><SideNavLabel token="section.security">Remote Consent</SideNavLabel></NavLink>
               <NavLink to="/devices/query"><SideNavLabel token="section.query">{t('navigation.inventoryQuery')}</SideNavLabel></NavLink>
+              <div className="prod-side-section">Operations</div>
               <NavLink to="/devices/deployments"><SideNavLabel token="section.deployment">Deployment Jobs</SideNavLabel></NavLink>
               <NavLink to="/devices/maintenance"><SideNavLabel token="section.settings">Agent Maintenance</SideNavLabel></NavLink>
-              <NavLink to="/devices/policies"><SideNavLabel token="section.policies">Endpoint Policies</SideNavLabel></NavLink>
-              {canViewDeviceAlerts ? <NavLink to="/devices/alerts"><SideNavLabel token="section.attention">Active Alerts</SideNavLabel></NavLink> : null}
+              <NavLink to="/devices/policies"><SideNavLabel token="section.policies">Policies</SideNavLabel></NavLink>
+              {canViewDeviceAlerts ? <NavLink to="/devices/alerts"><SideNavLabel token="section.attention">Alerts</SideNavLabel></NavLink> : null}
+              {canViewReports ? <NavLink to="/reports"><SideNavLabel token="section.audit">Reports</SideNavLabel></NavLink> : null}
             </>
           ) : (
             <>

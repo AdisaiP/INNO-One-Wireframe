@@ -53,12 +53,11 @@ export function EndpointPoliciesPage() {
   });
 
   return (
-    <main className="inno-page">
-      <INNOResourceHeader
-        icon={<INNOIcon token="section.policies" size={20} />}
-        title="Endpoint Policies"
-        meta={<span>Define endpoint controls and review evidence-backed compliance inside your effective Device scope.</span>}
-      />
+    <INNOPage
+      eyebrow="Devices · Operations"
+      title="Endpoint Policies"
+      description="Define endpoint controls and review evidence-backed compliance inside your effective Device scope."
+    >
       <INNOPurposeNote
         title="Compliance is evidence-based"
         description="A configured policy is not automatically compliant. Policies stay Pending for a device until the Endpoint Agent or another trusted Product source reports the evidence required by that policy."
@@ -100,7 +99,7 @@ export function EndpointPoliciesPage() {
           </INNOTableWrap>
         </INNOCollection>
       )}
-    </main>
+    </INNOPage>
   );
 }
 
@@ -267,13 +266,12 @@ export function EndpointPolicyCompliancePage() {
   }, {} as Record<string, number>);
 
   return (
-    <main className="inno-page">
-      <div className="resource-breadcrumb"><Link to="/devices/policies">Endpoint Policies</Link><span>›</span><Link to={'/devices/policies/' + policy.data.id}>{policy.data.name}</Link><span>›</span><span>Compliance</span></div>
-      <INNOResourceHeader
-        icon={<INNOIcon token="section.policies" size={20} />}
-        title={policy.data.name + ' Compliance'}
-        meta={<span>Evidence-backed results for devices inside your effective scope.</span>}
-      />
+    <INNOPage
+      eyebrow="Devices · Policies"
+      title={policy.data.name + ' Compliance'}
+      description="Evidence-backed results for devices inside your effective scope."
+      actions={<Link className="inno-link-button secondary" to={'/devices/policies/' + policy.data.id}>Back to Policy</Link>}
+    >
       <INNOResourceSummary>
         <INNOResourceSummaryItem label="Rows in view" value={String(compliance.data.totalItems)} detail="Current effective scope" />
         <INNOResourceSummaryItem label="Compliant" value={String(counts.compliant ?? 0)} detail="Evidence matches expected state" />
@@ -325,7 +323,7 @@ export function EndpointPolicyCompliancePage() {
           </>
         )}
       </INNOCollection>
-    </main>
+    </INNOPage>
   );
 }
 
