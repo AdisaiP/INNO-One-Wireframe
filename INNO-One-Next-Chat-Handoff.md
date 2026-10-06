@@ -2464,3 +2464,14 @@ QA after the follow-up:
 - Visual screenshots inspected at 1366 and 768; no page-level overflow. Desktop Devices sidebar now visibly contains the WORKSPACE / OPERATIONS split and Reports shortcut.
 
 No backend behavior changed. Step45V live MeshCentral `noauth (noauth-2d)` blocker remains unchanged. Do not merge `main` without explicit user instruction.
+
+
+# Step45V unattended Remote override — 2026-10-06
+
+User changed the Remote requirement: new Remote Sessions must not require Endpoint Agent consent. Branch: implementation/unattended-remote (based on redirect fix checkpoint d64e83b).
+
+Implemented direct Product execution: Start Remote validates devices.remote, effective Device scope, online state and MeshCentral mapping, then creates the MeshCentral desktop share immediately and transitions launching -> active. Device owner is no longer required. Compatibility RemoteConsentRequest rows remain with status=not_required only to preserve the existing persistence link; they are never returned as pending Agent consent.
+
+Remote Operations UI now describes unattended access and removes the Consent column from the normal session table. Remote Consent remains a legacy/audit history route. Legacy Agent consent APIs remain backward compatible for old pending records.
+
+QA so far: Step45V audit 57/57 PASS; .NET build 0 warnings/0 errors; Web typecheck PASS; Web production build PASS (2265 modules). Local MeshCentral/MeshAgent test stack remains on Windows and API is running against it. Final live acceptance still requires triggering Start Remote from the authorized Web UI because the Desktop Commander safety gateway blocks terminal/API commands that directly initiate a remote-control session.

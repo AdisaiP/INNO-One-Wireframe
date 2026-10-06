@@ -107,3 +107,17 @@ The previous script accepted "User already exists" and only promoted the account
 Current environment limitation: the connected Windows machine has network reachability to the live MeshCentral endpoint but has no SSH private key/agent, deployment environment variable or Windows Credential Manager entry for `inno360@172.10.1.58`. Passwordless SSH fails, and no unauthenticated Docker remote API is exposed. The corrected bootstrap therefore cannot be applied to the Ubuntu host from this MCP session yet.
 
 Live remote desktop remains **not accepted** until the corrected bootstrap is executed on the Ubuntu host and control auth plus create/consent/open/disconnect are retested.
+
+
+## Unattended Remote requirement override — 2026-10-06
+
+User direction supersedes the previous mandatory Endpoint Agent consent flow for new Remote Sessions.
+
+- POST /devices/{deviceId}/remote-sessions now validates devices.remote, effective Device scope, online state and MeshCentral mapping, then creates the MeshCentral desktop share immediately.
+- New sessions use launching -> active and do not wait in awaiting_consent.
+- A remote_consent_requests compatibility/audit row is retained because the frozen persistence shape links RemoteSession.ConsentRequestId; new rows use status=not_required and never surface as pending Endpoint Agent prompts.
+- A current Device owner is no longer required to start remote access.
+- MeshCentral vendor consent stays disabled (consent: 0) because INNO.One is operating in unattended mode.
+- Legacy pending consent records and the legacy Agent approval/decline APIs remain backward compatible but are not used for new sessions.
+- Permission, scope, online/mapping checks, restricted audit, remote.started/remote.ended, time-limited shares and explicit Disconnect remain mandatory.
+- Remote Operations UI no longer presents consent as part of the normal session lifecycle; Remote Consent is retained as a legacy/audit history surface.

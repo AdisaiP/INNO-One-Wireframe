@@ -498,8 +498,8 @@ export interface RemoteSessionAccepted {
   progress: number;
   sessionId: string;
   resultUrl: string;
-  consentRequestId: string;
-  consentExpiresAt: string;
+  consentRequestId?: string | null;
+  consentExpiresAt?: string | null;
 }
 
 export interface RemoteConsentHistoryItem {
