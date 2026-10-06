@@ -2395,3 +2395,32 @@ Separate Step45V live `noauth (noauth-2d)` blocker remains unresolved and record
 
 Full record: `INNO-One-Step45W-Deployment-Maintenance.md`.
 Next: **Step45X — Endpoint Policies + Active Alerts + Devices Overview + final TOR navigation**. Do not merge `main` without explicit user instruction.
+
+
+# Step45X — Endpoint Policies + Active Alerts + Devices Overview — 2026-10-06
+
+Branch: `implementation/step45x-policies-alerts-overview`, based on Step45W checkpoint `eec6f72`.
+
+**COMPLETE — IMPLEMENTED + VERIFIED.**
+
+Step45X completes the frozen Devices TOR navigation slice. Production Devices navigation now exposes all 11 frozen jobs in canonical order: Overview, Devices, Discovery, Device Groups, Remote Operations, Remote Consent, Inventory Query, Deployment Jobs, Agent Maintenance, Endpoint Policies, Active Alerts. Agent Deployment remains hidden as a legacy compatibility route and Device Automation remains retired.
+
+Implemented all 16 frozen Step45X API operations and seven Devices-owned tables: `endpoint_policies`, `policy_assignments`, `policy_compliance`, `device_alerts`, `device_alert_rules`, `alert_channels`, `alert_delivery_history`. Migration: `20261006054134_Step45XPoliciesAlertsOverview`; additive-only `Up()`, applied successfully to the shared development PostgreSQL at `172.10.1.58`.
+
+Promoted `devices.policy.manage`, `devices.alert.view`, and `devices.alert.manage` into the Platform development seed/repair path.
+
+Policy compliance is evidence-truthful: Agent Update evaluates reported `Device.AgentVersion`; USB / Remote Consent / Screen Capture do not become compliant without endpoint evidence. Screen Capture is draft/unassigned and may correctly remain outside a scoped effective policy list.
+
+Alert evaluation is evidence-truthful: Offline Anomaly evaluates real Device connectivity and can create/resolve Product alert instances. Hardware Change, Software Change, and Baseline Drift rules do not fabricate alerts without comparable trusted observations. Alert create/acknowledge/rule changes are recorded through canonical outbox/audit paths.
+
+Runtime QA found and fixed a real EF Core bug in `GET /devices/alerts`: ordering by the local `SeverityRank(...)` helper was not SQL-translatable. It was replaced with an EF-translatable conditional severity expression.
+
+QA final: Step45X **229/229**, Step45Q **84/84**, API/Data/Event/Implementation **0 issues**, .NET clean build **0 warnings / 0 errors**, Web typecheck PASS, Web production build PASS (**2265 modules**), runtime **83 checks PASS**, browser/visual **84/84 PASS**, **8 screenshots** at 1366/768. Final screenshots were visually inspected; Alert subnav and Overview distribution/activity presentation were polished before completion.
+
+Shared development DB is current for Step45X QA. No Step45X Web/API Linux release deployment was performed.
+
+The separate Step45V MeshCentral `noauth (noauth-2d)` blocker remains unresolved and is not claimed fixed.
+
+Full record: `INNO-One-Step45X-Policies-Alerts-Overview.md`.
+
+Step45X completes the currently frozen Devices TOR navigation sequence. Do not invent Step45Y from this checkpoint; freeze the next scope from the roadmap/user direction first. Do not merge `main` without explicit user instruction.

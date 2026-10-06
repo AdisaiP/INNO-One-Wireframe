@@ -163,7 +163,8 @@ canonical_nav = [
     'to="/devices/policies"',
     'to="/devices/alerts"',
 ]
-positions = [production_shell.find(marker) for marker in canonical_nav]
+devices_nav = production_shell.split(") : inDevices ? (", 1)[1] if ") : inDevices ? (" in production_shell else ""
+positions = [devices_nav.find(marker) for marker in canonical_nav]
 check("Step45X final TOR navigation all eleven jobs", all(x >= 0 for x in positions))
 check("Step45X final TOR navigation canonical order", positions == sorted(positions))
 check("Device Automation remains retired in Product", "/devices/automation" not in production_shell)

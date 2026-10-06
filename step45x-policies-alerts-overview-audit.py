@@ -263,7 +263,8 @@ canonical_nav = [
     'to="/devices/policies"',
     'to="/devices/alerts"',
 ]
-positions = [shell.find(marker) for marker in canonical_nav]
+devices_nav = shell.split(") : inDevices ? (", 1)[1] if ") : inDevices ? (" in shell else ""
+positions = [devices_nav.find(marker) for marker in canonical_nav]
 check("final TOR nav all eleven entries", all(position >= 0 for position in positions))
 check("final TOR nav canonical order", positions == sorted(positions))
 check("legacy Agent Deployment hidden", 'to="/devices/add"' not in shell)

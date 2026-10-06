@@ -94,7 +94,13 @@ public static class DeviceAlertEndpoints
 
         var totalItems = await query.CountAsync(cancellationToken);
         var rows = await query
-            .OrderBy(x => SeverityRank(x.Severity))
+            .OrderBy(x => x.Severity == "critical"
+                ? 0
+                : x.Severity == "warning"
+                    ? 1
+                    : x.Severity == "information"
+                        ? 2
+                        : 3)
             .ThenByDescending(x => x.DetectedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
