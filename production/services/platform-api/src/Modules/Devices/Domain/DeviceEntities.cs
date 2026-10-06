@@ -279,3 +279,87 @@ public sealed class InventoryQueryResult
     public required string MatchedValue { get; set; }
     public DateTimeOffset ObservedAt { get; set; }
 }
+
+
+public sealed class DeploymentJob
+{
+    public Guid Id { get; set; }
+    public Guid OperationId { get; set; }
+    public Guid CreatedByUserId { get; set; }
+    public required string JobNumber { get; set; }
+    public required string DeploymentType { get; set; }
+    public required string TargetScopeType { get; set; }
+    public Guid? TargetScopeId { get; set; }
+    public required string TargetDefinitionJson { get; set; }
+    public required string TargetLabel { get; set; }
+    public required string PayloadName { get; set; }
+    public string? ProfileOrDestination { get; set; }
+    public required string ScheduleMode { get; set; }
+    public DateTimeOffset? ScheduledAt { get; set; }
+    public string? MaintenanceWindow { get; set; }
+    public int RetryAttempts { get; set; }
+    public string? RestartPolicy { get; set; }
+    public required string Status { get; set; }
+    public int TargetCount { get; set; }
+    public int CompletedCount { get; set; }
+    public int FailedCount { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset? StartedAt { get; set; }
+    public DateTimeOffset? CompletedAt { get; set; }
+    public long Version { get; set; } = 1;
+}
+
+public sealed class AgentRollout
+{
+    public Guid Id { get; set; }
+    public Guid OperationId { get; set; }
+    public Guid CreatedByUserId { get; set; }
+    public required string RolloutNumber { get; set; }
+    public required string ReleaseVersion { get; set; }
+    public required string TargetScopeType { get; set; }
+    public Guid? TargetScopeId { get; set; }
+    public required string TargetDefinitionJson { get; set; }
+    public required string TargetLabel { get; set; }
+    public string? MaintenanceWindow { get; set; }
+    public int RetryAttempts { get; set; }
+    public int PauseFailureThresholdPercent { get; set; }
+    public required string Status { get; set; }
+    public int TargetCount { get; set; }
+    public int CompletedCount { get; set; }
+    public int FailedCount { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset? StartedAt { get; set; }
+    public DateTimeOffset? CompletedAt { get; set; }
+    public long Version { get; set; } = 1;
+}
+
+public sealed class MaintenanceJob
+{
+    public Guid Id { get; set; }
+    public Guid OperationId { get; set; }
+    public Guid CreatedByUserId { get; set; }
+    public required string JobNumber { get; set; }
+    public required string MaintenanceType { get; set; }
+    public string? Action { get; set; }
+    public string? PackageName { get; set; }
+    public required string TargetScopeType { get; set; }
+    public Guid? TargetScopeId { get; set; }
+    public required string TargetDefinitionJson { get; set; }
+    public required string TargetLabel { get; set; }
+    public required string ScheduleMode { get; set; }
+    public DateTimeOffset? ScheduledAt { get; set; }
+    public string? MaintenanceWindow { get; set; }
+    public int RetryAttempts { get; set; }
+    public string? RestartPolicy { get; set; }
+    public int? GraceMinutes { get; set; }
+    public string? UserMessage { get; set; }
+    public string? OfflinePolicy { get; set; }
+    public required string Status { get; set; }
+    public int TargetCount { get; set; }
+    public int CompletedCount { get; set; }
+    public int FailedCount { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset? StartedAt { get; set; }
+    public DateTimeOffset? CompletedAt { get; set; }
+    public long Version { get; set; } = 1;
+}
