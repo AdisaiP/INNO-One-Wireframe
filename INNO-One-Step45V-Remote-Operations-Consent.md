@@ -188,3 +188,73 @@ Remaining real-environment acceptance blockers:
 4. Observe an actual time-limited MeshCentral share expire on that separate client and verify Product convergence/audit/outbox against the real vendor expiry.
 
 Do not declare production-hardening complete until those external acceptance items pass. Do not merge main without explicit user instruction.
+
+
+## Ubuntu production Docker deployment + Step18 retirement — 2026-10-07
+
+This follow-up intentionally does not create a new numbered Step. The deployed runtime source is GitHub main at 47e1e08 (deployment + Keycloak backchannel hotfix); later commits may be documentation-only.
+
+Production host:
+- Ubuntu 24.04.2 LTS VM at 172.10.1.58.
+- Production repository checkout: /home/inno360/INNO.One-Production-Stage, branch main.
+- Docker Compose project: inno-one-production.
+- Seven services are running: postgres, keycloak, meshcentral, platform-api, meeting-service, web-portal, reverse-proxy.
+- Portal HTTP redirect: 8082.
+- Portal HTTPS: 8446 with INNO.One Internal CA.
+- PostgreSQL host port: 5433.
+- Keycloak diagnostic port: 8180; browser/OIDC frontend is https://172.10.1.58:8446/auth.
+- MeshCentral final port: 8444. Port 8445 was used only for coexistence before Step18 cutover.
+
+Deployment hardening:
+- Added production Dockerfiles for Platform API, Meeting Service and Web Portal plus production Nginx reverse proxy, TLS generation, production Compose and migration tooling.
+- Platform API can apply EF migrations when Database:ApplyMigrationsOnStartup=true in Production; DevelopmentSeed remains Development-only.
+- Keycloak production frontend is HTTPS through the reverse proxy and uses hostname-backchannel-dynamic=true so Platform API can use private backchannel discovery/JWKS while tokens retain the public HTTPS issuer.
+- Windows control workstation trusts the generated INNO.One Internal CA in the Current User root store for browser acceptance.
+
+Step18 data migration and retirement:
+- inno_core and inno_meeting were migrated from Step18 PostgreSQL to the production PostgreSQL volume.
+- Production DB counts were verified against Step18 before retirement: remote_sessions=3, devices=9, audit=385.
+- Step18 Keycloak SQL was retained as rollback backup; production Keycloak is initialized from the current main-branch realm so production redirect URIs are correct.
+- Step18 MeshCentral persistent data/files/backups were archived and copied into the production MeshCentral volumes so Product-owned ExternalGroupId mappings remain valid.
+- The production MeshCentral integration credential was reset with production-meshcentral-init.py after the volume cutover.
+- Product integration acceptance reports MeshCentral connected at wss://172.10.1.58:8444 with 16 device groups visible.
+- Step18 source was archived, then the inno-one-step18 Compose project, network, containers and named volumes were removed.
+- /home/inno360/INNO.One-Step18 no longer exists.
+
+Rollback evidence retained under /home/inno360/inno-one-production-backups:
+- 20261006-191708/inno_core.sql
+- 20261006-191708/inno_meeting.sql
+- 20261006-191708/keycloak.sql
+- 20261006-194705-meshcentral/meshcentral-data.tgz
+- 20261006-194705-meshcentral/meshcentral-files.tgz
+- 20261006-194705-meshcentral/meshcentral-backups.tgz
+- 20261006-195043-INNO.One-Step18-source.tgz
+
+Runtime acceptance after Step18 removal:
+- Production HTTPS health: PASS.
+- Platform API health: PASS.
+- Meeting Service health: PASS.
+- Web Portal health: PASS.
+- Keycloak discovery issuer: https://172.10.1.58:8446/auth/realms/inno-one.
+- MeshCentral health: PASS on 8444.
+- Keycloak token acquisition: PASS.
+- Authenticated /api/v1/platform/me: PASS with the migrated Product user and permissions.
+- Authenticated /api/v1/admin/integrations: PostgreSQL connected, Keycloak connected, MeshCentral connected.
+- Authenticated /api/v1/devices: PASS; migrated device data is available.
+- Windows browser PKCE login to https://172.10.1.58:8446: PASS.
+- Browser /devices shows WIN-J00TUFFH81D: PASS.
+- Browser /devices/remote-operations: PASS.
+- Browser /devices/remote-consent: PASS.
+
+Repository QA for the deployment package before runtime cutover:
+- Step45V: 67/67 PASS.
+- Step45Q: 84/84 PASS.
+- API/Data/Event/Implementation audits: 0 issues.
+- .NET clean build: 0 warnings / 0 errors.
+- Web typecheck/build: PASS; 2265 modules transformed.
+- Docker Compose production config on Ubuntu: PASS.
+- Docker image builds on Ubuntu: Platform API PASS, Meeting Service PASS, Web Portal PASS.
+
+Remote production-hardening status update:
+- The previous Ubuntu control-auth blocker is resolved for the new production MeshCentral deployment. Product health uses an authenticated MeshCentral control connection successfully.
+- Do not treat this deployment alone as the separate-client Remote Desktop acceptance. A separate Windows client still needs MeshAgent installed as a Windows Service, Product-owned enrollment, and cross-machine Start Remote -> Active -> Connected -> Disconnect -> Ended plus real share-expiry observation.

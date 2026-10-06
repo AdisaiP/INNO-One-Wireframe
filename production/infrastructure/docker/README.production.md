@@ -8,9 +8,10 @@ The production stack is defined by `compose.production.yml`. It is intentionally
 - Web Portal HTTPS: 8446
 - PostgreSQL: 5433
 - Keycloak diagnostic port: 8180, relative path `/auth`
-- MeshCentral: 8445
+- MeshCentral staging/coexistence port: 8445
+- MeshCentral final cutover port on 172.10.1.58: 8444 when preserving the retired Step18 endpoint for existing agents
 
-These defaults avoid the existing legacy `innoone` stack and allow acceptance before retiring `inno-one-step18`.
+These defaults avoid the existing legacy `innoone` stack and allow acceptance before retiring `inno-one-step18`. During a Step18 cutover, migrate the MeshCentral persistent volumes, stop the Step18 MeshCentral service, then update the production `.env.production` values to `MESHCENTRAL_PORT=8444` and `PUBLIC_MESHCENTRAL_WS_URL=wss://172.10.1.58:8444` before starting the final production MeshCentral instance.
 
 ## Prepare
 
@@ -58,7 +59,8 @@ curl --cacert tls/ca.crt -fsS https://172.10.1.58:8446/health/web
 curl --cacert tls/ca.crt -fsS https://172.10.1.58:8446/health/platform
 curl --cacert tls/ca.crt -fsS https://172.10.1.58:8446/health/meeting
 curl --cacert tls/ca.crt -fsS https://172.10.1.58:8446/auth/realms/inno-one/.well-known/openid-configuration
-curl -kfsS https://172.10.1.58:8445/health.ashx
+# Use 8445 during coexistence, or 8444 after the Step18 MeshCentral endpoint has been cut over.
+curl -kfsS https://172.10.1.58:8444/health.ashx
 ```
 
 Then verify a managed browser trusts `tls/ca.crt`, completes Keycloak PKCE sign-in over HTTPS, loads the Product shell, and can call the Product API.
