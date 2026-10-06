@@ -49,6 +49,8 @@ check("MeshCentral desktop protocol p=2", '["p"] = 2' in mesh)
 check("MeshCentral vendor consent disabled for unattended remote", '["consent"] = 0' in mesh)
 check("MeshCentral share is time limited", '["start"]' in mesh and '["end"]' in mesh)
 check("MeshCentral remove uses removeDeviceShare", '"removeDeviceShare"' in mesh)
+check("MeshCentral remove waits for final result", "requireResultProperty: true" in mesh and 'root.TryGetProperty("result", out _)' in mesh)
+check("MeshCentral remove is idempotent when share already absent", '"Invalid device share identifier."' in mesh and "idempotent success" in mesh)
 check("vendor share id stays integration field", "ExternalShareId" in entity and "externalShareId" not in types)
 
 check("RemoteSession canonical entity", "class RemoteSession" in entity)

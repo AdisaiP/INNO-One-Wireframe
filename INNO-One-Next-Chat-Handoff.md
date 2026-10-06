@@ -2474,4 +2474,36 @@ Implemented direct Product execution: Start Remote validates devices.remote, eff
 
 Remote Operations UI now describes unattended access and removes the Consent column from the normal session table. Remote Consent remains a legacy/audit history route. Legacy Agent consent APIs remain backward compatible for old pending records.
 
-QA so far: Step45V audit 57/57 PASS; .NET build 0 warnings/0 errors; Web typecheck PASS; Web production build PASS (2265 modules). Local MeshCentral/MeshAgent test stack remains on Windows and API is running against it. Final live acceptance still requires triggering Start Remote from the authorized Web UI because the Desktop Commander safety gateway blocks terminal/API commands that directly initiate a remote-control session.
+QA at the unattended checkpoint: Step45V audit PASS; .NET build 0 warnings/0 errors; Web typecheck PASS; Web production build PASS (2265 modules). Local MeshCentral/MeshAgent test stack remains on Windows. Authorized Web UI live acceptance has now been executed successfully on that local stack; see the disconnect regression follow-up below.
+
+
+# Step45V unattended Remote disconnect regression fix — 2026-10-06
+
+Local Windows end-to-end acceptance exposed one disconnect-state bug after unattended Remote was enabled. MeshCentral successfully removed the desktop share and disconnected the viewer, but INNO.One left the RemoteSession in active state.
+
+Root cause: MeshCentral 1.2.6 emits two removeDeviceShare responses for a successful removal. The first matching response contains removed-share metadata but no result property; the second carries result=OK. MeshCentralRemoteDeviceEngine.SendAsync previously returned the first response, then EnsureOk interpreted the missing result as a failure. The API therefore returned before updating RemoteSession to ended even though the vendor share had already been removed.
+
+Fix:
+- RemoveDesktopShareAsync now asks SendAsync to wait for the final response containing result.
+- removeDeviceShare is idempotent: MeshCentral's Invalid device share identifier response is treated as success because the requested final state (no share exists) is already true. This also reconciles sessions left stale by the previous bug or by an external/expiry race.
+- RemoteSession disconnect still clears launch URL + external share id, writes end_reason=operator_disconnected, restricted audit, and remote.ended outbox.
+
+Acceptance after fix on WIN-J00TUFFH81D:
+- Reconciled the stale session from the pre-fix test: Active -> Ended while the MeshCentral share was already absent.
+- Started a brand-new unattended session from Device Detail -> Active.
+- Opened the generated MeshCentral viewer -> Connected, 1920x1080 canvas, about 40 ms observed latency.
+- Disconnected from INNO.One -> viewer changed to Disconnected and Product session changed to Ended.
+- Database confirms the new session is ended with end_reason=operator_disconnected and both launch_url/external_share_id cleared.
+
+QA after fix:
+- Step45V static audit: 59/59 PASS.
+- Step45Q Devices TOR audit: 84/84 PASS.
+- API/Data/Event/Implementation audits: 0 issues.
+- .NET clean build: 0 warnings / 0 errors.
+- Web typecheck: PASS.
+- Web production build: PASS, 2265 modules transformed (existing large-chunk warning only).
+- Step45W browser regression: 87/87 PASS.
+- Step45X browser regression: 84/84 PASS.
+- Remote Operations targeted browser regression: 12/12 PASS at 1366 and 768; both sessions render Ended, no stale Disconnect action, no page-level overflow.
+
+Scope note: this is a successful local Windows INNO.One -> MeshCentral -> MeshAgent -> Remote Desktop -> Disconnect acceptance. The separate original Ubuntu/live target at 172.10.1.58:8443 still has its own historical authentication/deployment state and is not silently claimed fixed by this local acceptance.

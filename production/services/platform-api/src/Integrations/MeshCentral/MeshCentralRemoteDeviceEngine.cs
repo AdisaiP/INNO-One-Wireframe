@@ -358,8 +358,8 @@ public sealed class MeshCentralRemoteDeviceEngine(
                 ["nodeid"] = externalNodeId,
                 ["guestname"] = string.IsNullOrWhiteSpace(guestName) ? "INNO.One Remote Support" : guestName.Trim(),
                 ["p"] = 2,
-                // Consent is owned and completed by INNO.One before creating the execution share.
-                // MeshCentral remains the desktop execution engine and receives no duplicate prompt.
+                // INNO.One owns the remote-access policy and audit boundary.
+                // Current unattended sessions intentionally suppress the vendor-owned prompt.
                 ["consent"] = 0,
                 ["start"] = now.ToUnixTimeSeconds(),
                 ["end"] = end.ToUnixTimeSeconds(),
@@ -402,7 +402,21 @@ public sealed class MeshCentralRemoteDeviceEngine(
                 ["publicid"] = externalShareId
             },
             "removeDeviceShare",
-            cancellationToken);
+            cancellationToken,
+            requireResultProperty: true);
+        var result = GetNullableString(response.RootElement, "result");
+        if (string.Equals(
+                result,
+                "Invalid device share identifier.",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            logger.LogInformation(
+                "MeshCentral desktop share {ShareId} is already absent for node {NodeId}; treating removal as idempotent success.",
+                externalShareId,
+                externalNodeId);
+            return;
+        }
+
         EnsureOk(response.RootElement, "remove MeshCentral desktop share");
     }
 
@@ -667,7 +681,8 @@ public sealed class MeshCentralRemoteDeviceEngine(
         Dictionary<string, object?> command,
         string expectedAction,
         CancellationToken cancellationToken,
-        bool allowActionWithoutResponseId = false)
+        bool allowActionWithoutResponseId = false,
+        bool requireResultProperty = false)
     {
         var responseId = "inno-" + Guid.NewGuid().ToString("N");
         command["responseid"] = responseId;
@@ -713,7 +728,15 @@ public sealed class MeshCentralRemoteDeviceEngine(
                     && (string.Equals(incomingResponseId, responseId, StringComparison.Ordinal)
                         || (allowActionWithoutResponseId && string.IsNullOrWhiteSpace(incomingResponseId))))
                 {
-                    return document;
+                    // Some MeshCentral commands emit an acknowledgement event before
+                    // their final result. removeDeviceShare is one of them: the first
+                    // message contains the removed share metadata and the second
+                    // carries result=OK (or an error). Wait for that final result so
+                    // callers never mistake a successful removal for a failed command.
+                    if (!requireResultProperty || root.TryGetProperty("result", out _))
+                    {
+                        return document;
+                    }
                 }
 
                 document.Dispose();
