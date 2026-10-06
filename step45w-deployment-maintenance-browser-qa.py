@@ -100,7 +100,7 @@ for width in (1366,768):
         check(f"{width} {title} ready",nav(path))
         check(f"{width} {title} visible",bool(wait("document.body.innerText.includes("+json.dumps(title)+")",10)))
         check(f"{width} {title} no page overflow",ev("document.documentElement.scrollWidth<=innerWidth+1") is True)
-        if (width==1366 and index in (0,2,6,8,9):
+        if width==1366 and index in (0,2,6,8,9):
             shot(f"{width}__{title.lower().replace(' ','-')}.png")
 
 viewport(1366)
