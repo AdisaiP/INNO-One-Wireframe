@@ -1008,7 +1008,7 @@ public static class DeviceAlertEndpoints
         };
 
     private static IResult Paged<T>(
-        IReadOnlyCollection<T> items,
+        IReadOnlyList<T> items,
         int page,
         int pageSize,
         int totalItems) =>
