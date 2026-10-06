@@ -143,8 +143,29 @@ check("Step45W promotes Deployment Jobs route", 'path="devices/deployments"' in 
 check("Step45W promotes Deployment Jobs nav", 'to="/devices/deployments"' in production_shell)
 check("Step45W promotes Agent Maintenance route", 'path="devices/maintenance"' in production_root)
 check("Step45W promotes Agent Maintenance nav", 'to="/devices/maintenance"' in production_shell)
-check("Step45X routes remain hidden", 'path="devices/policies"' not in production_root and 'path="devices/alerts"' not in production_root)
-check("Step45X nav remains hidden", 'to="/devices/policies"' not in production_shell and 'to="/devices/alerts"' not in production_shell)
+check("Step45X promotes Devices Overview route", 'path="devices/overview"' in production_root)
+check("Step45X promotes Devices Overview nav", 'to="/devices/overview"' in production_shell)
+check("Step45X promotes Endpoint Policies route", 'path="devices/policies"' in production_root)
+check("Step45X promotes Endpoint Policies nav", 'to="/devices/policies"' in production_shell)
+check("Step45X promotes Active Alerts route", 'path="devices/alerts"' in production_root)
+check("Step45X promotes Active Alerts nav", 'to="/devices/alerts"' in production_shell)
+
+canonical_nav = [
+    'to="/devices/overview"',
+    'to="/devices"',
+    'to="/devices/discovery"',
+    'to="/devices/groups"',
+    'to="/devices/remote-operations"',
+    'to="/devices/remote-consent"',
+    'to="/devices/query"',
+    'to="/devices/deployments"',
+    'to="/devices/maintenance"',
+    'to="/devices/policies"',
+    'to="/devices/alerts"',
+]
+positions = [production_shell.find(marker) for marker in canonical_nav]
+check("Step45X final TOR navigation all eleven jobs", all(x >= 0 for x in positions))
+check("Step45X final TOR navigation canonical order", positions == sorted(positions))
 check("Device Automation remains retired in Product", "/devices/automation" not in production_shell)
 
 print("step45q_checks=" + str(checks))
