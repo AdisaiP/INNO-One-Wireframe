@@ -306,6 +306,9 @@ export function AgentMaintenancePage() {
     return items.filter((x) => x.status === 'failed' || x.status === 'partial').length;
   }, [rollouts.data, software.data, restarts.data]);
 
+  const loading = rollouts.isPending || software.isPending || restarts.isPending;
+  const error = rollouts.error ?? software.error ?? restarts.error;
+
   return (
     <main className="inno-page">
       <INNOResourceHeader
@@ -313,6 +316,19 @@ export function AgentMaintenancePage() {
         title="Agent Maintenance"
         meta={<span>Review Agent Updates, Software, Restart, and History as separate operational tasks.</span>}
       />
+      {loading ? (
+        <LoadingState label="Loading maintenance overview…" />
+      ) : error ? (
+        <ErrorState
+          error={error}
+          retry={() => {
+            void rollouts.refetch();
+            void software.refetch();
+            void restarts.refetch();
+          }}
+        />
+      ) : (
+      <>
       <INNOResourceSummary>
         <INNOResourceSummaryItem label="Needs Attention" value={String(failed)} detail="Failed or partial maintenance jobs" />
         <INNOResourceSummaryItem label="Agent Rollouts" value={String(rollouts.data?.totalItems ?? 0)} detail="Version rollout jobs" />
@@ -334,6 +350,8 @@ export function AgentMaintenancePage() {
           <div className="prod-panel-head"><div><h3>Maintenance History</h3><p>Agent, software and restart operations in one history.</p></div><Link to="/devices/maintenance/history">Open</Link></div>
         </section>
       </div>
+      </>
+      )}
     </main>
   );
 }
