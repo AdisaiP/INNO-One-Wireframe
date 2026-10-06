@@ -5,7 +5,7 @@ RUN corepack enable
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
 COPY packages ./packages
 COPY apps/web-portal ./apps/web-portal
-RUN pnpm install --frozen-lockfile --filter @inno/web-portal...
+RUN pnpm install --frozen-lockfile
 
 ARG VITE_KEYCLOAK_URL
 ARG VITE_KEYCLOAK_REALM=inno-one
