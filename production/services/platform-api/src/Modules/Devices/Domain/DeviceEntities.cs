@@ -363,3 +363,98 @@ public sealed class MaintenanceJob
     public DateTimeOffset? CompletedAt { get; set; }
     public long Version { get; set; } = 1;
 }
+
+
+public sealed class EndpointPolicy
+{
+    public Guid Id { get; set; }
+    public required string Code { get; set; }
+    public required string Name { get; set; }
+    public required string PolicyType { get; set; }
+    public string? Description { get; set; }
+    public required string Status { get; set; }
+    public required string ConfigurationJson { get; set; }
+    public long Version { get; set; } = 1;
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
+}
+
+public sealed class PolicyAssignment
+{
+    public Guid Id { get; set; }
+    public Guid PolicyId { get; set; }
+    public required string ScopeType { get; set; }
+    public Guid? ScopeId { get; set; }
+    public required string ScopeLabel { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+}
+
+public sealed class PolicyCompliance
+{
+    public Guid Id { get; set; }
+    public Guid PolicyId { get; set; }
+    public Guid DeviceId { get; set; }
+    public required string ExpectedValue { get; set; }
+    public required string ActualValue { get; set; }
+    public required string Status { get; set; }
+    public required string EvidenceSource { get; set; }
+    public DateTimeOffset EvaluatedAt { get; set; }
+}
+
+public sealed class DeviceAlertRule
+{
+    public Guid Id { get; set; }
+    public required string Code { get; set; }
+    public required string Name { get; set; }
+    public string? Description { get; set; }
+    public required string RuleType { get; set; }
+    public required string Severity { get; set; }
+    public required string ScopeType { get; set; }
+    public Guid? ScopeId { get; set; }
+    public required string ConfigurationJson { get; set; }
+    public required string ChannelsJson { get; set; }
+    public required string Status { get; set; }
+    public long Version { get; set; } = 1;
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
+}
+
+public sealed class DeviceAlert
+{
+    public Guid Id { get; set; }
+    public Guid RuleId { get; set; }
+    public Guid? DeviceId { get; set; }
+    public Guid? DeviceGroupId { get; set; }
+    public required string Fingerprint { get; set; }
+    public required string Severity { get; set; }
+    public required string Title { get; set; }
+    public required string Detail { get; set; }
+    public required string Status { get; set; }
+    public DateTimeOffset DetectedAt { get; set; }
+    public DateTimeOffset LastObservedAt { get; set; }
+    public DateTimeOffset? AcknowledgedAt { get; set; }
+    public Guid? AcknowledgedByUserId { get; set; }
+    public DateTimeOffset? ResolvedAt { get; set; }
+}
+
+public sealed class AlertChannel
+{
+    public Guid Id { get; set; }
+    public required string ChannelType { get; set; }
+    public bool Enabled { get; set; }
+    public required string ConfigurationJson { get; set; }
+    public required string Status { get; set; }
+    public long Version { get; set; } = 1;
+    public DateTimeOffset UpdatedAt { get; set; }
+}
+
+public sealed class AlertDeliveryHistory
+{
+    public Guid Id { get; set; }
+    public Guid AlertId { get; set; }
+    public required string ChannelType { get; set; }
+    public required string DeliveryStatus { get; set; }
+    public string? RecipientSummary { get; set; }
+    public string? Detail { get; set; }
+    public DateTimeOffset AttemptedAt { get; set; }
+}
