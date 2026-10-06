@@ -2373,3 +2373,25 @@ Next exact action once Ubuntu deployment access is available:
 3. only after control auth passes, run full Step45V create session → Endpoint Agent consent → MeshCentral desktop share/open → disconnect acceptance.
 
 Do not claim live remote works and do not merge `main` until that acceptance passes.
+
+
+# Step45W — Deployment Jobs + Agent Maintenance — 2026-10-06
+
+Branch: `implementation/step45w-deployment-maintenance`, based on Step45V checkpoint `5592fb4`.
+
+**Product/API/Data/UI slice is complete; endpoint execution is not claimed.**
+
+Implemented canonical `deployment_jobs`, `agent_rollouts` and `maintenance_jobs` persistence plus all 10 frozen Deployment / Agent rollout / Software maintenance / Restart / Maintenance History APIs. Effective Devices scope and `devices.view` / `devices.deploy` / `devices.manage` permissions are enforced.
+
+Web Portal now exposes Deployment Jobs and Agent Maintenance with the frozen sub-workflows for Agent Updates, Software Maintenance, Restart Operations and Maintenance History. The old Agent Deployment route remains for compatibility but is hidden from normal Devices navigation.
+
+Job creation is real and audited, but jobs stay `queued` / `scheduled` until verified endpoint execution evidence exists. This is deliberate: MeshCentral 1.2.6 `poweraction` acknowledges before completion, `agentupdate` updates MeshAgent rather than the INNO.One Endpoint Agent, and the frozen Step45W contract does not define approved package/artifact distribution + verification semantics. Do not invent shell installation commands or claim deployment success.
+
+QA: Step45W 84/84; Step45Q 78 / 0 issues; API 191 ops / 153 paths / 0 issues; Data 95 tables / 0 issues; Event/Audit 69 actions / 0 issues; Implementation 0 issues; .NET clean build 0 warnings/errors; Web typecheck + production build PASS (2262 modules); runtime API/DB 27/27; browser 87/87 at 1366/768 with 5 screenshots.
+
+Migration: `20261006043048_Step45WDeploymentMaintenance`. Shared development PostgreSQL schema is current for QA. No Step45W Web/API Linux release deployment was performed.
+
+Separate Step45V live `noauth (noauth-2d)` blocker remains unresolved and recorded.
+
+Full record: `INNO-One-Step45W-Deployment-Maintenance.md`.
+Next: **Step45X — Endpoint Policies + Active Alerts + Devices Overview + final TOR navigation**. Do not merge `main` without explicit user instruction.
