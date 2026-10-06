@@ -2507,3 +2507,78 @@ QA after fix:
 - Remote Operations targeted browser regression: 12/12 PASS at 1366 and 768; both sessions render Ended, no stale Disconnect action, no page-level overflow.
 
 Scope note: this is a successful local Windows INNO.One -> MeshCentral -> MeshAgent -> Remote Desktop -> Disconnect acceptance. The separate original Ubuntu/live target at 172.10.1.58:8443 still has its own historical authentication/deployment state and is not silently claimed fixed by this local acceptance.
+
+
+# Next Chat Handoff — after unattended Remote merged to main — 2026-10-06
+
+## Source of truth
+
+- Branch: main
+- Main merge commit: 007b884 (merge:complete-unattended-remote)
+- Included feature checkpoints:
+  - d64e83b fix:keycloak-local-redirects
+  - d3fe724 feat:enable-unattended-remote
+  - ff335e8 fix:reconcile-remote-disconnect-state
+- Working tree was clean at merge time.
+- QA screenshot branches are intentionally separate and were not merged into main.
+
+## Remote status now
+
+INNO.One unattended Remote is implemented and locally accepted end-to-end on Windows using INNO.One Product/API + local MeshCentral 1.2.6 + MeshAgent on WIN-J00TUFFH81D.
+
+Verified flow:
+
+Device Detail -> Start Remote Session -> Active -> Open Remote Desktop -> Connected 1920x1080 -> Disconnect -> Ended.
+
+New Remote Sessions do not require Endpoint Agent consent. Product permission/scope, online state, MeshCentral mapping, audit/outbox, time-limited share, explicit disconnect and session lifecycle remain enforced.
+
+Legacy consent APIs and records remain for backward compatibility. New sessions create a compatibility RemoteConsentRequest with status=not_required only because the frozen persistence model still links RemoteSession.ConsentRequestId. There is currently no Web UI selector for Require Consent vs Unattended; the normal new-session path is Unattended.
+
+Disconnect regression is fixed. MeshCentral 1.2.6 sends an acknowledgement without result before the final removeDeviceShare result; the integration now waits for the final result and treats an already-absent share as idempotent success. Product session state now reliably becomes Ended and clears launch_url/external_share_id.
+
+## Final QA for this slice
+
+- Step45V: 59/59 PASS
+- Step45Q: 84/84 PASS
+- API/Data/Event/Implementation audits: 0 issues
+- .NET clean build: 0 warnings / 0 errors
+- Web typecheck: PASS
+- Web production build: PASS, 2265 modules (existing large-chunk warning only)
+- Step45W browser regression: 87/87 PASS
+- Step45X browser regression: 84/84 PASS
+- Remote Operations targeted browser regression: 12/12 PASS at 1366 and 768
+- Local real Remote acceptance: PASS
+
+## Recommended next scope — freeze before implementation
+
+Do not invent Step45Y automatically. The next implementation scope should be explicitly frozen from user direction.
+
+The strongest recommended next scope is Remote production hardening / real-environment acceptance:
+
+1. Start from main at 007b884 and verify git status is clean.
+2. Read this handoff and INNO-One-Step45V-Remote-Operations-Consent.md before edits.
+3. Decide the target MeshCentral environment:
+   - keep the temporary Windows local server for development only, or
+   - repair/redeploy the original Ubuntu target 172.10.1.58:8443.
+4. For the original Ubuntu target, validate service/port first, then integration auth. Historical state included noauth (noauth-2d) and later connection timeout; do not claim that Ubuntu target is fixed until tested again.
+5. Install MeshAgent as a real Windows Service on a separate client machine (Administrator required) instead of the temporary foreground connect process.
+6. Enroll that client through an INNO.One Product-owned Device Group / installer so ExternalGroupId/ExternalNodeId mapping remains Product-owned.
+7. Run the real end-to-end acceptance across separate server/client machines:
+   Start Remote -> Active -> Open Remote Desktop -> Connected -> Disconnect -> Ended.
+8. Verify restricted audit entries, remote.started / remote.ended outbox, share expiry and reconnect/disconnect behavior.
+9. Run the authoritative Step45V/Step45Q/global audits + .NET/Web build + browser regression before declaring production-hardening complete.
+
+## Product decision to ask before adding more Remote UI
+
+If the user wants both modes as first-class behavior, freeze a new requirement before implementing it:
+
+- Unattended Remote
+- Require Endpoint Consent
+
+The current code keeps legacy consent compatibility, but new Remote Sessions always use Unattended mode and there is no policy/toggle in Web UI yet. A future dual-mode design should be policy-driven (for example Site / Device Group / Device policy), not a hidden implementation switch.
+
+## Local development/test notes
+
+The Windows local test harness lives outside the repo under C:\\Users\\adisa\\INNO-One-MeshCentral-Test. It contains local MeshCentral data, temporary test credentials, headless Chrome profiles, MeshAgent binaries and screenshots. Treat it as disposable development state, not production configuration and not source of truth.
+
+QA screenshots for unattended Remote are preserved separately on branch qa/unattended-remote-screenshots and were intentionally not merged into main.
