@@ -128,9 +128,13 @@ for route,component in [
 ]:
     if route not in web_root or component not in web_root:
         issues.append(f'missing production Web route/component: {route}')
-for label in ('Discovery','Device Groups','Agent Deployment'):
-    if label not in web_shell:
-        issues.append(f'missing implemented Devices navigation item: {label}')
+for marker in (
+    "t('navigation.discovery')",
+    "t('navigation.deviceGroups')",
+    "t('navigation.agentDeployment')",
+):
+    if marker not in web_shell:
+        issues.append(f'missing implemented Devices navigation marker: {marker}')
 
 for file in (
     'apps/web-portal/src/pages/DeviceGroupsPage.tsx',
