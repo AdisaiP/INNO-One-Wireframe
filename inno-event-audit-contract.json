@@ -1273,6 +1273,13 @@
       "targetType": "maintenance_job",
       "retentionClass": "security_long",
       "sensitivity": "restricted"
+    },
+    {
+      "action": "devices.alert_channels.updated",
+      "module": "devices",
+      "targetType": "alert_channels",
+      "retentionClass": "operational_standard",
+      "sensitivity": "internal"
     }
   ],
   "privacy": {
