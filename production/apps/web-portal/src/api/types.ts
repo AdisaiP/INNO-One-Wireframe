@@ -1611,3 +1611,97 @@ export interface ReportScheduleMutationInput {
   dayOfMonth?: number | null;
   isEnabled: boolean;
 }
+
+
+export type DeviceJobStatus =
+  | 'scheduled'
+  | 'queued'
+  | 'running'
+  | 'completed'
+  | 'partial'
+  | 'failed'
+  | 'cancelled';
+
+export interface DeviceJobAccepted {
+  operationId: string;
+  status: string;
+  statusUrl: string;
+  progress: number;
+  resourceId: string;
+  resultUrl: string;
+}
+
+export interface DeploymentJob {
+  id: string;
+  jobNumber: string;
+  deploymentType: 'agent' | 'software' | 'files';
+  targetLabel: string;
+  payloadName: string;
+  profileOrDestination?: string | null;
+  scheduleMode: 'run_now' | 'scheduled';
+  scheduledAt?: string | null;
+  maintenanceWindow?: string | null;
+  retryAttempts: number;
+  restartPolicy?: string | null;
+  status: DeviceJobStatus;
+  targetCount: number;
+  completedCount: number;
+  failedCount: number;
+  createdAt: string;
+  startedAt?: string | null;
+  completedAt?: string | null;
+}
+
+export interface AgentRolloutJob {
+  id: string;
+  rolloutNumber: string;
+  releaseVersion: string;
+  targetLabel: string;
+  maintenanceWindow?: string | null;
+  retryAttempts: number;
+  pauseFailureThresholdPercent: number;
+  status: DeviceJobStatus;
+  targetCount: number;
+  completedCount: number;
+  failedCount: number;
+  createdAt: string;
+  startedAt?: string | null;
+  completedAt?: string | null;
+}
+
+export interface MaintenanceJob {
+  id: string;
+  jobNumber: string;
+  maintenanceType: 'software' | 'restart';
+  action?: string | null;
+  packageName?: string | null;
+  targetLabel: string;
+  scheduleMode: 'run_now' | 'scheduled';
+  scheduledAt?: string | null;
+  maintenanceWindow?: string | null;
+  retryAttempts: number;
+  restartPolicy?: string | null;
+  graceMinutes?: number | null;
+  userMessage?: string | null;
+  offlinePolicy?: string | null;
+  status: DeviceJobStatus;
+  targetCount: number;
+  completedCount: number;
+  failedCount: number;
+  createdAt: string;
+  startedAt?: string | null;
+  completedAt?: string | null;
+}
+
+export interface MaintenanceHistoryItem {
+  id: string;
+  jobNumber: string;
+  type: 'agent' | 'software' | 'restart';
+  summary: string;
+  targetLabel: string;
+  succeeded: number;
+  failed: number;
+  status: DeviceJobStatus;
+  createdAt: string;
+  completedAt?: string | null;
+}
