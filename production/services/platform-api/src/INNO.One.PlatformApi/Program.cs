@@ -58,8 +58,7 @@ builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment()
-    && builder.Configuration.GetValue("Database:ApplyMigrationsOnStartup", false))
+if (builder.Configuration.GetValue("Database:ApplyMigrationsOnStartup", false))
 {
     await using var scope = app.Services.CreateAsyncScope();
 
@@ -79,7 +78,8 @@ if (app.Environment.IsDevelopment()
     await reportsDb.Database.MigrateAsync();
     await workflowsDb.Database.MigrateAsync();
 
-    if (builder.Configuration.GetValue("DevelopmentSeed:Enabled", false))
+    if (app.Environment.IsDevelopment()
+        && builder.Configuration.GetValue("DevelopmentSeed:Enabled", false))
     {
         await PlatformDevelopmentSeed.SeedAsync(platformDb);
         await DevicesDevelopmentSeed.SeedAsync(devicesDb);

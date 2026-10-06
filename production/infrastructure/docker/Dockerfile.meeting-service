@@ -1,0 +1,14 @@
+# syntax=docker/dockerfile:1
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+COPY . ./production
+RUN dotnet restore production/services/meeting-service/src/INNO.One.MeetingService/INNO.One.MeetingService.csproj
+RUN dotnet publish production/services/meeting-service/src/INNO.One.MeetingService/INNO.One.MeetingService.csproj \
+    -c Release -o /app/publish --no-restore
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+WORKDIR /app
+COPY --from=build /app/publish .
+ENV ASPNETCORE_URLS=http://+:5090
+EXPOSE 5090
+ENTRYPOINT ["dotnet", "INNO.One.MeetingService.dll"]
