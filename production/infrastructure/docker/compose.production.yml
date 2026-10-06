@@ -34,6 +34,7 @@ services:
       KC_HTTP_RELATIVE_PATH: /auth
       KC_HOSTNAME: ${PUBLIC_KEYCLOAK_URL:-https://172.10.1.58:8446/auth}
       KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
       KC_PROXY_HEADERS: xforwarded
       KC_HEALTH_ENABLED: "true"
       JAVA_OPTS_APPEND: "-Xms128m -Xmx512m -XX:MaxMetaspaceSize=192m"
