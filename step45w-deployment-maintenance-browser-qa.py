@@ -128,7 +128,7 @@ for label in ("Restart time","Grace period","User notification message","Schedul
     check("Restart form control "+label,label in (copy or ""))
 
 check("Deployment list has truthful queued QA row",nav("/devices/deployments"))
-check("queued status visible",bool(wait("document.body.innerText.includes('queued') && document.body.innerText.includes('[STEP45W-QA]')",10)))
+check("queued status visible",bool(wait("document.body.innerText.toLowerCase().includes('queued') && document.body.innerText.includes('[STEP45W-QA]')",10)))
 
 check("Maintenance history has QA rows",nav("/devices/maintenance/history"))
 check("history renders rows",bool(wait("document.querySelectorAll('tbody tr').length>=3",10)))
