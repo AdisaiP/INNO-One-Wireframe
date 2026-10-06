@@ -191,11 +191,7 @@ public sealed class MeshCentralRemoteDeviceEngine(
                 $"MeshCentral could not create an enrollment link: {result}");
         }
 
-        if (Uri.TryCreate(url, UriKind.Relative, out var relative))
-        {
-            var publicBase = ToHttpsBase(_options.BaseUrl);
-            url = new Uri(publicBase, relative).ToString();
-        }
+        url = ToPublicHttpsUrl(_options.BaseUrl, url);
 
         return new RemoteEnrollmentLink(
             url,
@@ -377,8 +373,7 @@ public sealed class MeshCentralRemoteDeviceEngine(
                 "MeshCentral created a desktop share without returning its identifier and URL.");
         }
 
-        if (Uri.TryCreate(url, UriKind.Relative, out var relative))
-            url = new Uri(ToHttpsBase(_options.BaseUrl), relative).ToString();
+        url = ToPublicHttpsUrl(_options.BaseUrl, url);
 
         return new RemoteDesktopShare(externalShareId, url, end);
     }
@@ -814,6 +809,18 @@ public sealed class MeshCentralRemoteDeviceEngine(
         }
 
         return new Uri(value);
+    }
+
+    private static string ToPublicHttpsUrl(string configuredBaseUrl, string providerUrl)
+    {
+        var publicBase = ToHttpsBase(configuredBaseUrl);
+        if (Uri.TryCreate(providerUrl, UriKind.Absolute, out var absolute))
+        {
+            var relative = absolute.PathAndQuery + absolute.Fragment;
+            return new Uri(publicBase, relative).ToString();
+        }
+
+        return new Uri(publicBase, providerUrl).ToString();
     }
 
     private static async Task<string> ReceiveMessageAsync(
