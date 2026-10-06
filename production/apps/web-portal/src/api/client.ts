@@ -59,6 +59,11 @@ import type {
   RemoteSession,
   RemoteSessionAccepted,
   RemoteConsentHistoryItem,
+  DeploymentJob,
+  AgentRolloutJob,
+  MaintenanceJob,
+  MaintenanceHistoryItem,
+  DeviceJobAccepted,
   DeviceSoftwareInventory,
   DeviceGroupDetail,
   DeviceGroupListItem,
@@ -1819,5 +1824,136 @@ export async function getRemoteConsentHistory(
 ): Promise<PagedResponse<RemoteConsentHistoryItem>> {
   return request<PagedResponse<RemoteConsentHistoryItem>>(
     '/devices/remote-consent/history?page=' + page + '&pageSize=' + pageSize,
+  );
+}
+
+
+function jobListPath(path: string, page = 1, pageSize = 25, search?: string) {
+  const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+  if (search?.trim()) params.set('search', search.trim());
+  return path + '?' + params.toString();
+}
+
+export async function getDeploymentJobs(
+  page = 1,
+  pageSize = 25,
+  search?: string,
+): Promise<PagedResponse<DeploymentJob>> {
+  return request<PagedResponse<DeploymentJob>>(
+    jobListPath('/devices/deployments', page, pageSize, search),
+  );
+}
+
+export async function createDeploymentJob(input: {
+  deploymentType: 'agent' | 'software' | 'files';
+  targetScopeType: 'device_group' | 'all_managed';
+  targetScopeId?: string;
+  targetLabel?: string;
+  payloadName: string;
+  profileOrDestination?: string;
+  scheduleMode: 'run_now' | 'scheduled';
+  scheduledAt?: string;
+  maintenanceWindow?: string;
+  retryAttempts?: number;
+  restartPolicy?: string;
+}): Promise<DeviceJobAccepted> {
+  return request<DeviceJobAccepted>('/devices/deployments', {
+    method: 'POST',
+    ...jsonRequest(input),
+  });
+}
+
+export async function getDeploymentJob(deploymentId: string): Promise<DeploymentJob> {
+  const response = await request<ResourceEnvelope<DeploymentJob>>(
+    '/devices/deployments/' + encodeURIComponent(deploymentId),
+  );
+  return response.data;
+}
+
+export async function getAgentRollouts(
+  page = 1,
+  pageSize = 25,
+  search?: string,
+): Promise<PagedResponse<AgentRolloutJob>> {
+  return request<PagedResponse<AgentRolloutJob>>(
+    jobListPath('/devices/agent-rollouts', page, pageSize, search),
+  );
+}
+
+export async function createAgentRollout(input: {
+  releaseVersion: string;
+  targetScopeType: 'device_group' | 'all_managed';
+  targetScopeId?: string;
+  targetLabel?: string;
+  maintenanceWindow?: string;
+  retryAttempts?: number;
+  pauseFailureThresholdPercent?: number;
+}): Promise<DeviceJobAccepted> {
+  return request<DeviceJobAccepted>('/devices/agent-rollouts', {
+    method: 'POST',
+    ...jsonRequest(input),
+  });
+}
+
+export async function getSoftwareMaintenanceJobs(
+  page = 1,
+  pageSize = 25,
+  search?: string,
+): Promise<PagedResponse<MaintenanceJob>> {
+  return request<PagedResponse<MaintenanceJob>>(
+    jobListPath('/devices/software-maintenance-jobs', page, pageSize, search),
+  );
+}
+
+export async function createSoftwareMaintenanceJob(input: {
+  action: 'install' | 'update' | 'uninstall';
+  packageName: string;
+  targetScopeType: 'device_group' | 'all_managed';
+  targetScopeId?: string;
+  targetLabel?: string;
+  scheduleMode: 'run_now' | 'scheduled';
+  scheduledAt?: string;
+  maintenanceWindow?: string;
+  retryAttempts?: number;
+  restartPolicy?: string;
+}): Promise<DeviceJobAccepted> {
+  return request<DeviceJobAccepted>('/devices/software-maintenance-jobs', {
+    method: 'POST',
+    ...jsonRequest(input),
+  });
+}
+
+export async function getRestartJobs(
+  page = 1,
+  pageSize = 25,
+  search?: string,
+): Promise<PagedResponse<MaintenanceJob>> {
+  return request<PagedResponse<MaintenanceJob>>(
+    jobListPath('/devices/restart-jobs', page, pageSize, search),
+  );
+}
+
+export async function createRestartJob(input: {
+  targetScopeType: 'device_group' | 'all_managed';
+  targetScopeId?: string;
+  targetLabel?: string;
+  scheduledAt: string;
+  graceMinutes?: number;
+  userMessage?: string;
+  offlinePolicy?: 'next_check_in_24h' | 'skip';
+}): Promise<DeviceJobAccepted> {
+  return request<DeviceJobAccepted>('/devices/restart-jobs', {
+    method: 'POST',
+    ...jsonRequest(input),
+  });
+}
+
+export async function getMaintenanceHistory(
+  page = 1,
+  pageSize = 25,
+  search?: string,
+): Promise<PagedResponse<MaintenanceHistoryItem>> {
+  return request<PagedResponse<MaintenanceHistoryItem>>(
+    jobListPath('/devices/maintenance-history', page, pageSize, search),
   );
 }
