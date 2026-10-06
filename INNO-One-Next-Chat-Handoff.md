@@ -2335,3 +2335,23 @@ QA: Step45U 59/59; API 191 ops / 153 paths / 0 issues; Event/Audit 66 actions / 
 
 Full record: `INNO-One-Step45U-Device-Activity-Tickets.md`.
 Next: **Step45V — Remote Operations + Remote Consent end-to-end through MeshCentral**. Live MeshCentral control auth is still blocked by `noauth (noauth-2d)`. Do not merge main without explicit user instruction.
+
+
+# Step45V — Remote Operations + Remote Consent — 2026-10-06
+
+Branch: `implementation/step45v-remote-operations-consent`, based on `main@a4d6e26`.
+
+**Source implementation is complete; live acceptance remains blocked.**
+
+INNO.One now owns the canonical Remote Session + Consent lifecycle, permissions/effective Device scope, persistence, audit and events. Endpoint Agent remains the real consent prompt. MeshCentral/MeshAgent remains execution-only.
+
+Remote Session create/list/get/disconnect and consent history are implemented. Device Detail can start a session with `devices.remote`; Remote Operations polls waiting consent and exposes the launch URL only after approval creates a MeshCentral desktop share. Remote Consent is a status/history surface and does not move approve/decline into Web Portal.
+
+The MeshCentral adapter now uses the audited 1.2.6 control protocol: `createDeviceShareLink` with desktop `p:2` and `removeDeviceShare`. INNO.One consent must be approved before a vendor share is created. Vendor node/share identifiers remain behind the adapter boundary.
+
+QA: Step45V 57/57; Step45Q 74/74; API 191 ops / 153 paths / 0 issues; Data 95 tables / 0 issues; Event/Audit 66 actions / 0 issues; Implementation 0 issues; .NET build 0 warnings/errors; Web typecheck PASS; Web production build PASS (2261 modules).
+
+**Live blocker remains:** MeshCentral `172.10.1.58:8443` control authentication is still rejected with `noauth (noauth-2d)`. Do not claim live remote desktop works until that auth issue is fixed and the real create-consent-open-disconnect path is tested.
+
+Full record: `INNO-One-Step45V-Remote-Operations-Consent.md`.
+Next: resolve the live MeshCentral control-auth blocker and perform live Step45V acceptance. Do not merge `main` without explicit user instruction.

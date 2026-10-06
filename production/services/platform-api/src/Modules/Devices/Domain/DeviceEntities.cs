@@ -103,6 +103,7 @@ public sealed class RemoteConsentRequest
 {
     public Guid Id { get; set; }
     public Guid DeviceId { get; set; }
+    public Guid? RemoteSessionId { get; set; }
     public Guid RequestedByUserId { get; set; }
     public required string OperatorName { get; set; }
     public string? OperatorRole { get; set; }
@@ -114,6 +115,27 @@ public sealed class RemoteConsentRequest
     public DateTimeOffset ExpiresAt { get; set; }
     public DateTimeOffset? DecidedAt { get; set; }
     public Guid? DecidedByUserId { get; set; }
+    public long Version { get; set; } = 1;
+}
+
+public sealed class RemoteSession
+{
+    public Guid Id { get; set; }
+    public Guid DeviceId { get; set; }
+    public Guid OperatorUserId { get; set; }
+    public Guid ConsentRequestId { get; set; }
+    public Guid OperationId { get; set; }
+    public required string Mode { get; set; }
+    public int RequestedDurationMinutes { get; set; }
+    public required string Status { get; set; }
+    public string? ExternalShareId { get; set; }
+    public string? LaunchUrl { get; set; }
+    public DateTimeOffset RequestedAt { get; set; }
+    public DateTimeOffset? StartedAt { get; set; }
+    public DateTimeOffset? EndedAt { get; set; }
+    public DateTimeOffset? ExpiresAt { get; set; }
+    public string? EndReason { get; set; }
+    public string? FailureCode { get; set; }
     public long Version { get; set; } = 1;
 }
 

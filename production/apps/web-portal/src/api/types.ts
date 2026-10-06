@@ -463,6 +463,59 @@ export interface DeviceLiveActionAccepted {
   verified: boolean;
 }
 
+export type RemoteSessionStatus =
+  | 'awaiting_consent'
+  | 'launching'
+  | 'active'
+  | 'declined'
+  | 'expired'
+  | 'failed'
+  | 'ended';
+
+export interface RemoteSession {
+  id: string;
+  deviceId: string;
+  deviceName: string;
+  operatorUserId: string;
+  operatorName: string;
+  mode: 'control' | 'view_only';
+  status: RemoteSessionStatus;
+  consentStatus: string;
+  consentRequestId?: string | null;
+  launchUrl?: string | null;
+  requestedAt: string;
+  startedAt?: string | null;
+  endedAt?: string | null;
+  expiresAt?: string | null;
+  endReason?: string | null;
+  failureCode?: string | null;
+}
+
+export interface RemoteSessionAccepted {
+  operationId: string;
+  status: string;
+  statusUrl: string;
+  progress: number;
+  sessionId: string;
+  resultUrl: string;
+  consentRequestId: string;
+  consentExpiresAt: string;
+}
+
+export interface RemoteConsentHistoryItem {
+  id: string;
+  sessionId?: string | null;
+  deviceId: string;
+  deviceName: string;
+  operatorName: string;
+  operatorRole?: string | null;
+  mode: string;
+  status: string;
+  requestedAt: string;
+  expiresAt: string;
+  decidedAt?: string | null;
+}
+
 export interface DeviceActivityItem {
   id: string;
   action: string;

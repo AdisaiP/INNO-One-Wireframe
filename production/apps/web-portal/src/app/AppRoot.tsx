@@ -57,6 +57,8 @@ import { ReportEditorPage } from '../pages/ReportEditorPage';
 import { ReportRunsPage } from '../pages/ReportRunsPage';
 import { ReportSchedulesPage } from '../pages/ReportSchedulesPage';
 import { ReportsPage } from '../pages/ReportsPage';
+import { RemoteOperationsPage } from '../pages/RemoteOperationsPage';
+import { RemoteConsentPage } from '../pages/RemoteConsentPage';
 import { SearchPage } from '../pages/SearchPage';
 import {
   WorkspaceAttentionPage,
@@ -129,6 +131,7 @@ export function AppRoot() {
   const canAdminSettings = profile.permissions.includes('admin.settings.manage');
   const canAdminApps = profile.permissions.includes('admin.apps.view');
   const canViewDevices = profile.permissions.includes('devices.view');
+  const canRemoteDevices = profile.permissions.includes('devices.remote');
   const canDeployDevices = profile.permissions.includes('devices.deploy');
   const canViewAssets = profile.permissions.includes('assets.view');
   const canManageAssets = profile.permissions.includes('assets.manage');
@@ -198,6 +201,8 @@ export function AppRoot() {
           <Route path="devices/query" element={canViewDevices ? <InventoryQueryPage /> : <DeferredPage name="Inventory Query" kind="permission" />} />
           <Route path="devices/groups" element={canViewDevices ? <DeviceGroupsPage /> : <DeferredPage name="Device Groups" kind="permission" />} />
           <Route path="devices/groups/:groupId" element={canViewDevices ? <DeviceGroupDetailPage /> : <DeferredPage name="Device Group" kind="permission" />} />
+          <Route path="devices/remote-operations" element={canRemoteDevices ? <RemoteOperationsPage /> : <DeferredPage name="Remote Operations" kind="permission" />} />
+          <Route path="devices/remote-consent" element={canViewDevices ? <RemoteConsentPage /> : <DeferredPage name="Remote Consent" kind="permission" />} />
           {/* Step45P: Devices Automation is retired; old bookmarks return to the Devices workspace. */}
           <Route path="devices/automation/*" element={<Navigate to="/devices" replace />} />
           <Route path="devices/add" element={canDeployDevices ? <AgentDeploymentPage /> : <DeferredPage name="Agent Deployment" kind="permission" />} />

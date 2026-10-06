@@ -48,6 +48,18 @@ public interface IRemoteDeviceEngine
         string serviceName,
         RemoteServiceAction action,
         CancellationToken cancellationToken = default);
+
+    Task<RemoteDesktopShare> CreateDesktopShareAsync(
+        string externalNodeId,
+        string guestName,
+        int durationMinutes,
+        bool viewOnly,
+        CancellationToken cancellationToken = default);
+
+    Task RemoveDesktopShareAsync(
+        string externalNodeId,
+        string externalShareId,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed record RemoteDeviceGroup(
@@ -68,6 +80,11 @@ public sealed record RemoteDeviceNode(
 public sealed record RemoteEnrollmentLink(
     string Url,
     DateTimeOffset? ExpiresAt);
+
+public sealed record RemoteDesktopShare(
+    string ExternalShareId,
+    string Url,
+    DateTimeOffset ExpiresAt);
 
 public sealed record RemoteProcessInfo(
     int ProcessId,

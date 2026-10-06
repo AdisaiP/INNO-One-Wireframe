@@ -336,6 +336,76 @@ public sealed class MeshCentralRemoteDeviceEngine(
         return false;
     }
 
+    public async Task<RemoteDesktopShare> CreateDesktopShareAsync(
+        string externalNodeId,
+        string guestName,
+        int durationMinutes,
+        bool viewOnly,
+        CancellationToken cancellationToken = default)
+    {
+        EnsureEnabled();
+        if (string.IsNullOrWhiteSpace(externalNodeId))
+            throw new ArgumentException("External node ID is required.", nameof(externalNodeId));
+
+        var safeMinutes = Math.Clamp(durationMinutes, 1, 480);
+        var now = DateTimeOffset.UtcNow;
+        var end = now.AddMinutes(safeMinutes);
+
+        using var response = await SendAsync(
+            new Dictionary<string, object?>
+            {
+                ["action"] = "createDeviceShareLink",
+                ["nodeid"] = externalNodeId,
+                ["guestname"] = string.IsNullOrWhiteSpace(guestName) ? "INNO.One Remote Support" : guestName.Trim(),
+                ["p"] = 2,
+                // Consent is owned and completed by INNO.One before creating the execution share.
+                // MeshCentral remains the desktop execution engine and receives no duplicate prompt.
+                ["consent"] = 0,
+                ["start"] = now.ToUnixTimeSeconds(),
+                ["end"] = end.ToUnixTimeSeconds(),
+                ["viewOnly"] = viewOnly
+            },
+            "createDeviceShareLink",
+            cancellationToken);
+
+        EnsureOk(response.RootElement, "create MeshCentral desktop share");
+        var externalShareId = GetNullableString(response.RootElement, "publicid");
+        var url = GetNullableString(response.RootElement, "url");
+        if (string.IsNullOrWhiteSpace(externalShareId) || string.IsNullOrWhiteSpace(url))
+        {
+            throw new RemoteEngineUnavailableException(
+                "MeshCentral created a desktop share without returning its identifier and URL.");
+        }
+
+        if (Uri.TryCreate(url, UriKind.Relative, out var relative))
+            url = new Uri(ToHttpsBase(_options.BaseUrl), relative).ToString();
+
+        return new RemoteDesktopShare(externalShareId, url, end);
+    }
+
+    public async Task RemoveDesktopShareAsync(
+        string externalNodeId,
+        string externalShareId,
+        CancellationToken cancellationToken = default)
+    {
+        EnsureEnabled();
+        if (string.IsNullOrWhiteSpace(externalNodeId))
+            throw new ArgumentException("External node ID is required.", nameof(externalNodeId));
+        if (string.IsNullOrWhiteSpace(externalShareId))
+            throw new ArgumentException("External share ID is required.", nameof(externalShareId));
+
+        using var response = await SendAsync(
+            new Dictionary<string, object?>
+            {
+                ["action"] = "removeDeviceShare",
+                ["nodeid"] = externalNodeId,
+                ["publicid"] = externalShareId
+            },
+            "removeDeviceShare",
+            cancellationToken);
+        EnsureOk(response.RootElement, "remove MeshCentral desktop share");
+    }
+
     private async Task<JsonDocument> SendAgentMessageAsync(
         string externalNodeId,
         string messageType,

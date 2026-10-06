@@ -56,6 +56,9 @@ import type {
   DeviceServiceSnapshot,
   DeviceLiveSnapshotAccepted,
   DeviceLiveActionAccepted,
+  RemoteSession,
+  RemoteSessionAccepted,
+  RemoteConsentHistoryItem,
   DeviceSoftwareInventory,
   DeviceGroupDetail,
   DeviceGroupListItem,
@@ -1764,5 +1767,57 @@ export async function deleteReportSchedule(
   await request<void>(
     '/reports/schedules/' + encodeURIComponent(scheduleId),
     { method: 'DELETE', headers: { 'If-Match': eTag } },
+  );
+}
+
+
+export async function getRemoteSessions(
+  page = 1,
+  pageSize = 25,
+): Promise<PagedResponse<RemoteSession>> {
+  return request<PagedResponse<RemoteSession>>(
+    '/devices/remote-sessions?page=' + page + '&pageSize=' + pageSize,
+  );
+}
+
+export async function createRemoteSession(
+  deviceId: string,
+  input: {
+    mode?: 'control' | 'view_only';
+    durationMinutes?: number;
+    consentTimeoutSeconds?: number;
+    operatorName?: string;
+    operatorRole?: string;
+    messageTh?: string;
+    messageEn?: string;
+  } = {},
+): Promise<RemoteSessionAccepted> {
+  return request<RemoteSessionAccepted>(
+    '/devices/' + encodeURIComponent(deviceId) + '/remote-sessions',
+    { method: 'POST', ...jsonRequest(input) },
+  );
+}
+
+export async function getRemoteSession(sessionId: string): Promise<RemoteSession> {
+  const response = await request<ResourceEnvelope<RemoteSession>>(
+    '/devices/remote-sessions/' + encodeURIComponent(sessionId),
+  );
+  return response.data;
+}
+
+export async function disconnectRemoteSession(sessionId: string): Promise<RemoteSession> {
+  const response = await request<ResourceEnvelope<RemoteSession>>(
+    '/devices/remote-sessions/' + encodeURIComponent(sessionId) + '/disconnect',
+    { method: 'POST' },
+  );
+  return response.data;
+}
+
+export async function getRemoteConsentHistory(
+  page = 1,
+  pageSize = 25,
+): Promise<PagedResponse<RemoteConsentHistoryItem>> {
+  return request<PagedResponse<RemoteConsentHistoryItem>>(
+    '/devices/remote-consent/history?page=' + page + '&pageSize=' + pageSize,
   );
 }

@@ -12,6 +12,7 @@ public sealed class DevicesDbContext(DbContextOptions<DevicesDbContext> options)
     public DbSet<DeviceInventorySnapshot> DeviceInventorySnapshots => Set<DeviceInventorySnapshot>();
     public DbSet<DevicePerformanceSample> DevicePerformanceSamples => Set<DevicePerformanceSample>();
     public DbSet<RemoteConsentRequest> RemoteConsentRequests => Set<RemoteConsentRequest>();
+    public DbSet<RemoteSession> RemoteSessions => Set<RemoteSession>();
     public DbSet<AgentPrompt> AgentPrompts => Set<AgentPrompt>();
     public DbSet<DeviceGroup> DeviceGroups => Set<DeviceGroup>();
     public DbSet<DeviceGroupMember> DeviceGroupMembers => Set<DeviceGroupMember>();
@@ -116,6 +117,7 @@ public sealed class DevicesDbContext(DbContextOptions<DevicesDbContext> options)
             entity.ToTable("remote_consent_requests");
             entity.HasKey(x => x.Id);
             entity.HasIndex(x => new { x.DeviceId, x.Status, x.ExpiresAt });
+            entity.HasIndex(x => x.RemoteSessionId).IsUnique();
             entity.HasIndex(x => x.RequestedByUserId);
             entity.HasIndex(x => x.DecidedByUserId);
             entity.Property(x => x.OperatorName).HasMaxLength(160);
@@ -124,6 +126,22 @@ public sealed class DevicesDbContext(DbContextOptions<DevicesDbContext> options)
             entity.Property(x => x.MessageTh).HasMaxLength(2000);
             entity.Property(x => x.MessageEn).HasMaxLength(2000);
             entity.Property(x => x.Status).HasMaxLength(32);
+            entity.HasOne<Device>().WithMany().HasForeignKey(x => x.DeviceId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<RemoteSession>(entity =>
+        {
+            entity.ToTable("remote_sessions");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => new { x.DeviceId, x.Status, x.RequestedAt });
+            entity.HasIndex(x => new { x.OperatorUserId, x.RequestedAt });
+            entity.HasIndex(x => x.ConsentRequestId).IsUnique();
+            entity.Property(x => x.Mode).HasMaxLength(32);
+            entity.Property(x => x.Status).HasMaxLength(32);
+            entity.Property(x => x.ExternalShareId).HasMaxLength(512);
+            entity.Property(x => x.LaunchUrl).HasMaxLength(4000);
+            entity.Property(x => x.EndReason).HasMaxLength(64);
+            entity.Property(x => x.FailureCode).HasMaxLength(64);
             entity.HasOne<Device>().WithMany().HasForeignKey(x => x.DeviceId).OnDelete(DeleteBehavior.Cascade);
         });
 
