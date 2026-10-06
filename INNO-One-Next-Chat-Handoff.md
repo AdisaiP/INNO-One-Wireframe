@@ -2582,3 +2582,46 @@ The current code keeps legacy consent compatibility, but new Remote Sessions alw
 The Windows local test harness lives outside the repo under C:\\Users\\adisa\\INNO-One-MeshCentral-Test. It contains local MeshCentral data, temporary test credentials, headless Chrome profiles, MeshAgent binaries and screenshots. Treat it as disposable development state, not production configuration and not source of truth.
 
 QA screenshots for unattended Remote are preserved separately on branch qa/unattended-remote-screenshots and were intentionally not merged into main.
+
+
+## Remote production hardening / real-environment acceptance follow-up — 2026-10-06
+
+This follow-up intentionally has no new Step number. Scope is frozen as Remote production hardening / real-environment acceptance.
+
+Environment verification:
+- Windows control workstation/repo started clean from main at 4627820 and work moved to branch hardening/remote-production-acceptance.
+- Original Ubuntu MeshCentral target 172.10.1.58:8443 is network-reachable: TCP 8443 succeeds and HTTPS responds with the MeshCentral login redirect.
+- Integration control authentication still fails with noauth (noauth-2d).
+- SSH from the connected Windows workstation to inno360@172.10.1.58 is unavailable (exit 255), so the corrected Ubuntu account bootstrap cannot be applied from this MCP session.
+- Therefore the Ubuntu target is not accepted and no live-production Remote success is claimed.
+- Only one Windows Desktop Commander endpoint is currently available. No Hyper-V/Windows Sandbox/VirtualBox/VMware/QEMU client environment is available on that endpoint, so a separate Windows Client cannot be prepared or counted as cross-machine acceptance in this session.
+- The existing local MeshAgent is a foreground connect process, not a Windows Service. The binary supports -install/-fullinstall/start/stop/state, but installing it on the same control workstation would not satisfy the separate-client acceptance requirement.
+
+Product hardening implemented:
+- Added RemoteSessionExpiryWorker to reconcile active Product sessions whose persisted vendor share expiry has passed.
+- The worker runs in bounded batches, uses PostgreSQL FOR UPDATE SKIP LOCKED for multi-instance safety, transitions stale active sessions to ended with end_reason=share_expired, clears launch_url/external_share_id, writes restricted devices.remote.session_ended audit as actor_type=service / actor_id=remote-session-expiry-worker, and emits remote.ended with automated=true.
+- A runtime probe against the shared development database inserted an isolated synthetic expired active row, observed the hosted worker converge it to ended/share_expired with launch/share state cleared plus restricted audit and remote.ended, then removed the probe row/audit/outbox evidence. This proves the Product expiry reconciler; it is not presented as proof of a real MeshCentral vendor-link expiry on a separate client.
+
+Existing real Remote evidence was rechecked directly in the shared database:
+- previously accepted local sessions are ended with end_reason=operator_disconnected and cleared launch_url/external_share_id;
+- devices.remote.session_started and devices.remote.session_ended are restricted;
+- matching remote.started and remote.ended outbox records exist.
+
+QA after hardening:
+- Step45V static audit: 67/67 PASS.
+- Step45Q Devices TOR audit: 84/84 PASS.
+- API/Data/Event/Implementation audits: 0 issues.
+- .NET clean build: 0 warnings / 0 errors.
+- Web shared packages + Web Portal typecheck: PASS.
+- Web production build: PASS, 2265 modules transformed (existing large-chunk warning only).
+- Step45W browser regression: 87/87 PASS.
+- Step45X browser regression: 84/84 PASS.
+- Remote Operations targeted browser regression: 12/12 PASS at 1366 and 768.
+
+Remaining real-environment acceptance blockers:
+1. Repair/reconcile Ubuntu MeshCentral integration authentication and verify control commands on 172.10.1.58:8443.
+2. Provide a separate controllable Windows Client, install MeshAgent as a Windows Service, and enroll it through an INNO.One Product-owned Device Group/installer.
+3. Run cross-machine Start Remote -> Active -> Connected -> Disconnect -> Ended.
+4. Observe an actual time-limited MeshCentral share expire on that separate client and verify Product convergence/audit/outbox against the real vendor expiry.
+
+Do not declare production-hardening complete until those external acceptance items pass. Do not merge main without explicit user instruction.
