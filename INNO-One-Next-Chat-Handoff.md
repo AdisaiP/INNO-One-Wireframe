@@ -2355,3 +2355,21 @@ QA: Step45V 57/57; Step45Q 74/74; API 191 ops / 153 paths / 0 issues; Data 95 ta
 
 Full record: `INNO-One-Step45V-Remote-Operations-Consent.md`.
 Next: resolve the live MeshCentral control-auth blocker and perform live Step45V acceptance. Do not merge `main` without explicit user instruction.
+
+
+# Step45V live-auth remediation follow-up — 2026-10-06
+
+Live `172.10.1.58:8443/control.ashx` was retested from Windows with the committed `innoapi` integration credential and still returns exact `noauth (noauth-2d)`.
+
+MeshCentral 1.2.6 source confirms this code means the custom `x-meshauth` header was accepted structurally, then username/password authentication failed. The adapter protocol and header encoding are not the current blocker.
+
+A real defect was found in `production/scripts/step16-meshcentral-init.py`: when `innoapi` already existed, the script accepted that condition and never reset its password. The script is now corrected to run `--resetaccount innoapi --pass ...` every bootstrap before `--adminaccount`. The control QA helper also now supports `MESH_BASE_URL/MESH_USERNAME/MESH_PASSWORD` overrides for live acceptance without modifying appsettings.
+
+The connected Windows machine has no usable SSH key/agent, environment credential or Credential Manager entry for `inno360@172.10.1.58`, and Docker remote API is not exposed. Therefore the corrected bootstrap could not yet be executed on the live Ubuntu host from MCP.
+
+Next exact action once Ubuntu deployment access is available:
+1. run the corrected `production/scripts/step16-meshcentral-init.py` against the live compose project;
+2. rerun `MESH_BASE_URL=wss://172.10.1.58:8443 node production/scripts/step16-meshcontrol.mjs groups`;
+3. only after control auth passes, run full Step45V create session → Endpoint Agent consent → MeshCentral desktop share/open → disconnect acceptance.
+
+Do not claim live remote works and do not merge `main` until that acceptance passes.
