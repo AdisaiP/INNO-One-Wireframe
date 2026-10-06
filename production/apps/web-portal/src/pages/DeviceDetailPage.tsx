@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNODialog, INNOIcon, INNOResourceHeader, INNOResourceSummary, INNOResourceSummaryItem, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOSurfaceTabs, INNOTableWrap } from '@inno/ui';
-import { executeDeviceServiceAction, getDevice, getDeviceHardwareInventory, getDeviceNetworkInventory, getDevicePerformance, getDeviceSoftwareInventory, getLiveDeviceProcesses, getLiveDeviceServices, terminateDeviceProcess } from '../api/client';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNODialog, INNOIcon, INNOPagination, INNOResourceHeader, INNOResourceSummary, INNOResourceSummaryItem, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOSurfaceTabs, INNOTableWrap } from '@inno/ui';
+import { executeDeviceServiceAction, getDevice, getDeviceActivity, getDeviceHardwareInventory, getDeviceNetworkInventory, getDevicePerformance, getDeviceSoftwareInventory, getLiveDeviceProcesses, getLiveDeviceServices, getTickets, terminateDeviceProcess } from '../api/client';
 import { CollectionErrorState, CollectionLoadingState, ErrorState, LoadingState } from '../components/Feedback';
 import { useI18n as useStep45NI18n } from '@inno/i18n';
 import { usePermission } from '../app/ProfileContext';
-import type { DeviceProcessItem, DeviceServiceItem } from '../api/types';
+import type { DeviceActivityItem, DeviceProcessItem, DeviceServiceItem } from '../api/types';
 
 function metric(value?: number | null, suffix = '') {
   return value == null ? '—' : `${value}${suffix}`;
@@ -41,6 +41,13 @@ function formatBytes(value?: number | null) {
   return `${value} B`;
 }
 
+function activityMetadataValue(item: DeviceActivityItem, key: string) {
+  const value = item.metadata[key];
+  return typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean'
+    ? String(value)
+    : null;
+}
+
 function sparklinePoints(values: Array<number | null | undefined>) {
   const valid = values.map((value, index) => ({ value, index })).filter((item) => item.value != null);
   if (valid.length === 0) return '';
@@ -52,29 +59,60 @@ function sparklinePoints(values: Array<number | null | undefined>) {
   }).join(' ');
 }
 
-type Step45TTab = 'overview' | 'hardware' | 'software' | 'performance' | 'processes' | 'services' | 'network';
-const step45tTabs: Step45TTab[] = ['overview', 'hardware', 'software', 'performance', 'processes', 'services', 'network'];
+type Step45UTab = 'overview' | 'hardware' | 'software' | 'performance' | 'processes' | 'services' | 'network' | 'activity' | 'tickets';
+const step45uTabs: Step45UTab[] = ['overview', 'hardware', 'software', 'performance', 'processes', 'services', 'network', 'activity', 'tickets'];
 
 export function DeviceDetailPage() {
   const { t: t45n, locale } = useStep45NI18n();
   const { deviceId = '' } = useParams();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedTab = searchParams.get('tab');
-  const activeTab: Step45TTab = step45tTabs.includes(requestedTab as Step45TTab)
-    ? requestedTab as Step45TTab
+  const activeTab: Step45UTab = step45uTabs.includes(requestedTab as Step45UTab)
+    ? requestedTab as Step45UTab
     : 'overview';
-  const setActiveTab = (tab: Step45TTab) => {
+  const setActiveTab = (tab: Step45UTab) => {
     const next = new URLSearchParams(searchParams);
     if (tab === 'overview') next.delete('tab');
     else next.set('tab', tab);
     setSearchParams(next, { replace: true });
   };
   const canManage = usePermission('devices.manage');
+  const canViewTickets = usePermission('helpdesk.ticket.view');
+  const canCreateTicket = usePermission('helpdesk.ticket.create');
   const [softwareSearch, setSoftwareSearch] = useState('');
   const [publisher, setPublisher] = useState('all');
   const [processTarget, setProcessTarget] = useState<DeviceProcessItem | null>(null);
   const [serviceTarget, setServiceTarget] = useState<{ service: DeviceServiceItem; action: 'start' | 'stop' | 'restart' } | null>(null);
   const [actionNotice, setActionNotice] = useState<string | null>(null);
+  const [activityPage, setActivityPage] = useState(1);
+  const [ticketPage, setTicketPage] = useState(1);
+  const activityTitle = (item: DeviceActivityItem) => {
+    if (item.action === 'devices.software_inventory.observed') return t45n('devices.step45u.deviceDetail.softwareInventoryObserved');
+    if (item.action === 'devices.process.terminate') return t45n('devices.step45u.deviceDetail.processTerminated');
+    if (item.action === 'devices.service.action') return t45n('devices.step45u.deviceDetail.serviceChanged');
+    return item.action;
+  };
+  const activityDetail = (item: DeviceActivityItem) => {
+    if (item.action === 'devices.software_inventory.observed') {
+      return t45n('devices.step45u.deviceDetail.softwareInventoryDetail', {
+        count: activityMetadataValue(item, 'packageCount') ?? '-',
+        completeness: activityMetadataValue(item, 'completeness') ?? '-',
+      });
+    }
+    if (item.action === 'devices.process.terminate') {
+      return t45n('devices.step45u.deviceDetail.processTerminatedDetail', {
+        pid: activityMetadataValue(item, 'processId') ?? '-',
+      });
+    }
+    if (item.action === 'devices.service.action') {
+      return t45n('devices.step45u.deviceDetail.serviceChangedDetail', {
+        service: activityMetadataValue(item, 'serviceName') ?? '-',
+        action: activityMetadataValue(item, 'action') ?? '-',
+      });
+    }
+    return t45n('devices.step45u.deviceDetail.auditEventDetail', { action: item.action });
+  };
   const query = useQuery({
     queryKey: ['device', deviceId],
     queryFn: () => getDevice(deviceId),
@@ -115,6 +153,16 @@ export function DeviceDetailPage() {
     enabled: Boolean(deviceId) && activeTab === 'services' && query.data?.isOffline === false,
     staleTime: 45000,
     retry: false,
+  });
+  const activityQuery = useQuery({
+    queryKey: ['device', deviceId, 'activity', activityPage],
+    queryFn: () => getDeviceActivity(deviceId, activityPage, 25),
+    enabled: Boolean(deviceId) && activeTab === 'activity',
+  });
+  const ticketsQuery = useQuery({
+    queryKey: ['device', deviceId, 'tickets', ticketPage],
+    queryFn: () => getTickets({ page: ticketPage, pageSize: 25, relatedDeviceId: deviceId, sort: 'updatedAt', order: 'desc' }),
+    enabled: Boolean(deviceId) && activeTab === 'tickets' && canViewTickets,
   });
   const terminateProcess = useMutation({
     mutationFn: (target: DeviceProcessItem) => terminateDeviceProcess(deviceId, target.processKey),
@@ -211,7 +259,7 @@ export function DeviceDetailPage() {
       <INNOSurfaceTabs
         ariaLabel={t45n('devices.step45n.deviceDetail.deviceDetailSections')}
         activeId={activeTab}
-        onChange={(id) => setActiveTab(id as Step45TTab)}
+        onChange={(id) => setActiveTab(id as Step45UTab)}
         items={[
           { id: 'overview', label: t45n('navigation.overview') },
           { id: 'hardware', label: t45n('devices.step45r.deviceDetail.hardware') },
@@ -220,6 +268,8 @@ export function DeviceDetailPage() {
           { id: 'processes', label: t45n('devices.step45t.deviceDetail.processes') },
           { id: 'services', label: t45n('devices.step45t.deviceDetail.services') },
           { id: 'network', label: t45n('devices.step45s.deviceDetail.network') },
+          { id: 'activity', label: t45n('devices.step45u.deviceDetail.activity') },
+          { id: 'tickets', label: t45n('devices.step45u.deviceDetail.tickets') },
         ]}
       />
 
@@ -762,6 +812,156 @@ export function DeviceDetailPage() {
               </section>
             </div>
           </div>
+        )}
+      </div>
+
+      <div hidden={activeTab !== 'activity'}>
+        {activeTab !== 'activity' ? null : activityQuery.isPending ? (
+          <div className="device-tab-loading-wrap"><LoadingState label={t45n('devices.step45u.deviceDetail.loadingActivity')} /></div>
+        ) : activityQuery.isError ? (
+          <div className="page-error-wrap"><ErrorState error={activityQuery.error} retry={() => void activityQuery.refetch()} /></div>
+        ) : activityQuery.data.items.length === 0 ? (
+          <INNOState
+            kind="empty"
+            title={t45n('devices.step45u.deviceDetail.noActivity')}
+            description={t45n('devices.step45u.deviceDetail.noActivityDescription')}
+          />
+        ) : (
+          <INNOCollection className="device-activity-collection">
+            <INNOCollectionHeader
+              title={t45n('devices.step45u.deviceDetail.activity')}
+              description={t45n('devices.step45u.deviceDetail.activityDescription')}
+              meta={<INNOStatus tone="neutral">{t45n('devices.step45u.deviceDetail.auditBacked')}</INNOStatus>}
+            />
+            <INNOCollectionToolbar>
+              <span className="collection-scope">
+                {t45n('devices.step45u.deviceDetail.activityCount', { count: activityQuery.data.totalItems })}
+              </span>
+              <span className="toolbar-spacer" />
+              <INNOButton variant="secondary" type="button" onClick={() => void activityQuery.refetch()}>
+                {t45n('common.actions.refresh')}
+              </INNOButton>
+            </INNOCollectionToolbar>
+            <INNOTableWrap width="wide">
+              <table>
+                <thead>
+                  <tr>
+                    <th>{t45n('devices.step45u.deviceDetail.event')}</th>
+                    <th>{t45n('devices.step45u.deviceDetail.actor')}</th>
+                    <th>{t45n('devices.step45u.deviceDetail.classification')}</th>
+                    <th>{t45n('devices.step45u.deviceDetail.occurred')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {activityQuery.data.items.map((item) => (
+                    <tr key={item.id}>
+                      <td>
+                        <b>{activityTitle(item)}</b>
+                        <div className="table-meta">{activityDetail(item)}</div>
+                      </td>
+                      <td>{item.actorName}</td>
+                      <td>
+                        <INNOStatus tone={item.classification === 'restricted' ? 'warning' : 'neutral'}>
+                          {item.classification}
+                        </INNOStatus>
+                      </td>
+                      <td>{relativeTime(item.occurredAt, locale)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </INNOTableWrap>
+            <INNOPagination
+              page={activityQuery.data.page}
+              totalPages={activityQuery.data.totalPages}
+              totalItems={activityQuery.data.totalItems}
+              pageSize={activityQuery.data.pageSize}
+              onPageChange={setActivityPage}
+            />
+          </INNOCollection>
+        )}
+      </div>
+
+      <div hidden={activeTab !== 'tickets'}>
+        {activeTab !== 'tickets' ? null : !canViewTickets ? (
+          <INNOState
+            kind="permission"
+            title={t45n('devices.step45u.deviceDetail.ticketsPermissionDenied')}
+            description={t45n('devices.step45u.deviceDetail.ticketsPermissionDeniedDescription')}
+          />
+        ) : ticketsQuery.isPending ? (
+          <div className="device-tab-loading-wrap"><LoadingState label={t45n('devices.step45u.deviceDetail.loadingTickets')} /></div>
+        ) : ticketsQuery.isError ? (
+          <div className="page-error-wrap"><ErrorState error={ticketsQuery.error} retry={() => void ticketsQuery.refetch()} /></div>
+        ) : ticketsQuery.data.items.length === 0 ? (
+          <INNOState
+            kind="empty"
+            title={t45n('devices.step45u.deviceDetail.noTickets')}
+            description={t45n('devices.step45u.deviceDetail.noTicketsDescription')}
+            action={canCreateTicket ? (
+              <INNOButton
+                variant="primary"
+                type="button"
+                onClick={() => navigate('/helpdesk/tickets/new?relatedDeviceId=' + encodeURIComponent(deviceId))}
+              >
+                {t45n('devices.step45u.deviceDetail.createTicket')}
+              </INNOButton>
+            ) : undefined}
+          />
+        ) : (
+          <INNOCollection className="device-tickets-collection">
+            <INNOCollectionHeader
+              title={t45n('devices.step45u.deviceDetail.tickets')}
+              description={t45n('devices.step45u.deviceDetail.ticketsDescription')}
+              meta={<INNOStatus tone="neutral">{t45n('devices.step45u.deviceDetail.helpdeskOwned')}</INNOStatus>}
+            />
+            <INNOCollectionToolbar>
+              <span className="collection-scope">
+                {t45n('devices.step45u.deviceDetail.ticketCount', { count: ticketsQuery.data.totalItems })}
+              </span>
+              <span className="toolbar-spacer" />
+              {canCreateTicket ? (
+                <INNOButton
+                  variant="secondary"
+                  type="button"
+                  onClick={() => navigate('/helpdesk/tickets/new?relatedDeviceId=' + encodeURIComponent(deviceId))}
+                >
+                  {t45n('devices.step45u.deviceDetail.createTicket')}
+                </INNOButton>
+              ) : null}
+            </INNOCollectionToolbar>
+            <INNOTableWrap width="wide">
+              <table>
+                <thead>
+                  <tr>
+                    <th>{t45n('devices.step45u.deviceDetail.ticket')}</th>
+                    <th>{t45n('devices.step45u.deviceDetail.subject')}</th>
+                    <th>{t45n('devices.step45u.deviceDetail.priority')}</th>
+                    <th>{t45n('devices.step45u.deviceDetail.status')}</th>
+                    <th>{t45n('devices.step45u.deviceDetail.updated')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ticketsQuery.data.items.map((ticket) => (
+                    <tr key={ticket.id}>
+                      <td><Link to={'/helpdesk/tickets/' + ticket.id}><b>{ticket.ticketNumber}</b></Link></td>
+                      <td>{ticket.subject}</td>
+                      <td><INNOStatus tone={ticket.priority === 'P1' ? 'danger' : ticket.priority === 'P2' ? 'warning' : 'neutral'}>{ticket.priority}</INNOStatus></td>
+                      <td>{ticket.statusName}</td>
+                      <td>{relativeTime(ticket.updatedAt, locale)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </INNOTableWrap>
+            <INNOPagination
+              page={ticketsQuery.data.page}
+              totalPages={ticketsQuery.data.totalPages}
+              totalItems={ticketsQuery.data.totalItems}
+              pageSize={ticketsQuery.data.pageSize}
+              onPageChange={setTicketPage}
+            />
+          </INNOCollection>
         )}
       </div>
 

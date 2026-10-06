@@ -760,7 +760,7 @@ Recording and uploaded audio are separate processing commands against the Meetin
 Current Step 11 machine-readable catalog contains:
 
 - Platform: 12 operations
-- Devices: 70 operations
+- Devices: 71 operations
 - Assets: 24 operations
 - Reports: 9 operations
 - Helpdesk: 37 operations
@@ -771,8 +771,8 @@ Current Step 11 machine-readable catalog contains:
 Total:
 
 ```text
-190 operations
-152 unique paths
+191 operations
+153 unique paths
 ```
 
 This catalog covers every one of the 93 frozen Web routes plus the three runtime Agent/Mobile surfaces that need APIs.
@@ -1010,7 +1010,7 @@ Step 13 Data Ownership / Database Model is now complete. The next implementation
 
 ## 33. Canonical endpoint catalog
 
-Machine-readable source: `inno-api-contract.json` (190 operations / 152 unique paths after Step45T additive promotion).
+Machine-readable source: `inno-api-contract.json` (191 operations / 153 unique paths after Step45U additive promotion).
 
 ### Platform
 
@@ -1376,3 +1376,48 @@ Process termination and service actions write restricted `security_long` audit r
 - `devices.service.action`
 
 The audit stores canonical Device/action/result evidence, not MeshCentral credentials or raw vendor payloads.
+
+
+## Step45U additive boundary — Device Activity + related Helpdesk Tickets
+
+Step45U completes the frozen nine-tab Device Detail contract without creating a second ticket owner or a duplicate Device activity history store.
+
+### Device Activity
+
+`GET /devices/{deviceId}/activity?page=<page>&pageSize=<pageSize>`
+
+- Permission: `devices.view`
+- Scope: Device resource scope
+- Response: paged Device activity projection
+- Authoritative source: `audit.audit_records`
+- Filter: `module = devices`, `target_type = device`, canonical opaque Device target ID
+
+The projection resolves user actor IDs through the Platform Directory before returning Product data. Audit metadata remains structured and can be rendered by the Web without exposing MeshCentral/vendor identifiers.
+
+Step45U intentionally does **not** create `devices.device_activity_items`. The Step45Q planned read-model table is deferred because the canonical audit ledger already satisfies the current Product query without duplication. A materialized read model may be introduced later only if measured scale/latency requires it.
+
+### Related Helpdesk Tickets
+
+Existing operation:
+
+`GET /helpdesk/tickets`
+
+adds the optional query:
+
+`relatedDeviceId=<canonical Device ID>`
+
+The filter:
+
+- remains Helpdesk-owned,
+- preserves existing Helpdesk effective-scope enforcement,
+- validates the canonical `dev_...` identifier,
+- does not perform a direct Devices-to-Helpdesk table read,
+- does not grant ticket access based on `devices.view`.
+
+Device Detail evaluates `helpdesk.ticket.view` independently. A user may view the Device while the Tickets tab renders Permission Denied.
+
+Create Ticket deep links may provide:
+
+`/helpdesk/tickets/new?relatedDeviceId=<deviceId>`
+
+The Helpdesk create surface consumes the canonical Device ID as the initial related-device selection.

@@ -2315,3 +2315,23 @@ QA: Step45T 92/92; API 190 ops / 152 paths / 0 issues; Data 95 tables / 0 issues
 
 Full records: `INNO-One-Step45T-MeshCentral-Capability-Audit.md` and `INNO-One-Step45T-Processes-Services-Mesh-Execution.md`.
 Next: **Step45U — Device Activity + related Helpdesk Tickets**. Do not merge main without explicit user instruction.
+
+
+# Step45U — Device Activity + Related Helpdesk Tickets — 2026-10-06
+
+Branch: `implementation/step45u-activity-tickets`, based on Step45T `14373f3`.
+
+Device Detail now exposes the full frozen nine-tab order: Overview, Hardware, Software, Performance, Processes, Services, Network, Activity, Tickets.
+
+Activity is Devices-owned and served by `GET /devices/{deviceId}/activity` with `devices.view` + effective Device scope. The implementation projects the canonical `audit.audit_records` ledger rather than creating duplicate `devices.device_activity_items` persistence. Actor IDs resolve through Platform Directory; only allowlisted Product-safe metadata is returned. The optional Step45Q physical Activity read-model remains deferred until measured scale requires materialization.
+
+Step45U also corrects Step45T sensitive audit classification: Process termination and Service actions now write `restricted` classification through the shared Devices ledger writer. Historical dev audit rows are not rewritten.
+
+Tickets remain Helpdesk-owned. `GET /helpdesk/tickets` now accepts optional `relatedDeviceId`, validates the canonical Device ID, preserves Helpdesk scope and never introduces a Devices ticket endpoint/table. Tickets tab uses `helpdesk.ticket.view` independently; Create Ticket uses `helpdesk.ticket.create` independently. Ticket availability is not tied to Device connectivity. The Create Ticket deep link preselects the Device through `?relatedDeviceId=`.
+
+Activity and Tickets are both paged Product collections.
+
+QA: Step45U 59/59; API 191 ops / 153 paths / 0 issues; Event/Audit 66 actions / 0 issues; Data 95 tables / 0 issues; Implementation 0 issues; Step45Q 72/72; Step45N 4039 checks / 1975 keys / 0 failures; terminology 0; i18n/typecheck/Web build PASS (2259 modules); .NET 0 warnings/errors; focused browser/API 37/37 with 4 screenshots; broad browser 66 routes / 1734 checks / 0 failures at 1366/1024/768; visual inspection PASS.
+
+Full record: `INNO-One-Step45U-Device-Activity-Tickets.md`.
+Next: **Step45V — Remote Operations + Remote Consent end-to-end through MeshCentral**. Live MeshCentral control auth is still blocked by `noauth (noauth-2d)`. Do not merge main without explicit user instruction.

@@ -216,7 +216,8 @@ public static partial class DeviceLiveOperationsEndpoints
                     executionEngine = "meshcentral",
                     verified
                 },
-                cancellationToken);
+                cancellationToken,
+                "restricted");
 
             if (!verified)
                 return RemoteActionUnverified("Process termination could not be verified.");
@@ -426,7 +427,8 @@ public static partial class DeviceLiveOperationsEndpoints
                     executionEngine = "meshcentral",
                     verified
                 },
-                cancellationToken);
+                cancellationToken,
+                "restricted");
 
             if (!verified)
                 return RemoteActionUnverified("Service action could not be verified.");

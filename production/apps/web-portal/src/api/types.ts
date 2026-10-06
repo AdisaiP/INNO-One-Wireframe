@@ -463,6 +463,16 @@ export interface DeviceLiveActionAccepted {
   verified: boolean;
 }
 
+export interface DeviceActivityItem {
+  id: string;
+  action: string;
+  actorId: string;
+  actorName: string;
+  occurredAt: string;
+  classification: string;
+  metadata: Record<string, unknown>;
+}
+
 export interface DeviceSoftwarePackage {
   productKey: string;
   displayName: string;

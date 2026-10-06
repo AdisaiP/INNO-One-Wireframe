@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { INNOButton, INNOEditorFooter, INNOEditorFooterEnd, INNOEditorFooterStart, INNOIcon, INNOPage, INNOStatus } from '@inno/ui';
 import { createTicket, getDevices, getTicketCategories } from '../api/client';
 import { usePermission, useProfile } from '../app/ProfileContext';
@@ -26,12 +26,13 @@ export function TicketCreatePage() {
   const profile = useProfile();
   const canViewDevices = usePermission('devices.view');
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [subject, setSubject] = useState('');
   const [description, setDescription] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [impact, setImpact] = useState('Individual');
   const [urgency, setUrgency] = useState('Normal');
-  const [relatedDeviceId, setRelatedDeviceId] = useState('');
+  const [relatedDeviceId, setRelatedDeviceId] = useState(() => searchParams.get('relatedDeviceId') ?? '');
   const [formError, setFormError] = useState('');
 
   const categories = useQuery({

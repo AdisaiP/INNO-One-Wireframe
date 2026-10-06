@@ -1084,3 +1084,19 @@ Live Process and Service state is volatile endpoint execution evidence:
 Durable persistence remains limited to existing generic integration-operation and audit infrastructure. Privileged Process termination and Service Start/Stop/Restart actions are recorded through the canonical audit contract, but whole Process/Service lists are not copied into audit/event payloads.
 
 This preserves the Step45Q ownership rule that Processes and Services are live observations rather than long-term inventory.
+
+
+## Step45U data boundary — Activity projection without duplicate persistence
+
+Step45U implements Device Activity as a read projection over the authoritative `audit.audit_records` ledger.
+
+No new Devices table is created.
+
+The Step45Q candidate `devices.device_activity_items` remains a deferred optimization rather than an implementation requirement. The current projection is preferred because it:
+
+- preserves one durable audit source of truth,
+- avoids dual-write drift between audit and activity tables,
+- retains actor/correlation/security classification evidence,
+- can be materialized later without changing the public `GET /devices/{deviceId}/activity` contract.
+
+Helpdesk remains the sole owner of `helpdesk.tickets.related_device_id`. Step45U only adds a Helpdesk query filter and does not introduce a Devices-owned ticket projection/table.

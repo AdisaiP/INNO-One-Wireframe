@@ -1366,7 +1366,20 @@
       "screens": [
         "helpdesk-tickets.html",
         "helpdesk-assigned.html",
-        "helpdesk-team.html"
+        "helpdesk-team.html",
+        "device-detail-v2.html"
+      ],
+      "optionalQuery": [
+        "page",
+        "pageSize",
+        "search",
+        "status",
+        "priority",
+        "assignedToMe",
+        "unassigned",
+        "relatedDeviceId",
+        "sort",
+        "order"
       ]
     },
     {
@@ -2356,6 +2369,18 @@
       ]
     },
     {
+      "id": "devices.activity.list",
+      "method": "GET",
+      "path": "/devices/{deviceId}/activity",
+      "module": "devices",
+      "permission": "devices.view",
+      "scope": "resource",
+      "response": "paged",
+      "screens": [
+        "device-detail-v2.html"
+      ]
+    },
+    {
       "id": "agent.telemetry.ingest",
       "method": "POST",
       "path": "/agent/devices/{deviceId}/telemetry",
@@ -2546,7 +2571,9 @@
       "devices.process.terminate",
       "devices.service_snapshot.create",
       "devices.service_snapshot.get",
-      "devices.service.action"
+      "devices.service.action",
+      "devices.activity.list",
+      "helpdesk.tickets.list"
     ],
     "device-group-detail.html": [
       "devices.get",

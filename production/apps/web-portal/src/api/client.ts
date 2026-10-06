@@ -48,6 +48,7 @@ import type {
   BusinessCalendar,
   CreatedTicket,
   DeviceDetail,
+  DeviceActivityItem,
   DeviceHardwareInventory,
   DeviceNetworkInventory,
   DevicePerformance,
@@ -623,6 +624,20 @@ export async function getDeviceNetworkInventory(deviceId: string): Promise<Devic
   return response.data;
 }
 
+export async function getDeviceActivity(
+  deviceId: string,
+  page = 1,
+  pageSize = 25,
+): Promise<PagedResponse<DeviceActivityItem>> {
+  const params = new URLSearchParams({
+    page: String(page),
+    pageSize: String(pageSize),
+  });
+  return request<PagedResponse<DeviceActivityItem>>(
+    '/devices/' + encodeURIComponent(deviceId) + '/activity?' + params.toString(),
+  );
+}
+
 export async function createDeviceProcessSnapshot(deviceId: string): Promise<DeviceLiveSnapshotAccepted> {
   return request<DeviceLiveSnapshotAccepted>(
     '/devices/' + encodeURIComponent(deviceId) + '/processes/snapshots',
@@ -1164,6 +1179,7 @@ export interface TicketQuery {
   priority?: string;
   assignedToMe?: boolean;
   unassigned?: boolean;
+  relatedDeviceId?: string;
   sort?: string;
   order?: 'asc' | 'desc';
 }
@@ -1187,6 +1203,7 @@ export async function getTickets(
   if (query.priority && query.priority !== 'all') params.set('priority', query.priority);
   if (query.assignedToMe) params.set('assignedToMe', 'true');
   if (query.unassigned) params.set('unassigned', 'true');
+  if (query.relatedDeviceId) params.set('relatedDeviceId', query.relatedDeviceId);
   return request<PagedResponse<TicketSummary>>('/helpdesk/tickets?' + params.toString());
 }
 

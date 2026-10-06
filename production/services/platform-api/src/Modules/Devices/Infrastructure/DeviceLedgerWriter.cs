@@ -63,11 +63,15 @@ public sealed class DeviceLedgerWriter(DevicesDbContext db)
         string correlationId,
         string? traceId,
         object metadata,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        string classification = "internal")
     {
         var auditId = Guid.NewGuid();
         var occurredAt = DateTimeOffset.UtcNow;
         var metadataJson = JsonSerializer.Serialize(metadata);
+        var normalizedClassification = classification is "restricted" or "confidential"
+            ? classification
+            : "internal";
 
         return db.Database.ExecuteSqlInterpolatedAsync($"""
             INSERT INTO audit.audit_records
@@ -77,7 +81,7 @@ public sealed class DeviceLedgerWriter(DevicesDbContext db)
             VALUES
                 ({auditId}, {action}, 'devices', {targetType}, {targetId},
                  'user', {actorId}, {occurredAt}, {correlationId}, {traceId},
-                 'internal', CAST({metadataJson} AS jsonb))
+                 {normalizedClassification}, CAST({metadataJson} AS jsonb))
             """, cancellationToken);
     }
 

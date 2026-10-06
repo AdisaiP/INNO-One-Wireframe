@@ -143,6 +143,7 @@ public static class HelpdeskEndpoints
         string? priority = null,
         bool assignedToMe = false,
         bool unassigned = false,
+        string? relatedDeviceId = null,
         string? sort = "updatedAt",
         string? order = "desc",
         CancellationToken cancellationToken = default)
@@ -195,6 +196,16 @@ public static class HelpdeskEndpoints
         if (unassigned)
         {
             query = query.Where(x => x.AssigneeUserId == null);
+        }
+
+        if (!string.IsNullOrWhiteSpace(relatedDeviceId))
+        {
+            if (!OpaqueId.TryParse(relatedDeviceId.Trim(), "dev", out var parsedRelatedDeviceId))
+            {
+                return Validation("relatedDeviceId", "Invalid related Device.");
+            }
+
+            query = query.Where(x => x.RelatedDeviceId == parsedRelatedDeviceId);
         }
 
         var totalItems = await query.CountAsync(cancellationToken);
