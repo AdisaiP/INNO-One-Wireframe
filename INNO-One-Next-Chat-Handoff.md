@@ -2695,3 +2695,45 @@ Repository QA for the deployment package before runtime cutover:
 Remote production-hardening status update:
 - The previous Ubuntu control-auth blocker is resolved for the new production MeshCentral deployment. Product health uses an authenticated MeshCentral control connection successfully.
 - Do not treat this deployment alone as the separate-client Remote Desktop acceptance. A separate Windows client still needs MeshAgent installed as a Windows Service, Product-owned enrollment, and cross-machine Start Remote -> Active -> Connected -> Disconnect -> Ended plus real share-expiry observation.
+
+
+## Separate Windows Client acceptance preparation — 2026-10-07
+
+No new numbered Step was created. This is a continuation of Remote production hardening / real-environment acceptance.
+
+Production source/runtime:
+- GitHub main includes MeshCentral public URL normalization at main commit 70902e7.
+- Ubuntu production checkout was returned to main@70902e7 after live validation.
+- Platform API was rebuilt/recreated on Ubuntu and production health remained PASS.
+- MeshCentral enrollment URLs and desktop-share URLs now always use the authority/port from Product-configured MeshCentral:BaseUrl even when MeshCentral returns an absolute URL with an internal/default port.
+- Live Product-generated enrollment was revalidated as https://172.10.1.58:8444/agentinvite... and the enrollment page loaded successfully.
+
+Product-owned enrollment preparation:
+- Created Product-owned static Device Group: Production Remote Acceptance.
+- Generated a Windows unattended enrollment package from INNO.One Product UI (/devices/add), not directly from MeshCentral.
+- Downloaded the resulting Windows x64 MeshAgent package successfully from production.
+- Installer size: 3,861,936 bytes.
+- SHA256: 2809ac554022cb9b5fa59fcceec92816317b0c961245df918151aab06bb0cdad.
+- MeshAgent reports ARCHID 3 (Windows x64) and supports -fullinstall, start, stop, restart, state and -fulluninstall.
+- Local preparation copy is outside the repository under C:\Users\adisa\INNO-One-Acceptance\MeshAgent-ProductionRemoteAcceptance.exe.
+- Time-limited enrollment URL and temporary HTML/scripts were deleted after the package was prepared; no enrollment token is stored in the repository.
+
+Second Windows discovery:
+- Desktop Commander currently exposes only Adisais-MacBook-Pro.local and WIN-J00TUFFH81D. No second Windows MCP endpoint is available.
+- VPN subnet discovery found:
+  - 172.10.1.110 -> WIN-R0LHUFJ12NI, ports 135/445/3389/5985 open. WMI with the current WIN-J00TUFFH81D credentials returns Access denied. No saved RDP credential exists for this host.
+  - 172.10.1.212 -> SERVER-ACCESSCO..., ports 445/3389/5985 open. Current credentials return Access denied.
+  - 172.10.1.217 -> LDAP-SERVER / INNO domain controller. A saved RDP credential exists, but it is a local MicrosoftAccount\administrator credential for that server. This host was intentionally rejected as an acceptance client.
+  - 172.10.1.230 and 172.10.1.241 have saved RDP targets but were offline/unreachable on Windows administration ports during discovery.
+- WIN-J00TUFFH81D is WORKGROUP/not domain joined and has no Kerberos ticket that can be delegated to the candidate workstation.
+
+Current blocker:
+- The cross-machine acceptance is not yet complete because there is no authorized Administrator execution path to a suitable second Windows workstation.
+- Do not use LDAP-SERVER as the client.
+- Preferred continuation: make a second Windows workstation available through Desktop Commander, or establish an Administrator session on WIN-R0LHUFJ12NI (172.10.1.110). Then copy the prepared package and run it elevated with:
+  MeshAgent-ProductionRemoteAcceptance.exe -fullinstall
+  followed by:
+  MeshAgent-ProductionRemoteAcceptance.exe state
+- After service enrollment appears in Product-owned group Production Remote Acceptance, continue with real cross-machine:
+  Start Remote -> Active -> Connected -> Disconnect -> Ended,
+  then verify restricted audit, remote.started / remote.ended outbox and real share-expiry convergence.
