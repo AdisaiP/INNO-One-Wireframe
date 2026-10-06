@@ -82,3 +82,28 @@ Audited against MeshCentral 1.2.6 source at commit `029b7338ecfeeacc65da3b5a1a4c
 ## Merge state
 
 Not merged to `main`. Do not merge without explicit user instruction.
+
+
+## Live auth remediation follow-up — 2026-10-06
+
+The live control target was retested directly with `MESH_BASE_URL=wss://172.10.1.58:8443` and still returns:
+
+`{"action":"close","cause":"noauth","msg":"noauth-2d"}`
+
+MeshCentral 1.2.6 upstream source confirms `noauth-2d` is emitted after the `x-meshauth` header has been parsed successfully but username/password authentication fails. This rules out the WebSocket route and header encoding as the primary blocker.
+
+The repository credential for the `innoapi` integration account has not changed since the Step16 bootstrap. The live account therefore needs to be reconciled on the Ubuntu MeshCentral data volume.
+
+`production/scripts/step16-meshcentral-init.py` is now corrected so rerunning it while MeshCentral is stopped does all three idempotent recovery actions:
+
+1. create `innoapi` when missing;
+2. run MeshCentral `--resetaccount innoapi --pass ...` to unlock the account, remove 2FA and align the integration password;
+3. run `--adminaccount innoapi`.
+
+The previous script accepted "User already exists" and only promoted the account, so a stale password could survive every rerun and continue producing `noauth-2d`.
+
+`production/scripts/step16-meshcontrol.mjs` now accepts `MESH_BASE_URL`, `MESH_USERNAME` and `MESH_PASSWORD` overrides so live control acceptance can be executed without editing committed appsettings.
+
+Current environment limitation: the connected Windows machine has network reachability to the live MeshCentral endpoint but has no SSH private key/agent, deployment environment variable or Windows Credential Manager entry for `inno360@172.10.1.58`. Passwordless SSH fails, and no unauthenticated Docker remote API is exposed. The corrected bootstrap therefore cannot be applied to the Ubuntu host from this MCP session yet.
+
+Live remote desktop remains **not accepted** until the corrected bootstrap is executed on the Ubuntu host and control auth plus create/consent/open/disconnect are retested.
