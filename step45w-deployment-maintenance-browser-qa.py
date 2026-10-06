@@ -53,7 +53,7 @@ def viewport(width):
     call("Emulation.setDeviceMetricsOverride",{"width":width,"height":900,"deviceScaleFactor":1,"mobile":False})
 
 def nav(path):
-    call("Page.navigate",{"url":"http://127.0.0.1:5180"+path})
+    call("Page.navigate",{"url":"http://localhost:5180"+path})
     return bool(wait("!!document.querySelector('.inno-production-shell') && !document.querySelector('.boot-screen,.page-loading-wrap')",20))
 
 def shot(name):
@@ -61,7 +61,7 @@ def shot(name):
     (OUT/name).write_bytes(base64.b64decode(data))
 
 viewport(1366)
-call("Page.navigate",{"url":"http://127.0.0.1:5180/"})
+call("Page.navigate",{"url":"http://localhost:5180/"})
 realm=json.loads(REALM.read_text(encoding="utf-8"))
 user=next(x for x in realm["users"] if x["username"]=="adisai")
 password=user["credentials"][0]["value"]
@@ -72,7 +72,7 @@ while time.time()<deadline:
     if "172.10.1.58:8080" in href and ev("!!document.querySelector('#kc-login')"):
         ev("document.querySelector('#username').value='adisai';document.querySelector('#password').value="+json.dumps(password)+";document.querySelector('#kc-login').click();")
         time.sleep(.6)
-    if href.startswith("http://127.0.0.1:5180") and wait("!!document.querySelector('.inno-production-shell')",2):
+    if href.startswith("http://localhost:5180") and wait("!!document.querySelector('.inno-production-shell')",2):
         logged=True
         break
     time.sleep(.2)
