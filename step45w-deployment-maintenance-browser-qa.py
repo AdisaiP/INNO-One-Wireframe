@@ -17,7 +17,7 @@ def check(name, ok, detail=""):
     print(("PASS " if ok else "FAIL ")+name+((" :: "+str(detail)) if detail else ""))
     if not ok: fails.append((name,detail))
 
-targets=requests.get("http://127.0.0.1:9241/json",timeout=3).json()
+targets=requests.get("http://127.0.0.1:9242/json",timeout=3).json()
 page=next(x for x in targets if x.get("type")=="page")
 ws=websocket.create_connection(page["webSocketDebuggerUrl"],timeout=20,origin="http://127.0.0.1")
 seq=0
