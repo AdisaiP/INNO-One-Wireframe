@@ -137,10 +137,14 @@ check("doc no backend implementation", "does not:" in doc and "implement backend
 
 production_root = (ROOT / "production/apps/web-portal/src/app/AppRoot.tsx").read_text(encoding="utf-8")
 production_shell = (ROOT / "production/apps/web-portal/src/app/AppShell.tsx").read_text(encoding="utf-8")
-check("unimplemented TOR routes stay unmounted", "/devices/deployments" not in production_root)
-check("unimplemented TOR nav stays hidden", "/devices/deployments" not in production_shell)
 check("Step45V promotes Remote Operations route", 'path="devices/remote-operations"' in production_root)
 check("Step45V promotes Remote Operations nav", 'to="/devices/remote-operations"' in production_shell)
+check("Step45W promotes Deployment Jobs route", 'path="devices/deployments"' in production_root)
+check("Step45W promotes Deployment Jobs nav", 'to="/devices/deployments"' in production_shell)
+check("Step45W promotes Agent Maintenance route", 'path="devices/maintenance"' in production_root)
+check("Step45W promotes Agent Maintenance nav", 'to="/devices/maintenance"' in production_shell)
+check("Step45X routes remain hidden", 'path="devices/policies"' not in production_root and 'path="devices/alerts"' not in production_root)
+check("Step45X nav remains hidden", 'to="/devices/policies"' not in production_shell and 'to="/devices/alerts"' not in production_shell)
 check("Device Automation remains retired in Product", "/devices/automation" not in production_shell)
 
 print("step45q_checks=" + str(checks))
