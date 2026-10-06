@@ -23,6 +23,9 @@ public sealed class DevicesDbContext(DbContextOptions<DevicesDbContext> options)
     public DbSet<InventoryQuery> InventoryQueries => Set<InventoryQuery>();
     public DbSet<InventoryQueryRun> InventoryQueryRuns => Set<InventoryQueryRun>();
     public DbSet<InventoryQueryResult> InventoryQueryResults => Set<InventoryQueryResult>();
+    public DbSet<DeploymentJob> DeploymentJobs => Set<DeploymentJob>();
+    public DbSet<AgentRollout> AgentRollouts => Set<AgentRollout>();
+    public DbSet<MaintenanceJob> MaintenanceJobs => Set<MaintenanceJob>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -272,6 +275,67 @@ public sealed class DevicesDbContext(DbContextOptions<DevicesDbContext> options)
             entity.Property(x => x.MatchedValue).HasMaxLength(600);
             entity.HasOne<InventoryQueryRun>().WithMany().HasForeignKey(x => x.RunId).OnDelete(DeleteBehavior.Cascade);
             entity.HasOne<Device>().WithMany().HasForeignKey(x => x.DeviceId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<DeploymentJob>(entity =>
+        {
+            entity.ToTable("deployment_jobs");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => x.OperationId).IsUnique();
+            entity.HasIndex(x => x.JobNumber).IsUnique();
+            entity.HasIndex(x => new { x.Status, x.CreatedAt });
+            entity.HasIndex(x => new { x.TargetScopeType, x.TargetScopeId });
+            entity.Property(x => x.JobNumber).HasMaxLength(64);
+            entity.Property(x => x.DeploymentType).HasMaxLength(32);
+            entity.Property(x => x.TargetScopeType).HasMaxLength(32);
+            entity.Property(x => x.TargetDefinitionJson).HasColumnType("jsonb");
+            entity.Property(x => x.TargetLabel).HasMaxLength(240);
+            entity.Property(x => x.PayloadName).HasMaxLength(300);
+            entity.Property(x => x.ProfileOrDestination).HasMaxLength(300);
+            entity.Property(x => x.ScheduleMode).HasMaxLength(32);
+            entity.Property(x => x.MaintenanceWindow).HasMaxLength(120);
+            entity.Property(x => x.RestartPolicy).HasMaxLength(64);
+            entity.Property(x => x.Status).HasMaxLength(32);
+        });
+
+        modelBuilder.Entity<AgentRollout>(entity =>
+        {
+            entity.ToTable("agent_rollouts");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => x.OperationId).IsUnique();
+            entity.HasIndex(x => x.RolloutNumber).IsUnique();
+            entity.HasIndex(x => new { x.Status, x.CreatedAt });
+            entity.HasIndex(x => new { x.TargetScopeType, x.TargetScopeId });
+            entity.Property(x => x.RolloutNumber).HasMaxLength(64);
+            entity.Property(x => x.ReleaseVersion).HasMaxLength(120);
+            entity.Property(x => x.TargetScopeType).HasMaxLength(32);
+            entity.Property(x => x.TargetDefinitionJson).HasColumnType("jsonb");
+            entity.Property(x => x.TargetLabel).HasMaxLength(240);
+            entity.Property(x => x.MaintenanceWindow).HasMaxLength(120);
+            entity.Property(x => x.Status).HasMaxLength(32);
+        });
+
+        modelBuilder.Entity<MaintenanceJob>(entity =>
+        {
+            entity.ToTable("maintenance_jobs");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => x.OperationId).IsUnique();
+            entity.HasIndex(x => x.JobNumber).IsUnique();
+            entity.HasIndex(x => new { x.MaintenanceType, x.Status, x.CreatedAt });
+            entity.HasIndex(x => new { x.TargetScopeType, x.TargetScopeId });
+            entity.Property(x => x.JobNumber).HasMaxLength(64);
+            entity.Property(x => x.MaintenanceType).HasMaxLength(32);
+            entity.Property(x => x.Action).HasMaxLength(64);
+            entity.Property(x => x.PackageName).HasMaxLength(300);
+            entity.Property(x => x.TargetScopeType).HasMaxLength(32);
+            entity.Property(x => x.TargetDefinitionJson).HasColumnType("jsonb");
+            entity.Property(x => x.TargetLabel).HasMaxLength(240);
+            entity.Property(x => x.ScheduleMode).HasMaxLength(32);
+            entity.Property(x => x.MaintenanceWindow).HasMaxLength(120);
+            entity.Property(x => x.RestartPolicy).HasMaxLength(64);
+            entity.Property(x => x.UserMessage).HasMaxLength(2000);
+            entity.Property(x => x.OfflinePolicy).HasMaxLength(64);
+            entity.Property(x => x.Status).HasMaxLength(32);
         });
 
         base.OnModelCreating(modelBuilder);
