@@ -31,7 +31,8 @@ services:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:-admin}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?KEYCLOAK_ADMIN_PASSWORD is required}
       KC_HTTP_ENABLED: "true"
-      KC_HOSTNAME: ${PUBLIC_KEYCLOAK_URL:-http://172.10.1.58:8180}
+      KC_HTTP_RELATIVE_PATH: /auth
+      KC_HOSTNAME: ${PUBLIC_KEYCLOAK_URL:-https://172.10.1.58:8446/auth}
       KC_HOSTNAME_STRICT: "false"
       KC_PROXY_HEADERS: xforwarded
       KC_HEALTH_ENABLED: "true"
@@ -85,7 +86,7 @@ services:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:5080
       ConnectionStrings__CoreDatabase: "Host=postgres;Port=5432;Database=inno_core;Username=${POSTGRES_USER:-inno};Password=${POSTGRES_PASSWORD}"
-      Authentication__Authority: "${PUBLIC_KEYCLOAK_URL:-http://172.10.1.58:8180}/realms/inno-one"
+      Authentication__Authority: "http://keycloak:8080/auth/realms/inno-one"
       Authentication__Audience: inno-one-api
       Authentication__RequireHttpsMetadata: "false"
       Database__ApplyMigrationsOnStartup: "true"
@@ -115,7 +116,7 @@ services:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:5090
       ConnectionStrings__MeetingDatabase: "Host=postgres;Port=5432;Database=inno_meeting;Username=${POSTGRES_USER:-inno};Password=${POSTGRES_PASSWORD}"
-      Authentication__Authority: "${PUBLIC_KEYCLOAK_URL:-http://172.10.1.58:8180}/realms/inno-one"
+      Authentication__Authority: "http://keycloak:8080/auth/realms/inno-one"
       Authentication__Audience: inno-one-api
       Authentication__RequireHttpsMetadata: "false"
     depends_on:
@@ -129,7 +130,7 @@ services:
       context: ../..
       dockerfile: infrastructure/docker/Dockerfile.web-portal
       args:
-        VITE_KEYCLOAK_URL: ${PUBLIC_KEYCLOAK_URL:-http://172.10.1.58:8180}
+        VITE_KEYCLOAK_URL: ${PUBLIC_KEYCLOAK_URL:-https://172.10.1.58:8446/auth}
         VITE_KEYCLOAK_REALM: inno-one
         VITE_KEYCLOAK_CLIENT_ID: inno-one-web
         VITE_API_BASE_URL: /api/v1
@@ -141,8 +142,10 @@ services:
     restart: unless-stopped
     ports:
       - "${PORTAL_PORT:-8082}:80"
+      - "${PORTAL_HTTPS_PORT:-8446}:443"
     volumes:
       - ./nginx.production.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./tls:/etc/nginx/tls:ro
     depends_on:
       - web-portal
       - platform-api

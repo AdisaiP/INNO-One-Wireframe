@@ -8,3 +8,4 @@
 apps/assets-mobile
 apps/endpoint-agent
 scripts/__pycache__
+infrastructure/docker/tls

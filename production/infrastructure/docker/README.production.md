@@ -4,9 +4,10 @@ The production stack is defined by `compose.production.yml`. It is intentionally
 
 ## Default ports on 172.10.1.58
 
-- Web Portal / reverse proxy: 8082
+- Web Portal HTTP redirect: 8082
+- Web Portal HTTPS: 8446
 - PostgreSQL: 5433
-- Keycloak: 8180
+- Keycloak diagnostic port: 8180, relative path `/auth`
 - MeshCentral: 8445
 
 These defaults avoid the existing legacy `innoone` stack and allow acceptance before retiring `inno-one-step18`.
@@ -17,8 +18,11 @@ These defaults avoid the existing legacy `innoone` stack and allow acceptance be
 cd production/infrastructure/docker
 cp .env.production.example .env.production
 # Replace every CHANGE_ME value with a strong secret.
+../../scripts/production-generate-tls.sh
 docker compose --env-file .env.production -f compose.production.yml config
 ```
+
+The TLS generator creates an INNO.One internal CA and a server certificate under the ignored `infrastructure/docker/tls/` directory. The CA certificate must be trusted on managed client workstations before browser acceptance. Keep the CA private key on the server only.
 
 ## Build
 
@@ -46,13 +50,17 @@ python3 ../../scripts/production-meshcentral-init.py
 
 ## Acceptance
 
+Use the generated CA for command-line TLS verification:
+
 ```bash
-curl -fsS http://172.10.1.58:8082/health
-curl -fsS http://172.10.1.58:8082/health/web
-curl -fsS http://172.10.1.58:8082/health/platform
-curl -fsS http://172.10.1.58:8082/health/meeting
-curl -fsS http://172.10.1.58:8180/realms/inno-one/.well-known/openid-configuration
+curl --cacert tls/ca.crt -fsS https://172.10.1.58:8446/health
+curl --cacert tls/ca.crt -fsS https://172.10.1.58:8446/health/web
+curl --cacert tls/ca.crt -fsS https://172.10.1.58:8446/health/platform
+curl --cacert tls/ca.crt -fsS https://172.10.1.58:8446/health/meeting
+curl --cacert tls/ca.crt -fsS https://172.10.1.58:8446/auth/realms/inno-one/.well-known/openid-configuration
 curl -kfsS https://172.10.1.58:8445/health.ashx
 ```
+
+Then verify a managed browser trusts `tls/ca.crt`, completes Keycloak PKCE sign-in over HTTPS, loads the Product shell, and can call the Product API.
 
 Do not retire `inno-one-step18` until the new stack passes runtime and browser acceptance. Do not remove old volumes until a rollback backup has been verified.
