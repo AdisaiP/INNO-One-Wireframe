@@ -526,7 +526,9 @@ public static class AgentTelemetryEndpoints
         if (string.IsNullOrWhiteSpace(value))
             return null;
 
-        var trimmed = value.Trim();
+        var trimmed = value.Replace("\0", string.Empty).Trim();
+        if (string.IsNullOrWhiteSpace(trimmed))
+            return null;
         return trimmed.Length <= maxLength ? trimmed : trimmed[..maxLength];
     }
 

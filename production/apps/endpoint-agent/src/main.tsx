@@ -146,11 +146,11 @@ function App() {
     ) => {
       if (busy || cancelled) return;
       busy = true;
+      const sourceInstance = device.agentVersion ?? 'endpoint-agent';
+
       try {
         const performance = await collectPerformanceTelemetry();
         let network = null;
-        let hardware = null;
-        let software = null;
 
         if (includeNetwork) {
           try {
@@ -160,34 +160,44 @@ function App() {
           }
         }
 
-        if (includeHardware) {
+        if (!cancelled) {
           try {
-            hardware = await collectHardwareTelemetry();
+            await submitTelemetry({
+              observedAt: new Date().toISOString(),
+              sourceInstance,
+              performance,
+              network,
+            });
           } catch {
-            hardware = null;
+            // Keep telemetry categories isolated so one collector cannot block the others.
           }
         }
 
-        if (includeSoftware) {
+        if (includeHardware && !cancelled) {
+          try {
+            const hardware = await collectHardwareTelemetry();
+            await submitTelemetry({
+              observedAt: new Date().toISOString(),
+              sourceInstance,
+              hardware,
+            });
+          } catch {
+            // Hardware inventory is best-effort and independent of live performance.
+          }
+        }
+
+        if (includeSoftware && !cancelled) {
           try {
             const packages = await collectSoftwareInventory();
-            software = { completeness: 'complete' as const, packages };
+            await submitTelemetry({
+              observedAt: new Date().toISOString(),
+              sourceInstance,
+              software: { completeness: 'complete' as const, packages },
+            });
           } catch {
-            software = null;
+            // Software inventory failures must not suppress other device telemetry.
           }
         }
-
-        if (cancelled) return;
-        await submitTelemetry({
-          observedAt: new Date().toISOString(),
-          sourceInstance: device.agentVersion ?? 'endpoint-agent',
-          performance,
-          network,
-          hardware,
-          software,
-        });
-      } catch {
-        // Telemetry is best-effort. User-facing Agent flows must remain usable.
       } finally {
         busy = false;
       }

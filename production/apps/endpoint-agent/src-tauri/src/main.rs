@@ -74,10 +74,28 @@ struct EnrollmentIdentity {
 
 
 
+fn program_data_root() -> Result<PathBuf, String> {
+    if let Ok(program_data) = env::var("PROGRAMDATA") {
+        if !program_data.trim().is_empty() {
+            return Ok(PathBuf::from(program_data));
+        }
+    }
+
+    #[cfg(target_os = "windows")]
+    {
+        return Ok(PathBuf::from("C:\\ProgramData"));
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        let home = env::var("HOME")
+            .map_err(|error| format!("PROGRAM_DATA_UNAVAILABLE: {error}"))?;
+        Ok(PathBuf::from(home).join(".local").join("share"))
+    }
+}
+
 fn enrollment_token_path() -> Result<PathBuf, String> {
-    let program_data = env::var("PROGRAMDATA")
-        .map_err(|error| format!("PROGRAMDATA_UNAVAILABLE: {error}"))?;
-    Ok(PathBuf::from(program_data)
+    Ok(program_data_root()?
         .join("INNO.One")
         .join("enrollment-token.txt"))
 }
@@ -107,9 +125,7 @@ fn clear_enrollment_token() -> Result<(), String> {
 }
 
 fn credential_path() -> Result<PathBuf, String> {
-    let program_data = env::var("PROGRAMDATA")
-        .map_err(|error| format!("PROGRAMDATA_UNAVAILABLE: {error}"))?;
-    Ok(PathBuf::from(program_data)
+    Ok(program_data_root()?
         .join("INNO.One")
         .join("agent-credential.bin"))
 }
@@ -213,6 +229,13 @@ fn collect_enrollment_identity() -> Result<EnrollmentIdentity, String> {
 $os = Get-CimInstance Win32_OperatingSystem | Select-Object -First 1
 $enclosure = Get-CimInstance Win32_SystemEnclosure | Select-Object -First 1
 $identity = [Security.Principal.WindowsIdentity]::GetCurrent().Name
+$computerName = [string]$env:COMPUTERNAME
+if ([string]::IsNullOrWhiteSpace($computerName)) {
+    $computerName = [System.Net.Dns]::GetHostName()
+}
+if ([string]::IsNullOrWhiteSpace($computerName)) {
+    $computerName = [string](Get-CimInstance Win32_ComputerSystem | Select-Object -ExpandProperty Name -First 1)
+}
 $upn = $null
 try {
     $candidate = (& whoami /upn 2>$null | Select-Object -First 1)
@@ -221,7 +244,7 @@ try {
 $chassis = @($enclosure.ChassisTypes)
 $laptop = @(8,9,10,14,30,31,32) | Where-Object { $chassis -contains $_ }
 [pscustomobject]@{
-    hostname = [string]$env:COMPUTERNAME
+    hostname = [string]$computerName
     deviceType = if ($laptop.Count -gt 0) { 'notebook' } else { 'desktop' }
     operatingSystem = if ($os.Caption -and $os.Version) { "$($os.Caption) - $($os.Version)" } else { [string]$os.Caption }
     windowsIdentity = if ($identity) { [string]$identity } else { $null }
@@ -374,10 +397,10 @@ $items = foreach ($root in $roots) {
         Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_.DisplayName) } |
         ForEach-Object {
             [pscustomobject]@{
-                productKey = ('registry:' + [string]$_.PSChildName + ':' + $root.Architecture)
-                displayName = [string]$_.DisplayName
-                version = if ($_.DisplayVersion) { [string]$_.DisplayVersion } else { $null }
-                publisher = if ($_.Publisher) { [string]$_.Publisher } else { $null }
+                productKey = (('registry:' + [string]$_.PSChildName + ':' + $root.Architecture) -replace [char]0, '')
+                displayName = (([string]$_.DisplayName) -replace [char]0, '')
+                version = if ($_.DisplayVersion) { (([string]$_.DisplayVersion) -replace [char]0, '') } else { $null }
+                publisher = if ($_.Publisher) { (([string]$_.Publisher) -replace [char]0, '') } else { $null }
                 architecture = $root.Architecture
             }
         }
