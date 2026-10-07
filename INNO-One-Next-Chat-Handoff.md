@@ -2834,3 +2834,39 @@ Known remaining acceptance limitation:
 - Runtime acceptance therefore used the exact release Endpoint Agent executable built from the same package payload.
 - The production MSI itself is hosted at /downloads/INNO.One-Agent.msi and its SHA256 was verified across Windows and Ubuntu.
 - A final elevated MSI install / startup-registration acceptance remains before calling installation packaging fully complete.
+
+
+## Endpoint Agent machine enrollment merged to main + production — 2026-10-07
+
+Merge:
+- Feature branch hardening/endpoint-agent-telemetry was merged into main.
+- Merge commit: 36fd1a2 merge:endpoint-agent-machine-enrollment.
+- main was pushed to GitHub successfully.
+
+Production deployment:
+- Ubuntu production checkout /home/inno360/INNO.One-Production-Stage was switched to main@36fd1a2.
+- A pre-deploy devices schema backup was created at:
+  /home/inno360/inno-one-production-backups/20261007-111407-main-36fd1a2/devices-before.sql
+- platform-api and web-portal images were rebuilt and containers recreated.
+- Platform API health passed at /health/platform with implementationContract 0.32.0.
+- Platform API container is running with restart_count=0 and no startup error log.
+- Devices migration 20261007064232_EndpointAgentMachineEnrollment is present in devices.__ef_migrations_history.
+- device_agent_credentials, device_enrollment_tokens and device_ownership_suggestions tables are present.
+- Tauri machine-auth CORS preflight passes for http://tauri.localhost with X-INNO-Device-Id and X-INNO-Device-Secret headers.
+- Production Endpoint Agent MSI remained intact:
+  SHA256 622d21530da48f8573ee95b77732ebd1e1263c699c2beef584c391f97c99df51
+  size 2,973,696 bytes
+  /downloads/INNO.One-Agent.msi returns HTTP 200.
+
+Post-deploy acceptance on WIN-J00TUFFH81D:
+- machine credential remains active and last_authenticated_at continues advancing.
+- Device remains online and last_seen_at continues advancing after the main deployment.
+- Hardware API: 200, complete, endpoint_agent.
+- Software API: 200, complete, 1,027 packages.
+- Performance API: 200, live, endpoint_agent, 54 points observed during post-deploy check.
+- Network API: 200, reported, IP/MAC/subnet/gateway/DNS/adapter populated.
+- Activity API: 200, totalItems=42 with hardware/software inventory events visible.
+
+Status:
+- Runtime feature is now merged to main and deployed to production.
+- Elevated MSI/service installation acceptance remains a separate packaging/Windows-elevation follow-up; the MCP shell used for acceptance is not Administrator.
