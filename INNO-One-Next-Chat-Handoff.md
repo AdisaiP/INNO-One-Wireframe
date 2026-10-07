@@ -2737,3 +2737,49 @@ Current blocker:
 - After service enrollment appears in Product-owned group Production Remote Acceptance, continue with real cross-machine:
   Start Remote -> Active -> Connected -> Disconnect -> Ended,
   then verify restricted audit, remote.started / remote.ended outbox and real share-expiry convergence.
+
+
+## Cross-machine Remote acceptance on production — 2026-10-07
+
+Scope remains Remote production hardening / real-environment acceptance; no new numbered Step was created.
+
+Managed Windows client:
+- WIN-J00TUFFH81D is enrolled through the INNO.One Product-owned Device Group Production Remote Acceptance.
+- MeshAgent is installed as a real Windows Service: Mesh Agent, Automatic, LocalSystem, Running.
+- Installed agent config points to wss://172.10.1.58:8444/agent.ashx.
+- Final prepared installer on the client: C:\Users\adisa\INNO-One-Acceptance\MeshAgent-ProductionRemoteAcceptance.exe.
+- Installer SHA256: 86a3dff24622bff828d3f01ef11a267f00466cd504ffae838d56a9c6c2cccf09.
+- Canonical Product group reconciliation is healthy: PROD-REMOTE-ACCEPTANCE sync_status=synced with 1 member, WIN-J00TUFFH81D online.
+
+Production fixes discovered during acceptance:
+- production-meshcentral-init.py now publishes MeshCentral settings.aliasPort from MESHCENTRAL_PORT so generated agent installers advertise external port 8444 rather than internal/default 443.
+- MeshCentralSyncWorker now deduplicates vendor nodes by canonical hostname, prefers the online node, and reconciles a replaced MeshCentral external node id back onto the existing canonical Device instead of inserting a duplicate hostname.
+- Step45Q gained regression guards for hostname deduplication and external-id reconciliation; current Step45Q result is 86/86 PASS.
+- Step45V remains 67/67 PASS.
+- .NET clean build after the fixes: 0 warnings / 0 errors.
+- These fixes are merged to GitHub main at 5224a25. Ubuntu production checkout is main@5224a25.
+
+Real cross-machine execution:
+- Operator machine: Adisais-MacBook-Pro.local.
+- Managed client: WIN-J00TUFFH81D.
+- Mac logged in to https://172.10.1.58:8446 through Keycloak and opened the canonical Device Detail.
+- Start Remote created a canonical Product RemoteSession and transitioned it to Active.
+- Open Remote Desktop opened the MeshCentral share on https://172.10.1.58:8444/sharing.
+- MeshCentral desktop transitioned Connecting -> Connected.
+- Real remote framebuffer observed from Mac: 1920x1080.
+- Disconnect was executed from INNO.One Product UI, not directly in MeshCentral.
+- Product session transitioned Active -> Ended with end_reason=operator_disconnected.
+- The open MeshCentral share immediately showed Disconnected after Product disconnect.
+
+Evidence for the accepted session:
+- launch_url cleared: true.
+- external_share_id cleared: true.
+- devices.remote.session_started audit classification: restricted.
+- devices.remote.session_ended audit classification: restricted.
+- remote.started outbox record exists.
+- remote.ended outbox record exists with reason operator_disconnected.
+- Production Remote Acceptance group remains synced after the session and WIN-J00TUFFH81D remains online.
+
+Expiry status:
+- Product-side expiry reconciliation was previously runtime-probed successfully with share_expired, restricted service audit and remote.ended.
+- A fresh real vendor time-based expiry was not re-run in this cross-machine pass. The production minimum requested share duration is 5 minutes; attempts to automate a temporary 5-minute request through the authenticated browser were blocked by the execution safety layer. Do not claim real vendor time-based expiry as newly observed in this pass.
