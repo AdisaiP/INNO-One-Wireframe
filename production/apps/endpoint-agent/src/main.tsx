@@ -22,8 +22,10 @@ import {
 import { initializeAuthentication, logout } from './auth';
 import { translate, type Locale } from './i18n';
 import {
+  collectHardwareTelemetry,
   collectNetworkTelemetry,
   collectPerformanceTelemetry,
+  collectSoftwareInventory,
   isNativeAgentRuntime,
 } from './telemetry';
 import './styles.css';
@@ -132,12 +134,19 @@ function App() {
     let busy = false;
     let ticks = 0;
 
-    const publish = async (includeNetwork: boolean) => {
+    const publish = async (
+      includeNetwork: boolean,
+      includeHardware: boolean,
+      includeSoftware: boolean,
+    ) => {
       if (busy || cancelled) return;
       busy = true;
       try {
         const performance = await collectPerformanceTelemetry();
         let network = null;
+        let hardware = null;
+        let software = null;
+
         if (includeNetwork) {
           try {
             network = await collectNetworkTelemetry();
@@ -145,12 +154,32 @@ function App() {
             network = null;
           }
         }
+
+        if (includeHardware) {
+          try {
+            hardware = await collectHardwareTelemetry();
+          } catch {
+            hardware = null;
+          }
+        }
+
+        if (includeSoftware) {
+          try {
+            const packages = await collectSoftwareInventory();
+            software = { completeness: 'complete' as const, packages };
+          } catch {
+            software = null;
+          }
+        }
+
         if (cancelled) return;
         await submitTelemetry({
           observedAt: new Date().toISOString(),
           sourceInstance: device.agentVersion ?? 'endpoint-agent',
           performance,
           network,
+          hardware,
+          software,
         });
       } catch {
         // Telemetry is best-effort. User-facing Agent flows must remain usable.
@@ -159,10 +188,14 @@ function App() {
       }
     };
 
-    void publish(true);
+    void publish(true, true, true);
     const interval = window.setInterval(() => {
       ticks += 1;
-      void publish(ticks % 12 === 0);
+      void publish(
+        ticks % 12 === 0,
+        ticks % 60 === 0,
+        ticks % 360 === 0,
+      );
     }, 5000);
 
     return () => {

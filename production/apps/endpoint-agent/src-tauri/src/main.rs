@@ -26,8 +26,48 @@ struct NetworkTelemetry {
     adapter_name: Option<String>,
 }
 
+#[derive(Debug, Default, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct HardwareTelemetry {
+    manufacturer: Option<String>,
+    model: Option<String>,
+    serial_number: Option<String>,
+    processor: Option<String>,
+    bios_version: Option<String>,
+    operating_system: Option<String>,
+    memory_total_gb: Option<f64>,
+    memory_slots_used: Option<u32>,
+    memory_slots_total: Option<u32>,
+}
+
+#[derive(Debug, Default, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct SoftwarePackageTelemetry {
+    product_key: Option<String>,
+    display_name: String,
+    version: Option<String>,
+    publisher: Option<String>,
+    architecture: Option<String>,
+}
+
 fn bytes_to_gb(value: u64) -> f64 {
     ((value as f64 / 1024.0 / 1024.0 / 1024.0) * 100.0).round() / 100.0
+}
+
+fn run_powershell_json(script: &str, failure_code: &str) -> Result<String, String> {
+    let output = Command::new("powershell.exe")
+        .args(["-NoLogo", "-NoProfile", "-NonInteractive", "-Command", script])
+        .output()
+        .map_err(|error| format!("{failure_code}_START_FAILED: {error}"))?;
+
+    if !output.status.success() {
+        return Err(format!(
+            "{failure_code}_FAILED: {}",
+            String::from_utf8_lossy(&output.stderr).trim()
+        ));
+    }
+
+    Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
 }
 
 #[tauri::command]
@@ -87,21 +127,76 @@ $mask = (0..3 | ForEach-Object { [Convert]::ToInt32($bits.Substring($_ * 8, 8), 
 } | ConvertTo-Json -Compress
 "#;
 
-    let output = Command::new("powershell.exe")
-        .args(["-NoLogo", "-NoProfile", "-NonInteractive", "-Command", script])
-        .output()
-        .map_err(|error| format!("NETWORK_COLLECTOR_START_FAILED: {error}"))?;
+    let stdout = run_powershell_json(script, "NETWORK_COLLECTOR")?;
+    serde_json::from_str::<NetworkTelemetry>(&stdout)
+        .map_err(|error| format!("NETWORK_COLLECTOR_PARSE_FAILED: {error}"))
+}
 
-    if !output.status.success() {
-        return Err(format!(
-            "NETWORK_COLLECTOR_FAILED: {}",
-            String::from_utf8_lossy(&output.stderr).trim()
-        ));
+#[cfg(target_os = "windows")]
+fn collect_windows_hardware() -> Result<HardwareTelemetry, String> {
+    let script = r#"
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+$computer = Get-CimInstance Win32_ComputerSystem
+$bios = Get-CimInstance Win32_BIOS | Select-Object -First 1
+$cpu = Get-CimInstance Win32_Processor | Select-Object -First 1
+$os = Get-CimInstance Win32_OperatingSystem | Select-Object -First 1
+$memory = @(Get-CimInstance Win32_PhysicalMemory)
+$arrays = @(Get-CimInstance Win32_PhysicalMemoryArray -ErrorAction SilentlyContinue)
+$totalBytes = ($memory | Measure-Object -Property Capacity -Sum).Sum
+$totalSlots = ($arrays | Measure-Object -Property MemoryDevices -Sum).Sum
+[pscustomobject]@{
+    manufacturer = [string]$computer.Manufacturer
+    model = [string]$computer.Model
+    serialNumber = [string]$bios.SerialNumber
+    processor = [string]$cpu.Name
+    biosVersion = if ($bios.SMBIOSBIOSVersion) { [string]$bios.SMBIOSBIOSVersion } else { [string]$bios.Version }
+    operatingSystem = if ($os.Caption -and $os.Version) { "$($os.Caption) - $($os.Version)" } else { [string]$os.Caption }
+    memoryTotalGb = if ($totalBytes) { [Math]::Round(([double]$totalBytes / 1GB), 2) } else { $null }
+    memorySlotsUsed = @($memory).Count
+    memorySlotsTotal = if ($totalSlots) { [int]$totalSlots } else { $null }
+} | ConvertTo-Json -Compress
+"#;
+
+    let stdout = run_powershell_json(script, "HARDWARE_COLLECTOR")?;
+    serde_json::from_str::<HardwareTelemetry>(&stdout)
+        .map_err(|error| format!("HARDWARE_COLLECTOR_PARSE_FAILED: {error}"))
+}
+
+#[cfg(target_os = "windows")]
+fn collect_windows_software() -> Result<Vec<SoftwarePackageTelemetry>, String> {
+    let script = r#"
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+$roots = @(
+    @{ Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*'; Architecture = 'x64' },
+    @{ Path = 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*'; Architecture = 'x86' },
+    @{ Path = 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*'; Architecture = 'unknown' }
+)
+$items = foreach ($root in $roots) {
+    Get-ItemProperty -Path $root.Path -ErrorAction SilentlyContinue |
+        Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_.DisplayName) } |
+        ForEach-Object {
+            [pscustomobject]@{
+                productKey = ('registry:' + [string]$_.PSChildName + ':' + $root.Architecture)
+                displayName = [string]$_.DisplayName
+                version = if ($_.DisplayVersion) { [string]$_.DisplayVersion } else { $null }
+                publisher = if ($_.Publisher) { [string]$_.Publisher } else { $null }
+                architecture = $root.Architecture
+            }
+        }
+}
+$deduped = @($items |
+    Sort-Object productKey, displayName, version -Unique |
+    Select-Object -First 2000)
+ConvertTo-Json -InputObject $deduped -Compress -Depth 4
+"#;
+
+    let stdout = run_powershell_json(script, "SOFTWARE_COLLECTOR")?;
+    if stdout.is_empty() {
+        return Ok(Vec::new());
     }
 
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    serde_json::from_str::<NetworkTelemetry>(stdout.trim())
-        .map_err(|error| format!("NETWORK_COLLECTOR_PARSE_FAILED: {error}"))
+    serde_json::from_str::<Vec<SoftwarePackageTelemetry>>(&stdout)
+        .map_err(|error| format!("SOFTWARE_COLLECTOR_PARSE_FAILED: {error}"))
 }
 
 #[cfg(not(target_os = "windows"))]
@@ -109,16 +204,38 @@ fn collect_windows_network() -> Result<NetworkTelemetry, String> {
     Ok(NetworkTelemetry::default())
 }
 
+#[cfg(not(target_os = "windows"))]
+fn collect_windows_hardware() -> Result<HardwareTelemetry, String> {
+    Ok(HardwareTelemetry::default())
+}
+
+#[cfg(not(target_os = "windows"))]
+fn collect_windows_software() -> Result<Vec<SoftwarePackageTelemetry>, String> {
+    Ok(Vec::new())
+}
+
 #[tauri::command]
 fn collect_network_telemetry() -> Result<NetworkTelemetry, String> {
     collect_windows_network()
+}
+
+#[tauri::command]
+fn collect_hardware_telemetry() -> Result<HardwareTelemetry, String> {
+    collect_windows_hardware()
+}
+
+#[tauri::command]
+fn collect_software_inventory() -> Result<Vec<SoftwarePackageTelemetry>, String> {
+    collect_windows_software()
 }
 
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             collect_performance_telemetry,
-            collect_network_telemetry
+            collect_network_telemetry,
+            collect_hardware_telemetry,
+            collect_software_inventory
         ])
         .run(tauri::generate_context!())
         .expect("error while running INNO.One Endpoint Agent");

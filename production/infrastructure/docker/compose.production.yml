@@ -99,6 +99,7 @@ services:
       MeshCentral__AllowInvalidTls: "true"
       MeshCentral__CommandTimeoutSeconds: "10"
       MeshCentral__SyncIntervalSeconds: "5"
+      EndpointAgent__AllowedOrigins__0: "http://tauri.localhost"
     depends_on:
       postgres:
         condition: service_healthy

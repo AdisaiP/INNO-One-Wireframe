@@ -3,6 +3,8 @@ import { getAccessToken } from './auth';
 export const AGENT_DEVICE_ID =
   import.meta.env.VITE_AGENT_DEVICE_ID ?? 'dev_80000000000000000000000000000002';
 
+const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? '/api/v1').replace(/\/$/, '');
+
 type Envelope<T> = { data: T };
 
 export class AgentApiError extends Error {
@@ -13,7 +15,7 @@ export class AgentApiError extends Error {
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const token = await getAccessToken();
-  const response = await fetch('/api/v1' + path, {
+  const response = await fetch(API_BASE + path, {
     ...init,
     headers: {
       Authorization: 'Bearer ' + token,
@@ -108,6 +110,31 @@ export type NetworkTelemetry = {
   adapterName?: string | null;
   agentLatencyMs?: number | null;
   packetLossPercent?: number | null;
+};
+
+export type HardwareTelemetry = {
+  manufacturer?: string | null;
+  model?: string | null;
+  serialNumber?: string | null;
+  processor?: string | null;
+  biosVersion?: string | null;
+  operatingSystem?: string | null;
+  memoryTotalGb?: number | null;
+  memorySlotsUsed?: number | null;
+  memorySlotsTotal?: number | null;
+};
+
+export type SoftwarePackageTelemetry = {
+  productKey?: string | null;
+  displayName: string;
+  version?: string | null;
+  publisher?: string | null;
+  architecture?: string | null;
+};
+
+export type SoftwareTelemetry = {
+  completeness: 'complete' | 'partial';
+  packages: SoftwarePackageTelemetry[];
 };
 
 export type AgentPrompt = {
@@ -205,6 +232,8 @@ export async function submitTelemetry(input: {
   sourceInstance?: string | null;
   performance?: PerformanceTelemetry | null;
   network?: NetworkTelemetry | null;
+  hardware?: HardwareTelemetry | null;
+  software?: SoftwareTelemetry | null;
 }) {
   return request<Envelope<{
     deviceId: string;
@@ -212,6 +241,8 @@ export async function submitTelemetry(input: {
     receivedAt: string;
     performanceStored: boolean;
     networkStored: boolean;
+    hardwareStored: boolean;
+    softwareStored: boolean;
   }>>('/agent/devices/' + encodeURIComponent(AGENT_DEVICE_ID) + '/telemetry', {
     method: 'POST',
     body: JSON.stringify(input),

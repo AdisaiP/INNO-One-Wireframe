@@ -27,6 +27,7 @@ root_package = json.loads(text(PROD / "package.json"))
 readme = text(AGENT / "README.md")
 main = text(AGENT / "src/main.tsx")
 agent_api = text(AGENT / "src/api.ts")
+agent_telemetry = text(AGENT / "src/telemetry.ts")
 auth = text(AGENT / "src/auth.ts")
 i18n = text(AGENT / "src/i18n.ts")
 styles = text(AGENT / "src/styles.css")
@@ -36,6 +37,8 @@ tauri_main = text(AGENT / "src-tauri/src/main.rs")
 program = text(API / "INNO.One.PlatformApi/Program.cs")
 devices_module = text(API / "Modules/Devices/DevicesModule.cs")
 device_api = text(API / "Modules/Devices/Api/AgentDeviceEndpoints.cs")
+telemetry_api = text(API / "Modules/Devices/Api/AgentTelemetryEndpoints.cs")
+activity_api = text(API / "Modules/Devices/Api/DeviceActivityEndpoints.cs")
 device_entities = text(API / "Modules/Devices/Domain/DeviceEntities.cs")
 device_db = text(API / "Modules/Devices/Persistence/DevicesDbContext.cs")
 prompt_service = text(API / "Modules/Devices/Application/AgentPromptService.cs")
@@ -142,6 +145,33 @@ for marker in (
     check(marker in agent_api, "Agent client API route missing: " + marker)
 check("VITE_AGENT_DEVICE_ID" in agent_api, "Agent device binding config missing")
 check("AGENT_DEVICE_ID" in agent_api, "Agent device context identifier missing")
+check("VITE_API_BASE_URL" in agent_api, "Packaged Agent production API base config missing")
+for marker in (
+    "collectPerformanceTelemetry",
+    "collectNetworkTelemetry",
+    "collectHardwareTelemetry",
+    "collectSoftwareInventory",
+):
+    check(marker in main, "Agent telemetry publisher missing collector: " + marker)
+for marker in (
+    "collect_hardware_telemetry",
+    "collect_software_inventory",
+    "Win32_ComputerSystem",
+    "Win32_PhysicalMemory",
+    "CurrentVersion\\Uninstall",
+):
+    check(marker in tauri_main, "Agent native telemetry collector missing: " + marker)
+for marker in (
+    "AgentHardwareTelemetry",
+    "AgentSoftwareTelemetry",
+    "HardwareStored",
+    "SoftwareStored",
+    "devices.hardware_inventory.observed",
+    "devices.software_inventory.observed",
+):
+    check(marker in telemetry_api, "Agent telemetry ingest contract missing: " + marker)
+check("target_type = 'remote_session'" in activity_api and "devices.remote_sessions" in activity_api,
+      "Device Activity does not include related RemoteSession audits")
 
 # Platform routing and module ownership.
 check("MapAgentDeviceEndpoints" in program, "Platform API does not map Devices Agent endpoints")
