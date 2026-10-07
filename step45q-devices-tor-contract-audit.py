@@ -137,6 +137,9 @@ check("doc no backend implementation", "does not:" in doc and "implement backend
 
 production_root = (ROOT / "production/apps/web-portal/src/app/AppRoot.tsx").read_text(encoding="utf-8")
 production_shell = (ROOT / "production/apps/web-portal/src/app/AppShell.tsx").read_text(encoding="utf-8")
+mesh_sync = (ROOT / "production/services/platform-api/src/Modules/Devices/Infrastructure/MeshCentralSyncWorker.cs").read_text(encoding="utf-8")
+check("MeshCentral sync deduplicates canonical hostnames", 'GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase)' in mesh_sync)
+check("MeshCentral sync reconciles replaced agent external ids", 'SingleOrDefaultAsync(' in mesh_sync and 'mapping.ExternalId = node.ExternalId' in mesh_sync)
 check("Step45V promotes Remote Operations route", 'path="devices/remote-operations"' in production_root)
 check("Step45V promotes Remote Operations nav", 'to="/devices/remote-operations"' in production_shell)
 check("Step45W promotes Deployment Jobs route", 'path="devices/deployments"' in production_root)

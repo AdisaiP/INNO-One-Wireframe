@@ -28,6 +28,12 @@ password = os.environ.get("MESHCENTRAL_PASSWORD") or env_values.get("MESHCENTRAL
 if not password or password.startswith("CHANGE_ME"):
     raise SystemExit("MESHCENTRAL_PASSWORD must be configured in .env.production")
 
+public_port_raw = os.environ.get("MESHCENTRAL_PORT") or env_values.get("MESHCENTRAL_PORT", "443")
+try:
+    public_port = int(public_port_raw)
+except ValueError as exc:
+    raise SystemExit(f"MESHCENTRAL_PORT must be numeric: {public_port_raw}") from exc
+
 compose = [
     "docker", "compose",
     "--env-file", str(ENV_FILE),
@@ -53,6 +59,21 @@ def run(args: list[str], check: bool = True, timeout: int = 60) -> subprocess.Co
 
 
 run(compose + ["stop", "meshcentral"])
+
+config_patch = (
+    "set -eu; "
+    "config=/opt/meshcentral/meshcentral-data/config.json; "
+    "tmp=/opt/meshcentral/meshcentral-data/config.json.tmp; "
+    f"jq '.settings.aliasPort = {public_port} | del(.settings._aliasPort)' "
+    "$config > $tmp; "
+    "mv $tmp $config"
+)
+run(
+    compose + [
+        "run", "--rm", "--no-deps", "--entrypoint", "sh", "meshcentral",
+        "-lc", config_patch,
+    ]
+)
 
 create = run(
     compose + [
@@ -81,4 +102,5 @@ run(
 )
 
 run(compose + ["up", "-d", "meshcentral"])
+print("meshcentral_public_alias_port_ready=" + str(public_port))
 print("meshcentral_integration_account_ready=" + username)
