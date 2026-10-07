@@ -72,6 +72,40 @@ struct EnrollmentIdentity {
 
 
 
+
+
+fn enrollment_token_path() -> Result<PathBuf, String> {
+    let program_data = env::var("PROGRAMDATA")
+        .map_err(|error| format!("PROGRAMDATA_UNAVAILABLE: {error}"))?;
+    Ok(PathBuf::from(program_data)
+        .join("INNO.One")
+        .join("enrollment-token.txt"))
+}
+
+#[tauri::command]
+fn load_enrollment_token() -> Result<Option<String>, String> {
+    let path = enrollment_token_path()?;
+    if !path.exists() {
+        return Ok(None);
+    }
+
+    let token = fs::read_to_string(&path)
+        .map_err(|error| format!("ENROLLMENT_TOKEN_READ_FAILED: {error}"))?
+        .trim()
+        .to_string();
+    Ok((!token.is_empty()).then_some(token))
+}
+
+#[tauri::command]
+fn clear_enrollment_token() -> Result<(), String> {
+    let path = enrollment_token_path()?;
+    if path.exists() {
+        fs::remove_file(path)
+            .map_err(|error| format!("ENROLLMENT_TOKEN_CLEAR_FAILED: {error}"))?;
+    }
+    Ok(())
+}
+
 fn credential_path() -> Result<PathBuf, String> {
     let program_data = env::var("PROGRAMDATA")
         .map_err(|error| format!("PROGRAMDATA_UNAVAILABLE: {error}"))?;
@@ -401,6 +435,8 @@ fn main() {
             collect_hardware_telemetry,
             collect_software_inventory,
             collect_enrollment_identity,
+            load_enrollment_token,
+            clear_enrollment_token,
             save_machine_credential,
             load_machine_credential,
             clear_machine_credential

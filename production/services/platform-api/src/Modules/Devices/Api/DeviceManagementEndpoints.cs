@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace INNO.One.Modules.Devices.Api;
 
@@ -758,6 +759,7 @@ public static class DeviceManagementEndpoints
         IAccessEvaluator accessEvaluator,
         IRemoteDeviceEngine remoteEngine,
         DeviceLedgerWriter ledger,
+        IConfiguration configuration,
         CancellationToken cancellationToken)
     {
         var access = await accessEvaluator.EvaluateAsync(
@@ -837,17 +839,70 @@ public static class DeviceManagementEndpoints
             }
         }
 
+        var expiresHours = Math.Clamp(request.ExpiresHours ?? 24, 1, 168);
         RemoteEnrollmentLink enrollment;
         try
         {
             enrollment = await remoteEngine.CreateEnrollmentLinkAsync(
                 group.ExternalGroupId!,
-                Math.Clamp(request.ExpiresHours ?? 24, 1, 168),
+                expiresHours,
                 cancellationToken);
         }
         catch (RemoteEngineUnavailableException ex)
         {
             return RemoteUnavailable(ex.Message);
+        }
+
+        string? endpointEnrollmentToken = null;
+        string? endpointInstallerUrl = null;
+        DateTimeOffset? endpointEnrollmentExpiresAt = null;
+
+        if (operatingSystem == "windows")
+        {
+            endpointInstallerUrl = configuration["EndpointAgent:InstallerUrl"];
+            if (string.IsNullOrWhiteSpace(endpointInstallerUrl))
+            {
+                return Results.Problem(
+                    statusCode: StatusCodes.Status503ServiceUnavailable,
+                    title: "Endpoint Agent package unavailable",
+                    detail: "EndpointAgent:InstallerUrl is not configured.");
+            }
+
+            endpointEnrollmentToken = DeviceMachineAuthenticator.GenerateToken("enr");
+            endpointEnrollmentExpiresAt = DateTimeOffset.UtcNow.AddHours(expiresHours);
+            var endpointTokenEntity = new DeviceEnrollmentToken
+            {
+                Id = Guid.NewGuid(),
+                TokenHash = DeviceMachineAuthenticator.HashSecret(endpointEnrollmentToken),
+                GroupId = groupId,
+                IntendedOwnerUserId = null,
+                CreatedByUserId = access.UserId,
+                Label = $"Agent Deployment · {group.Name}",
+                Status = "active",
+                ExpiresAt = endpointEnrollmentExpiresAt.Value,
+                CreatedAt = DateTimeOffset.UtcNow
+            };
+            db.DeviceEnrollmentTokens.Add(endpointTokenEntity);
+            await db.SaveChangesAsync(cancellationToken);
+
+            await ledger.AppendAuditAsync(
+                "devices.agent_enrollment_token.created",
+                "device_enrollment_token",
+                OpaqueId.Format("enroll", endpointTokenEntity.Id),
+                OpaqueId.Format("user", access.UserId),
+                CorrelationId(httpContext),
+                httpContext.TraceIdentifier,
+                new
+                {
+                    groupId = request.GroupId,
+                    operatingSystem,
+                    profile = string.IsNullOrWhiteSpace(request.Profile)
+                        ? "standard"
+                        : request.Profile.Trim().ToLowerInvariant(),
+                    expiresAt = endpointEnrollmentExpiresAt
+                },
+                cancellationToken,
+                classification: "restricted");
         }
 
         httpContext.Response.Headers.CacheControl = "no-store";
@@ -862,6 +917,9 @@ public static class DeviceManagementEndpoints
                     : request.Profile.Trim().ToLowerInvariant(),
                 enrollment.Url,
                 enrollment.ExpiresAt,
+                endpointInstallerUrl,
+                endpointEnrollmentToken,
+                endpointEnrollmentExpiresAt,
                 "ready")));
     }
 
@@ -1124,5 +1182,8 @@ public static class DeviceManagementEndpoints
         string Profile,
         string EnrollmentUrl,
         DateTimeOffset? ExpiresAt,
+        string? EndpointInstallerUrl,
+        string? EndpointEnrollmentToken,
+        DateTimeOffset? EndpointEnrollmentExpiresAt,
         string Status);
 }

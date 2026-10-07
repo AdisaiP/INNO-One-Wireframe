@@ -8,3 +8,5 @@ node_modules/
 qa-*/
 !qa-final-visual/
 !qa-final-visual/**
+production/infrastructure/docker/endpoint-agent-packages/*
+!production/infrastructure/docker/endpoint-agent-packages/.gitkeep

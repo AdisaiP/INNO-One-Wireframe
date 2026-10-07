@@ -1,7 +1,6 @@
 import { invoke } from '@tauri-apps/api/core';
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? '/api/v1').replace(/\/$/, '');
-const ENROLLMENT_TOKEN = import.meta.env.VITE_AGENT_ENROLLMENT_TOKEN ?? '';
 
 export type MachineCredential = {
   deviceId: string;
@@ -66,7 +65,8 @@ export async function clearMachineCredential() {
 }
 
 async function enrollMachine(): Promise<MachineCredential> {
-  if (!ENROLLMENT_TOKEN) {
+  const enrollmentToken = await invoke<string | null>('load_enrollment_token');
+  if (!enrollmentToken) {
     throw new MachineAuthError(409, 'AGENT_ENROLLMENT_REQUIRED');
   }
 
@@ -75,7 +75,7 @@ async function enrollMachine(): Promise<MachineCredential> {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      token: ENROLLMENT_TOKEN,
+      token: enrollmentToken,
       hostname: identity.hostname,
       deviceType: identity.deviceType,
       operatingSystem: identity.operatingSystem ?? null,
@@ -103,6 +103,7 @@ async function enrollMachine(): Promise<MachineCredential> {
   };
 
   await invoke('save_machine_credential', { credential });
+  await invoke('clear_enrollment_token');
   return credential;
 }
 

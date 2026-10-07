@@ -720,6 +720,9 @@ export interface AgentInstaller {
   profile: string;
   enrollmentUrl: string;
   expiresAt?: string | null;
+  endpointInstallerUrl?: string | null;
+  endpointEnrollmentToken?: string | null;
+  endpointEnrollmentExpiresAt?: string | null;
   status: string;
 }
 

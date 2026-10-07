@@ -148,6 +148,12 @@ for marker in (
 check("/agent/enroll" in machine_auth, "Agent enrollment API route missing")
 check("/agent/machine/context" in machine_auth, "Agent machine context API route missing")
 check("ensureMachineCredential" in machine_auth, "Agent machine credential bootstrap missing")
+check("load_enrollment_token" in machine_auth and "clear_enrollment_token" in machine_auth,
+      "Agent runtime enrollment token bootstrap missing")
+check("VITE_AGENT_ENROLLMENT_TOKEN" not in machine_auth,
+      "Agent enrollment token must not be compiled into the frontend bundle")
+check("enrollment-token.txt" in tauri_main,
+      "Native runtime enrollment token file contract missing")
 check("initializeAuthentication" not in main, "Agent startup still requires interactive user authentication")
 check("VITE_API_BASE_URL" in agent_api and "VITE_API_BASE_URL" in machine_auth,
       "Packaged Agent production API base config missing")
