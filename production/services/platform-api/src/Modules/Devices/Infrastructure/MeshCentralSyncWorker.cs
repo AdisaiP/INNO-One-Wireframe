@@ -47,7 +47,12 @@ public sealed class MeshCentralSyncWorker(
 
     public async Task SyncOnceAsync(CancellationToken cancellationToken = default)
     {
-        var nodes = await remoteEngine.ListNodesAsync(cancellationToken);
+        var nodes = (await remoteEngine.ListNodesAsync(cancellationToken))
+            .GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
+            .Select(group => group
+                .OrderByDescending(x => x.IsOnline)
+                .First())
+            .ToList();
 
         await using var scope = scopeFactory.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<DevicesDbContext>();
@@ -95,35 +100,90 @@ public sealed class MeshCentralSyncWorker(
 
             if (!mappingByExternal.TryGetValue(node.ExternalId, out var mapping))
             {
-                device = new Device
-                {
-                    Id = Guid.NewGuid(),
-                    Hostname = node.Name,
-                    DeviceType = DeviceTypeFromIcon(node.Icon),
-                    ConnectivityState = node.IsOnline ? "online" : "offline",
-                    OrganizationUnitId = group.OrganizationUnitId,
-                    LocationId = group.LocationId,
-                    IpAddress = node.IpAddress,
-                    OperatingSystem = node.OperatingSystem,
-                    AgentVersion = node.AgentVersion,
-                    LastSeenAt = node.IsOnline ? now : null,
-                    Version = 1,
-                    CreatedAt = now,
-                    UpdatedAt = now
-                };
-                db.Devices.Add(device);
+                var existingDevice = await db.Devices
+                    .SingleOrDefaultAsync(
+                        x => x.Hostname.ToLower() == node.Name.ToLower(),
+                        cancellationToken);
 
-                mapping = new DeviceExternalMapping
+                if (existingDevice is null)
                 {
-                    Id = Guid.NewGuid(),
-                    DeviceId = device.Id,
-                    Provider = "meshcentral",
-                    ExternalId = node.ExternalId,
-                    UpdatedAt = now
-                };
-                db.DeviceExternalMappings.Add(mapping);
-                mappingByExternal[node.ExternalId] = mapping;
-                previousState = "unknown";
+                    device = new Device
+                    {
+                        Id = Guid.NewGuid(),
+                        Hostname = node.Name,
+                        DeviceType = DeviceTypeFromIcon(node.Icon),
+                        ConnectivityState = node.IsOnline ? "online" : "offline",
+                        OrganizationUnitId = group.OrganizationUnitId,
+                        LocationId = group.LocationId,
+                        IpAddress = node.IpAddress,
+                        OperatingSystem = node.OperatingSystem,
+                        AgentVersion = node.AgentVersion,
+                        LastSeenAt = node.IsOnline ? now : null,
+                        Version = 1,
+                        CreatedAt = now,
+                        UpdatedAt = now
+                    };
+                    db.Devices.Add(device);
+
+                    mapping = new DeviceExternalMapping
+                    {
+                        Id = Guid.NewGuid(),
+                        DeviceId = device.Id,
+                        Provider = "meshcentral",
+                        ExternalId = node.ExternalId,
+                        UpdatedAt = now
+                    };
+                    db.DeviceExternalMappings.Add(mapping);
+                    mappings.Add(mapping);
+                    mappingByExternal[node.ExternalId] = mapping;
+                    previousState = "unknown";
+                }
+                else
+                {
+                    device = existingDevice;
+                    previousState = device.ConnectivityState;
+
+                    mapping = mappings.FirstOrDefault(x =>
+                        x.DeviceId == device.Id
+                        && x.Provider == "meshcentral");
+
+                    if (mapping is null)
+                    {
+                        mapping = new DeviceExternalMapping
+                        {
+                            Id = Guid.NewGuid(),
+                            DeviceId = device.Id,
+                            Provider = "meshcentral",
+                            ExternalId = node.ExternalId,
+                            UpdatedAt = now
+                        };
+                        db.DeviceExternalMappings.Add(mapping);
+                        mappings.Add(mapping);
+                    }
+                    else
+                    {
+                        mappingByExternal.Remove(mapping.ExternalId);
+                        mapping.ExternalId = node.ExternalId;
+                        mapping.UpdatedAt = now;
+                    }
+
+                    mappingByExternal[node.ExternalId] = mapping;
+
+                    device.Hostname = node.Name;
+                    device.DeviceType = DeviceTypeFromIcon(node.Icon);
+                    device.ConnectivityState = node.IsOnline ? "online" : "offline";
+                    device.OrganizationUnitId = group.OrganizationUnitId;
+                    device.LocationId = group.LocationId;
+                    device.IpAddress = node.IpAddress ?? device.IpAddress;
+                    device.OperatingSystem = node.OperatingSystem ?? device.OperatingSystem;
+                    device.AgentVersion = node.AgentVersion ?? device.AgentVersion;
+                    if (node.IsOnline)
+                    {
+                        device.LastSeenAt = now;
+                    }
+                    device.Version++;
+                    device.UpdatedAt = now;
+                }
             }
             else
             {
@@ -132,6 +192,7 @@ public sealed class MeshCentralSyncWorker(
                 previousState = device.ConnectivityState;
 
                 device.Hostname = node.Name;
+                device.DeviceType = DeviceTypeFromIcon(node.Icon);
                 device.ConnectivityState = node.IsOnline ? "online" : "offline";
                 device.OrganizationUnitId = group.OrganizationUnitId;
                 device.LocationId = group.LocationId;
