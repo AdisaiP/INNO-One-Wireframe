@@ -8,6 +8,9 @@ public sealed class DevicesDbContext(DbContextOptions<DevicesDbContext> options)
     public const string Schema = "devices";
 
     public DbSet<Device> Devices => Set<Device>();
+    public DbSet<DeviceEnrollmentToken> DeviceEnrollmentTokens => Set<DeviceEnrollmentToken>();
+    public DbSet<DeviceAgentCredential> DeviceAgentCredentials => Set<DeviceAgentCredential>();
+    public DbSet<DeviceOwnershipSuggestion> DeviceOwnershipSuggestions => Set<DeviceOwnershipSuggestion>();
     public DbSet<DeviceExternalMapping> DeviceExternalMappings => Set<DeviceExternalMapping>();
     public DbSet<DeviceInventorySnapshot> DeviceInventorySnapshots => Set<DeviceInventorySnapshot>();
     public DbSet<DevicePerformanceSample> DevicePerformanceSamples => Set<DevicePerformanceSample>();
@@ -59,6 +62,42 @@ public sealed class DevicesDbContext(DbContextOptions<DevicesDbContext> options)
             entity.Property(x => x.MemoryTotalGb).HasPrecision(12, 2);
             entity.Property(x => x.DiskUsedGb).HasPrecision(12, 2);
             entity.Property(x => x.DiskTotalGb).HasPrecision(12, 2);
+        });
+
+        modelBuilder.Entity<DeviceEnrollmentToken>(entity =>
+        {
+            entity.ToTable("device_enrollment_tokens");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => x.TokenHash).IsUnique();
+            entity.HasIndex(x => new { x.Status, x.ExpiresAt });
+            entity.Property(x => x.TokenHash).HasMaxLength(64);
+            entity.Property(x => x.Label).HasMaxLength(200);
+            entity.Property(x => x.Status).HasMaxLength(32);
+            entity.HasOne<DeviceGroup>().WithMany().HasForeignKey(x => x.GroupId).OnDelete(DeleteBehavior.SetNull);
+            entity.HasOne<Device>().WithMany().HasForeignKey(x => x.UsedByDeviceId).OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<DeviceAgentCredential>(entity =>
+        {
+            entity.ToTable("device_agent_credentials");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => x.DeviceId).IsUnique();
+            entity.Property(x => x.SecretHash).HasMaxLength(64);
+            entity.Property(x => x.Status).HasMaxLength(32);
+            entity.HasOne<Device>().WithMany().HasForeignKey(x => x.DeviceId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<DeviceOwnershipSuggestion>(entity =>
+        {
+            entity.ToTable("device_ownership_suggestions");
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => x.DeviceId).IsUnique();
+            entity.HasIndex(x => new { x.Status, x.CandidateUserId });
+            entity.Property(x => x.DetectedIdentity).HasMaxLength(320);
+            entity.Property(x => x.DetectedUpn).HasMaxLength(320);
+            entity.Property(x => x.MatchReason).HasMaxLength(64);
+            entity.Property(x => x.Status).HasMaxLength(32);
+            entity.HasOne<Device>().WithMany().HasForeignKey(x => x.DeviceId).OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<DevicePerformanceSample>(entity =>

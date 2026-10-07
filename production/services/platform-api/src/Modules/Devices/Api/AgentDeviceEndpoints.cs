@@ -20,14 +20,18 @@ public static class AgentDeviceEndpoints
         api.MapGet("/agent/device-context/{deviceId}", GetDeviceContextAsync)
             .WithName("agent.device_context.get");
         api.MapGet("/agent/remote-consent/pending", GetPendingConsentAsync)
+            .AllowAnonymous()
             .WithName("agent.remote_consent.pending");
         api.MapPost("/agent/remote-consent/requests/{requestId}/decision", DecideConsentAsync)
+            .AllowAnonymous()
             .WithName("agent.remote_consent.decision");
         api.MapPost("/devices/{deviceId}/remote-consent-requests", CreateConsentRequestAsync)
             .WithName("devices.remote_consent.request.create");
         api.MapGet("/agent/prompts/pending", GetPendingPromptAsync)
+            .AllowAnonymous()
             .WithName("agent.prompts.pending");
         api.MapPost("/agent/prompts/{promptId}/response", RespondToPromptAsync)
+            .AllowAnonymous()
             .WithName("agent.prompts.response");
         api.MapPost("/devices/{deviceId}/agent-prompts", CreateAgentPromptAsync)
             .WithName("devices.agent_prompts.create");
@@ -77,22 +81,21 @@ public static class AgentDeviceEndpoints
         HttpContext httpContext,
         DevicesDbContext db,
         IAccessEvaluator accessEvaluator,
+        DeviceMachineAuthenticator machineAuthenticator,
         CancellationToken cancellationToken)
     {
         if (!OpaqueId.TryParse(deviceId, "dev", out var id))
             return NotFound("Device not found.");
 
-        var access = await accessEvaluator.EvaluateAsync(
-            httpContext.User, "platform.workspace.access", cancellationToken);
-        if (!access.Allowed)
-            return Forbidden(access.Reason);
-
-        var device = await db.Devices.AsNoTracking()
-            .SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
-        if (device is null)
-            return NotFound("Device not found.");
-        if (device.OwnerUserId != access.UserId)
-            return Forbidden("AGENT_DEVICE_NOT_OWNED_BY_CURRENT_USER");
+        var authorization = await AuthorizeAgentDeviceAsync(
+            id,
+            httpContext,
+            db,
+            accessEvaluator,
+            machineAuthenticator,
+            cancellationToken);
+        if (authorization.Result is not null)
+            return authorization.Result;
 
         var now = DateTimeOffset.UtcNow;
         var expired = await db.RemoteConsentRequests
@@ -121,6 +124,7 @@ public static class AgentDeviceEndpoints
         HttpContext httpContext,
         DevicesDbContext db,
         IAccessEvaluator accessEvaluator,
+        DeviceMachineAuthenticator machineAuthenticator,
         DeviceLedgerWriter ledger,
         IRemoteDeviceEngine remoteEngine,
         CancellationToken cancellationToken)
@@ -128,22 +132,23 @@ public static class AgentDeviceEndpoints
         if (!OpaqueId.TryParse(requestId, "consent", out var id))
             return NotFound("Consent request not found.");
 
-        var access = await accessEvaluator.EvaluateAsync(
-            httpContext.User, "platform.workspace.access", cancellationToken);
-        if (!access.Allowed)
-            return Forbidden(access.Reason);
-
         var entity = await db.RemoteConsentRequests
             .SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
         if (entity is null)
             return NotFound("Consent request not found.");
 
-        var device = await db.Devices.AsNoTracking()
-            .SingleOrDefaultAsync(x => x.Id == entity.DeviceId, cancellationToken);
-        if (device is null)
-            return NotFound("Device not found.");
-        if (device.OwnerUserId != access.UserId)
-            return Forbidden("AGENT_DEVICE_NOT_OWNED_BY_CURRENT_USER");
+        var authorization = await AuthorizeAgentDeviceAsync(
+            entity.DeviceId,
+            httpContext,
+            db,
+            accessEvaluator,
+            machineAuthenticator,
+            cancellationToken);
+        if (authorization.Result is not null || authorization.Caller is null)
+            return authorization.Result ?? Results.Problem(statusCode: 401, title: "Authentication failed");
+
+        var caller = authorization.Caller;
+        var device = caller.Device;
 
         if (entity.Status != "pending")
             return Results.Problem(statusCode: 409, title: "Consent request is no longer pending");
@@ -176,7 +181,7 @@ public static class AgentDeviceEndpoints
 
         entity.Status = decision;
         entity.DecidedAt = DateTimeOffset.UtcNow;
-        entity.DecidedByUserId = access.UserId;
+        entity.DecidedByUserId = caller.UserId;
         entity.Version++;
 
         if (linkedSession is not null)
@@ -208,7 +213,7 @@ public static class AgentDeviceEndpoints
             "devices.remote.consent_decided",
             "remote_session",
             remoteSessionPublicId,
-            OpaqueId.Format("user", access.UserId),
+            caller.ActorId,
             CorrelationId(httpContext),
             httpContext.TraceIdentifier,
             new
@@ -220,7 +225,8 @@ public static class AgentDeviceEndpoints
                 mode = entity.Mode
             },
             cancellationToken,
-            "restricted");
+            "restricted",
+            caller.ActorType);
         await ledger.AppendOutboxAsync(
             "remote.consent.decided",
             "remote_session",
@@ -231,7 +237,7 @@ public static class AgentDeviceEndpoints
                 sessionId = linkedSession is null ? null : remoteSessionPublicId,
                 deviceId = OpaqueId.Format("dev", entity.DeviceId),
                 decision,
-                decidedByActorType = "user"
+                decidedByActorType = caller.ActorType
             },
             CorrelationId(httpContext),
             null,
@@ -409,22 +415,21 @@ public static class AgentDeviceEndpoints
         HttpContext httpContext,
         DevicesDbContext db,
         IAccessEvaluator accessEvaluator,
+        DeviceMachineAuthenticator machineAuthenticator,
         CancellationToken cancellationToken)
     {
         if (!OpaqueId.TryParse(deviceId, "dev", out var id))
             return NotFound("Device not found.");
 
-        var access = await accessEvaluator.EvaluateAsync(
-            httpContext.User, "platform.workspace.access", cancellationToken);
-        if (!access.Allowed)
-            return Forbidden(access.Reason);
-
-        var device = await db.Devices.AsNoTracking()
-            .SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
-        if (device is null)
-            return NotFound("Device not found.");
-        if (device.OwnerUserId != access.UserId)
-            return Forbidden("AGENT_DEVICE_NOT_OWNED_BY_CURRENT_USER");
+        var authorization = await AuthorizeAgentDeviceAsync(
+            id,
+            httpContext,
+            db,
+            accessEvaluator,
+            machineAuthenticator,
+            cancellationToken);
+        if (authorization.Result is not null)
+            return authorization.Result;
 
         var now = DateTimeOffset.UtcNow;
         var expired = await db.AgentPrompts
@@ -453,27 +458,28 @@ public static class AgentDeviceEndpoints
         HttpContext httpContext,
         DevicesDbContext db,
         IAccessEvaluator accessEvaluator,
+        DeviceMachineAuthenticator machineAuthenticator,
         DeviceLedgerWriter ledger,
         CancellationToken cancellationToken)
     {
         if (!OpaqueId.TryParse(promptId, "prompt", out var id))
             return NotFound("Agent prompt not found.");
 
-        var access = await accessEvaluator.EvaluateAsync(
-            httpContext.User, "platform.workspace.access", cancellationToken);
-        if (!access.Allowed)
-            return Forbidden(access.Reason);
-
         var prompt = await db.AgentPrompts.SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
         if (prompt is null)
             return NotFound("Agent prompt not found.");
 
-        var device = await db.Devices.AsNoTracking()
-            .SingleOrDefaultAsync(x => x.Id == prompt.DeviceId, cancellationToken);
-        if (device is null)
-            return NotFound("Device not found.");
-        if (device.OwnerUserId != access.UserId)
-            return Forbidden("AGENT_DEVICE_NOT_OWNED_BY_CURRENT_USER");
+        var authorization = await AuthorizeAgentDeviceAsync(
+            prompt.DeviceId,
+            httpContext,
+            db,
+            accessEvaluator,
+            machineAuthenticator,
+            cancellationToken);
+        if (authorization.Result is not null || authorization.Caller is null)
+            return authorization.Result ?? Results.Problem(statusCode: 401, title: "Authentication failed");
+
+        var caller = authorization.Caller;
 
         if (prompt.Status != "pending")
             return Results.Problem(statusCode: 409, title: "Agent prompt is no longer pending");
@@ -500,7 +506,7 @@ public static class AgentDeviceEndpoints
         prompt.Status = "responded";
         prompt.ResponseKey = responseKey;
         prompt.RespondedAt = DateTimeOffset.UtcNow;
-        prompt.RespondedByUserId = access.UserId;
+        prompt.RespondedByUserId = caller.UserId;
         prompt.Version++;
         await db.SaveChangesAsync(cancellationToken);
 
@@ -509,7 +515,7 @@ public static class AgentDeviceEndpoints
             "devices.agent.prompt_responded",
             "agent_prompt",
             publicId,
-            OpaqueId.Format("user", access.UserId),
+            caller.ActorId,
             CorrelationId(httpContext),
             httpContext.TraceIdentifier,
             new
@@ -520,7 +526,8 @@ public static class AgentDeviceEndpoints
                 responseKey,
                 deviceId = OpaqueId.Format("dev", prompt.DeviceId)
             },
-            cancellationToken);
+            cancellationToken,
+            actorType: caller.ActorType);
 
         await ledger.AppendOutboxAsync(
             "agent.prompt.responded",
@@ -630,6 +637,79 @@ public static class AgentDeviceEndpoints
             x.ExpiresAt,
             x.DecidedAt,
             x.Version);
+
+
+    private static async Task<(AgentCaller? Caller, IResult? Result)> AuthorizeAgentDeviceAsync(
+        Guid deviceId,
+        HttpContext httpContext,
+        DevicesDbContext db,
+        IAccessEvaluator accessEvaluator,
+        DeviceMachineAuthenticator machineAuthenticator,
+        CancellationToken cancellationToken)
+    {
+        if (machineAuthenticator.HasMachineHeaders(httpContext))
+        {
+            var machine = await machineAuthenticator.AuthenticateAsync(
+                httpContext,
+                db,
+                deviceId,
+                cancellationToken);
+            if (!machine.Success || machine.Device is null)
+            {
+                return (
+                    null,
+                    Results.Problem(
+                        statusCode: StatusCodes.Status401Unauthorized,
+                        title: "Device authentication failed",
+                        detail: machine.FailureCode ?? "DEVICE_CREDENTIAL_INVALID"));
+            }
+
+            return (
+                new AgentCaller(
+                    machine.Device,
+                    ActorType: "agent",
+                    ActorId: OpaqueId.Format("dev", machine.Device.Id),
+                    UserId: null),
+                null);
+        }
+
+        if (httpContext.User.Identity?.IsAuthenticated != true)
+        {
+            return (
+                null,
+                Results.Problem(
+                    statusCode: StatusCodes.Status401Unauthorized,
+                    title: "Authentication required"));
+        }
+
+        var access = await accessEvaluator.EvaluateAsync(
+            httpContext.User,
+            "platform.workspace.access",
+            cancellationToken);
+        if (!access.Allowed)
+            return (null, Forbidden(access.Reason));
+
+        var device = await db.Devices.AsNoTracking()
+            .SingleOrDefaultAsync(x => x.Id == deviceId, cancellationToken);
+        if (device is null)
+            return (null, NotFound("Device not found."));
+        if (device.OwnerUserId != access.UserId)
+            return (null, Forbidden("AGENT_DEVICE_NOT_OWNED_BY_CURRENT_USER"));
+
+        return (
+            new AgentCaller(
+                device,
+                ActorType: "user",
+                ActorId: OpaqueId.Format("user", access.UserId),
+                UserId: access.UserId),
+            null);
+    }
+
+    private sealed record AgentCaller(
+        Device Device,
+        string ActorType,
+        string ActorId,
+        Guid? UserId);
 
     private static string CorrelationId(HttpContext context) =>
         context.Request.Headers.TryGetValue("X-Correlation-ID", out var value)

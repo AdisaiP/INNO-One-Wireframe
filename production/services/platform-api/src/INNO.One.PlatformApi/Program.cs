@@ -130,6 +130,7 @@ api.MapAdminSettingsEndpoints();
 api.MapDevicesEndpoints();
 api.MapAgentDeviceEndpoints();
 api.MapAgentTelemetryEndpoints();
+api.MapDeviceEnrollmentEndpoints();
 api.MapDeviceManagementEndpoints();
 api.MapDeviceHardwareInventoryEndpoints();
 api.MapDevicePerformanceNetworkEndpoints();

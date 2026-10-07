@@ -31,6 +31,48 @@ public sealed class Device
     public DateTimeOffset UpdatedAt { get; set; }
 }
 
+public sealed class DeviceEnrollmentToken
+{
+    public Guid Id { get; set; }
+    public required string TokenHash { get; set; }
+    public Guid? GroupId { get; set; }
+    public Guid? IntendedOwnerUserId { get; set; }
+    public Guid CreatedByUserId { get; set; }
+    public string? Label { get; set; }
+    public required string Status { get; set; }
+    public DateTimeOffset ExpiresAt { get; set; }
+    public DateTimeOffset? UsedAt { get; set; }
+    public Guid? UsedByDeviceId { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+}
+
+public sealed class DeviceAgentCredential
+{
+    public Guid Id { get; set; }
+    public Guid DeviceId { get; set; }
+    public required string SecretHash { get; set; }
+    public required string Status { get; set; }
+    public DateTimeOffset EnrolledAt { get; set; }
+    public DateTimeOffset? LastAuthenticatedAt { get; set; }
+    public DateTimeOffset? RevokedAt { get; set; }
+    public long Version { get; set; } = 1;
+}
+
+public sealed class DeviceOwnershipSuggestion
+{
+    public Guid Id { get; set; }
+    public Guid DeviceId { get; set; }
+    public Guid? CandidateUserId { get; set; }
+    public string? DetectedIdentity { get; set; }
+    public string? DetectedUpn { get; set; }
+    public required string MatchReason { get; set; }
+    public required string Status { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset? ConfirmedAt { get; set; }
+    public Guid? ConfirmedByUserId { get; set; }
+    public long Version { get; set; } = 1;
+}
+
 public sealed class DevicePerformanceSample
 {
     public Guid Id { get; set; }

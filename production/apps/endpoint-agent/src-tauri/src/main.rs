@@ -1,7 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use serde::{Deserialize, Serialize};
-use std::{process::Command, thread};
+use std::{env, fs, path::PathBuf, process::Command, thread};
 use sysinfo::{Disks, System};
 
 #[derive(Debug, Serialize)]
@@ -48,6 +48,170 @@ struct SoftwarePackageTelemetry {
     version: Option<String>,
     publisher: Option<String>,
     architecture: Option<String>,
+}
+
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct StoredMachineCredential {
+    device_id: String,
+    device_secret: String,
+}
+
+#[derive(Debug, Default, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct EnrollmentIdentity {
+    hostname: String,
+    device_type: String,
+    operating_system: Option<String>,
+    windows_identity: Option<String>,
+    windows_upn: Option<String>,
+    agent_version: String,
+}
+
+
+
+
+fn credential_path() -> Result<PathBuf, String> {
+    let program_data = env::var("PROGRAMDATA")
+        .map_err(|error| format!("PROGRAMDATA_UNAVAILABLE: {error}"))?;
+    Ok(PathBuf::from(program_data)
+        .join("INNO.One")
+        .join("agent-credential.bin"))
+}
+
+#[tauri::command]
+fn save_machine_credential(credential: StoredMachineCredential) -> Result<(), String> {
+    if credential.device_id.trim().is_empty() || credential.device_secret.trim().is_empty() {
+        return Err("DEVICE_CREDENTIAL_INVALID".into());
+    }
+
+    let path = credential_path()?;
+    let json = serde_json::to_string(&credential)
+        .map_err(|error| format!("DEVICE_CREDENTIAL_SERIALIZE_FAILED: {error}"))?;
+    let script = r#"
+$ErrorActionPreference = 'Stop'
+Add-Type -AssemblyName System.Security
+$path = $env:INNO_ONE_CREDENTIAL_PATH
+$dir = [IO.Path]::GetDirectoryName($path)
+[IO.Directory]::CreateDirectory($dir) | Out-Null
+$plain = [Text.Encoding]::UTF8.GetBytes($env:INNO_ONE_CREDENTIAL_JSON)
+$protected = [Security.Cryptography.ProtectedData]::Protect(
+    $plain,
+    $null,
+    [Security.Cryptography.DataProtectionScope]::LocalMachine)
+[IO.File]::WriteAllBytes($path, $protected)
+"#;
+
+    let output = Command::new("powershell.exe")
+        .args(["-NoLogo", "-NoProfile", "-NonInteractive", "-Command", script])
+        .env("INNO_ONE_CREDENTIAL_PATH", path.as_os_str())
+        .env("INNO_ONE_CREDENTIAL_JSON", json)
+        .output()
+        .map_err(|error| format!("DEVICE_CREDENTIAL_SAVE_START_FAILED: {error}"))?;
+
+    if !output.status.success() {
+        return Err(format!(
+            "DEVICE_CREDENTIAL_SAVE_FAILED: {}",
+            String::from_utf8_lossy(&output.stderr).trim()
+        ));
+    }
+
+    Ok(())
+}
+
+#[tauri::command]
+fn load_machine_credential() -> Result<Option<StoredMachineCredential>, String> {
+    let path = credential_path()?;
+    if !path.exists() {
+        return Ok(None);
+    }
+
+    let script = r#"
+$ErrorActionPreference = 'Stop'
+Add-Type -AssemblyName System.Security
+$protected = [IO.File]::ReadAllBytes($env:INNO_ONE_CREDENTIAL_PATH)
+$plain = [Security.Cryptography.ProtectedData]::Unprotect(
+    $protected,
+    $null,
+    [Security.Cryptography.DataProtectionScope]::LocalMachine)
+[Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)
+[Console]::Write([Text.Encoding]::UTF8.GetString($plain))
+"#;
+    let output = Command::new("powershell.exe")
+        .args(["-NoLogo", "-NoProfile", "-NonInteractive", "-Command", script])
+        .env("INNO_ONE_CREDENTIAL_PATH", path.as_os_str())
+        .output()
+        .map_err(|error| format!("DEVICE_CREDENTIAL_LOAD_START_FAILED: {error}"))?;
+
+    if !output.status.success() {
+        return Err(format!(
+            "DEVICE_CREDENTIAL_LOAD_FAILED: {}",
+            String::from_utf8_lossy(&output.stderr).trim()
+        ));
+    }
+
+    let json = String::from_utf8_lossy(&output.stdout).trim().to_string();
+    if json.is_empty() {
+        return Ok(None);
+    }
+
+    serde_json::from_str::<StoredMachineCredential>(&json)
+        .map(Some)
+        .map_err(|error| format!("DEVICE_CREDENTIAL_PARSE_FAILED: {error}"))
+}
+
+#[tauri::command]
+fn clear_machine_credential() -> Result<(), String> {
+    let path = credential_path()?;
+    if path.exists() {
+        fs::remove_file(path)
+            .map_err(|error| format!("DEVICE_CREDENTIAL_CLEAR_FAILED: {error}"))?;
+    }
+    Ok(())
+}
+
+#[cfg(target_os = "windows")]
+#[tauri::command]
+fn collect_enrollment_identity() -> Result<EnrollmentIdentity, String> {
+    let script = r#"
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+$os = Get-CimInstance Win32_OperatingSystem | Select-Object -First 1
+$enclosure = Get-CimInstance Win32_SystemEnclosure | Select-Object -First 1
+$identity = [Security.Principal.WindowsIdentity]::GetCurrent().Name
+$upn = $null
+try {
+    $candidate = (& whoami /upn 2>$null | Select-Object -First 1)
+    if ($candidate -and $candidate -match '@') { $upn = [string]$candidate.Trim() }
+} catch {}
+$chassis = @($enclosure.ChassisTypes)
+$laptop = @(8,9,10,14,30,31,32) | Where-Object { $chassis -contains $_ }
+[pscustomobject]@{
+    hostname = [string]$env:COMPUTERNAME
+    deviceType = if ($laptop.Count -gt 0) { 'notebook' } else { 'desktop' }
+    operatingSystem = if ($os.Caption -and $os.Version) { "$($os.Caption) - $($os.Version)" } else { [string]$os.Caption }
+    windowsIdentity = if ($identity) { [string]$identity } else { $null }
+    windowsUpn = $upn
+    agentVersion = '__AGENT_VERSION__'
+} | ConvertTo-Json -Compress
+"#.replace("__AGENT_VERSION__", env!("CARGO_PKG_VERSION"));
+
+    let stdout = run_powershell_json(&script, "ENROLLMENT_IDENTITY")?;
+    serde_json::from_str::<EnrollmentIdentity>(&stdout)
+        .map_err(|error| format!("ENROLLMENT_IDENTITY_PARSE_FAILED: {error}"))
+}
+
+#[cfg(not(target_os = "windows"))]
+#[tauri::command]
+fn collect_enrollment_identity() -> Result<EnrollmentIdentity, String> {
+    Ok(EnrollmentIdentity {
+        hostname: env::var("HOSTNAME").unwrap_or_else(|_| "unknown".into()),
+        device_type: "desktop".into(),
+        operating_system: None,
+        windows_identity: None,
+        windows_upn: None,
+        agent_version: env!("CARGO_PKG_VERSION").into(),
+    })
 }
 
 fn bytes_to_gb(value: u64) -> f64 {
@@ -235,7 +399,11 @@ fn main() {
             collect_performance_telemetry,
             collect_network_telemetry,
             collect_hardware_telemetry,
-            collect_software_inventory
+            collect_software_inventory,
+            collect_enrollment_identity,
+            save_machine_credential,
+            load_machine_credential,
+            clear_machine_credential
         ])
         .run(tauri::generate_context!())
         .expect("error while running INNO.One Endpoint Agent");

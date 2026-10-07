@@ -27,6 +27,7 @@ root_package = json.loads(text(PROD / "package.json"))
 readme = text(AGENT / "README.md")
 main = text(AGENT / "src/main.tsx")
 agent_api = text(AGENT / "src/api.ts")
+machine_auth = text(AGENT / "src/machineAuth.ts")
 agent_telemetry = text(AGENT / "src/telemetry.ts")
 auth = text(AGENT / "src/auth.ts")
 i18n = text(AGENT / "src/i18n.ts")
@@ -37,6 +38,8 @@ tauri_main = text(AGENT / "src-tauri/src/main.rs")
 program = text(API / "INNO.One.PlatformApi/Program.cs")
 devices_module = text(API / "Modules/Devices/DevicesModule.cs")
 device_api = text(API / "Modules/Devices/Api/AgentDeviceEndpoints.cs")
+enrollment_api = text(API / "Modules/Devices/Api/DeviceEnrollmentEndpoints.cs")
+machine_authenticator = text(API / "Modules/Devices/Infrastructure/DeviceMachineAuthenticator.cs")
 telemetry_api = text(API / "Modules/Devices/Api/AgentTelemetryEndpoints.cs")
 activity_api = text(API / "Modules/Devices/Api/DeviceActivityEndpoints.cs")
 device_entities = text(API / "Modules/Devices/Domain/DeviceEntities.cs")
@@ -133,7 +136,6 @@ check("primary.full" in styles, "Agent full-width notice acknowledgement action 
 
 # Agent client API.
 for marker in (
-    "/agent/device-context/",
     "/agent/help-requests",
     "/agent/ownership/context",
     "/agent/ownership-submissions",
@@ -143,9 +145,20 @@ for marker in (
     "/agent/prompts/",
 ):
     check(marker in agent_api, "Agent client API route missing: " + marker)
-check("VITE_AGENT_DEVICE_ID" in agent_api, "Agent device binding config missing")
-check("AGENT_DEVICE_ID" in agent_api, "Agent device context identifier missing")
-check("VITE_API_BASE_URL" in agent_api, "Packaged Agent production API base config missing")
+check("/agent/enroll" in machine_auth, "Agent enrollment API route missing")
+check("/agent/machine/context" in machine_auth, "Agent machine context API route missing")
+check("ensureMachineCredential" in machine_auth, "Agent machine credential bootstrap missing")
+check("initializeAuthentication" not in main, "Agent startup still requires interactive user authentication")
+check("VITE_API_BASE_URL" in agent_api and "VITE_API_BASE_URL" in machine_auth,
+      "Packaged Agent production API base config missing")
+check("save_machine_credential" in tauri_main and "load_machine_credential" in tauri_main,
+      "Native machine credential persistence missing")
+check("DataProtectionScope]::LocalMachine" in tauri_main,
+      "Native machine credential protection missing")
+check('MapPost("/agent/enroll"' in enrollment_api and 'MapGet("/agent/machine/context"' in enrollment_api,
+      "Platform machine enrollment endpoints missing")
+check("DeviceMachineAuthenticator" in machine_authenticator and "FixedTimeEquals" in machine_authenticator,
+      "Platform machine credential authenticator missing")
 for marker in (
     "collectPerformanceTelemetry",
     "collectNetworkTelemetry",

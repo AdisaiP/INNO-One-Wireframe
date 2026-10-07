@@ -20,6 +20,7 @@ public static class AgentTelemetryEndpoints
     public static RouteGroupBuilder MapAgentTelemetryEndpoints(this RouteGroupBuilder api)
     {
         api.MapPost("/agent/devices/{deviceId}/telemetry", IngestAsync)
+            .AllowAnonymous()
             .WithName("agent.telemetry.ingest");
         return api;
     }
@@ -30,23 +31,46 @@ public static class AgentTelemetryEndpoints
         HttpContext httpContext,
         DevicesDbContext db,
         IAccessEvaluator accessEvaluator,
+        DeviceMachineAuthenticator machineAuthenticator,
         DeviceLedgerWriter ledger,
         CancellationToken cancellationToken)
     {
         if (!OpaqueId.TryParse(deviceId, "dev", out var id))
             return NotFound();
 
-        var access = await accessEvaluator.EvaluateAsync(
-            httpContext.User, "platform.workspace.access", cancellationToken);
-        if (!access.Allowed)
-            return Forbidden(access.Reason);
+        Device? device;
+        if (machineAuthenticator.HasMachineHeaders(httpContext))
+        {
+            var machine = await machineAuthenticator.AuthenticateAsync(
+                httpContext, db, id, cancellationToken);
+            if (!machine.Success || machine.Device is null)
+            {
+                return Results.Problem(
+                    statusCode: StatusCodes.Status401Unauthorized,
+                    title: "Device authentication failed",
+                    detail: machine.FailureCode ?? "DEVICE_CREDENTIAL_INVALID");
+            }
+            device = machine.Device;
+        }
+        else
+        {
+            if (httpContext.User.Identity?.IsAuthenticated != true)
+                return Results.Problem(
+                    statusCode: StatusCodes.Status401Unauthorized,
+                    title: "Authentication required");
 
-        var device = await db.Devices
-            .SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
-        if (device is null)
-            return NotFound();
-        if (device.OwnerUserId != access.UserId)
-            return Forbidden("AGENT_DEVICE_NOT_OWNED_BY_CURRENT_USER");
+            var access = await accessEvaluator.EvaluateAsync(
+                httpContext.User, "platform.workspace.access", cancellationToken);
+            if (!access.Allowed)
+                return Forbidden(access.Reason);
+
+            device = await db.Devices
+                .SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
+            if (device is null)
+                return NotFound();
+            if (device.OwnerUserId != access.UserId)
+                return Forbidden("AGENT_DEVICE_NOT_OWNED_BY_CURRENT_USER");
+        }
 
         var now = DateTimeOffset.UtcNow;
         var observedAt = request.ObservedAt ?? now;
