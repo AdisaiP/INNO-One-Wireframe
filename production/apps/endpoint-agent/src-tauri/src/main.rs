@@ -1,7 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use serde::{Deserialize, Serialize};
-use std::{process::Command, thread};
+use std::{env, fs, path::PathBuf, process::Command, thread};
 use sysinfo::{Disks, System};
 
 #[derive(Debug, Serialize)]
@@ -26,8 +26,269 @@ struct NetworkTelemetry {
     adapter_name: Option<String>,
 }
 
+#[derive(Debug, Default, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct HardwareTelemetry {
+    manufacturer: Option<String>,
+    model: Option<String>,
+    serial_number: Option<String>,
+    processor: Option<String>,
+    bios_version: Option<String>,
+    operating_system: Option<String>,
+    memory_total_gb: Option<f64>,
+    memory_slots_used: Option<u32>,
+    memory_slots_total: Option<u32>,
+}
+
+#[derive(Debug, Default, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct SoftwarePackageTelemetry {
+    product_key: Option<String>,
+    display_name: String,
+    version: Option<String>,
+    publisher: Option<String>,
+    architecture: Option<String>,
+}
+
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct StoredMachineCredential {
+    device_id: String,
+    device_secret: String,
+}
+
+#[derive(Debug, Default, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct EnrollmentIdentity {
+    hostname: String,
+    device_type: String,
+    operating_system: Option<String>,
+    windows_identity: Option<String>,
+    windows_upn: Option<String>,
+    agent_version: String,
+}
+
+
+
+
+
+
+fn program_data_root() -> Result<PathBuf, String> {
+    if let Ok(program_data) = env::var("PROGRAMDATA") {
+        if !program_data.trim().is_empty() {
+            return Ok(PathBuf::from(program_data));
+        }
+    }
+
+    #[cfg(target_os = "windows")]
+    {
+        return Ok(PathBuf::from("C:\\ProgramData"));
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        let home = env::var("HOME")
+            .map_err(|error| format!("PROGRAM_DATA_UNAVAILABLE: {error}"))?;
+        Ok(PathBuf::from(home).join(".local").join("share"))
+    }
+}
+
+fn enrollment_token_path() -> Result<PathBuf, String> {
+    Ok(program_data_root()?
+        .join("INNO.One")
+        .join("enrollment-token.txt"))
+}
+
+#[tauri::command]
+fn load_enrollment_token() -> Result<Option<String>, String> {
+    let path = enrollment_token_path()?;
+    if !path.exists() {
+        return Ok(None);
+    }
+
+    let token = fs::read_to_string(&path)
+        .map_err(|error| format!("ENROLLMENT_TOKEN_READ_FAILED: {error}"))?
+        .trim()
+        .to_string();
+    Ok((!token.is_empty()).then_some(token))
+}
+
+#[tauri::command]
+fn clear_enrollment_token() -> Result<(), String> {
+    let path = enrollment_token_path()?;
+    if path.exists() {
+        fs::remove_file(path)
+            .map_err(|error| format!("ENROLLMENT_TOKEN_CLEAR_FAILED: {error}"))?;
+    }
+    Ok(())
+}
+
+fn credential_path() -> Result<PathBuf, String> {
+    Ok(program_data_root()?
+        .join("INNO.One")
+        .join("agent-credential.bin"))
+}
+
+#[tauri::command]
+fn save_machine_credential(credential: StoredMachineCredential) -> Result<(), String> {
+    if credential.device_id.trim().is_empty() || credential.device_secret.trim().is_empty() {
+        return Err("DEVICE_CREDENTIAL_INVALID".into());
+    }
+
+    let path = credential_path()?;
+    let json = serde_json::to_string(&credential)
+        .map_err(|error| format!("DEVICE_CREDENTIAL_SERIALIZE_FAILED: {error}"))?;
+    let script = r#"
+$ErrorActionPreference = 'Stop'
+Add-Type -AssemblyName System.Security
+$path = $env:INNO_ONE_CREDENTIAL_PATH
+$dir = [IO.Path]::GetDirectoryName($path)
+[IO.Directory]::CreateDirectory($dir) | Out-Null
+$plain = [Text.Encoding]::UTF8.GetBytes($env:INNO_ONE_CREDENTIAL_JSON)
+$protected = [Security.Cryptography.ProtectedData]::Protect(
+    $plain,
+    $null,
+    [Security.Cryptography.DataProtectionScope]::LocalMachine)
+[IO.File]::WriteAllBytes($path, $protected)
+"#;
+
+    let output = Command::new("powershell.exe")
+        .args(["-NoLogo", "-NoProfile", "-NonInteractive", "-Command", script])
+        .env("INNO_ONE_CREDENTIAL_PATH", path.as_os_str())
+        .env("INNO_ONE_CREDENTIAL_JSON", json)
+        .output()
+        .map_err(|error| format!("DEVICE_CREDENTIAL_SAVE_START_FAILED: {error}"))?;
+
+    if !output.status.success() {
+        return Err(format!(
+            "DEVICE_CREDENTIAL_SAVE_FAILED: {}",
+            String::from_utf8_lossy(&output.stderr).trim()
+        ));
+    }
+
+    Ok(())
+}
+
+#[tauri::command]
+fn load_machine_credential() -> Result<Option<StoredMachineCredential>, String> {
+    let path = credential_path()?;
+    if !path.exists() {
+        return Ok(None);
+    }
+
+    let script = r#"
+$ErrorActionPreference = 'Stop'
+Add-Type -AssemblyName System.Security
+$protected = [IO.File]::ReadAllBytes($env:INNO_ONE_CREDENTIAL_PATH)
+$plain = [Security.Cryptography.ProtectedData]::Unprotect(
+    $protected,
+    $null,
+    [Security.Cryptography.DataProtectionScope]::LocalMachine)
+[Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)
+[Console]::Write([Text.Encoding]::UTF8.GetString($plain))
+"#;
+    let output = Command::new("powershell.exe")
+        .args(["-NoLogo", "-NoProfile", "-NonInteractive", "-Command", script])
+        .env("INNO_ONE_CREDENTIAL_PATH", path.as_os_str())
+        .output()
+        .map_err(|error| format!("DEVICE_CREDENTIAL_LOAD_START_FAILED: {error}"))?;
+
+    if !output.status.success() {
+        return Err(format!(
+            "DEVICE_CREDENTIAL_LOAD_FAILED: {}",
+            String::from_utf8_lossy(&output.stderr).trim()
+        ));
+    }
+
+    let json = String::from_utf8_lossy(&output.stdout).trim().to_string();
+    if json.is_empty() {
+        return Ok(None);
+    }
+
+    serde_json::from_str::<StoredMachineCredential>(&json)
+        .map(Some)
+        .map_err(|error| format!("DEVICE_CREDENTIAL_PARSE_FAILED: {error}"))
+}
+
+#[tauri::command]
+fn clear_machine_credential() -> Result<(), String> {
+    let path = credential_path()?;
+    if path.exists() {
+        fs::remove_file(path)
+            .map_err(|error| format!("DEVICE_CREDENTIAL_CLEAR_FAILED: {error}"))?;
+    }
+    Ok(())
+}
+
+#[cfg(target_os = "windows")]
+#[tauri::command]
+fn collect_enrollment_identity() -> Result<EnrollmentIdentity, String> {
+    let script = r#"
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+$os = Get-CimInstance Win32_OperatingSystem | Select-Object -First 1
+$enclosure = Get-CimInstance Win32_SystemEnclosure | Select-Object -First 1
+$identity = [Security.Principal.WindowsIdentity]::GetCurrent().Name
+$computerName = [string]$env:COMPUTERNAME
+if ([string]::IsNullOrWhiteSpace($computerName)) {
+    $computerName = [System.Net.Dns]::GetHostName()
+}
+if ([string]::IsNullOrWhiteSpace($computerName)) {
+    $computerName = [string](Get-CimInstance Win32_ComputerSystem | Select-Object -ExpandProperty Name -First 1)
+}
+$upn = $null
+try {
+    $candidate = (& whoami /upn 2>$null | Select-Object -First 1)
+    if ($candidate -and $candidate -match '@') { $upn = [string]$candidate.Trim() }
+} catch {}
+$chassis = @($enclosure.ChassisTypes)
+$laptop = @(8,9,10,14,30,31,32) | Where-Object { $chassis -contains $_ }
+[pscustomobject]@{
+    hostname = [string]$computerName
+    deviceType = if ($laptop.Count -gt 0) { 'notebook' } else { 'desktop' }
+    operatingSystem = if ($os.Caption -and $os.Version) { "$($os.Caption) - $($os.Version)" } else { [string]$os.Caption }
+    windowsIdentity = if ($identity) { [string]$identity } else { $null }
+    windowsUpn = $upn
+    agentVersion = '__AGENT_VERSION__'
+} | ConvertTo-Json -Compress
+"#.replace("__AGENT_VERSION__", env!("CARGO_PKG_VERSION"));
+
+    let stdout = run_powershell_json(&script, "ENROLLMENT_IDENTITY")?;
+    serde_json::from_str::<EnrollmentIdentity>(&stdout)
+        .map_err(|error| format!("ENROLLMENT_IDENTITY_PARSE_FAILED: {error}"))
+}
+
+#[cfg(not(target_os = "windows"))]
+#[tauri::command]
+fn collect_enrollment_identity() -> Result<EnrollmentIdentity, String> {
+    Ok(EnrollmentIdentity {
+        hostname: env::var("HOSTNAME").unwrap_or_else(|_| "unknown".into()),
+        device_type: "desktop".into(),
+        operating_system: None,
+        windows_identity: None,
+        windows_upn: None,
+        agent_version: env!("CARGO_PKG_VERSION").into(),
+    })
+}
+
 fn bytes_to_gb(value: u64) -> f64 {
     ((value as f64 / 1024.0 / 1024.0 / 1024.0) * 100.0).round() / 100.0
+}
+
+fn run_powershell_json(script: &str, failure_code: &str) -> Result<String, String> {
+    let output = Command::new("powershell.exe")
+        .args(["-NoLogo", "-NoProfile", "-NonInteractive", "-Command", script])
+        .output()
+        .map_err(|error| format!("{failure_code}_START_FAILED: {error}"))?;
+
+    if !output.status.success() {
+        return Err(format!(
+            "{failure_code}_FAILED: {}",
+            String::from_utf8_lossy(&output.stderr).trim()
+        ));
+    }
+
+    Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
 }
 
 #[tauri::command]
@@ -87,21 +348,76 @@ $mask = (0..3 | ForEach-Object { [Convert]::ToInt32($bits.Substring($_ * 8, 8), 
 } | ConvertTo-Json -Compress
 "#;
 
-    let output = Command::new("powershell.exe")
-        .args(["-NoLogo", "-NoProfile", "-NonInteractive", "-Command", script])
-        .output()
-        .map_err(|error| format!("NETWORK_COLLECTOR_START_FAILED: {error}"))?;
+    let stdout = run_powershell_json(script, "NETWORK_COLLECTOR")?;
+    serde_json::from_str::<NetworkTelemetry>(&stdout)
+        .map_err(|error| format!("NETWORK_COLLECTOR_PARSE_FAILED: {error}"))
+}
 
-    if !output.status.success() {
-        return Err(format!(
-            "NETWORK_COLLECTOR_FAILED: {}",
-            String::from_utf8_lossy(&output.stderr).trim()
-        ));
+#[cfg(target_os = "windows")]
+fn collect_windows_hardware() -> Result<HardwareTelemetry, String> {
+    let script = r#"
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+$computer = Get-CimInstance Win32_ComputerSystem
+$bios = Get-CimInstance Win32_BIOS | Select-Object -First 1
+$cpu = Get-CimInstance Win32_Processor | Select-Object -First 1
+$os = Get-CimInstance Win32_OperatingSystem | Select-Object -First 1
+$memory = @(Get-CimInstance Win32_PhysicalMemory)
+$arrays = @(Get-CimInstance Win32_PhysicalMemoryArray -ErrorAction SilentlyContinue)
+$totalBytes = ($memory | Measure-Object -Property Capacity -Sum).Sum
+$totalSlots = ($arrays | Measure-Object -Property MemoryDevices -Sum).Sum
+[pscustomobject]@{
+    manufacturer = [string]$computer.Manufacturer
+    model = [string]$computer.Model
+    serialNumber = [string]$bios.SerialNumber
+    processor = [string]$cpu.Name
+    biosVersion = if ($bios.SMBIOSBIOSVersion) { [string]$bios.SMBIOSBIOSVersion } else { [string]$bios.Version }
+    operatingSystem = if ($os.Caption -and $os.Version) { "$($os.Caption) - $($os.Version)" } else { [string]$os.Caption }
+    memoryTotalGb = if ($totalBytes) { [Math]::Round(([double]$totalBytes / 1GB), 2) } else { $null }
+    memorySlotsUsed = @($memory).Count
+    memorySlotsTotal = if ($totalSlots) { [int]$totalSlots } else { $null }
+} | ConvertTo-Json -Compress
+"#;
+
+    let stdout = run_powershell_json(script, "HARDWARE_COLLECTOR")?;
+    serde_json::from_str::<HardwareTelemetry>(&stdout)
+        .map_err(|error| format!("HARDWARE_COLLECTOR_PARSE_FAILED: {error}"))
+}
+
+#[cfg(target_os = "windows")]
+fn collect_windows_software() -> Result<Vec<SoftwarePackageTelemetry>, String> {
+    let script = r#"
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+$roots = @(
+    @{ Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*'; Architecture = 'x64' },
+    @{ Path = 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*'; Architecture = 'x86' },
+    @{ Path = 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*'; Architecture = 'unknown' }
+)
+$items = foreach ($root in $roots) {
+    Get-ItemProperty -Path $root.Path -ErrorAction SilentlyContinue |
+        Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_.DisplayName) } |
+        ForEach-Object {
+            [pscustomobject]@{
+                productKey = (('registry:' + [string]$_.PSChildName + ':' + $root.Architecture) -replace [char]0, '')
+                displayName = (([string]$_.DisplayName) -replace [char]0, '')
+                version = if ($_.DisplayVersion) { (([string]$_.DisplayVersion) -replace [char]0, '') } else { $null }
+                publisher = if ($_.Publisher) { (([string]$_.Publisher) -replace [char]0, '') } else { $null }
+                architecture = $root.Architecture
+            }
+        }
+}
+$deduped = @($items |
+    Sort-Object productKey, displayName, version -Unique |
+    Select-Object -First 2000)
+ConvertTo-Json -InputObject $deduped -Compress -Depth 4
+"#;
+
+    let stdout = run_powershell_json(script, "SOFTWARE_COLLECTOR")?;
+    if stdout.is_empty() {
+        return Ok(Vec::new());
     }
 
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    serde_json::from_str::<NetworkTelemetry>(stdout.trim())
-        .map_err(|error| format!("NETWORK_COLLECTOR_PARSE_FAILED: {error}"))
+    serde_json::from_str::<Vec<SoftwarePackageTelemetry>>(&stdout)
+        .map_err(|error| format!("SOFTWARE_COLLECTOR_PARSE_FAILED: {error}"))
 }
 
 #[cfg(not(target_os = "windows"))]
@@ -109,16 +425,44 @@ fn collect_windows_network() -> Result<NetworkTelemetry, String> {
     Ok(NetworkTelemetry::default())
 }
 
+#[cfg(not(target_os = "windows"))]
+fn collect_windows_hardware() -> Result<HardwareTelemetry, String> {
+    Ok(HardwareTelemetry::default())
+}
+
+#[cfg(not(target_os = "windows"))]
+fn collect_windows_software() -> Result<Vec<SoftwarePackageTelemetry>, String> {
+    Ok(Vec::new())
+}
+
 #[tauri::command]
 fn collect_network_telemetry() -> Result<NetworkTelemetry, String> {
     collect_windows_network()
+}
+
+#[tauri::command]
+fn collect_hardware_telemetry() -> Result<HardwareTelemetry, String> {
+    collect_windows_hardware()
+}
+
+#[tauri::command]
+fn collect_software_inventory() -> Result<Vec<SoftwarePackageTelemetry>, String> {
+    collect_windows_software()
 }
 
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             collect_performance_telemetry,
-            collect_network_telemetry
+            collect_network_telemetry,
+            collect_hardware_telemetry,
+            collect_software_inventory,
+            collect_enrollment_identity,
+            load_enrollment_token,
+            clear_enrollment_token,
+            save_machine_credential,
+            load_machine_credential,
+            clear_machine_credential
         ])
         .run(tauri::generate_context!())
         .expect("error while running INNO.One Endpoint Agent");

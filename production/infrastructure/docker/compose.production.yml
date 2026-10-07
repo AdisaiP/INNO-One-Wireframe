@@ -99,6 +99,8 @@ services:
       MeshCentral__AllowInvalidTls: "true"
       MeshCentral__CommandTimeoutSeconds: "10"
       MeshCentral__SyncIntervalSeconds: "5"
+      EndpointAgent__AllowedOrigins__0: "http://tauri.localhost"
+      EndpointAgent__InstallerUrl: "${PUBLIC_ENDPOINT_AGENT_INSTALLER_URL:-https://172.10.1.58:8446/downloads/INNO.One-Agent.msi}"
     depends_on:
       postgres:
         condition: service_healthy
@@ -137,6 +139,8 @@ services:
         VITE_API_BASE_URL: /api/v1
     image: inno-one-web-portal:main
     restart: unless-stopped
+    volumes:
+      - ./endpoint-agent-packages:/usr/share/nginx/html/downloads:ro
 
   reverse-proxy:
     image: nginx:1.27-alpine

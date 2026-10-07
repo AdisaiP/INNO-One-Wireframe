@@ -54,6 +54,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.RequireHttpsMetadata = builder.Configuration.GetValue("Authentication:RequireHttpsMetadata", true);
     });
 builder.Services.AddAuthorization();
+builder.Services.AddCors(options =>
+{
+    var agentOrigins = builder.Configuration
+        .GetSection("EndpointAgent:AllowedOrigins")
+        .Get<string[]>()
+        ?? ["http://tauri.localhost"];
+
+    options.AddPolicy("EndpointAgent", policy =>
+        policy.WithOrigins(agentOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
@@ -88,6 +100,7 @@ if (builder.Configuration.GetValue("Database:ApplyMigrationsOnStartup", false))
     }
 }
 
+app.UseCors("EndpointAgent");
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -117,6 +130,7 @@ api.MapAdminSettingsEndpoints();
 api.MapDevicesEndpoints();
 api.MapAgentDeviceEndpoints();
 api.MapAgentTelemetryEndpoints();
+api.MapDeviceEnrollmentEndpoints();
 api.MapDeviceManagementEndpoints();
 api.MapDeviceHardwareInventoryEndpoints();
 api.MapDevicePerformanceNetworkEndpoints();

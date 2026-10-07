@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { INNOButton, INNOCollection, INNOCollectionHeader, INNOCollectionState, INNOCollectionToolbar, INNODialog, INNOIcon, INNOPagination, INNOResourceHeader, INNOResourceSummary, INNOResourceSummaryItem, INNOSearchField, INNOSelectField, INNOState, INNOStatus, INNOSurfaceTabs, INNOTableWrap } from '@inno/ui';
-import { createRemoteSession, executeDeviceServiceAction, getDevice, getDeviceActivity, getDeviceHardwareInventory, getDeviceNetworkInventory, getDevicePerformance, getDeviceSoftwareInventory, getLiveDeviceProcesses, getLiveDeviceServices, getTickets, terminateDeviceProcess } from '../api/client';
+import { confirmDeviceOwnership, createRemoteSession, executeDeviceServiceAction, getDevice, getDeviceActivity, getDeviceHardwareInventory, getDeviceNetworkInventory, getDeviceOwnershipAssignment, getDevicePerformance, getDeviceSoftwareInventory, getLiveDeviceProcesses, getLiveDeviceServices, getTickets, rejectDeviceOwnership, terminateDeviceProcess } from '../api/client';
 import { CollectionErrorState, CollectionLoadingState, ErrorState, LoadingState } from '../components/Feedback';
 import { useI18n as useStep45NI18n } from '@inno/i18n';
 import { usePermission } from '../app/ProfileContext';
@@ -118,6 +118,25 @@ export function DeviceDetailPage() {
     queryKey: ['device', deviceId],
     queryFn: () => getDevice(deviceId),
     enabled: Boolean(deviceId),
+  });
+  const ownershipQuery = useQuery({
+    queryKey: ['device', deviceId, 'ownership-assignment'],
+    queryFn: () => getDeviceOwnershipAssignment(deviceId),
+    enabled: Boolean(deviceId) && activeTab === 'overview',
+  });
+  const confirmOwnershipMutation = useMutation({
+    mutationFn: () => confirmDeviceOwnership(deviceId),
+    onSuccess: async () => {
+      setActionNotice('Device owner confirmed.');
+      await Promise.all([query.refetch(), ownershipQuery.refetch()]);
+    },
+  });
+  const rejectOwnershipMutation = useMutation({
+    mutationFn: () => rejectDeviceOwnership(deviceId),
+    onSuccess: async () => {
+      setActionNotice('Ownership suggestion rejected.');
+      await ownershipQuery.refetch();
+    },
   });
   const remoteSessionMutation = useMutation({
     mutationFn: () => createRemoteSession(deviceId, { mode: 'control', durationMinutes: 60 }),
@@ -312,6 +331,77 @@ export function DeviceDetailPage() {
         </section>
 
         <div className="panel-stack">
+          <section className="prod-panel">
+            <div className="prod-panel-head">
+              <div>
+                <h3>Device ownership</h3>
+                <p>Confirm the employee assignment proposed by Endpoint Agent identity evidence.</p>
+              </div>
+              {ownershipQuery.data?.owner ? (
+                <INNOStatus tone="success">Confirmed</INNOStatus>
+              ) : ownershipQuery.data?.suggestion?.status === 'pending' ? (
+                <INNOStatus tone="warning">Pending confirmation</INNOStatus>
+              ) : ownershipQuery.data?.suggestion?.status === 'rejected' ? (
+                <INNOStatus tone="neutral">Rejected</INNOStatus>
+              ) : (
+                <INNOStatus tone="neutral">Unassigned</INNOStatus>
+              )}
+            </div>
+            {ownershipQuery.isPending ? (
+              <div className="device-tab-loading-wrap"><LoadingState label="Loading ownership assignment" /></div>
+            ) : ownershipQuery.isError ? (
+              <div className="page-error-wrap"><ErrorState error={ownershipQuery.error} retry={() => void ownershipQuery.refetch()} /></div>
+            ) : (
+              <div className="settings-stack">
+                <div className="settings-row">
+                  <div>
+                    <b>{ownershipQuery.data?.owner ? 'Assigned employee' : 'Suggested employee'}</b>
+                    <span>{ownershipQuery.data?.suggestion?.matchReason?.replaceAll('_', ' ') ?? 'No ownership evidence reported yet'}</span>
+                  </div>
+                  <b>{ownershipQuery.data?.owner?.fullName ?? ownershipQuery.data?.suggestion?.candidate?.fullName ?? '—'}</b>
+                </div>
+                <div className="settings-row">
+                  <div>
+                    <b>Detected Windows identity</b>
+                    <span>{ownershipQuery.data?.suggestion?.detectedUpn ?? ownershipQuery.data?.suggestion?.detectedIdentity ?? 'Not reported'}</span>
+                  </div>
+                  {ownershipQuery.data?.suggestion?.candidate?.email ? <b>{ownershipQuery.data.suggestion.candidate.email}</b> : <span>—</span>}
+                </div>
+                {canManage
+                  && !ownershipQuery.data?.owner
+                  && ownershipQuery.data?.suggestion?.status === 'pending'
+                  && ownershipQuery.data.suggestion.candidate ? (
+                    <div className="settings-row">
+                      <div>
+                        <b>Ownership confirmation</b>
+                        <span>Confirm only after the suggested employee matches the intended device assignee.</span>
+                      </div>
+                      <div className="inline-actions">
+                        <INNOButton
+                          variant="secondary"
+                          type="button"
+                          busy={rejectOwnershipMutation.isPending}
+                          disabled={confirmOwnershipMutation.isPending}
+                          onClick={() => rejectOwnershipMutation.mutate()}
+                        >
+                          Reject
+                        </INNOButton>
+                        <INNOButton
+                          variant="primary"
+                          type="button"
+                          busy={confirmOwnershipMutation.isPending}
+                          disabled={rejectOwnershipMutation.isPending}
+                          onClick={() => confirmOwnershipMutation.mutate()}
+                        >
+                          Confirm owner
+                        </INNOButton>
+                      </div>
+                    </div>
+                  ) : null}
+              </div>
+            )}
+          </section>
+
           <section className="prod-panel">
             <div className="prod-panel-head">
               <div>

@@ -66,10 +66,20 @@ public static class DeviceActivityEndpoints
                     SELECT COUNT(*)
                     FROM audit.audit_records
                     WHERE module = 'devices'
-                      AND target_type = 'device'
-                      AND target_id = @target_id
+                      AND (
+                        (target_type = 'device' AND target_id = @target_id)
+                        OR (
+                          target_type = 'remote_session'
+                          AND target_id IN (
+                            SELECT 'rses_' || REPLACE(id::text, '-', '')
+                            FROM devices.remote_sessions
+                            WHERE device_id = @device_uuid
+                          )
+                        )
+                      )
                     """;
                 AddParameter(countCommand, "@target_id", deviceId);
+                AddParameter(countCommand, "@device_uuid", id);
                 totalItems = Convert.ToInt64(
                     await countCommand.ExecuteScalarAsync(cancellationToken) ?? 0);
             }
@@ -86,12 +96,22 @@ public static class DeviceActivityEndpoints
                            metadata_json::text
                     FROM audit.audit_records
                     WHERE module = 'devices'
-                      AND target_type = 'device'
-                      AND target_id = @target_id
+                      AND (
+                        (target_type = 'device' AND target_id = @target_id)
+                        OR (
+                          target_type = 'remote_session'
+                          AND target_id IN (
+                            SELECT 'rses_' || REPLACE(id::text, '-', '')
+                            FROM devices.remote_sessions
+                            WHERE device_id = @device_uuid
+                          )
+                        )
+                      )
                     ORDER BY occurred_at DESC, audit_id DESC
                     LIMIT @limit OFFSET @offset
                     """;
                 AddParameter(command, "@target_id", deviceId);
+                AddParameter(command, "@device_uuid", id);
                 AddParameter(command, "@limit", pageSize);
                 AddParameter(command, "@offset", offset);
 

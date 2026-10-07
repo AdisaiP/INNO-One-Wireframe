@@ -305,6 +305,25 @@ export interface DeviceListItem {
   lastSeenAt?: string | null;
 }
 
+export interface DeviceOwnershipUser {
+  id: string;
+  fullName: string;
+  email: string;
+}
+
+export interface DeviceOwnershipSuggestion {
+  status: 'pending' | 'confirmed' | 'rejected' | 'unmatched' | string;
+  matchReason: string;
+  detectedIdentity?: string | null;
+  detectedUpn?: string | null;
+  candidate?: DeviceOwnershipUser | null;
+}
+
+export interface DeviceOwnershipAssignment {
+  owner?: DeviceOwnershipUser | null;
+  suggestion?: DeviceOwnershipSuggestion | null;
+}
+
 export interface DeviceDetail {
   id: string;
   name: string;
@@ -701,6 +720,9 @@ export interface AgentInstaller {
   profile: string;
   enrollmentUrl: string;
   expiresAt?: string | null;
+  endpointInstallerUrl?: string | null;
+  endpointEnrollmentToken?: string | null;
+  endpointEnrollmentExpiresAt?: string | null;
   status: string;
 }
 

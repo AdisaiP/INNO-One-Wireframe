@@ -51,6 +51,8 @@ import type {
   DeviceActivityItem,
   DeviceHardwareInventory,
   DeviceNetworkInventory,
+  DeviceOwnershipAssignment,
+  DeviceOwnershipUser,
   DevicePerformance,
   DeviceProcessSnapshot,
   DeviceServiceSnapshot,
@@ -613,6 +615,35 @@ export async function getDevice(deviceId: string): Promise<DeviceDetail> {
     '/devices/' + encodeURIComponent(deviceId),
   );
   return response.data;
+}
+
+export async function getDeviceOwnershipAssignment(deviceId: string): Promise<DeviceOwnershipAssignment> {
+  const response = await request<ResourceEnvelope<DeviceOwnershipAssignment>>(
+    '/devices/' + encodeURIComponent(deviceId) + '/ownership-assignment',
+  );
+  return response.data;
+}
+
+export async function confirmDeviceOwnership(
+  deviceId: string,
+  userId?: string | null,
+): Promise<DeviceOwnershipUser> {
+  const response = await request<ResourceEnvelope<DeviceOwnershipUser>>(
+    '/devices/' + encodeURIComponent(deviceId) + '/ownership-assignment/confirm',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: userId ?? null }),
+    },
+  );
+  return response.data;
+}
+
+export async function rejectDeviceOwnership(deviceId: string): Promise<void> {
+  await request(
+    '/devices/' + encodeURIComponent(deviceId) + '/ownership-assignment/reject',
+    { method: 'POST' },
+  );
 }
 
 

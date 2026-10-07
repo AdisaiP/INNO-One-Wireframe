@@ -27,6 +27,8 @@ root_package = json.loads(text(PROD / "package.json"))
 readme = text(AGENT / "README.md")
 main = text(AGENT / "src/main.tsx")
 agent_api = text(AGENT / "src/api.ts")
+machine_auth = text(AGENT / "src/machineAuth.ts")
+agent_telemetry = text(AGENT / "src/telemetry.ts")
 auth = text(AGENT / "src/auth.ts")
 i18n = text(AGENT / "src/i18n.ts")
 styles = text(AGENT / "src/styles.css")
@@ -36,6 +38,10 @@ tauri_main = text(AGENT / "src-tauri/src/main.rs")
 program = text(API / "INNO.One.PlatformApi/Program.cs")
 devices_module = text(API / "Modules/Devices/DevicesModule.cs")
 device_api = text(API / "Modules/Devices/Api/AgentDeviceEndpoints.cs")
+enrollment_api = text(API / "Modules/Devices/Api/DeviceEnrollmentEndpoints.cs")
+machine_authenticator = text(API / "Modules/Devices/Infrastructure/DeviceMachineAuthenticator.cs")
+telemetry_api = text(API / "Modules/Devices/Api/AgentTelemetryEndpoints.cs")
+activity_api = text(API / "Modules/Devices/Api/DeviceActivityEndpoints.cs")
 device_entities = text(API / "Modules/Devices/Domain/DeviceEntities.cs")
 device_db = text(API / "Modules/Devices/Persistence/DevicesDbContext.cs")
 prompt_service = text(API / "Modules/Devices/Application/AgentPromptService.cs")
@@ -130,7 +136,6 @@ check("primary.full" in styles, "Agent full-width notice acknowledgement action 
 
 # Agent client API.
 for marker in (
-    "/agent/device-context/",
     "/agent/help-requests",
     "/agent/ownership/context",
     "/agent/ownership-submissions",
@@ -140,8 +145,52 @@ for marker in (
     "/agent/prompts/",
 ):
     check(marker in agent_api, "Agent client API route missing: " + marker)
-check("VITE_AGENT_DEVICE_ID" in agent_api, "Agent device binding config missing")
-check("AGENT_DEVICE_ID" in agent_api, "Agent device context identifier missing")
+check("/agent/enroll" in machine_auth, "Agent enrollment API route missing")
+check("/agent/machine/context" in machine_auth, "Agent machine context API route missing")
+check("ensureMachineCredential" in machine_auth, "Agent machine credential bootstrap missing")
+check("load_enrollment_token" in machine_auth and "clear_enrollment_token" in machine_auth,
+      "Agent runtime enrollment token bootstrap missing")
+check("VITE_AGENT_ENROLLMENT_TOKEN" not in machine_auth,
+      "Agent enrollment token must not be compiled into the frontend bundle")
+check("enrollment-token.txt" in tauri_main,
+      "Native runtime enrollment token file contract missing")
+check("initializeAuthentication" not in main, "Agent startup still requires interactive user authentication")
+check("VITE_API_BASE_URL" in agent_api and "VITE_API_BASE_URL" in machine_auth,
+      "Packaged Agent production API base config missing")
+check("save_machine_credential" in tauri_main and "load_machine_credential" in tauri_main,
+      "Native machine credential persistence missing")
+check("DataProtectionScope]::LocalMachine" in tauri_main,
+      "Native machine credential protection missing")
+check('MapPost("/agent/enroll"' in enrollment_api and 'MapGet("/agent/machine/context"' in enrollment_api,
+      "Platform machine enrollment endpoints missing")
+check("DeviceMachineAuthenticator" in machine_authenticator and "FixedTimeEquals" in machine_authenticator,
+      "Platform machine credential authenticator missing")
+for marker in (
+    "collectPerformanceTelemetry",
+    "collectNetworkTelemetry",
+    "collectHardwareTelemetry",
+    "collectSoftwareInventory",
+):
+    check(marker in main, "Agent telemetry publisher missing collector: " + marker)
+for marker in (
+    "collect_hardware_telemetry",
+    "collect_software_inventory",
+    "Win32_ComputerSystem",
+    "Win32_PhysicalMemory",
+    "CurrentVersion\\Uninstall",
+):
+    check(marker in tauri_main, "Agent native telemetry collector missing: " + marker)
+for marker in (
+    "AgentHardwareTelemetry",
+    "AgentSoftwareTelemetry",
+    "HardwareStored",
+    "SoftwareStored",
+    "devices.hardware_inventory.observed",
+    "devices.software_inventory.observed",
+):
+    check(marker in telemetry_api, "Agent telemetry ingest contract missing: " + marker)
+check("target_type = 'remote_session'" in activity_api and "devices.remote_sessions" in activity_api,
+      "Device Activity does not include related RemoteSession audits")
 
 # Platform routing and module ownership.
 check("MapAgentDeviceEndpoints" in program, "Platform API does not map Devices Agent endpoints")

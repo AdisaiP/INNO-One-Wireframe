@@ -15,6 +15,7 @@ export function AgentDeploymentPage() {
   const [groupId, setGroupId] = useState('');
   const [operatingSystem, setOperatingSystem] = useState('windows');
   const [profile, setProfile] = useState('standard');
+  const [copied, setCopied] = useState(false);
 
   const generate = useMutation({
     mutationFn: () => createAgentInstaller({
@@ -23,7 +24,27 @@ export function AgentDeploymentPage() {
       profile,
       expiresHours: 24,
     }),
+    onSuccess: () => setCopied(false),
   });
+
+  const endpointInstallCommand = generate.data?.endpointInstallerUrl
+    && generate.data.endpointEnrollmentToken
+    ? [
+        "$dir=Join-Path $env:ProgramData 'INNO.One'",
+        "New-Item -ItemType Directory -Force -Path $dir | Out-Null",
+        "Set-Content -Path (Join-Path $dir 'enrollment-token.txt') -Value '" + generate.data.endpointEnrollmentToken + "' -NoNewline",
+        "$msi=Join-Path $env:TEMP 'INNO.One-Agent.msi'",
+        "Invoke-WebRequest -UseBasicParsing '" + generate.data.endpointInstallerUrl + "' -OutFile $msi",
+        "Start-Process msiexec.exe -ArgumentList @('/i',$msi,'/qn') -Wait",
+      ].join('; ')
+    : null;
+
+  const copyInstallCommand = async () => {
+    if (!endpointInstallCommand) return;
+    await navigator.clipboard.writeText(endpointInstallCommand);
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <INNOPage
@@ -107,6 +128,23 @@ export function AgentDeploymentPage() {
             </div>
             <a className="inno-link-button" href={generate.data.enrollmentUrl} target="_blank" rel="noreferrer">{t45n('devices.step45n.agentDeployment.openEnrollment')}</a>
           </div>
+          {endpointInstallCommand ? (
+            <div className="enrollment-link-row">
+              <div>
+                <span>INNO.One Endpoint Agent · Windows PowerShell (Run as Administrator)</span>
+                <code>{endpointInstallCommand}</code>
+                <small>
+                  One-time machine enrollment
+                  {generate.data.endpointEnrollmentExpiresAt
+                    ? ' · expires ' + new Date(generate.data.endpointEnrollmentExpiresAt).toLocaleString()
+                    : ''}
+                </small>
+              </div>
+              <INNOButton variant="secondary" type="button" onClick={() => void copyInstallCommand()}>
+                {copied ? 'Copied' : 'Copy install command'}
+              </INNOButton>
+            </div>
+          ) : null}
           <INNOPurposeNote
             title={t45n('devices.step45n.agentDeployment.vendorIdsStayPrivate')}
             description={t45n('devices.step45n.agentDeployment.thisAuthorizedLinkIsTimeLimitedInnoOne')}

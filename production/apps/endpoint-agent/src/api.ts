@@ -1,7 +1,12 @@
 import { getAccessToken } from './auth';
+import {
+  ensureMachineCredential,
+  getMachineContext,
+  machineRequest,
+  type MachineContext,
+} from './machineAuth';
 
-export const AGENT_DEVICE_ID =
-  import.meta.env.VITE_AGENT_DEVICE_ID ?? 'dev_80000000000000000000000000000002';
+const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? '/api/v1').replace(/\/$/, '');
 
 type Envelope<T> = { data: T };
 
@@ -11,9 +16,9 @@ export class AgentApiError extends Error {
   }
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+async function userRequest<T>(path: string, init?: RequestInit): Promise<T> {
   const token = await getAccessToken();
-  const response = await fetch('/api/v1' + path, {
+  const response = await fetch(API_BASE + path, {
     ...init,
     headers: {
       Authorization: 'Bearer ' + token,
@@ -110,6 +115,31 @@ export type NetworkTelemetry = {
   packetLossPercent?: number | null;
 };
 
+export type HardwareTelemetry = {
+  manufacturer?: string | null;
+  model?: string | null;
+  serialNumber?: string | null;
+  processor?: string | null;
+  biosVersion?: string | null;
+  operatingSystem?: string | null;
+  memoryTotalGb?: number | null;
+  memorySlotsUsed?: number | null;
+  memorySlotsTotal?: number | null;
+};
+
+export type SoftwarePackageTelemetry = {
+  productKey?: string | null;
+  displayName: string;
+  version?: string | null;
+  publisher?: string | null;
+  architecture?: string | null;
+};
+
+export type SoftwareTelemetry = {
+  completeness: 'complete' | 'partial';
+  packages: SoftwarePackageTelemetry[];
+};
+
 export type AgentPrompt = {
   id: string;
   deviceId: string;
@@ -129,25 +159,44 @@ export type AgentPrompt = {
 };
 
 export async function getProfile() {
-  return (await request<Envelope<Profile>>('/platform/me')).data;
+  return (await userRequest<Envelope<Profile>>('/platform/me')).data;
 }
 
 export async function setPreferredLocale(locale: 'en-US' | 'th-TH') {
-  return request('/platform/me/profile', {
+  return userRequest('/platform/me/profile', {
     method: 'PATCH',
     body: JSON.stringify({ preferredLocale: locale }),
   });
 }
 
+function toDeviceContext(machine: MachineContext): DeviceContext {
+  return {
+    id: machine.id,
+    hostname: machine.hostname,
+    type: machine.type,
+    connectivityState: machine.connectivityState,
+    operatingSystem: machine.operatingSystem,
+    ipAddress: machine.ipAddress,
+    manufacturer: machine.manufacturer,
+    model: machine.model,
+    assetReference: null,
+    agentVersion: machine.agentVersion,
+    lastSeenAt: machine.lastSeenAt,
+  };
+}
+
 export async function getDeviceContext() {
-  return (await request<Envelope<DeviceContext>>(
-    '/agent/device-context/' + encodeURIComponent(AGENT_DEVICE_ID),
-  )).data;
+  return toDeviceContext(await getMachineContext());
+}
+
+export async function getMachineAgentContext() {
+  return getMachineContext();
 }
 
 export async function getOwnershipContext() {
-  return (await request<Envelope<OwnershipContext>>(
-    '/agent/ownership/context?deviceId=' + encodeURIComponent(AGENT_DEVICE_ID),
+  const credential = await ensureMachineCredential();
+  return (await userRequest<Envelope<OwnershipContext>>(
+    '/agent/ownership/context?deviceId=' + encodeURIComponent(credential.deviceId),
   )).data;
 }
 
@@ -157,9 +206,10 @@ export async function submitOwnership(input: {
   location?: string;
   changes: Record<string, string | null>;
 }) {
-  return request('/agent/ownership-submissions', {
+  const credential = await ensureMachineCredential();
+  return userRequest('/agent/ownership-submissions', {
     method: 'POST',
-    body: JSON.stringify({ deviceId: AGENT_DEVICE_ID, ...input }),
+    body: JSON.stringify({ deviceId: credential.deviceId, ...input }),
   });
 }
 
@@ -168,7 +218,8 @@ export async function createHelpRequest(input: {
   description: string;
   urgency: string;
 }) {
-  return request<Envelope<{
+  const credential = await ensureMachineCredential();
+  return userRequest<Envelope<{
     id: string;
     ticketNumber: string;
     subject: string;
@@ -182,19 +233,20 @@ export async function createHelpRequest(input: {
       priority: null,
       impact: 'medium',
       urgency: input.urgency,
-      relatedDeviceId: AGENT_DEVICE_ID,
+      relatedDeviceId: credential.deviceId,
     }),
   });
 }
 
 export async function getPendingConsent() {
-  return (await request<Envelope<ConsentRequest | null>>(
-    '/agent/remote-consent/pending?deviceId=' + encodeURIComponent(AGENT_DEVICE_ID),
+  const credential = await ensureMachineCredential();
+  return (await machineRequest<Envelope<ConsentRequest | null>>(
+    '/agent/remote-consent/pending?deviceId=' + encodeURIComponent(credential.deviceId),
   )).data;
 }
 
 export async function decideConsent(requestId: string, decision: 'approved' | 'declined') {
-  return request<Envelope<ConsentRequest>>(
+  return machineRequest<Envelope<ConsentRequest>>(
     '/agent/remote-consent/requests/' + encodeURIComponent(requestId) + '/decision',
     { method: 'POST', body: JSON.stringify({ decision }) },
   );
@@ -205,22 +257,28 @@ export async function submitTelemetry(input: {
   sourceInstance?: string | null;
   performance?: PerformanceTelemetry | null;
   network?: NetworkTelemetry | null;
+  hardware?: HardwareTelemetry | null;
+  software?: SoftwareTelemetry | null;
 }) {
-  return request<Envelope<{
+  const credential = await ensureMachineCredential();
+  return machineRequest<Envelope<{
     deviceId: string;
     observedAt: string;
     receivedAt: string;
     performanceStored: boolean;
     networkStored: boolean;
-  }>>('/agent/devices/' + encodeURIComponent(AGENT_DEVICE_ID) + '/telemetry', {
+    hardwareStored: boolean;
+    softwareStored: boolean;
+  }>>('/agent/devices/' + encodeURIComponent(credential.deviceId) + '/telemetry', {
     method: 'POST',
     body: JSON.stringify(input),
   });
 }
 
 export async function getPendingPrompt() {
-  return (await request<Envelope<AgentPrompt | null>>(
-    '/agent/prompts/pending?deviceId=' + encodeURIComponent(AGENT_DEVICE_ID),
+  const credential = await ensureMachineCredential();
+  return (await machineRequest<Envelope<AgentPrompt | null>>(
+    '/agent/prompts/pending?deviceId=' + encodeURIComponent(credential.deviceId),
   )).data;
 }
 
@@ -228,7 +286,7 @@ export async function respondToPrompt(
   promptId: string,
   responseKey: 'acknowledged' | 'accepted' | 'declined',
 ) {
-  return request<Envelope<AgentPrompt>>(
+  return machineRequest<Envelope<AgentPrompt>>(
     '/agent/prompts/' + encodeURIComponent(promptId) + '/response',
     { method: 'POST', body: JSON.stringify({ responseKey }) },
   );

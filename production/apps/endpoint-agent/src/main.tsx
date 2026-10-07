@@ -5,12 +5,11 @@ import {
   createHelpRequest,
   decideConsent,
   getDeviceContext,
+  getMachineAgentContext,
   getOwnershipContext,
   getPendingConsent,
   getPendingPrompt,
-  getProfile,
   respondToPrompt,
-  setPreferredLocale,
   submitOwnership,
   submitTelemetry,
   type AgentPrompt,
@@ -19,11 +18,12 @@ import {
   type OwnershipContext,
   type Profile,
 } from './api';
-import { initializeAuthentication, logout } from './auth';
 import { translate, type Locale } from './i18n';
 import {
+  collectHardwareTelemetry,
   collectNetworkTelemetry,
   collectPerformanceTelemetry,
+  collectSoftwareInventory,
   isNativeAgentRuntime,
 } from './telemetry';
 import './styles.css';
@@ -52,20 +52,27 @@ function App() {
     setLoading(true);
     setLoadError('');
     try {
-      const [nextProfile, nextDevice] = await Promise.all([getProfile(), getDeviceContext()]);
-      setProfile(nextProfile);
+      const [machine, nextDevice] = await Promise.all([
+        getMachineAgentContext(),
+        getDeviceContext(),
+      ]);
+      const storedLocale = window.localStorage.getItem('inno-agent-locale');
+      const nextLocale: Locale = storedLocale === 'en-US' ? 'en-US' : 'th-TH';
+      const person = machine.owner ?? machine.ownershipSuggestion?.candidate ?? null;
+      const awaitingConfirmation = machine.ownershipSuggestion?.status === 'pending';
+
+      setProfile({
+        id: person?.id ?? 'machine',
+        fullName: person?.fullName
+          ?? (awaitingConfirmation ? 'รอ IT ยืนยันผู้ใช้งาน' : 'ยังไม่กำหนดผู้ใช้งาน'),
+        email: person?.email ?? '',
+        locale: nextLocale,
+        preferredLocale: nextLocale,
+        organizationDefaultLocale: 'th-TH',
+      });
       setDevice(nextDevice);
-      try {
-        setOwnership(await getOwnershipContext());
-        setOwnershipUnavailable(false);
-      } catch (error) {
-        if (error instanceof AgentApiError && error.status === 404) {
-          setOwnership(null);
-          setOwnershipUnavailable(true);
-        } else {
-          throw error;
-        }
-      }
+      setOwnership(null);
+      setOwnershipUnavailable(false);
     } catch (error) {
       setLoadError(error instanceof Error ? error.message : 'REQUEST_FAILED');
     } finally {
@@ -93,7 +100,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (!profile || !online) return;
+    if (!device || !online) return;
     let cancelled = false;
     const poll = async () => {
       try {
@@ -118,7 +125,7 @@ function App() {
       cancelled = true;
       window.clearInterval(interval);
     };
-  }, [profile, online]);
+  }, [device, online]);
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
@@ -126,18 +133,25 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (!profile || !device || !online || !isNativeAgentRuntime()) return;
+    if (!device || !online || !isNativeAgentRuntime()) return;
 
     let cancelled = false;
     let busy = false;
     let ticks = 0;
 
-    const publish = async (includeNetwork: boolean) => {
+    const publish = async (
+      includeNetwork: boolean,
+      includeHardware: boolean,
+      includeSoftware: boolean,
+    ) => {
       if (busy || cancelled) return;
       busy = true;
+      const sourceInstance = device.agentVersion ?? 'endpoint-agent';
+
       try {
         const performance = await collectPerformanceTelemetry();
         let network = null;
+
         if (includeNetwork) {
           try {
             network = await collectNetworkTelemetry();
@@ -145,37 +159,88 @@ function App() {
             network = null;
           }
         }
-        if (cancelled) return;
-        await submitTelemetry({
-          observedAt: new Date().toISOString(),
-          sourceInstance: device.agentVersion ?? 'endpoint-agent',
-          performance,
-          network,
-        });
-      } catch {
-        // Telemetry is best-effort. User-facing Agent flows must remain usable.
+
+        if (!cancelled) {
+          try {
+            await submitTelemetry({
+              observedAt: new Date().toISOString(),
+              sourceInstance,
+              performance,
+              network,
+            });
+          } catch {
+            // Keep telemetry categories isolated so one collector cannot block the others.
+          }
+        }
+
+        if (includeHardware && !cancelled) {
+          try {
+            const hardware = await collectHardwareTelemetry();
+            await submitTelemetry({
+              observedAt: new Date().toISOString(),
+              sourceInstance,
+              hardware,
+            });
+          } catch {
+            // Hardware inventory is best-effort and independent of live performance.
+          }
+        }
+
+        if (includeSoftware && !cancelled) {
+          try {
+            const packages = await collectSoftwareInventory();
+            await submitTelemetry({
+              observedAt: new Date().toISOString(),
+              sourceInstance,
+              software: { completeness: 'complete' as const, packages },
+            });
+          } catch {
+            // Software inventory failures must not suppress other device telemetry.
+          }
+        }
       } finally {
         busy = false;
       }
     };
 
-    void publish(true);
+    void publish(true, true, true);
     const interval = window.setInterval(() => {
       ticks += 1;
-      void publish(ticks % 12 === 0);
+      void publish(
+        ticks % 12 === 0,
+        ticks % 60 === 0,
+        ticks % 360 === 0,
+      );
     }, 5000);
 
     return () => {
       cancelled = true;
       window.clearInterval(interval);
     };
-  }, [profile, device, online]);
+  }, [device, online]);
 
   const switchLocale = async () => {
     if (!profile) return;
     const next: Locale = locale === 'th-TH' ? 'en-US' : 'th-TH';
-    await setPreferredLocale(next);
+    window.localStorage.setItem('inno-agent-locale', next);
     setProfile({ ...profile, locale: next, preferredLocale: next });
+  };
+
+  const navigateTo = async (nextView: View) => {
+    setView(nextView);
+    if (nextView !== 'ownership' || ownership || ownershipUnavailable) return;
+
+    try {
+      setOwnership(await getOwnershipContext());
+      setOwnershipUnavailable(false);
+    } catch (error) {
+      if (error instanceof AgentApiError && error.status === 404) {
+        setOwnership(null);
+        setOwnershipUnavailable(true);
+        return;
+      }
+      throw error;
+    }
   };
 
   const answerConsent = async (decision: 'approved' | 'declined') => {
@@ -239,7 +304,7 @@ function App() {
       {!online ? <div className="offline-banner">{t('offline')} · {t('loadError')}</div> : null}
 
       <main className="content">
-        {view === 'home' ? <Home profile={profile} device={device} ownership={ownership} t={t} onNavigate={setView} /> : null}
+        {view === 'home' ? <Home profile={profile} device={device} ownership={ownership} t={t} onNavigate={(next) => void navigateTo(next)} /> : null}
         {view === 'help' ? <HelpView device={device} t={t} online={online} /> : null}
         {view === 'ownership' ? (
           <OwnershipView
@@ -252,9 +317,9 @@ function App() {
       </main>
 
       <nav className="bottom-nav" aria-label="Agent navigation">
-        <NavButton active={view === 'home'} label={t('home')} icon="⌂" onClick={() => setView('home')} />
-        <NavButton active={view === 'help'} label={t('help')} icon="?" onClick={() => setView('help')} />
-        <NavButton active={view === 'ownership'} label={t('ownership')} icon="✓" onClick={() => setView('ownership')} />
+        <NavButton active={view === 'home'} label={t('home')} icon="⌂" onClick={() => void navigateTo('home')} />
+        <NavButton active={view === 'help'} label={t('help')} icon="?" onClick={() => void navigateTo('help')} />
+        <NavButton active={view === 'ownership'} label={t('ownership')} icon="✓" onClick={() => void navigateTo('ownership')} />
       </nav>
 
       <footer className="footer">
@@ -262,7 +327,6 @@ function App() {
           {t('portal')}
         </button>
         <span>{profile.fullName}</span>
-        <button className="text-button" onClick={() => void logout()}>{t('signOut')}</button>
       </footer>
 
       {consent ? (
@@ -479,6 +543,6 @@ function initials(name: string) {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase()).join('');
 }
 
-initializeAuthentication()
-  .then(() => createRoot(document.getElementById('root')!).render(<StrictMode><App /></StrictMode>))
-  .catch((error) => createRoot(document.getElementById('root')!).render(<CenteredState title="Authentication failed" body={String(error)} />));
+createRoot(document.getElementById('root')!).render(
+  <StrictMode><App /></StrictMode>,
+);
