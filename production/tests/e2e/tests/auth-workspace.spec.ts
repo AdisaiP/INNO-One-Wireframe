@@ -26,7 +26,8 @@ test('Keycloak sign-in opens workspace and an allowed module', async ({ page }) 
   const devicesResponse = page.waitForResponse(
     (response) => response.url().includes('/api/v1/devices') && response.status() === 200,
   );
-  await workspaceNavigation.getByRole('link', { name: 'Devices' }).click();
+  const appNavigation = page.getByRole('complementary', { name: 'App navigation' });
+  await appNavigation.getByRole('link', { name: 'Devices' }).click();
   await devicesResponse;
   await expect(page).toHaveURL(/\/devices$/);
 });
