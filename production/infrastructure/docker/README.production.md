@@ -37,7 +37,7 @@ Start only the new PostgreSQL service first:
 
 ```bash
 docker compose --env-file .env.production -f compose.production.yml up -d postgres
-../../scripts/production-migrate-step18.sh
+../../scripts/migrate-legacy-step18.sh
 ```
 
 The migration script restores `inno_core` and `inno_meeting`. It also retains a Keycloak SQL backup for rollback, but the production Keycloak database is intentionally initialized from the current main-branch realm so redirect URIs match the production Portal.
