@@ -46,7 +46,7 @@ Exit criteria:
 
 ## Phase 1 - Authorization integration tests
 
-### CORE-010 Test foundation
+### CORE-010 Test foundation - COMPLETE (2026-10-14)
 Create real test projects under `production/tests/integration`.
 
 Preferred coverage:
@@ -55,14 +55,14 @@ Preferred coverage:
 - deterministic test identities / claims
 - repeatable database reset or isolated test database
 
-### CORE-011 Application-user gating
+### CORE-011 Application-user gating - COMPLETE (2026-10-14)
 Prove:
 - active application user can enter
 - pending user is blocked from protected application paths
 - disabled/inactive user is blocked
 - unknown identity follows the intended access-request/provisioning flow
 
-### CORE-012 RBAC + access scope
+### CORE-012 RBAC + access scope - COMPLETE (2026-10-14)
 Prove:
 - permission allow
 - missing permission -> 403
@@ -74,7 +74,7 @@ Prove:
 - out-of-scope resource -> denied
 - include-children behavior
 
-### CORE-013 Module availability
+### CORE-013 Module availability - COMPLETE (2026-10-14)
 Prove:
 - enabled module + permission -> available
 - disabled module -> unavailable even when the user has permission
