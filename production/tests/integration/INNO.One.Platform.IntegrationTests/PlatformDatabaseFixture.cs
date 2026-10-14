@@ -1,3 +1,4 @@
+using INNO.One.Infrastructure.Persistence;
 using INNO.One.Modules.Devices.Persistence;
 using INNO.One.Modules.Platform.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -35,6 +36,20 @@ public sealed class PlatformDatabaseFixture : IAsyncLifetime
         return new PlatformDbContext(options);
     }
 
+    public InfrastructureDbContext CreateInfrastructureDbContext()
+    {
+        var options = new DbContextOptionsBuilder<InfrastructureDbContext>()
+            .UseNpgsql(
+                ConnectionString,
+                npgsql => npgsql.MigrationsHistoryTable(
+                    "__ef_migrations_history",
+                    InfrastructureDbContext.MigrationsSchema))
+            .UseSnakeCaseNamingConvention()
+            .Options;
+
+        return new InfrastructureDbContext(options);
+    }
+
     public DevicesDbContext CreateDevicesDbContext()
     {
         var options = new DbContextOptionsBuilder<DevicesDbContext>()
@@ -65,6 +80,11 @@ public sealed class PlatformDatabaseFixture : IAsyncLifetime
             await platform.Database.MigrateAsync();
         }
 
+        await using (var infrastructure = CreateInfrastructureDbContext())
+        {
+            await infrastructure.Database.MigrateAsync();
+        }
+
         await using (var devices = CreateDevicesDbContext())
         {
             await devices.Database.MigrateAsync();
@@ -76,6 +96,8 @@ public sealed class PlatformDatabaseFixture : IAsyncLifetime
         await using var db = CreatePlatformDbContext();
         await db.Database.ExecuteSqlRawAsync(
             """
+            DROP SCHEMA IF EXISTS audit CASCADE;
+            DROP SCHEMA IF EXISTS integration CASCADE;
             DROP SCHEMA IF EXISTS devices CASCADE;
             DROP SCHEMA IF EXISTS platform CASCADE;
             """);
