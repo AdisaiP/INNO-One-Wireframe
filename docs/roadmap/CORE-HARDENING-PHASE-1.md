@@ -201,7 +201,7 @@ Exit criteria for Phase 4:
 
 ## Phase 5 - Module contract enforcement
 
-### CORE-050 Architecture tests
+### CORE-050 Architecture tests - COMPLETE (2026-10-14)
 Enforce:
 - no cross-module project references unless explicitly permitted by Platform contracts
 - no cross-module database foreign keys
@@ -209,7 +209,7 @@ Enforce:
 - shared contracts live in approved shared/contract packages
 - module manifests remain valid
 
-### CORE-051 Module starter/checklist
+### CORE-051 Module starter/checklist - COMPLETE (2026-10-14)
 Document the canonical module shape and minimum requirements:
 - API
 - Application
