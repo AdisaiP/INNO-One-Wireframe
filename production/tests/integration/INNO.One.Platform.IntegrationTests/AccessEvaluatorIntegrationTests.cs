@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using INNO.One.Modules.Platform.Application;
 using INNO.One.Modules.Platform.Domain;
 
@@ -368,4 +368,3 @@ public sealed class AccessEvaluatorIntegrationTests(PlatformDatabaseFixture data
             UpdatedAt = DateTimeOffset.UtcNow
         };
 }
-
