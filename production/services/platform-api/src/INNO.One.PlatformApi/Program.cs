@@ -1,4 +1,5 @@
 using INNO.One.Contracts;
+using INNO.One.Contracts.Integrations;
 using INNO.One.Infrastructure;
 using INNO.One.Infrastructure.Persistence;
 using INNO.One.Integrations.Keycloak;
@@ -25,6 +26,7 @@ using INNO.One.Modules.Reports.Persistence;
 using INNO.One.Modules.Workflows;
 using INNO.One.Modules.Workflows.Api;
 using INNO.One.Modules.Workflows.Persistence;
+using INNO.One.PlatformApi.Observability;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 
@@ -101,16 +103,68 @@ if (builder.Configuration.GetValue("Database:ApplyMigrationsOnStartup", false))
 }
 
 app.UseCors("EndpointAgent");
+app.UseMiddleware<RequestContextMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapHealthChecks("/health/live");
-app.MapGet("/health/ready", () => Results.Ok(new
+app.MapGet("/health/ready", async (
+    IEnumerable<IIntegrationHealthProvider> providers,
+    CancellationToken cancellationToken) =>
 {
-    service = "platform-api",
-    apiBasePath = ContractVersions.ApiBasePath,
-    implementationContract = ContractVersions.ImplementationContract
-}));
+    var dependencies = await Task.WhenAll(
+        providers.Select(provider => provider.CheckAsync(cancellationToken)));
+
+    var requiredIds = new HashSet<string>(StringComparer.Ordinal)
+    {
+        "core-database",
+        "keycloak"
+    };
+
+    var requiredPresent = requiredIds.All(id =>
+        dependencies.Any(dependency => string.Equals(
+            dependency.Id,
+            id,
+            StringComparison.Ordinal)));
+
+    var requiredHealthy = dependencies
+        .Where(dependency => requiredIds.Contains(dependency.Id))
+        .All(dependency => string.Equals(
+            dependency.Status,
+            "connected",
+            StringComparison.OrdinalIgnoreCase));
+
+    var enabledOptionalHealthy = dependencies
+        .Where(dependency => !requiredIds.Contains(dependency.Id) && dependency.Enabled)
+        .All(dependency => string.Equals(
+            dependency.Status,
+            "connected",
+            StringComparison.OrdinalIgnoreCase));
+
+    var ready = requiredPresent && requiredHealthy && enabledOptionalHealthy;
+
+    var payload = new
+    {
+        service = "platform-api",
+        status = ready ? "ready" : "degraded",
+        apiBasePath = ContractVersions.ApiBasePath,
+        implementationContract = ContractVersions.ImplementationContract,
+        dependencies = dependencies.Select(dependency => new
+        {
+            dependency.Id,
+            dependency.Name,
+            dependency.Status,
+            dependency.Enabled,
+            dependency.Configured,
+            dependency.DurationMs,
+            dependency.Message
+        })
+    };
+
+    return ready
+        ? Results.Ok(payload)
+        : Results.Json(payload, statusCode: StatusCodes.Status503ServiceUnavailable);
+});
 
 var api = app.MapGroup(ContractVersions.ApiBasePath)
     .RequireAuthorization();
@@ -156,3 +210,5 @@ api.MapReportsEndpoints();
 api.MapWorkflowEndpoints();
 
 app.Run();
+
+public partial class Program { }

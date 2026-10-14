@@ -7,17 +7,17 @@
     "node": ">=18.18.0"
   },
   "scripts": {
-    "build:packages": "pnpm --filter @inno/contracts build && pnpm --filter @inno/shared build && pnpm --filter @inno/auth build && pnpm --filter @inno/i18n build && pnpm --filter @inno/ui build",
-    "typecheck": "pnpm run build:packages && pnpm --filter @inno/web-portal typecheck",
-    "build": "pnpm run build:packages && pnpm --filter @inno/web-portal build",
-    "dev:web": "pnpm run build:packages && pnpm --filter @inno/web-portal dev",
-    "dev:agent": "pnpm --filter @inno/endpoint-agent dev",
-    "typecheck:agent": "pnpm --filter @inno/endpoint-agent typecheck",
-    "build:agent": "pnpm --filter @inno/endpoint-agent build",
-    "typecheck:mobile": "pnpm --filter @inno/assets-mobile typecheck",
-    "export:mobile": "pnpm --filter @inno/assets-mobile export",
+    "build:packages": "corepack pnpm --filter @inno/contracts build && corepack pnpm --filter @inno/shared build && corepack pnpm --filter @inno/auth build && corepack pnpm --filter @inno/i18n build && corepack pnpm --filter @inno/ui build",
+    "typecheck": "corepack pnpm run build:packages && corepack pnpm --filter @inno/web-portal typecheck",
+    "build": "corepack pnpm run build:packages && corepack pnpm --filter @inno/web-portal build",
+    "dev:web": "corepack pnpm run build:packages && corepack pnpm --filter @inno/web-portal dev",
+    "dev:agent": "corepack pnpm --filter @inno/endpoint-agent dev",
+    "typecheck:agent": "corepack pnpm --filter @inno/endpoint-agent typecheck",
+    "build:agent": "corepack pnpm --filter @inno/endpoint-agent build",
+    "typecheck:mobile": "corepack pnpm --filter @inno/assets-mobile typecheck",
+    "export:mobile": "corepack pnpm --filter @inno/assets-mobile export",
     "build:dotnet": "dotnet build INNO.One.sln",
-    "check": "pnpm typecheck && pnpm build && dotnet build INNO.One.sln"
+    "check": "corepack pnpm typecheck && corepack pnpm build && dotnet build INNO.One.sln"
   },
   "devDependencies": {
     "ws": "8.18.3"

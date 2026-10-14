@@ -1,0 +1,136 @@
+name: CORE E2E
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - "feat/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: core-e2e-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web-golden-path:
+    name: Web golden path
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: production
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+      DOTNET_NOLOGO: "1"
+      E2E_WEB_URL: "http://127.0.0.1:5180"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Install dependencies
+        run: corepack pnpm install --frozen-lockfile
+
+      - name: Install Chromium
+        run: corepack pnpm --filter @inno/e2e exec playwright install --with-deps chromium
+
+      - name: Start PostgreSQL and Keycloak
+        run: docker compose -f infrastructure/docker/compose.yml up -d postgres keycloak
+
+      - name: Wait for Keycloak
+        shell: bash
+        run: |
+          for attempt in {1..60}; do
+            if curl -fsS http://127.0.0.1:8080/realms/inno-one/.well-known/openid-configuration >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker compose -f infrastructure/docker/compose.yml logs keycloak
+          exit 1
+
+      - name: Start Platform API
+        shell: bash
+        run: |
+          export ASPNETCORE_ENVIRONMENT=Development
+          export ASPNETCORE_URLS=http://127.0.0.1:5080
+          export ConnectionStrings__CoreDatabase='Host=127.0.0.1;Port=5432;Database=inno_core;Username=inno;Password=inno_dev_only'
+          export Database__ApplyMigrationsOnStartup=true
+          export DevelopmentSeed__Enabled=true
+          export Authentication__Authority=http://127.0.0.1:8080/realms/inno-one
+          export Authentication__Audience=inno-one-api
+          export Authentication__RequireHttpsMetadata=false
+          export MeshCentral__Enabled=false
+          dotnet run --project services/platform-api/src/INNO.One.PlatformApi/INNO.One.PlatformApi.csproj > /tmp/inno-platform.log 2>&1 &
+          echo $! > /tmp/inno-platform.pid
+
+          for attempt in {1..90}; do
+            if curl -fsS http://127.0.0.1:5080/health/ready >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/inno-platform.log
+          exit 1
+
+      - name: Start Web Portal
+        shell: bash
+        run: |
+          export VITE_KEYCLOAK_URL=http://127.0.0.1:8080
+          export VITE_KEYCLOAK_REALM=inno-one
+          export VITE_KEYCLOAK_CLIENT_ID=inno-one-web
+          corepack pnpm dev:web -- --host 127.0.0.1 > /tmp/inno-web.log 2>&1 &
+          echo $! > /tmp/inno-web.pid
+
+          for attempt in {1..60}; do
+            if curl -fsS http://127.0.0.1:5180/ >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/inno-web.log
+          exit 1
+
+      - name: Run Web golden path
+        run: corepack pnpm --filter @inno/e2e test
+
+      - name: Print service logs on failure
+        if: failure()
+        shell: bash
+        run: |
+          echo '--- Platform API ---'
+          cat /tmp/inno-platform.log || true
+          echo '--- Web Portal ---'
+          cat /tmp/inno-web.log || true
+          echo '--- Keycloak ---'
+          docker compose -f infrastructure/docker/compose.yml logs keycloak || true
+
+      - name: Upload Playwright artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-e2e-artifacts
+          path: |
+            production/tests/e2e/playwright-report/
+            production/tests/e2e/test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Stop local stack
+        if: always()
+        run: docker compose -f infrastructure/docker/compose.yml down -v
