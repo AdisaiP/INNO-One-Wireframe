@@ -33,7 +33,7 @@ Exit criteria:
 
 Evidence: clean dependency reinstall followed by corepack pnpm run check passed on Windows with Node 22.15.1, pnpm 10.17.0 and .NET SDK 10.0.201; .NET build completed with 0 warnings and 0 errors.
 
-### CORE-002 CI baseline - IMPLEMENTED (branch protection pending)
+### CORE-002 CI baseline - COMPLETE (2026-10-14)
 Add CI for:
 - package build/typecheck
 - Web Portal production build
