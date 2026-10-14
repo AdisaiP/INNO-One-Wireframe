@@ -23,12 +23,27 @@ jobs:
     name: CORE baseline
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: inno_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d inno_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     defaults:
       run:
         working-directory: production
     env:
       DOTNET_CLI_TELEMETRY_OPTOUT: "1"
       DOTNET_NOLOGO: "1"
+      INNO_TEST_DATABASE: "Host=localhost;Port=5432;Database=inno_test;Username=postgres;Password=postgres"
 
     steps:
       - name: Checkout
@@ -77,3 +92,6 @@ jobs:
 
       - name: Build and typecheck CORE
         run: corepack pnpm run check
+
+      - name: Run Platform integration tests
+        run: dotnet test tests/integration/INNO.One.Platform.IntegrationTests/INNO.One.Platform.IntegrationTests.csproj --no-build --logger "console;verbosity=normal"
