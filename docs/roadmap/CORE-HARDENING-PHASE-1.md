@@ -164,7 +164,7 @@ Evidence: RequestContextMiddleware standardizes correlation/trace logging and re
 
 ## Phase 4 - Deployment hardening
 
-### CORE-040 Environment contract
+### CORE-040 Environment contract - COMPLETE (2026-10-14)
 Document and validate:
 - local/dev
 - test/UAT
@@ -177,7 +177,7 @@ Document and validate:
 - MeshCentral configuration
 - storage/database configuration
 
-### CORE-041 Database migration and rollback
+### CORE-041 Database migration and rollback - COMPLETE (2026-10-14)
 Define:
 - migration execution order
 - backup before destructive migration
@@ -185,7 +185,7 @@ Define:
 - fresh-environment bootstrap
 - upgrade from the current legacy deployment when required
 
-### CORE-042 Acceptance checklist
+### CORE-042 Acceptance checklist - COMPLETE (2026-10-14)
 Automate or document a deterministic production acceptance flow:
 - health endpoints
 - Keycloak discovery/sign-in

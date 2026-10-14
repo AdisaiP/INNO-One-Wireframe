@@ -87,6 +87,9 @@ jobs:
             fi
           fi
 
+      - name: Run deployment contract tests
+        run: python3 -m unittest discover -s tests/contract -p "test_*.py" -v
+
       - name: Install dependencies
         run: corepack pnpm install --frozen-lockfile
 

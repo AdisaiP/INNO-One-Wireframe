@@ -19,6 +19,9 @@ These defaults avoid the existing legacy `innoone` stack and allow acceptance be
 cd production/infrastructure/docker
 cp .env.production.example .env.production
 # Replace every CHANGE_ME value with a strong secret.
+cd ../..
+python3 scripts/production_preflight.py --env infrastructure/docker/.env.production
+cd infrastructure/docker
 ../../scripts/production-generate-tls.sh
 docker compose --env-file .env.production -f compose.production.yml config
 ```
@@ -63,6 +66,16 @@ curl --cacert tls/ca.crt -fsS https://172.10.1.58:8446/auth/realms/inno-one/.wel
 curl -kfsS https://172.10.1.58:8444/health.ashx
 ```
 
+From `production/`, run the repeatable acceptance script:
+
+```bash
+python3 scripts/production_acceptance.py \
+  --env infrastructure/docker/.env.production \
+  --ca infrastructure/docker/tls/ca.crt
+```
+
 Then verify a managed browser trusts `tls/ca.crt`, completes Keycloak PKCE sign-in over HTTPS, loads the Product shell, and can call the Product API.
+
+See `../deployment/README.md` for the environment, migration, rollback, and release-evidence contract.
 
 Do not retire `inno-one-step18` until the new stack passes runtime and browser acceptance. Do not remove old volumes until a rollback backup has been verified.
