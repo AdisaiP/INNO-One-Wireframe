@@ -1,3 +1,4 @@
+using INNO.One.Modules.Devices.Persistence;
 using INNO.One.Modules.Platform.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,7 +19,9 @@ public sealed class PlatformDatabaseFixture : IAsyncLifetime
         ?? throw new InvalidOperationException(
             $"{EnvironmentVariable} is required for integration tests and must point to a disposable PostgreSQL database.");
 
-    public PlatformDbContext CreateDbContext()
+    public PlatformDbContext CreateDbContext() => CreatePlatformDbContext();
+
+    public PlatformDbContext CreatePlatformDbContext()
     {
         var options = new DbContextOptionsBuilder<PlatformDbContext>()
             .UseNpgsql(
@@ -32,21 +35,49 @@ public sealed class PlatformDatabaseFixture : IAsyncLifetime
         return new PlatformDbContext(options);
     }
 
-    public async Task InitializeAsync()
+    public DevicesDbContext CreateDevicesDbContext()
     {
-        await ResetAsync();
+        var options = new DbContextOptionsBuilder<DevicesDbContext>()
+            .UseNpgsql(
+                ConnectionString,
+                npgsql => npgsql.MigrationsHistoryTable(
+                    "__ef_migrations_history",
+                    DevicesDbContext.Schema))
+            .UseSnakeCaseNamingConvention()
+            .Options;
+
+        return new DevicesDbContext(options);
     }
+
+    public Task InitializeAsync() => ResetAsync();
 
     public async Task DisposeAsync()
     {
-        await using var db = CreateDbContext();
-        await db.Database.EnsureDeletedAsync();
+        await DropSchemasAsync();
     }
 
     public async Task ResetAsync()
     {
-        await using var db = CreateDbContext();
-        await db.Database.EnsureDeletedAsync();
-        await db.Database.EnsureCreatedAsync();
+        await DropSchemasAsync();
+
+        await using (var platform = CreatePlatformDbContext())
+        {
+            await platform.Database.MigrateAsync();
+        }
+
+        await using (var devices = CreateDevicesDbContext())
+        {
+            await devices.Database.MigrateAsync();
+        }
+    }
+
+    private async Task DropSchemasAsync()
+    {
+        await using var db = CreatePlatformDbContext();
+        await db.Database.ExecuteSqlRawAsync(
+            """
+            DROP SCHEMA IF EXISTS devices CASCADE;
+            DROP SCHEMA IF EXISTS platform CASCADE;
+            """);
     }
 }

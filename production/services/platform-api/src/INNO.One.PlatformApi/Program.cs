@@ -156,3 +156,5 @@ api.MapReportsEndpoints();
 api.MapWorkflowEndpoints();
 
 app.Run();
+
+public partial class Program { }

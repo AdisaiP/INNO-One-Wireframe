@@ -291,6 +291,67 @@ public sealed class AccessEvaluatorIntegrationTests(PlatformDatabaseFixture data
         Assert.True(manageAccess.Allowed);
     }
 
+
+    [Fact]
+    public async Task EnabledModuleWithEntryPermission_IsAllowed()
+    {
+        await database.ResetAsync();
+        await using var db = database.CreateDbContext();
+        const string permission = "devices.view";
+        var user = User("subject-1", "active");
+        var role = Role("devices-reader");
+        var assignment = Assignment(user.Id, role.Id, "all");
+
+        db.AddRange(
+            user,
+            role,
+            Permission(permission),
+            new RolePermission { RoleId = role.Id, PermissionId = permission },
+            assignment,
+            new AppModule
+            {
+                Id = Guid.NewGuid(),
+                AppId = "devices",
+                Installed = true,
+                Enabled = true,
+                UpdatedAt = DateTimeOffset.UtcNow
+            });
+        await db.SaveChangesAsync();
+
+        var access = await new AccessEvaluator(db)
+            .EvaluateAsync(Principal(user.KeycloakSubject), permission);
+
+        Assert.True(access.Allowed);
+        Assert.True(access.AllResources);
+        Assert.Equal("ROLE_AND_SCOPE_MATCH", access.Reason);
+    }
+
+    [Fact]
+    public async Task EnabledModuleWithoutEntryPermission_IsDenied()
+    {
+        await database.ResetAsync();
+        await using var db = database.CreateDbContext();
+        var user = User("subject-1", "active");
+
+        db.AddRange(
+            user,
+            new AppModule
+            {
+                Id = Guid.NewGuid(),
+                AppId = "devices",
+                Installed = true,
+                Enabled = true,
+                UpdatedAt = DateTimeOffset.UtcNow
+            });
+        await db.SaveChangesAsync();
+
+        var access = await new AccessEvaluator(db)
+            .EvaluateAsync(Principal(user.KeycloakSubject), "devices.view");
+
+        Assert.False(access.Allowed);
+        Assert.Equal("PERMISSION_NOT_GRANTED", access.Reason);
+    }
+
     private static ClaimsPrincipal Principal(string subject) =>
         new(new ClaimsIdentity([new Claim("sub", subject)], "test"));
 

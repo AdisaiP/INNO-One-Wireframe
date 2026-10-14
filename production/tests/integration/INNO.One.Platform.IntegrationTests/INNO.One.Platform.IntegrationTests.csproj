@@ -10,6 +10,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio">
@@ -21,7 +22,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\services\platform-api\src\INNO.One.PlatformApi\INNO.One.PlatformApi.csproj" />
     <ProjectReference Include="..\..\..\services\platform-api\src\Modules\Platform\INNO.One.Modules.Platform.csproj" />
+    <ProjectReference Include="..\..\..\services\platform-api\src\Modules\Devices\INNO.One.Modules.Devices.csproj" />
   </ItemGroup>
 
   <ItemGroup>
