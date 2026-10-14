@@ -19,7 +19,7 @@ Do not expand module-specific product scope in this phase unless it is required 
 
 ## Phase 0 - Development baseline
 
-### CORE-001 Reproducible toolchain
+### CORE-001 Reproducible toolchain - COMPLETE (2026-10-14)
 - Use the repository-pinned Node/pnpm versions.
 - Make pnpm available through Corepack on developer machines.
 - Install the .NET SDK expected by `production/global.json` (10.0.103) or deliberately revise the repository SDK policy in a separate reviewed change.
@@ -30,6 +30,8 @@ Exit criteria:
 - TypeScript packages build
 - Web Portal typecheck/build passes
 - .NET solution builds
+
+Evidence: clean dependency reinstall followed by corepack pnpm run check passed on Windows with Node 22.15.1, pnpm 10.17.0 and .NET SDK 10.0.201; .NET build completed with 0 warnings and 0 errors.
 
 ### CORE-002 CI baseline
 Add CI for:
