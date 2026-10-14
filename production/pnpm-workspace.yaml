@@ -3,6 +3,7 @@ packages:
   - 'apps/endpoint-agent'
   - 'apps/assets-mobile'
   - 'packages/*'
+  - 'tests/e2e'
 
 onlyBuiltDependencies:
   - esbuild
