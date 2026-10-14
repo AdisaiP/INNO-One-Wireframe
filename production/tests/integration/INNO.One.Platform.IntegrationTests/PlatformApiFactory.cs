@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text.Encodings.Web;
+using INNO.One.Contracts.Integrations;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -16,8 +17,13 @@ public sealed class PlatformApiFactory : WebApplicationFactory<Program>
 {
     public const string AuthenticationScheme = "IntegrationTest";
 
-    public PlatformApiFactory(string connectionString)
+    private readonly IReadOnlyList<IntegrationHealthSnapshot>? _healthSnapshots;
+
+    public PlatformApiFactory(
+        string connectionString,
+        IReadOnlyList<IntegrationHealthSnapshot>? healthSnapshots = null)
     {
+        _healthSnapshots = healthSnapshots;
         Environment.SetEnvironmentVariable("ConnectionStrings__CoreDatabase", connectionString);
         Environment.SetEnvironmentVariable("Database__ApplyMigrationsOnStartup", "false");
         Environment.SetEnvironmentVariable("DevelopmentSeed__Enabled", "false");
@@ -41,6 +47,16 @@ public sealed class PlatformApiFactory : WebApplicationFactory<Program>
                 .AddScheme<AuthenticationSchemeOptions, IntegrationTestAuthHandler>(
                     AuthenticationScheme,
                     _ => { });
+
+            if (_healthSnapshots is not null)
+            {
+                services.RemoveAll<IIntegrationHealthProvider>();
+                foreach (var snapshot in _healthSnapshots)
+                {
+                    services.AddSingleton<IIntegrationHealthProvider>(
+                        new StaticIntegrationHealthProvider(snapshot));
+                }
+            }
         });
     }
 }
@@ -67,4 +83,14 @@ public sealed class IntegrationTestAuthHandler(
 
         return Task.FromResult(AuthenticateResult.Success(ticket));
     }
+}
+
+internal sealed class StaticIntegrationHealthProvider(IntegrationHealthSnapshot snapshot)
+    : IIntegrationHealthProvider
+{
+    public string Id => snapshot.Id;
+
+    public Task<IntegrationHealthSnapshot> CheckAsync(
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult(snapshot);
 }

@@ -87,12 +87,12 @@ Exit criteria for Phase 1:
 
 ## Phase 2 - Golden-path E2E
 
-### CORE-020 E2E framework
+### CORE-020 E2E framework - COMPLETE (2026-10-14)
 Create the first real suite under `production/tests/e2e`.
 
 Recommended first surface: Web Portal.
 
-### CORE-021 Sign-in to workspace
+### CORE-021 Sign-in to workspace - COMPLETE (2026-10-14)
 Golden path:
 1. Keycloak sign-in
 2. application-user validation
@@ -100,7 +100,7 @@ Golden path:
 4. permitted apps are visible
 5. user can open an allowed module
 
-### CORE-022 Admin access assignment
+### CORE-022 Admin access assignment - COMPLETE (API-host golden path, 2026-10-14)
 Golden path:
 1. admin opens a user/access assignment
 2. assigns role and resource scope
@@ -108,7 +108,7 @@ Golden path:
 4. allowed route succeeds
 5. out-of-scope route is denied
 
-### CORE-023 Audit golden path
+### CORE-023 Audit golden path - COMPLETE (API-host golden path, 2026-10-14)
 Golden path:
 1. perform an auditable privileged action
 2. audit record is written
@@ -120,16 +120,18 @@ Exit criteria for Phase 2:
 - one admin authorization-change flow is automated
 - one auditable action is automated
 
+Evidence: Playwright auth-workspace.spec.ts covers Keycloak sign-in -> Workspace -> Apps -> Devices. AdminAccessAuditGoldenPathTests exercises assignment update -> effective access -> searchable audit with correlation/trace through the real Platform API test host and PostgreSQL. CORE E2E and CORE CI were green at commit d24f68f.
+
 ## Phase 3 - Observability baseline
 
-### CORE-030 Correlation and trace propagation
+### CORE-030 Correlation and trace propagation - COMPLETE (2026-10-14)
 Standardize:
 - correlation ID
 - trace ID
 - request logging context
 - propagation through internal adapters where applicable
 
-### CORE-031 Structured logging
+### CORE-031 Structured logging - COMPLETE (2026-10-14)
 Minimum useful fields:
 - timestamp
 - level
@@ -143,7 +145,7 @@ Minimum useful fields:
 
 Do not log secrets, access tokens, passwords, or sensitive request payloads.
 
-### CORE-032 Health model
+### CORE-032 Health model - COMPLETE (2026-10-14)
 Define and test:
 - liveness
 - readiness
@@ -157,6 +159,8 @@ Remain OpenTelemetry-compatible without forcing a monitoring vendor yet.
 Exit criteria for Phase 3:
 - an operator can determine where a failed request failed
 - unhealthy dependencies are visible through a consistent health model
+
+Evidence: RequestContextMiddleware standardizes correlation/trace logging and response headers. ReadinessIntegrationTests covers ready, missing required dependency, disconnected required dependency, and disconnected enabled optional dependency; 4/4 passed locally on 2026-10-14.
 
 ## Phase 4 - Deployment hardening
 
