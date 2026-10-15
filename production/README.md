@@ -80,6 +80,10 @@ corepack pnpm build:dotnet
 
 The Web Portal development server uses the configured Vite port (currently 5180 unless overridden).
 
+## Developer onboarding
+
+Engineers extending INNO.One should start with the [Developer Enablement Kit](docs/developer-enablement/README.md). It documents the approved stack, architecture, backend/frontend conventions, module integration rules, UX/UI requirements, testing workflow, skills matrix, and new-module checklist.
+
 ## Architecture rule
 
 The Platform CORE provides shared capabilities and contracts. Product modules own their domain and persistence boundaries and should integrate through approved contracts/events rather than direct cross-module persistence coupling.
